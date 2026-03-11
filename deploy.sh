@@ -8,6 +8,9 @@ DOMAIN="chhattisgarhshadi.com"
 
 echo "🚀 Starting Deployment for $DOMAIN"
 
+# 0. Stop on error
+set -e
+
 # 1. Ensure Directory Exists
 if [ ! -d "$PROJECT_DIR" ]; then
     echo "📂 Creating directory $PROJECT_DIR..."
@@ -23,8 +26,8 @@ fi
 cd $PROJECT_DIR
 
 # 2. Install Dependencies
-echo "📦 Installing dependencies..."
-npm install
+echo "📦 Installing dependencies (with --legacy-peer-deps)..."
+npm install --legacy-peer-deps
 
 # 3. Create/Update .env file
 # Note: You should manually edit this file on the VPS to include your production secrets

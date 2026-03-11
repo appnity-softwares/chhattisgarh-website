@@ -1,0 +1,44 @@
+{
+    "name": "Chhattisgarh Shaadi",
+    "short_name": "CG Shaadi",
+    "description": "छत्तीसगढ़ियों का अपना विवाह मंच - Find your perfect life partner from Chhattisgarh",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#e11d48",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "lang": "hi-IN",
+    "categories": [
+        "lifestyle",
+        "social"
+    ],
+    "icons": [
+        {
+            "src": "/favicon.ico",
+            "sizes": "48x48",
+            "type": "image/x-icon"
+        },
+        {
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "screenshots": [],
+    "prefer_related_applications": true,
+    "related_applications": [
+        {
+            "platform": "play",
+            "url": "https://play.google.com/store/apps/details?id=com.chhattisgarhshadi",
+            "id": "com.chhattisgarhshadi"
+        }
+    ]
+}

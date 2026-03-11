@@ -1,0 +1,164 @@
+import { Metadata } from "next";
+import { Navbar } from "@/components/layout/navbar";
+import { Footer } from "@/components/layout/footer";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
+
+export const metadata: Metadata = {
+    title: "नियम एवं शर्तें | Terms & Conditions",
+    description: "ChhattisgarhShadi.com के नियम एवं शर्तें - सेवा का उपयोग करने से पहले कृपया ध्यान से पढ़ें।",
+};
+
+export default function TermsPage() {
+    return (
+        <div className="flex min-h-screen flex-col">
+            <Navbar />
+            <main className="flex-1">
+                {/* Hero */}
+                <section className="py-16 bg-gradient-to-b from-primary/5 to-background">
+                    <div className="container mx-auto px-4 text-center">
+                        <h1 className="text-4xl md:text-5xl font-bold font-headline mb-4">
+                            नियम एवं शर्तें
+                        </h1>
+                        <p className="text-xl text-muted-foreground">
+                            Terms & Conditions
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-2">
+                            अंतिम अपडेट: 2025
+                        </p>
+                    </div>
+                </section>
+
+                {/* Content */}
+                <section className="py-16">
+                    <div className="container mx-auto px-4 max-w-4xl">
+                        <div className="mb-8 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg flex items-start gap-3">
+                            <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                            <p className="text-sm text-amber-900 dark:text-amber-200">
+                                ChhattisgarhShadi.com ("हम", "हमारा प्लेटफ़ॉर्म") का उपयोग करने पर आप नीचे दी गई सभी शर्तों का पालन करने के लिए सहमत होते हैं। यदि आप इन शर्तों से सहमत नहीं हैं, कृपया वेबसाइट/ऐप का उपयोग न करें।
+                            </p>
+                        </div>
+
+                        <div className="prose prose-lg max-w-none space-y-8">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>1. सेवा का उद्देश्य</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p>ChhattisgarhShadi.com एक ऑनलाइन मैट्रिमोनियल प्लेटफ़ॉर्म है जिसका उद्देश्य योग्य व्यक्तियों को जीवनसाथी खोजने में सहायता करना है। हम किसी भी प्रकार की शादी की गारंटी नहीं देते।</p>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>2. अकाउंट बनाना</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-2">
+                                    <ul className="list-disc pl-6 space-y-2">
+                                        <li>उपयोगकर्ता को अपना अकाउंट बनाने के लिए सही, पूर्ण और वास्तविक जानकारी देनी होगी।</li>
+                                        <li>प्रोफ़ाइल में गलत जानकारी देना, किसी और की पहचान का उपयोग करना कानूनन अपराध है।</li>
+                                        <li>एक व्यक्ति केवल एक ही अकाउंट बना सकता है।</li>
+                                    </ul>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>3. प्रोफाइल व कंटेंट</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-2">
+                                    <ul className="list-disc pl-6 space-y-2">
+                                        <li>आप द्वारा डाली गई सभी जानकारी, फ़ोटो और डॉक्यूमेंट आपकी जिम्मेदारी पर होंगे।</li>
+                                        <li>आप यह सुनिश्चित करते हैं कि आपका कंटेंट किसी की भावनाओं को ठेस नहीं पहुंचाएगा और किसी भी कानून का उल्लंघन नहीं करेगा।</li>
+                                        <li>अश्लील, आक्रामक, हिंसक या गलत जानकारी वाली प्रोफ़ाइल को बिना सूचना हटाया जा सकता है।</li>
+                                    </ul>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>4. सदस्यता/प्लान</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-2">
+                                    <ul className="list-disc pl-6 space-y-2">
+                                        <li>यदि आप कोई प्रीमियम प्लान खरीदते हैं, तो प्लान की फीस नॉन-रिफंडेबल है (जब तक कि वेबसाइट पर अलग से उल्लेख न हो)।</li>
+                                        <li>सेवा की सुविधाएँ समय–समय पर बदली जा सकती हैं।</li>
+                                    </ul>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>5. अन्य उपयोगकर्ताओं से संपर्क</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-2">
+                                    <ul className="list-disc pl-6 space-y-2">
+                                        <li>उपयोगकर्ता स्वयं अपने विवेक से किसी भी व्यक्ति से संपर्क करता है।</li>
+                                        <li>किसी प्रकार की वित्तीय लेनदेन, धोखाधड़ी या विवाद में ChhattisgarhShadi.com जिम्मेदार नहीं होगा।</li>
+                                    </ul>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>6. प्रतिबंध</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-2">
+                                    <p className="font-semibold">प्लेटफ़ॉर्म पर निम्न कार्य सख्त वर्जित हैं:</p>
+                                    <ul className="list-disc pl-6 space-y-2">
+                                        <li>किसी भी प्रकार का स्पैम, विज्ञापन या गैर–संबंधित संदेश भेजना</li>
+                                        <li>किसी व्यक्ति को परेशान करना, धमकी देना या अनैतिक व्यवहार</li>
+                                        <li>प्लेटफ़ॉर्म का विवाह से अलग किसी अन्य उद्देश्य के लिए उपयोग</li>
+                                    </ul>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>7. अकाउंट समाप्ति</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-2">
+                                    <p>हम किसी भी उपयोगकर्ता का अकाउंट निम्न कारणों से समाप्त कर सकते हैं:</p>
+                                    <ul className="list-disc pl-6 space-y-2">
+                                        <li>गलत जानकारी देना</li>
+                                        <li>नियमों का उल्लंघन</li>
+                                        <li>कोई अवैध गतिविधि</li>
+                                    </ul>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>8. दायित्व सीमा (Limitation of Liability)</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-2">
+                                    <p>ChhattisgarhShadi.com किसी भी तरह की शादी, संबंध, मुलाकात या वित्तीय लेनदेन की गारंटी नहीं देता।</p>
+                                    <p className="font-semibold">सभी निर्णय उपयोगकर्ता की अपनी जिम्मेदारी पर होते हैं।</p>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>9. नियमों में बदलाव</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p>हम समय–समय पर इन नियमों में बदलाव कर सकते हैं। नवीनतम नियम हमारी वेबसाइट/ऐप पर उपलब्ध होंगे।</p>
+                                </CardContent>
+                            </Card>
+
+                            <div className="mt-12 p-6 bg-muted/50 rounded-lg">
+                                <p className="text-sm text-muted-foreground">
+                                    किसी भी सवाल के लिए संपर्क करें:{" "}
+                                    <a href="mailto:Chhattisgarhshadi@gmail.com" className="text-primary hover:underline">
+                                        Chhattisgarhshadi@gmail.com
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+            <Footer />
+        </div>
+    );
+}

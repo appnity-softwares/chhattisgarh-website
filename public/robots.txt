@@ -1,0 +1,25 @@
+# Robots.txt for Chhattisgarh Shaadi
+# https://www.chhattisgarhshadi.com
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin-secure-login
+Disallow: /my-stats
+Disallow: /api/
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://www.chhattisgarhshadi.com/sitemap.xml
+
+# Block common bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /

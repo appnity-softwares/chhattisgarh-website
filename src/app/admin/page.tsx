@@ -125,7 +125,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                     {statsCards.map(stat => (
                         <Card key={stat.title}>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -147,9 +147,9 @@ export default function AdminPage() {
                 </div>
 
                 {/* Charts Row */}
-                <div className="grid gap-6 md:grid-cols-7">
+                <div className="grid gap-6 grid-cols-1 md:grid-cols-7">
                     {/* Revenue Chart - Takes up 4 columns */}
-                    <Card className="col-span-4">
+                    <Card className="col-span-1 md:col-span-4">
                         <CardHeader>
                             <CardTitle>Revenue Overview</CardTitle>
                             <CardDescription>Monthly revenue for the last 6 months</CardDescription>
@@ -180,7 +180,7 @@ export default function AdminPage() {
                     </Card>
 
                     {/* Signups by District - Takes up 3 columns */}
-                    <Card className="col-span-3">
+                    <Card className="col-span-1 md:col-span-3">
                         <CardHeader>
                             <CardTitle>Top Districts</CardTitle>
                             <CardDescription>User registrations by district</CardDescription>
@@ -206,9 +206,9 @@ export default function AdminPage() {
                 </div>
 
                 {/* Bottom Row - Subscription & Recent Users */}
-                <div className="grid gap-6 md:grid-cols-7">
+                <div className="grid gap-6 grid-cols-1 md:grid-cols-7">
                     {/* Subscription Distribution - Takes up 3 columns */}
-                    <Card className="col-span-3">
+                    <Card className="col-span-1 md:col-span-3">
                         <CardHeader>
                             <CardTitle>Subscription Plans</CardTitle>
                             <CardDescription>Distribution of active subscriptions</CardDescription>
@@ -249,7 +249,7 @@ export default function AdminPage() {
                     </Card>
 
                     {/* Recent Registrations - Takes up 4 columns */}
-                    <Card className="col-span-4">
+                    <Card className="col-span-1 md:col-span-4">
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle>Recent Registrations</CardTitle>
                             <Link href="/admin/users">

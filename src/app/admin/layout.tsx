@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -60,6 +60,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
   const { toast } = useToast();
   const { user, accessToken, refreshToken, logout, isAuthenticated } = useAuthStore();
+  const [isChecking, setIsChecking] = React.useState(true);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/admin-secure-login');
+    } else {
+      setIsChecking(false);
+    }
+  }, [isAuthenticated, router]);
+
+  if (!isAuthenticated && isChecking) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary"></div>
+      </div>
+    );
+  }
 
   const handleLogout = async () => {
     try {

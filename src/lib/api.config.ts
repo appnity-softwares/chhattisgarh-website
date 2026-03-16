@@ -50,6 +50,14 @@ export const apiConfig = {
             messageById: (id: string) => `/contact/${id}`,
             updateStatus: (id: string) => `/contact/${id}/status`,
         },
+        // FAQ
+        faq: {
+            public: '/faq',
+            admin: '/faq/admin',
+            create: '/faq',
+            update: (id: number) => `/faq/${id}`,
+            delete: (id: number) => `/faq/${id}`,
+        },
     },
 };
 

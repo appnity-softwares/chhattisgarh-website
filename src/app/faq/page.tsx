@@ -1,4 +1,6 @@
-import { Metadata } from "next";
+'use client';
+
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import {
@@ -8,13 +10,85 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, HelpCircle, Shield, Heart, Crown, MapPin, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
-export const metadata: Metadata = {
-    title: "सामान्य प्रश्न | FAQ",
-    description: "ChhattisgarhShadi.com के बारे में अक्सर पूछे जाने वाले प्रश्नों के उत्तर - पंजीकरण, सदस्यता, सुरक्षा और अधिक।",
+// Types
+interface FAQ {
+    id: number;
+    key: string;
+    question: string;
+    questionHi: string;
+    answer: string;
+    answerHi: string;
+    faqCategory: string;
+    order: number;
+}
+
+// Category icons and colors
+const CATEGORY_CONFIG: Record<string, { icon: React.ReactNode; color: string; gradient: string }> = {
+    'General': { icon: <HelpCircle className="w-5 h-5" />, color: 'text-orange-600', gradient: 'from-orange-50 to-orange-100/50' },
+    'Account & Profile': { icon: <HelpCircle className="w-5 h-5" />, color: 'text-orange-600', gradient: 'from-orange-50 to-orange-100/50' },
+    'Privacy & Security': { icon: <Shield className="w-5 h-5" />, color: 'text-green-600', gradient: 'from-green-50 to-green-100/50' },
+    'Matches & Interests': { icon: <Heart className="w-5 h-5" />, color: 'text-pink-600', gradient: 'from-pink-50 to-pink-100/50' },
+    'Premium & Payments': { icon: <Crown className="w-5 h-5" />, color: 'text-amber-600', gradient: 'from-amber-50 to-amber-100/50' },
+    'Chhattisgarh Specific': { icon: <MapPin className="w-5 h-5" />, color: 'text-blue-600', gradient: 'from-blue-50 to-blue-100/50' },
 };
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://api.chhattisgarhshadi.com/api/v1';
+
+// Hardcoded fallback FAQs (used when API is unavailable)
+const FALLBACK_FAQS: FAQ[] = [
+    { id: 1, key: 'f1', question: 'ChhattisgarhShadi.com क्या है?', questionHi: '', answer: 'ChhattisgarhShadi.com छत्तीसगढ़ का सबसे भरोसेमंद ऑनलाइन मैट्रिमोनियल प्लेटफ़ॉर्म है। हम छत्तीसगढ़ और आसपास के क्षेत्रों के लोगों को अपना सही जीवनसाथी खोजने में मदद करते हैं।', answerHi: '', faqCategory: 'General', order: 1 },
+    { id: 2, key: 'f2', question: 'क्या यह सेवा मुफ्त है?', questionHi: '', answer: 'हाँ, बेसिक सदस्यता पूरी तरह मुफ्त है। आप अपनी प्रोफाइल बना सकते हैं, मैच देख सकते हैं और सीमित संख्या में इंटरेस्ट भेज सकते हैं। अधिक सुविधाओं के लिए प्रीमियम सदस्यता उपलब्ध है।', answerHi: '', faqCategory: 'General', order: 2 },
+    { id: 3, key: 'f3', question: 'पंजीकरण कैसे करें?', questionHi: '', answer: 'ऐप डाउनलोड करें, अपने Google खाते से साइन इन करें, अपनी बेसिक जानकारी भरें, फोन नंबर वेरीफाई करें, और अपनी प्रोफाइल पूरी करें!', answerHi: '', faqCategory: 'General', order: 3 },
+    { id: 4, key: 'f4', question: 'प्रीमियम सदस्यता के क्या फायदे हैं?', questionHi: '', answer: 'असीमित मैच रिक्वेस्ट, डायरेक्ट मैसेजिंग, प्रोफाइल विजिटर्स देखें, असीमित शॉर्टलिस्ट, और प्राथमिकता सपोर्ट।', answerHi: '', faqCategory: 'Premium & Payments', order: 4 },
+    { id: 5, key: 'f5', question: 'मेरी जानकारी कितनी सुरक्षित है?', questionHi: '', answer: 'आपकी सुरक्षा हमारी प्राथमिकता है। हम आपके डेटा को एन्क्रिप्टेड सर्वर पर सुरक्षित रखते हैं। आपकी व्यक्तिगत जानकारी केवल आपकी अनुमति से ही साझा होती है।', answerHi: '', faqCategory: 'Privacy & Security', order: 5 },
+    { id: 6, key: 'f6', question: 'प्रोफाइल कैसे डिलीट करें?', questionHi: '', answer: 'ऐप में Settings में जाएं और "Delete Account" ऑप्शन चुनें। एक बार अकाउंट डिलीट होने पर, आपकी सभी जानकारी स्थायी रूप से हटा दी जाएगी।', answerHi: '', faqCategory: 'General', order: 6 },
+];
+
 export default function FAQPage() {
+    const [faqs, setFaqs] = useState<FAQ[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [search, setSearch] = useState('');
+
+    useEffect(() => {
+        const fetchFAQs = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/faq`);
+                const data = await res.json();
+                if (data.success && data.data?.faqs?.length > 0) {
+                    setFaqs(data.data.faqs);
+                } else {
+                    setFaqs(FALLBACK_FAQS);
+                }
+            } catch {
+                setFaqs(FALLBACK_FAQS);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchFAQs();
+    }, []);
+
+    // Filter by search
+    const filteredFaqs = search.trim()
+        ? faqs.filter(f =>
+            f.question.toLowerCase().includes(search.toLowerCase()) ||
+            f.answer.toLowerCase().includes(search.toLowerCase()) ||
+            f.questionHi?.toLowerCase().includes(search.toLowerCase())
+        )
+        : faqs;
+
+    // Group by category
+    const grouped: Record<string, FAQ[]> = {};
+    for (const faq of filteredFaqs) {
+        const cat = faq.faqCategory || 'General';
+        if (!grouped[cat]) grouped[cat] = [];
+        grouped[cat].push(faq);
+    }
+
     return (
         <div className="flex min-h-screen flex-col">
             <Navbar />
@@ -31,203 +105,76 @@ export default function FAQPage() {
                         <p className="text-sm text-muted-foreground mt-2 max-w-2xl mx-auto">
                             छत्तीसगढ़ शादी के बारे में अक्सर पूछे जाने वाले प्रश्नों के उत्तर
                         </p>
+
+                        {/* Search Bar */}
+                        <div className="max-w-md mx-auto mt-8 relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                            <Input
+                                placeholder="Search questions..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="pl-10 h-12 rounded-xl border-2 focus:border-primary"
+                            />
+                        </div>
                     </div>
                 </section>
 
                 {/* FAQ Content */}
                 <section className="py-16">
                     <div className="container mx-auto px-4 max-w-4xl">
-                        <Accordion type="single" collapsible className="space-y-4">
-                            {/* General Questions */}
-                            <Card className="p-1">
-                                <AccordionItem value="item-1" className="border-0">
-                                    <AccordionTrigger className="px-6 hover:no-underline">
-                                        <span className="text-left font-semibold">
-                                            1. ChhattisgarhShadi.com क्या है?
-                                        </span>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="px-6 pb-6 text-muted-foreground">
-                                        ChhattisgarhShadi.com छत्तीसगढ़ का सबसे भरोसेमंद ऑनलाइन मैट्रिमोनियल प्लेटफ़ॉर्म है।
-                                        हम छत्तीसगढ़ और आसपास के क्षेत्रों के लोगों को अपना सही जीवनसाथी खोजने में मदद करते हैं।
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Card>
+                        {loading ? (
+                            <div className="flex justify-center py-20">
+                                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                            </div>
+                        ) : filteredFaqs.length === 0 ? (
+                            <div className="text-center py-20">
+                                <HelpCircle className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
+                                <p className="text-lg text-muted-foreground">
+                                    {search ? 'No questions match your search.' : 'No FAQs available yet.'}
+                                </p>
+                            </div>
+                        ) : (
+                            Object.entries(grouped).map(([category, items]) => {
+                                const config = CATEGORY_CONFIG[category] || CATEGORY_CONFIG['General']!;
+                                return (
+                                    <div key={category} className="mb-10">
+                                        {/* Category Header */}
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className={`p-2 rounded-lg bg-gradient-to-br ${config.gradient}`}>
+                                                <span className={config.color}>{config.icon}</span>
+                                            </div>
+                                            <h2 className="text-xl font-bold">{category}</h2>
+                                            <Badge variant="secondary" className="ml-auto">
+                                                {items.length}
+                                            </Badge>
+                                        </div>
 
-                            <Card className="p-1">
-                                <AccordionItem value="item-2" className="border-0">
-                                    <AccordionTrigger className="px-6 hover:no-underline">
-                                        <span className="text-left font-semibold">
-                                            2. क्या यह सेवा मुफ्त है?
-                                        </span>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="px-6 pb-6 text-muted-foreground">
-                                        हाँ, बेसिक सदस्यता पूरी तरह मुफ्त है। आप अपनी प्रोफाइल बना सकते हैं, मैच देख सकते हैं और
-                                        सीमित संख्या में इंटरेस्ट भेज सकते हैं। अधिक सुविधाओं के लिए प्रीमियम सदस्यता उपलब्ध है।
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Card>
-
-                            <Card className="p-1">
-                                <AccordionItem value="item-3" className="border-0">
-                                    <AccordionTrigger className="px-6 hover:no-underline">
-                                        <span className="text-left font-semibold">
-                                            3. पंजीकरण कैसे करें?
-                                        </span>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="px-6 pb-6 text-muted-foreground">
-                                        <ol className="list-decimal pl-6 space-y-2">
-                                            <li>हमारी वेबसाइट या ऐप पर जाएं</li>
-                                            <li>अपने Google खाते से साइन इन करें</li>
-                                            <li>अपनी बेसिक जानकारी भरें</li>
-                                            <li>फोन नंबर वेरीफाई करें</li>
-                                            <li>अपनी प्रोफाइल पूरी करें और मैच खोजना शुरू करें!</li>
-                                        </ol>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Card>
-
-                            {/* Premium Membership */}
-                            <Card className="p-1">
-                                <AccordionItem value="item-4" className="border-0">
-                                    <AccordionTrigger className="px-6 hover:no-underline">
-                                        <span className="text-left font-semibold">
-                                            4. प्रीमियम सदस्यता के क्या फायदे हैं?
-                                        </span>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="px-6 pb-6 text-muted-foreground">
-                                        <p className="mb-2">प्रीमियम सदस्यता से आपको मिलता है:</p>
-                                        <ul className="list-disc pl-6 space-y-1">
-                                            <li>असीमित मैच रिक्वेस्ट भेजें</li>
-                                            <li>डायरेक्ट मैसेजिंग की सुविधा</li>
-                                            <li>प्रोफाइल विजिटर्स देखें</li>
-                                            <li>असीमित शॉर्टलिस्ट</li>
-                                            <li>प्राथमिकता सपोर्ट</li>
-                                        </ul>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Card>
-
-                            <Card className="p-1">
-                                <AccordionItem value="item-5" className="border-0">
-                                    <AccordionTrigger className="px-6 hover:no-underline">
-                                        <span className="text-left font-semibold">
-                                            5. प्रीमियम प्लान की कीमत क्या है?
-                                        </span>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="px-6 pb-6 text-muted-foreground">
-                                        हमारे पास अलग-अलग प्लान उपलब्ध हैं। वर्तमान कीमत और ऑफर देखने के लिए ऐप में
-                                        प्रीमियम सेक्शन देखें या हमसे संपर्क करें।
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Card>
-
-                            {/* Safety & Privacy */}
-                            <Card className="p-1">
-                                <AccordionItem value="item-6" className="border-0">
-                                    <AccordionTrigger className="px-6 hover:no-underline">
-                                        <span className="text-left font-semibold">
-                                            6. मेरी जानकारी कितनी सुरक्षित है?
-                                        </span>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="px-6 pb-6 text-muted-foreground">
-                                        आपकी सुरक्षा हमारी प्राथमिकता है। हम आपके डेटा को एन्क्रिप्टेड सर्वर पर सुरक्षित रखते हैं।
-                                        आपकी व्यक्तिगत जानकारी (जैसे फोन नंबर, पता) केवल आपकी अनुमति से ही साझा होती है।
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Card>
-
-                            <Card className="p-1">
-                                <AccordionItem value="item-7" className="border-0">
-                                    <AccordionTrigger className="px-6 hover:no-underline">
-                                        <span className="text-left font-semibold">
-                                            7. प्रोफाइल वेरीफिकेशन कैसे होता है?
-                                        </span>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="px-6 pb-6 text-muted-foreground">
-                                        हम सभी प्रोफाइल की समीक्षा करते हैं। आप अपने डॉक्यूमेंट (आधार कार्ड, पैन कार्ड)
-                                        अपलोड करके अपनी प्रोफाइल को वेरीफाई करा सकते हैं। वेरीफाइड प्रोफाइल को विशेष बैज मिलता है।
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Card>
-
-                            {/* Matching & Communication */}
-                            <Card className="p-1">
-                                <AccordionItem value="item-8" className="border-0">
-                                    <AccordionTrigger className="px-6 hover:no-underline">
-                                        <span className="text-left font-semibold">
-                                            8. मैच कैसे खोजें?
-                                        </span>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="px-6 pb-6 text-muted-foreground">
-                                        हमारा ऐप आपकी पसंद के आधार पर स्वचालित रूप से मैच सुझाता है। आप फिल्टर का उपयोग करके
-                                        उम्र, धर्म, जाति, शिक्षा, व्यवसाय आदि के आधार पर भी खोज सकते हैं।
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Card>
-
-                            <Card className="p-1">
-                                <AccordionItem value="item-9" className="border-0">
-                                    <AccordionTrigger className="px-6 hover:no-underline">
-                                        <span className="text-left font-semibold">
-                                            9. मैसेजिंग कैसे करें?
-                                        </span>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="px-6 pb-6 text-muted-foreground">
-                                        जब दोनों यूजर एक-दूसरे को इंटरेस्ट भेजते हैं और स्वीकार करते हैं, तो वे डायरेक्ट मैसेज कर सकते हैं।
-                                        प्रीमियम यूजर को मैसेजिंग की अधिक सुविधाएं मिलती हैं।
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Card>
-
-                            {/* Technical Support */}
-                            <Card className="p-1">
-                                <AccordionItem value="item-10" className="border-0">
-                                    <AccordionTrigger className="px-6 hover:no-underline">
-                                        <span className="text-left font-semibold">
-                                            10. अगर कोई समस्या हो तो क्या करें?
-                                        </span>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="px-6 pb-6 text-muted-foreground">
-                                        <p className="mb-2">आप हमसे निम्न माध्यमों से संपर्क कर सकते हैं:</p>
-                                        <ul className="list-disc pl-6 space-y-1">
-                                            <li>ईमेल: <a href="mailto:Chhattisgarhshadi@gmail.com" className="text-primary hover:underline">Chhattisgarhshadi@gmail.com</a></li>
-                                            <li>समय: सोमवार - शनिवार, 10:00 AM - 6:00 PM</li>
-                                        </ul>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Card>
-
-                            <Card className="p-1">
-                                <AccordionItem value="item-11" className="border-0">
-                                    <AccordionTrigger className="px-6 hover:no-underline">
-                                        <span className="text-left font-semibold">
-                                            11. प्रोफाइल कैसे डिलीट करें?
-                                        </span>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="px-6 pb-6 text-muted-foreground">
-                                        ऐप में Settings में जाएं और "Delete Account" ऑप्शन चुनें। एक बार अकाउंट डिलीट होने पर,
-                                        आपकी सभी जानकारी स्थायी रूप से हटा दी जाएगी।
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Card>
-
-                            <Card className="p-1">
-                                <AccordionItem value="item-12" className="border-0">
-                                    <AccordionTrigger className="px-6 hover:no-underline">
-                                        <span className="text-left font-semibold">
-                                            12. क्या मैं वेबसाइट और ऐप दोनों का उपयोग कर सकता हूं?
-                                        </span>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="px-6 pb-6 text-muted-foreground">
-                                        हाँ! आप वेबसाइट पर अपने स्टेट्स देख सकते हैं, लेकिन पूर्ण सुविधाओं के लिए मोबाइल ऐप का उपयोग
-                                        करें।
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Card>
-                        </Accordion>
+                                        <Accordion type="single" collapsible className="space-y-3">
+                                            {items.map((faq, index) => (
+                                                <Card key={faq.id} className="p-1 transition-shadow hover:shadow-md">
+                                                    <AccordionItem value={`faq-${faq.id}`} className="border-0">
+                                                        <AccordionTrigger className="px-6 hover:no-underline">
+                                                            <span className="text-left font-semibold flex items-center gap-3">
+                                                                <span className={`text-sm font-bold ${config.color} opacity-60`}>
+                                                                    {String(index + 1).padStart(2, '0')}
+                                                                </span>
+                                                                {faq.question}
+                                                            </span>
+                                                        </AccordionTrigger>
+                                                        <AccordionContent className="px-6 pb-6 text-muted-foreground whitespace-pre-line">
+                                                            {faq.answer}
+                                                        </AccordionContent>
+                                                    </AccordionItem>
+                                                </Card>
+                                            ))}
+                                        </Accordion>
+                                    </div>
+                                );
+                            })
+                        )}
 
                         {/* Still Have Questions */}
-                        <div className="mt-12 text-center p-8 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg">
+                        <div className="mt-12 text-center p-8 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl border">
                             <h2 className="text-2xl font-bold mb-4">अभी भी प्रश्न हैं?</h2>
                             <p className="text-muted-foreground mb-6">
                                 हमारी टीम आपकी मदद के लिए तैयार है

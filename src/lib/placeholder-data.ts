@@ -129,5 +129,6 @@ export const adminNavItems = [
   { href: '/admin/reports', label: 'Reports' },
   { href: '/admin/messages', label: 'Messages' },
   { href: '/admin/subscriptions', label: 'Subscriptions' },
+  { href: '/admin/faqs', label: 'FAQs' },
   { href: '/admin/settings', label: 'Settings' },
 ];

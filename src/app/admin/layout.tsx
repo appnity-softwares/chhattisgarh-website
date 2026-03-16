@@ -26,7 +26,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Bell, LogOut, BarChart, Users, Shield, FileWarning, Briefcase, DollarSign, LineChart, BadgeCheck, ClipboardList, FileText, Mail, Settings } from 'lucide-react';
+import { Bell, LogOut, BarChart, Users, Shield, FileWarning, Briefcase, DollarSign, LineChart, BadgeCheck, ClipboardList, FileText, Mail, Settings, HelpCircle } from 'lucide-react';
 import { adminNavItems } from '@/lib/placeholder-data';
 import { LanguageSwitcher } from '@/components/layout/language-switcher';
 import { useAuthStore } from '@/stores/auth-store';
@@ -51,6 +51,7 @@ const getIconForRoute = (href: string) => {
     case '/admin/messages': return <Mail className="w-4 h-4" />;
     case '/admin/subscriptions': return <DollarSign className="w-4 h-4" />;
     case '/admin/settings': return <Settings className="w-4 h-4" />;
+    case '/admin/faqs': return <HelpCircle className="w-4 h-4" />;
     default: return <div className="w-4 h-4" />;
   }
 }

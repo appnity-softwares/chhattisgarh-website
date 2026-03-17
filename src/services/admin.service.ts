@@ -1,5 +1,6 @@
 import apiConfig, { getAuthHeaders, ApiResponse, PaginatedResponse } from '@/lib/api.config';
-import axios from 'axios'; // ADDED for file upload
+import axios from 'axios'; 
+import { withMock, mockData } from './mock.data';
 
 import type {
     DashboardStats,
@@ -46,19 +47,25 @@ class AdminService {
 
     // Dashboard Stats
     async getDashboardStats(): Promise<DashboardStats> {
-        return this.fetchWithAuth<DashboardStats>(apiConfig.endpoints.admin.stats);
+        return withMock(mockData.stats, () => 
+            this.fetchWithAuth<DashboardStats>(apiConfig.endpoints.admin.stats)
+        );
     }
 
     // Users
     async getUsers(page = 1, limit = 10): Promise<{ users: User[]; pagination: any }> {
-        return this.fetchWithAuth<{ users: User[]; pagination: any }>(
-            `${apiConfig.endpoints.admin.users}?page=${page}&limit=${limit}`
+        return withMock({ users: mockData.users, pagination: { page, limit, total: mockData.users.length, totalPages: 1 } }, () =>
+            this.fetchWithAuth<{ users: User[]; pagination: any }>(
+                `${apiConfig.endpoints.admin.users}?page=${page}&limit=${limit}`
+            )
         );
     }
 
     async getRecentUsers(limit = 10): Promise<User[]> {
-        return this.fetchWithAuth<User[]>(
-            `${apiConfig.endpoints.admin.recentUsers}?limit=${limit}`
+        return withMock(mockData.users.slice(0, limit), () =>
+            this.fetchWithAuth<User[]>(
+                `${apiConfig.endpoints.admin.recentUsers}?limit=${limit}`
+            )
         );
     }
 
@@ -123,8 +130,10 @@ class AdminService {
 
     // Matches
     async getRecentMatches(limit = 10): Promise<MatchRequest[]> {
-        return this.fetchWithAuth<MatchRequest[]>(
-            `${apiConfig.endpoints.admin.recentMatches}?limit=${limit}`
+        return withMock(mockData.matches.slice(0, limit), () =>
+            this.fetchWithAuth<MatchRequest[]>(
+                `${apiConfig.endpoints.admin.recentMatches}?limit=${limit}`
+            )
         );
     }
 
@@ -133,6 +142,19 @@ class AdminService {
         return this.fetchWithAuth<{ count: number }>(
             `${apiConfig.baseUrl}/admin/cleanup/tokens`,
             { method: 'POST' }
+        );
+    }
+
+    // Audit Logs
+    async getAuditLogs(): Promise<any[]> {
+        return withMock(mockData.auditLogs, () =>
+            this.fetchWithAuth<any[]>(apiConfig.endpoints.admin.activityLogs)
+        );
+    }
+
+    async getAuditLogsStats(): Promise<any> {
+        return withMock({ total: 156, uniqueAdmins: 3, todayActions: 12 }, () =>
+            this.fetchWithAuth<any>(apiConfig.endpoints.admin.activityLogsStats)
         );
     }
 }

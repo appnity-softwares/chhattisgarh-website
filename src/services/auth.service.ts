@@ -1,12 +1,16 @@
 import apiConfig, { getAuthHeaders, ApiResponse } from '@/lib/api.config';
 import type { AuthResponse, AdminLoginResponse } from '@/types/api.types';
+import { withMock } from './mock.data';
 
 class AuthService {
     /**
      * Admin Login with Username/Password
      */
     async adminLogin(username: string, password: string): Promise<AdminLoginResponse> {
-        try {
+        return withMock({
+            token: 'mock-admin-jwt-token',
+            user: { email: username, role: 'ADMIN' }
+        }, async () => {
             const response = await fetch(`${apiConfig.baseUrl}/admin/login`, {
                 method: 'POST',
                 headers: getAuthHeaders(),
@@ -20,10 +24,7 @@ class AuthService {
             }
 
             return data.data;
-        } catch (error: any) {
-            console.error('Admin Auth Error:', error);
-            throw new Error(error.message || 'Failed to authenticate with backend');
-        }
+        });
     }
 
     /**

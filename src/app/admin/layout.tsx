@@ -26,7 +26,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Bell, LogOut, BarChart, Users, Shield, FileWarning, Briefcase, DollarSign, LineChart, BadgeCheck, ClipboardList, FileText, Mail, Settings, HelpCircle } from 'lucide-react';
+import { Bell, LogOut, BarChart, Users, Shield, FileWarning, Briefcase, DollarSign, LineChart, BadgeCheck, ClipboardList, FileText, Mail, Settings, HelpCircle, Send } from 'lucide-react';
 import { adminNavItems } from '@/lib/placeholder-data';
 import { LanguageSwitcher } from '@/components/layout/language-switcher';
 import { useAuthStore } from '@/stores/auth-store';
@@ -41,7 +41,8 @@ const getIconForRoute = (href: string) => {
   switch (href) {
     case '/admin': return <BarChart className="w-4 h-4" />;
     case '/admin/analytics': return <LineChart className="w-4 h-4" />;
-    case '/admin/activity': return <ClipboardList className="w-4 h-4" />;
+    case '/admin/notifications': return <Send className="w-4 h-4" />;
+    case '/admin/promo-codes': return <DollarSign className="w-4 h-4" />;
     case '/admin/audit-logs': return <FileText className="w-4 h-4" />;
     case '/admin/users': return <Users className="w-4 h-4" />;
     case '/admin/profiles': return <Shield className="w-4 h-4" />;

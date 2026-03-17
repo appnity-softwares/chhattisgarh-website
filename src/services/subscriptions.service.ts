@@ -1,4 +1,5 @@
 import apiConfig, { getAuthHeaders, ApiResponse } from '@/lib/api.config';
+import { withMock, mockData } from './mock.data';
 import type { SubscriptionPlan } from '@/types/api.types';
 
 class SubscriptionsService {
@@ -39,7 +40,9 @@ class SubscriptionsService {
 
     // Get all subscription plans
     async getPlans(): Promise<SubscriptionPlan[]> {
-        return this.fetchWithAuth<SubscriptionPlan[]>(apiConfig.endpoints.admin.plans);
+        return withMock(mockData.plans, () => 
+            this.fetchWithAuth<SubscriptionPlan[]>(apiConfig.endpoints.admin.plans)
+        );
     }
 
     // Update plan discount

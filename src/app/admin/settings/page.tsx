@@ -8,7 +8,12 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { configService, SystemConfig } from '@/services/config.service';
-import { Loader2, Save, Palette, Settings, Globe, ShieldCheck, CheckCircle2, XCircle, Layout, MessageSquare, UserPlus, AlertTriangle } from 'lucide-react';
+import { getOfflineStatus } from '@/services/mock.data';
+import { 
+    Loader2, Save, Palette, Settings, Globe, ShieldCheck, CheckCircle2, 
+    XCircle, Layout, MessageSquare, UserPlus, AlertTriangle, 
+    Database, Zap, Bell, CreditCard, Shield, Smartphone, RefreshCw
+} from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
@@ -77,12 +82,32 @@ export default function SettingsPage() {
         maintenanceMode: false,
         disableChat: false,
         disableSignups: false,
-        showTestimonials: true
+        showTestimonials: true,
+        enablePayments: true,
+        enableVerification: true,
+        enableDiscovery: true,
+        enableAgencyLogin: true,
+        enableNotifications: true,
+        enforceAppUpdate: false
     });
 
+    const [offlineMode, setOfflineMode] = useState(false);
+
     useEffect(() => {
+        setOfflineMode(getOfflineStatus());
         loadConfigs();
     }, []);
+
+    const toggleOfflineMode = (val: boolean) => {
+        setOfflineMode(val);
+        localStorage.setItem('APP_OFFLINE_MODE', val ? 'true' : 'false');
+        toast({
+            title: val ? 'Test Mode Enabled' : 'Production Mode Enabled',
+            description: val 
+                ? 'App is now using local test data. Refresh to apply changes.' 
+                : 'App will now attempt to connect to the live backend API.',
+        });
+    };
 
     const loadConfigs = async () => {
         try {
@@ -364,84 +389,175 @@ export default function SettingsPage() {
 
                 {/* FEATURES TOGGLES */}
                 <TabsContent value="features" className="mt-6">
-                    <div className="grid gap-6 md:grid-cols-2">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>System Status</CardTitle>
-                                <CardDescription>Control the availability of your platform.</CardDescription>
+                    <div className="grid gap-6">
+                        {/* Operation Mode */}
+                        <Card className="border-orange-200 bg-orange-50/30">
+                            <CardHeader className="pb-3">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <div className={`p-2 rounded-lg ${offlineMode ? 'bg-orange-100' : 'bg-green-100'}`}>
+                                            <Database className={`w-5 h-5 ${offlineMode ? 'text-orange-600' : 'text-green-600'}`} />
+                                        </div>
+                                        <div>
+                                            <CardTitle>Operation Environment</CardTitle>
+                                            <CardDescription>Toggle between Local Mock data and Live Production API.</CardDescription>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3 bg-white p-1 rounded-full border shadow-sm">
+                                        <Button 
+                                            variant={!offlineMode ? "default" : "ghost"} 
+                                            size="sm" 
+                                            className="rounded-full h-8"
+                                            onClick={() => toggleOfflineMode(false)}
+                                        >
+                                            Production
+                                        </Button>
+                                        <Button 
+                                            variant={offlineMode ? "default" : "ghost"} 
+                                            size="sm" 
+                                            className="rounded-full h-8"
+                                            onClick={() => toggleOfflineMode(true)}
+                                        >
+                                            Test Mode
+                                        </Button>
+                                    </div>
+                                </div>
                             </CardHeader>
-                            <CardContent className="space-y-6">
-                                <div className="flex items-center justify-between">
-                                    <div className="space-y-0.5">
-                                        <Label className="text-base flex items-center">
-                                            <AlertTriangle className="w-4 h-4 mr-2 text-amber-500" />
-                                            Maintenance Mode
-                                        </Label>
-                                        <p className="text-sm text-muted-foreground">Disable the app for users during updates.</p>
-                                    </div>
-                                    <Switch 
-                                        checked={features.maintenanceMode} 
-                                        onCheckedChange={(val) => setFeatures({...features, maintenanceMode: val})} 
-                                    />
-                                </div>
-                                <Separator />
-                                <div className="flex items-center justify-between">
-                                    <div className="space-y-0.5">
-                                        <Label className="text-base flex items-center">
-                                            <UserPlus className="w-4 h-4 mr-2 text-blue-500" />
-                                            New User Signups
-                                        </Label>
-                                        <p className="text-sm text-muted-foreground">Temporarily stop new registrations.</p>
-                                    </div>
-                                    <Switch 
-                                        checked={!features.disableSignups} 
-                                        onCheckedChange={(val) => setFeatures({...features, disableSignups: !val})} 
-                                    />
-                                </div>
-                            </CardContent>
                         </Card>
 
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Module Control</CardTitle>
-                                <CardDescription>Enable or disable specific features of the app.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                <div className="flex items-center justify-between">
-                                    <div className="space-y-0.5">
-                                        <Label className="text-base flex items-center">
-                                            <MessageSquare className="w-4 h-4 mr-2 text-green-500" />
-                                            Chat System
-                                        </Label>
-                                        <p className="text-sm text-muted-foreground">Allow users to message each other in real-time.</p>
+                        <div className="grid gap-6 md:grid-cols-2">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Platform Status</CardTitle>
+                                    <CardDescription>Control the global availability of your platform.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                    <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-100">
+                                        <div className="space-y-0.5">
+                                            <Label className="text-base flex items-center text-red-900">
+                                                <AlertTriangle className="w-4 h-4 mr-2 text-red-600" />
+                                                Under Maintenance
+                                            </Label>
+                                            <p className="text-sm text-red-700/70">Block all users from accessing the app with a custom message.</p>
+                                        </div>
+                                        <Switch 
+                                            checked={features.maintenanceMode} 
+                                            onCheckedChange={(val) => setFeatures({...features, maintenanceMode: val})} 
+                                        />
                                     </div>
-                                    <Switch 
-                                        checked={!features.disableChat} 
-                                        onCheckedChange={(val) => setFeatures({...features, disableChat: !val})} 
-                                    />
-                                </div>
-                                <Separator />
-                                <div className="flex items-center justify-between">
-                                    <div className="space-y-0.5">
-                                        <Label className="text-base flex items-center">
-                                            <Layout className="w-4 h-4 mr-2 text-purple-500" />
-                                            User Testimonials
-                                        </Label>
-                                        <p className="text-sm text-muted-foreground">Display success stories on the home screen.</p>
+                                    
+                                    <div className="flex items-center justify-between px-2">
+                                        <div className="space-y-0.5">
+                                            <Label className="text-base flex items-center">
+                                                <UserPlus className="w-4 h-4 mr-2 text-blue-500" />
+                                                New Signups
+                                            </Label>
+                                            <p className="text-sm text-muted-foreground">Allow or block new registration flows.</p>
+                                        </div>
+                                        <Switch 
+                                            checked={!features.disableSignups} 
+                                            onCheckedChange={(val) => setFeatures({...features, disableSignups: !val})} 
+                                        />
                                     </div>
-                                    <Switch 
-                                        checked={features.showTestimonials} 
-                                        onCheckedChange={(val) => setFeatures({...features, showTestimonials: val})} 
-                                    />
-                                </div>
-                            </CardContent>
-                            <CardFooter className="border-t pt-4">
-                                <Button onClick={() => handleSave('app_features', features, 'features')} disabled={saving} className="w-full">
-                                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                                    Apply Feature Changes
-                                </Button>
-                            </CardFooter>
-                        </Card>
+
+                                    <Separator />
+
+                                    <div className="flex items-center justify-between px-2">
+                                        <div className="space-y-0.5">
+                                            <Label className="text-base flex items-center">
+                                                <Smartphone className="w-4 h-4 mr-2 text-indigo-500" />
+                                                Force Update
+                                            </Label>
+                                            <p className="text-sm text-muted-foreground">Enforce users to update to the latest app version.</p>
+                                        </div>
+                                        <Switch 
+                                            checked={features.enforceAppUpdate} 
+                                            onCheckedChange={(val) => setFeatures({...features, enforceAppUpdate: val})} 
+                                        />
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Feature Flags</CardTitle>
+                                    <CardDescription>Granular control over available app functionalities.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="grid grid-cols-1 gap-4">
+                                    <div className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-green-100 rounded-lg"><MessageSquare className="w-4 h-4 text-green-600" /></div>
+                                            <div>
+                                                <Label className="text-sm font-semibold">Real-time Chat</Label>
+                                                <p className="text-[10px] text-muted-foreground">Direct messaging system</p>
+                                            </div>
+                                        </div>
+                                        <Switch checked={!features.disableChat} onCheckedChange={(val) => setFeatures({...features, disableChat: !val})} />
+                                    </div>
+
+                                    <div className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-amber-100 rounded-lg"><CreditCard className="w-4 h-4 text-amber-600" /></div>
+                                            <div>
+                                                <Label className="text-sm font-semibold">Payments & Subs</Label>
+                                                <p className="text-[10px] text-muted-foreground">Premium purchasing & Razorpay</p>
+                                            </div>
+                                        </div>
+                                        <Switch checked={features.enablePayments} onCheckedChange={(val) => setFeatures({...features, enablePayments: val})} />
+                                    </div>
+
+                                    <div className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-blue-100 rounded-lg"><Zap className="w-4 h-4 text-blue-600" /></div>
+                                            <div>
+                                                <Label className="text-sm font-semibold">Match Discovery</Label>
+                                                <p className="text-[10px] text-muted-foreground">Finding and browsing profiles</p>
+                                            </div>
+                                        </div>
+                                        <Switch checked={features.enableDiscovery} onCheckedChange={(val) => setFeatures({...features, enableDiscovery: val})} />
+                                    </div>
+
+                                    <div className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-purple-100 rounded-lg"><Shield className="w-4 h-4 text-purple-600" /></div>
+                                            <div>
+                                                <Label className="text-sm font-semibold">KYC Verification</Label>
+                                                <p className="text-[10px] text-muted-foreground">AADHAAR/Selfie upload flows</p>
+                                            </div>
+                                        </div>
+                                        <Switch checked={features.enableVerification} onCheckedChange={(val) => setFeatures({...features, enableVerification: val})} />
+                                    </div>
+
+                                    <div className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-pink-100 rounded-lg"><Layout className="w-4 h-4 text-pink-600" /></div>
+                                            <div>
+                                                <Label className="text-sm font-semibold">Testimonials</Label>
+                                                <p className="text-[10px] text-muted-foreground">Success stories on home screen</p>
+                                            </div>
+                                        </div>
+                                        <Switch checked={features.showTestimonials} onCheckedChange={(val) => setFeatures({...features, showTestimonials: val})} />
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-orange-100 rounded-lg"><UserPlus className="w-4 h-4 text-orange-600" /></div>
+                                            <div>
+                                                <Label className="text-sm font-semibold">Agency Dashboard</Label>
+                                                <p className="text-[10px] text-muted-foreground">Allow Agent/Partner logins</p>
+                                            </div>
+                                        </div>
+                                        <Switch checked={features.enableAgencyLogin} onCheckedChange={(val) => setFeatures({...features, enableAgencyLogin: val})} />
+                                    </div>
+                                </CardContent>
+                                <CardFooter className="border-t pt-4">
+                                    <Button onClick={() => handleSave('app_features', features, 'features')} disabled={saving} className="w-full">
+                                        {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                                        Save & Sync Feature Flags
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+                        </div>
                     </div>
                 </TabsContent>
 

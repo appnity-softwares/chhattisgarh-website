@@ -1,4 +1,5 @@
 import apiConfig, { getAuthHeaders, ApiResponse } from '@/lib/api.config';
+import { withMock, mockData } from './mock.data';
 
 export interface RevenueData {
     month: string;
@@ -71,20 +72,26 @@ class AnalyticsService {
     }
 
     async getRevenueAnalytics(months: number = 6): Promise<RevenueAnalytics> {
-        return this.fetchWithAuth<RevenueAnalytics>(
-            `${apiConfig.endpoints.admin.analyticsRevenue}?months=${months}`
+        return withMock(mockData.revenue, () =>
+            this.fetchWithAuth<RevenueAnalytics>(
+                `${apiConfig.endpoints.admin.analyticsRevenue}?months=${months}`
+            )
         );
     }
 
     async getSignupAnalytics(limit: number = 10): Promise<SignupAnalytics> {
-        return this.fetchWithAuth<SignupAnalytics>(
-            `${apiConfig.endpoints.admin.analyticsSignups}?limit=${limit}`
+        return withMock(mockData.signups, () =>
+            this.fetchWithAuth<SignupAnalytics>(
+                `${apiConfig.endpoints.admin.analyticsSignups}?limit=${limit}`
+            )
         );
     }
 
     async getSubscriptionAnalytics(): Promise<SubscriptionAnalytics> {
-        return this.fetchWithAuth<SubscriptionAnalytics>(
-            apiConfig.endpoints.admin.analyticsSubscriptions
+        return withMock(mockData.subscriptions, () =>
+            this.fetchWithAuth<SubscriptionAnalytics>(
+                apiConfig.endpoints.admin.analyticsSubscriptions
+            )
         );
     }
 }

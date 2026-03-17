@@ -42,6 +42,16 @@ export const apiConfig = {
             // Activity Logs
             activityLogs: '/admin/activity-logs',
             activityLogsStats: '/admin/activity-logs/stats',
+            // Notifications
+            notificationsSend: '/admin/notifications/send',
+            notificationsHistory: '/admin/notifications/history',
+            // Promo Codes
+            promoCodes: '/admin/promo-codes',
+            promoCodeById: (id: string) => `/admin/promo-codes/${id}`,
+            promoStats: '/admin/promo-codes/stats',
+            // Referrals & Agents
+            referralsStats: '/admin/referrals/stats',
+            agentCommission: '/admin/agents/commissions',
         },
         // Contact
         contact: {

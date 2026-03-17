@@ -1,5 +1,6 @@
 import apiConfig, { getAuthHeaders, ApiResponse } from '@/lib/api.config';
 import { useAuthStore } from '@/stores/auth-store';
+import { withMock, mockData } from './mock.data';
 
 export interface PendingVerification {
     id: number;
@@ -53,8 +54,13 @@ class VerificationsService {
         verifications: PendingVerification[];
         pagination: { page: number; limit: number; total: number; totalPages: number };
     }> {
-        return this.fetchWithAuth(
-            `${apiConfig.endpoints.admin.verificationsPending}?page=${page}&limit=${limit}`
+        return withMock({
+            verifications: mockData.verifications,
+            pagination: { page, limit, total: mockData.verifications.length, totalPages: 1 }
+        }, () =>
+            this.fetchWithAuth(
+                `${apiConfig.endpoints.admin.verificationsPending}?page=${page}&limit=${limit}`
+            )
         );
     }
 
@@ -62,7 +68,9 @@ class VerificationsService {
      * Get verification statistics
      */
     async getStats(): Promise<VerificationStats> {
-        return this.fetchWithAuth(apiConfig.endpoints.admin.verificationsStats);
+        return withMock(mockData.verifStats, () =>
+            this.fetchWithAuth(apiConfig.endpoints.admin.verificationsStats)
+        );
     }
 
     /**

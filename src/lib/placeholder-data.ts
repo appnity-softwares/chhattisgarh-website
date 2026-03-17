@@ -120,7 +120,8 @@ export const mockCurrentUser = {
 export const adminNavItems = [
   { href: '/admin', label: 'Overview' },
   { href: '/admin/analytics', label: 'Analytics' },
-  { href: '/admin/activity', label: 'Activity Log' },
+  { href: '/admin/notifications', label: 'Push Center' },
+  { href: '/admin/promo-codes', label: 'Promo Codes' },
   { href: '/admin/audit-logs', label: 'Audit Logs' },
   { href: '/admin/users', label: 'Users' },
   { href: '/admin/profiles', label: 'Profiles' },

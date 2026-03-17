@@ -1,4 +1,5 @@
 import apiConfig, { getAuthHeaders, ApiResponse } from '@/lib/api.config';
+import { withMock, mockData } from './mock.data';
 
 export interface SystemConfig {
     id: number;
@@ -49,14 +50,19 @@ class ConfigService {
     }
 
     async getAllConfigs(): Promise<SystemConfig[]> {
-        return this.fetchWithAuth<SystemConfig[]>('/config');
+        return withMock(mockData.configs, () =>
+            this.fetchWithAuth<SystemConfig[]>('/config')
+        );
     }
 
     async upsertConfig(data: Partial<SystemConfig>): Promise<SystemConfig> {
-        return this.fetchWithAuth<SystemConfig>('/config', {
-            method: 'POST',
-            body: JSON.stringify(data),
-        });
+        // In mock mode, we just return the data passed in
+        return withMock({ id: Math.random(), ...data } as any, () =>
+            this.fetchWithAuth<SystemConfig>('/config', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            })
+        );
     }
 
     // Static helper for getting theme colors from value string

@@ -14,9 +14,9 @@ NC='\033[0m'
 
 # VPS Path
 APP_DIR="/var/www/chhattisgarh-website"
-APP_NAME="shaadi-admin"
+APP_NAME="shadi-website"
 
-echo -e "${BLUE}=== Starting Admin Panel Redeploy ===${NC}"
+echo -e "${BLUE}=== Starting Website & Admin Redeploy ===${NC}"
 
 cd $APP_DIR
 
@@ -37,17 +37,12 @@ echo -e "${YELLOW}Step 4: Creating new production build...${NC}"
 npm run build
 
 # 5. Restart with PM2
-echo -e "${YELLOW}Step 5: Restarting PM2 process on port 3001...${NC}"
-if pm2 list | grep -q "$APP_NAME"; then
-    pm2 delete "$APP_NAME"
-fi
-
-# Force PORT=3001 to override any .env settings
-PORT=3001 pm2 start npm --name "$APP_NAME" -- start -- -p 3001
+echo -e "${YELLOW}Step 5: Restarting PM2 process...${NC}"
+pm2 restart "$APP_NAME" || pm2 start npm --name "$APP_NAME" -- start -- -p 3000
 
 # 6. Save PM2 state
 pm2 save
 
-echo -e "${GREEN}=== Admin Panel is LIVE! ===${NC}"
+echo -e "${GREEN}=== App is LIVE! ===${NC}"
 echo -e "Check status: ${BLUE}pm2 status${NC}"
 echo -e "View logs: ${BLUE}pm2 logs $APP_NAME${NC}"

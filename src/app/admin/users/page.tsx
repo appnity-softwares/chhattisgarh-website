@@ -107,6 +107,29 @@ export default function AdminUsersPage() {
         }
     };
 
+    const handleBanUser = async (user: User) => {
+        const reason = prompt(`Enter ban reason for ${user.email || 'this user'}:`, 'Violation of community guidelines');
+        if (reason === null) return;
+        try {
+            await adminService.banUser(user.id.toString(), reason);
+            toast({ title: 'Success', description: 'User banned successfully' });
+            fetchUsers(pagination.page);
+        } catch (err: any) {
+            toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to ban user' });
+        }
+    };
+
+    const handleUnbanUser = async (user: User) => {
+        if (!confirm(`Are you sure you want to unban ${user.email}?`)) return;
+        try {
+            await adminService.unbanUser(user.id.toString());
+            toast({ title: 'Success', description: 'User unbanned successfully' });
+            fetchUsers(pagination.page);
+        } catch (err: any) {
+            toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to unban user' });
+        }
+    };
+
     // Bulk selection handlers
     const toggleSelectAll = () => {
         if (selectedUsers.size === filteredUsers.length) {
@@ -207,7 +230,7 @@ export default function AdminUsersPage() {
     const filteredUsers = users.filter(user => {
         // Search filter
         const matchesSearch = searchQuery === '' ||
-            user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             user.profile?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             user.profile?.lastName?.toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -433,6 +456,21 @@ export default function AdminUsersPage() {
                                                             >
                                                                 Delete User
                                                             </DropdownMenuItem>
+                                                            {user.isBanned ? (
+                                                                <DropdownMenuItem
+                                                                    className="text-green-600"
+                                                                    onClick={() => handleUnbanUser(user)}
+                                                                >
+                                                                    Unban User
+                                                                </DropdownMenuItem>
+                                                            ) : (
+                                                                <DropdownMenuItem
+                                                                    className="text-orange-600"
+                                                                    onClick={() => handleBanUser(user)}
+                                                                >
+                                                                    Ban User
+                                                                </DropdownMenuItem>
+                                                            )}
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
                                                 </TableCell>

@@ -12,6 +12,7 @@ import { MoreHorizontal, RefreshCw, ChevronLeft, ChevronRight, Download, CheckCi
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { reportsService } from "@/services/reports.service";
+import { adminService } from "@/services/admin.service";
 import type { Report, ReportStatus } from "@/types/api.types";
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
@@ -120,6 +121,28 @@ export default function AdminReportsPage() {
         });
 
         fetchReports(pagination.page);
+    };
+
+    const handleBanUser = async (userId: number, reason: string, reportId: number) => {
+        if (!confirm(`Are you sure you want to ban this user?`)) return;
+        try {
+            await adminService.banUser(userId.toString(), `Banned via report #${reportId}: ${reason}`);
+            await reportsService.updateReport(reportId.toString(), {
+                status: 'RESOLVED' as ReportStatus,
+                actionTaken: 'USER_BANNED'
+            });
+            toast({
+                title: 'User Banned',
+                description: 'The user has been banned and the report resolved.',
+            });
+            fetchReports(pagination.page);
+        } catch (err: any) {
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: err.message || 'Failed to ban user',
+            });
+        }
     };
 
     // CSV Export
@@ -251,6 +274,7 @@ export default function AdminReportsPage() {
                                         <TableHead>Reporter</TableHead>
                                         <TableHead>Reported User</TableHead>
                                         <TableHead>Reason</TableHead>
+                                        <TableHead>Description</TableHead>
                                         <TableHead>Status</TableHead>
                                         <TableHead className="hidden md:table-cell">Date</TableHead>
                                         <TableHead>Actions</TableHead>
@@ -291,6 +315,9 @@ export default function AdminReportsPage() {
                                                 <TableCell>
                                                     <Badge variant="outline">{report.reason.replace('_', ' ')}</Badge>
                                                 </TableCell>
+                                                <TableCell className="max-w-[200px] truncate" title={report.description}>
+                                                    {report.description}
+                                                </TableCell>
                                                 <TableCell>
                                                     <Badge variant={statusColors[report.status]}>
                                                         {report.status.replace('_', ' ')}
@@ -320,6 +347,13 @@ export default function AdminReportsPage() {
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem onClick={() => handleStatusChange(report.id, 'ESCALATED' as ReportStatus)}>
                                                                 Escalate
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuItem
+                                                                className="text-destructive font-bold"
+                                                                onClick={() => handleBanUser(report.reportedUserId, report.reason, report.id)}
+                                                            >
+                                                                Ban Reported User
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>

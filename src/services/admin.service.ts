@@ -79,6 +79,20 @@ class AdminService {
         });
     }
 
+    async banUser(userId: string, reason: string): Promise<User> {
+        return this.fetchWithAuth<User>(`/admin/users/${userId}/ban`, {
+            method: 'POST',
+            body: JSON.stringify({ reason }),
+            headers: { 'Content-Type': 'application/json' },
+        });
+    }
+
+    async unbanUser(userId: string): Promise<User> {
+        return this.fetchWithAuth<User>(`/admin/users/${userId}/unban`, {
+            method: 'POST',
+        });
+    }
+
     // ADDED: Bulk User Upload
     async bulkUploadUsers(file: File): Promise<{ success: number, failed: number, errors: any[] }> {
         const formData = new FormData();

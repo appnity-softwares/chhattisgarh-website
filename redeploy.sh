@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================
-# Admin Panel Redeploy Script
+# Admin Panel Redeploy Script (VPS Edition)
 # ============================================
 
 set -e
@@ -12,41 +12,42 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
+# VPS Path
+APP_DIR="/var/www/chhattisgarh-website"
 APP_NAME="shaadi-admin"
 
-echo -e "${BLUE}=== Admin Panel Redeploy ===${NC}"
+echo -e "${BLUE}=== Starting Admin Panel Redeploy ===${NC}"
+
+cd $APP_DIR
 
 # 1. Pull latest code
-echo -e "${YELLOW}Pulling latest code...${NC}"
+echo -e "${YELLOW}Step 1: Pulling latest code from GitHub...${NC}"
 git pull origin main
 
 # 2. Install dependencies
-echo -e "${YELLOW}Installing dependencies...${NC}"
-# Using --legacy-peer-deps to avoid conflicts with React 19/Next 16 alpha versions if any
+echo -e "${YELLOW}Step 2: Installing dependencies...${NC}"
 npm install --legacy-peer-deps
 
-# 3. Clean previous build
-echo -e "${YELLOW}Cleaning old build...${NC}"
+# 3. CRITICAL: Clean old build
+echo -e "${YELLOW}Step 3: Deleting old build (.next folder)...${NC}"
 rm -rf .next
 
 # 4. Build application
-echo -e "${YELLOW}Building application...${NC}"
+echo -e "${YELLOW}Step 4: Creating new production build...${NC}"
 npm run build
 
-# 5. Restart process with PM2
-echo -e "${YELLOW}Restarting application with PM2...${NC}"
+# 5. Restart with PM2
+echo -e "${YELLOW}Step 5: Restarting PM2 process...${NC}"
 if pm2 list | grep -q "$APP_NAME"; then
-    echo -e "Reloading existing PM2 process: $APP_NAME"
     pm2 reload "$APP_NAME"
 else
-    echo -e "Starting new PM2 process: $APP_NAME"
-    # Start Next.js in production mode
+    # Start on port 3000 by default
     pm2 start npm --name "$APP_NAME" -- start
 fi
 
 # 6. Save PM2 state
 pm2 save
 
-echo -e "${GREEN}=== Redeploy Complete! ===${NC}"
+echo -e "${GREEN}=== Admin Panel is LIVE! ===${NC}"
 echo -e "Check status: ${BLUE}pm2 status${NC}"
 echo -e "View logs: ${BLUE}pm2 logs $APP_NAME${NC}"

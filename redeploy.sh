@@ -39,12 +39,11 @@ npm run build
 # 5. Restart with PM2
 echo -e "${YELLOW}Step 5: Restarting PM2 process on port 3001...${NC}"
 if pm2 list | grep -q "$APP_NAME"; then
-    # Stop and delete to ensure port change takes effect
     pm2 delete "$APP_NAME"
 fi
 
-# Start on port 3001
-pm2 start npm --name "$APP_NAME" -- start -- -p 3001
+# Force PORT=3001 to override any .env settings
+PORT=3001 pm2 start npm --name "$APP_NAME" -- start -- -p 3001
 
 # 6. Save PM2 state
 pm2 save

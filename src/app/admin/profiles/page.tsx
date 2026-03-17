@@ -103,10 +103,10 @@ export default function AdminProfilesPage() {
                                             <TableRow key={profile.id}>
                                                 <TableCell>
                                                     <div className="font-medium">
-                                                        {profile.firstName} {profile.lastName}
+                                                        {profile.firstName || profile.lastName ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : 'Unknown User'}
                                                     </div>
-                                                    <div className="text-sm text-muted-foreground">
-                                                        {profile.profileId}
+                                                    <div className="text-sm text-muted-foreground break-all">
+                                                        {profile.profileId || 'No ID'}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>

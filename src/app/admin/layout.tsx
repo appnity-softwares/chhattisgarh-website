@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import {
   SidebarProvider,
   Sidebar,
@@ -59,6 +59,7 @@ const getIconForRoute = (href: string) => {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { toast } = useToast();
   const { user, accessToken, refreshToken, logout, isAuthenticated } = useAuthStore();
   const [isChecking, setIsChecking] = React.useState(true);
@@ -105,16 +106,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {adminNavItems.map((item) => (
-              <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton asChild tooltip={item.label}>
-                  <Link href={item.href}>
-                    {getIconForRoute(item.href)}
-                    <span>{item.label}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+            {adminNavItems.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton asChild tooltip={item.label} isActive={isActive}>
+                    <Link href={item.href}>
+                      {getIconForRoute(item.href)}
+                      <span>{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>

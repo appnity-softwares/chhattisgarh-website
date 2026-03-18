@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { configService } from "@/services/config.service";
 import { DownloadCloud } from "lucide-react";
 
-export function AppStoreBadges() {
+export function AppStoreBadges({ className }: { className?: string }) {
   const [links, setLinks] = useState({
     googlePlay: "https://play.google.com/store/apps",
     apk: "#"
@@ -32,15 +32,15 @@ export function AppStoreBadges() {
   }, []);
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+    <div className={`flex flex-col sm:flex-row items-center justify-center gap-6 ${className}`}>
       {/* Google Play Badge */}
       <Link
         href={links.googlePlay}
         target="_blank"
         rel="noopener noreferrer"
-        className="transform hover:scale-110 active:scale-95 transition-all duration-300 shadow-xl hover:shadow-primary/20 rounded-xl overflow-hidden"
+        className="transform hover:scale-105 active:scale-95 transition-all duration-300 shadow-xl hover:shadow-primary/20 rounded-xl overflow-hidden"
       >
-        <div className="relative w-48 h-14 sm:h-16">
+        <div className="relative w-44 h-14 sm:w-48 sm:h-16">
           <Image
             src="/badges/google-play-badge.png"
             alt="Get it on Google Play"
@@ -57,14 +57,14 @@ export function AppStoreBadges() {
         href={links.apk}
         target="_blank"
         rel="noopener noreferrer"
-        className="group flex items-center gap-3 bg-white text-black font-bold py-3 px-6 rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-xl hover:shadow-2xl border border-gray-200 min-w-[200px]"
+        className="group flex items-center gap-3 bg-white text-black font-bold py-3 px-6 rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-xl hover:shadow-2xl border border-gray-200 w-full sm:w-auto min-w-[200px]"
       >
-        <div className="h-10 w-10 flex items-center justify-center bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
+        <div className="h-10 w-10 flex items-center justify-center bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors shrink-0">
           <DownloadCloud className="h-6 w-6 text-primary" />
         </div>
         <div className="flex flex-col items-start leading-none text-left">
-          <span className="text-[10px] uppercase tracking-wider text-gray-500 font-medium mb-1 text-nowrap">Official Direct</span>
-          <span className="text-lg text-nowrap">Download APK</span>
+          <span className="text-[10px] uppercase tracking-wider text-gray-500 font-medium mb-1">Official Direct</span>
+          <span className="text-lg whitespace-nowrap">Download APK</span>
         </div>
       </Link>
     </div>

@@ -1,9 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
 import { LanguageSwitcher } from "./language-switcher";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
-import { Menu, LogIn } from "lucide-react";
+import { Menu, LogIn, Download } from "lucide-react";
+import { configService } from "@/services/config.service";
 
 const navLinks = [
   { href: "#features", label: "Features" },
@@ -11,6 +15,24 @@ const navLinks = [
 ];
 
 export function Navbar() {
+  const [apkUrl, setApkUrl] = useState("/#download");
+
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const data = await configService.getAllConfigs();
+        const infoConfig = data.find(c => c.key === 'app_info');
+        if (infoConfig) {
+          const info = JSON.parse(infoConfig.value);
+          if (info.apkUrl) setApkUrl(info.apkUrl);
+        }
+      } catch (err) {
+        console.error("Failed to load nav links");
+      }
+    };
+    loadConfig();
+  }, []);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-4">
@@ -37,9 +59,11 @@ export function Navbar() {
                     </Link>
                   ))}
                   <Link
-                    href="/#download"
-                    className="text-lg font-bold text-primary py-4"
+                    href={apkUrl}
+                    target={apkUrl.startsWith("http") ? "_blank" : "_self"}
+                    className="text-lg font-bold text-primary py-4 flex items-center gap-2"
                   >
+                    <Download className="w-5 h-5" />
                     Download App
                   </Link>
                 </div>
@@ -67,8 +91,15 @@ export function Navbar() {
         {/* Right Section for Desktop Actions */}
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
-          <Button asChild className="hidden sm:flex bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-9">
-            <Link href="/#download">Download App</Link>
+          <Button asChild className="hidden sm:flex bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-9 group">
+            <Link 
+              href={apkUrl} 
+              target={apkUrl.startsWith("http") ? "_blank" : "_self"}
+              className="flex items-center gap-2"
+            >
+              <Download className="w-4 h-4 group-hover:bounce transition-transform" />
+              Download App
+            </Link>
           </Button>
         </div>
       </div>

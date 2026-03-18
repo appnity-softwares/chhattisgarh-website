@@ -26,26 +26,25 @@ export function HeroSection() {
             </div>
 
             {/* Content Container */}
-            <div className="relative z-10 container mx-auto px-4 flex flex-col items-center text-center h-full justify-center">
+            <div className="relative z-10 container mx-auto px-4 flex flex-col items-center text-center h-full justify-center pt-24 md:pt-0">
                 {/* Headline */}
-                <div className="max-w-5xl mx-auto mb-12 animate-fade-in-up">
-                    <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white mb-8 drop-shadow-2xl font-headline tracking-tight leading-tight px-2 break-words">
+                <div className="max-w-5xl mx-auto mb-8 animate-fade-in-up">
+                    <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-8xl font-black text-white mb-6 drop-shadow-2xl font-headline tracking-tight leading-tight px-2">
                         Find Your <span className="text-primary italic bg-clip-text text-transparent bg-gradient-to-r from-primary to-orange-400">Perfect Match</span> <br className="hidden md:block" /> in Chhattisgarh
                     </h1>
-                    <p className="text-base md:text-2xl text-gray-100 mb-12 max-w-3xl mx-auto drop-shadow-lg font-light leading-relaxed px-4">
+                    <p className="text-sm md:text-xl lg:text-2xl text-gray-100 mb-8 max-w-3xl mx-auto drop-shadow-lg font-light leading-relaxed px-4">
                         Thousands of verified profiles from your community. <br className="hidden sm:block" /> Trusted by families across the state.
                     </p>
 
-                    <div className="flex flex-col items-center gap-6 transform hover:scale-105 transition-transform duration-300">
-                        <div className="scale-90 sm:scale-110 md:scale-125 p-3 sm:p-4 bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 shadow-2xl">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="p-3 sm:p-4 bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 shadow-2xl">
                             <AppStoreBadges />
                         </div>
-                        <p className="text-[10px] md:text-sm text-gray-300 uppercase tracking-[0.2em] font-medium animate-pulse mt-2">
+                        <p className="text-[10px] md:text-sm text-gray-300 uppercase tracking-[0.2em] font-medium animate-pulse mt-4">
                             Download the App Now
                         </p>
                     </div>
                 </div>
-
             </div>
         </div>
     );

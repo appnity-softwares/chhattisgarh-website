@@ -174,19 +174,19 @@ export default function AdminActivityPage() {
                         <Card>
                             <CardHeader className="pb-2">
                                 <CardDescription>Total Logs</CardDescription>
-                                <CardTitle className="text-2xl">{stats.totalLogs.toLocaleString()}</CardTitle>
+                                <CardTitle className="text-2xl">{(stats.totalLogs || 0).toLocaleString()}</CardTitle>
                             </CardHeader>
                         </Card>
                         <Card>
                             <CardHeader className="pb-2">
                                 <CardDescription>Today</CardDescription>
-                                <CardTitle className="text-2xl">{stats.todayLogs.toLocaleString()}</CardTitle>
+                                <CardTitle className="text-2xl">{(stats.todayLogs || 0).toLocaleString()}</CardTitle>
                             </CardHeader>
                         </Card>
                         <Card>
                             <CardHeader className="pb-2">
                                 <CardDescription>This Week</CardDescription>
-                                <CardTitle className="text-2xl">{stats.weekLogs.toLocaleString()}</CardTitle>
+                                <CardTitle className="text-2xl">{(stats.weekLogs || 0).toLocaleString()}</CardTitle>
                             </CardHeader>
                         </Card>
                     </div>

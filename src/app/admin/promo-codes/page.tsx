@@ -32,7 +32,7 @@ export default function PromoCodes() {
         try {
             setLoading(true);
             const data = await marketingService.getPromoCodes();
-            setCodes(data);
+            setCodes(data || []);
         } catch (error) {
             console.error('Failed to load codes:', error);
         } finally {
@@ -52,6 +52,17 @@ export default function PromoCodes() {
             toast({ title: 'Error', description: 'Failed to create code', variant: 'destructive' });
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        if (!confirm('Are you sure you want to delete this promo code?')) return;
+        try {
+            await marketingService.deletePromoCode(id);
+            toast({ title: 'Success', description: 'Promo code deleted.' });
+            loadCodes();
+        } catch (error) {
+            toast({ title: 'Error', description: 'Failed to delete code', variant: 'destructive' });
         }
     };
 
@@ -161,7 +172,12 @@ export default function PromoCodes() {
                                             <div className="text-xl font-black text-primary">
                                                 {code.type === 'PERCENTAGE' ? `${code.discount}%` : `₹${code.discount}`} OFF
                                             </div>
-                                            <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                                            <Button 
+                                                variant="ghost" 
+                                                size="sm" 
+                                                className="text-destructive hover:text-destructive"
+                                                onClick={() => handleDelete(code.id)}
+                                            >
                                                 <Trash2 className="w-4 h-4" />
                                             </Button>
                                         </div>

@@ -71,6 +71,14 @@ class MarketingService {
             })
         );
     }
+
+    async deletePromoCode(id: number): Promise<void> {
+        return withMock(undefined, () =>
+            this.fetchWithAuth<void>(apiConfig.endpoints.admin.promoCodeById(String(id)), {
+                method: 'DELETE'
+            })
+        );
+    }
 }
 
 export const marketingService = new MarketingService();

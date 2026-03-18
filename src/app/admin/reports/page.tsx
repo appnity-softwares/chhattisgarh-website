@@ -2,398 +2,308 @@
 
 import { useEffect, useState } from 'react';
 import { AdminPageWrapper } from "@/app/admin/admin-page-wrapper";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MoreHorizontal, RefreshCw, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  MoreHorizontal, RefreshCw, ChevronLeft, ChevronRight, Download,
+  CheckCircle, XCircle, AlertTriangle, FileWarning, X, Flag, Ban
+} from "lucide-react";
+import {
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { reportsService } from "@/services/reports.service";
 import { adminService } from "@/services/admin.service";
 import type { Report, ReportStatus } from "@/types/api.types";
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
 
-const statusColors: Record<ReportStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-    PENDING: 'secondary',
-    UNDER_REVIEW: 'outline',
-    RESOLVED: 'default',
-    DISMISSED: 'destructive',
-    ESCALATED: 'destructive',
+const STATUS_BADGES: Record<ReportStatus, string> = {
+  PENDING: 'bg-amber-500/15 text-amber-400 border-amber-500/25',
+  UNDER_REVIEW: 'bg-blue-500/15 text-blue-400 border-blue-500/25',
+  RESOLVED: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
+  DISMISSED: 'bg-slate-500/15 text-slate-400 border-slate-500/25',
+  ESCALATED: 'bg-red-500/15 text-red-400 border-red-500/25',
 };
 
+const REASON_STYLES = 'bg-purple-500/15 text-purple-400 border-purple-500/25';
+
 export default function AdminReportsPage() {
-    const { toast } = useToast();
-    const [reports, setReports] = useState<Report[]>([]);
-    const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 0 });
-    const [isLoading, setIsLoading] = useState(true);
-    const [statusFilter, setStatusFilter] = useState<ReportStatus | 'ALL'>('ALL');
-    const [selectedReports, setSelectedReports] = useState<Set<number>>(new Set());
-    const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+  const { toast } = useToast();
+  const [reports, setReports] = useState<Report[]>([]);
+  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 0 });
+  const [isLoading, setIsLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<ReportStatus | 'ALL'>('ALL');
+  const [selectedReports, setSelectedReports] = useState<Set<number>>(new Set());
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
 
-    const fetchReports = async (page = 1) => {
-        setIsLoading(true);
-        setSelectedReports(new Set());
-        try {
-            const data = await reportsService.getReports(
-                page,
-                10,
-                statusFilter === 'ALL' ? undefined : statusFilter
-            );
-            setReports(data.reports || []);
-            setPagination(data.pagination || { page: 1, limit: 10, total: 0, totalPages: 0 });
-        } catch (err: any) {
-            console.error('Failed to fetch reports:', err);
-            toast({
-                variant: 'destructive',
-                title: 'Error',
-                description: err.message || 'Failed to load reports',
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    };
+  const fetchReports = async (page = 1) => {
+    setIsLoading(true);
+    setSelectedReports(new Set());
+    try {
+      const data = await reportsService.getReports(page, 10, statusFilter === 'ALL' ? undefined : statusFilter);
+      setReports(data.reports || []);
+      setPagination(data.pagination || { page: 1, limit: 10, total: 0, totalPages: 0 });
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to load reports' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    useEffect(() => {
-        fetchReports();
-    }, [statusFilter]);
+  useEffect(() => { fetchReports(); }, [statusFilter]);
 
-    const handleStatusChange = async (reportId: number, newStatus: ReportStatus) => {
-        try {
-            await reportsService.updateReport(reportId.toString(), { status: newStatus });
-            toast({
-                title: 'Success',
-                description: 'Report status updated successfully',
-            });
-            fetchReports(pagination.page);
-        } catch (err: any) {
-            toast({
-                variant: 'destructive',
-                title: 'Error',
-                description: err.message || 'Failed to update report',
-            });
-        }
-    };
+  const handleStatusChange = async (reportId: number, newStatus: ReportStatus) => {
+    try {
+      await reportsService.updateReport(reportId.toString(), { status: newStatus });
+      toast({ title: 'Status Updated', description: `Report marked as ${newStatus.replace(/_/g, ' ').toLowerCase()}` });
+      fetchReports(pagination.page);
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to update report' });
+    }
+  };
 
-    // Bulk selection handlers
-    const toggleSelectAll = () => {
-        if (selectedReports.size === reports.length) {
-            setSelectedReports(new Set());
-        } else {
-            setSelectedReports(new Set(reports.map(r => r.id)));
-        }
-    };
+  const toggleSelectAll = () => {
+    if (selectedReports.size === reports.length) setSelectedReports(new Set());
+    else setSelectedReports(new Set(reports.map(r => r.id)));
+  };
+  const toggleSelectReport = (id: number) => {
+    const next = new Set(selectedReports);
+    next.has(id) ? next.delete(id) : next.add(id);
+    setSelectedReports(next);
+  };
 
-    const toggleSelectReport = (reportId: number) => {
-        const newSelected = new Set(selectedReports);
-        if (newSelected.has(reportId)) {
-            newSelected.delete(reportId);
-        } else {
-            newSelected.add(reportId);
-        }
-        setSelectedReports(newSelected);
-    };
+  const handleBulkStatusChange = async (newStatus: ReportStatus) => {
+    setIsBulkProcessing(true);
+    let success = 0, failed = 0;
+    for (const id of selectedReports) {
+      try { await reportsService.updateReport(id.toString(), { status: newStatus }); success++; }
+      catch { failed++; }
+    }
+    setIsBulkProcessing(false);
+    setSelectedReports(new Set());
+    toast({ title: 'Bulk Update Complete', description: `${success} updated${failed > 0 ? `, ${failed} failed` : ''}` });
+    fetchReports(pagination.page);
+  };
 
-    // Bulk status update
-    const handleBulkStatusChange = async (newStatus: ReportStatus) => {
-        setIsBulkProcessing(true);
-        let successCount = 0;
-        let errorCount = 0;
+  const handleBanUser = async (userId: number, reason: string, reportId: number) => {
+    if (!confirm(`Ban this user?`)) return;
+    try {
+      await adminService.banUser(userId.toString(), `Ban via report #${reportId}: ${reason}`);
+      await reportsService.updateReport(reportId.toString(), { status: 'RESOLVED' as ReportStatus, actionTaken: 'USER_BANNED' });
+      toast({ title: 'User Banned', description: 'User banned and report resolved' });
+      fetchReports(pagination.page);
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed' });
+    }
+  };
 
-        for (const reportId of selectedReports) {
-            try {
-                await reportsService.updateReport(reportId.toString(), { status: newStatus });
-                successCount++;
-            } catch {
-                errorCount++;
-            }
-        }
+  const exportToCSV = () => {
+    const data = selectedReports.size > 0 ? reports.filter(r => selectedReports.has(r.id)) : reports;
+    const headers = ['ID', 'Reporter', 'Reported User', 'Reason', 'Status', 'Description', 'Date'];
+    const rows = data.map(r => [
+      r.id, r.reporter?.email || 'Unknown', r.reportedUser?.email || 'Unknown',
+      r.reason, r.status, r.description || '', new Date(r.createdAt).toLocaleDateString()
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `reports_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    toast({ title: 'Exported', description: `${data.length} reports exported` });
+  };
 
-        setIsBulkProcessing(false);
-        setSelectedReports(new Set());
+  const getUserName = (user: any) => {
+    if (user?.profile) return `${user.profile.firstName} ${user.profile.lastName}`;
+    return user?.email?.split('@')[0] || 'Unknown';
+  };
 
-        toast({
-            title: 'Bulk Update Complete',
-            description: `Updated ${successCount} reports${errorCount > 0 ? `, ${errorCount} failed` : ''}`,
-        });
+  return (
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>Report Management</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {isLoading ? 'Loading...' : `${pagination.total} total reports`}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={exportToCSV}
+            disabled={isLoading || reports.length === 0}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-sm font-medium transition-all disabled:opacity-40"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Export</span>
+          </button>
+          <button
+            onClick={() => fetchReports(pagination.page)}
+            disabled={isLoading}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-sm font-medium transition-all disabled:opacity-40"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
+      </div>
 
-        fetchReports(pagination.page);
-    };
+      {/* Main Card */}
+      <div className="admin-card overflow-hidden">
+        {/* Toolbar */}
+        <div className="p-4 border-b border-white/[0.06] space-y-3">
+          {/* Bulk Actions */}
+          {selectedReports.size > 0 && (
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+              <Flag className="w-4 h-4 text-amber-400 flex-shrink-0" />
+              <span className="text-sm font-semibold text-amber-300">{selectedReports.size} selected</span>
+              <div className="h-4 w-px bg-white/10" />
+              <div className="flex gap-2 flex-wrap">
+                <button disabled={isBulkProcessing} onClick={() => handleBulkStatusChange('RESOLVED' as ReportStatus)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 text-xs font-medium transition-colors disabled:opacity-50">
+                  <CheckCircle className="w-3 h-3" /> Resolve All
+                </button>
+                <button disabled={isBulkProcessing} onClick={() => handleBulkStatusChange('DISMISSED' as ReportStatus)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-500/15 hover:bg-slate-500/25 text-slate-300 text-xs font-medium transition-colors disabled:opacity-50">
+                  <XCircle className="w-3 h-3" /> Dismiss All
+                </button>
+                <button disabled={isBulkProcessing} onClick={() => handleBulkStatusChange('ESCALATED' as ReportStatus)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-400 text-xs font-medium transition-colors disabled:opacity-50">
+                  <AlertTriangle className="w-3 h-3" /> Escalate All
+                </button>
+              </div>
+              <button onClick={() => setSelectedReports(new Set())} className="ml-auto text-muted-foreground hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
 
-    const handleBanUser = async (userId: number, reason: string, reportId: number) => {
-        if (!confirm(`Are you sure you want to ban this user?`)) return;
-        try {
-            await adminService.banUser(userId.toString(), `Banned via report #${reportId}: ${reason}`);
-            await reportsService.updateReport(reportId.toString(), {
-                status: 'RESOLVED' as ReportStatus,
-                actionTaken: 'USER_BANNED'
-            });
-            toast({
-                title: 'User Banned',
-                description: 'The user has been banned and the report resolved.',
-            });
-            fetchReports(pagination.page);
-        } catch (err: any) {
-            toast({
-                variant: 'destructive',
-                title: 'Error',
-                description: err.message || 'Failed to ban user',
-            });
-        }
-    };
+          {/* Filter */}
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as ReportStatus | 'ALL')}>
+            <SelectTrigger className="w-[170px] bg-white/[0.05] border-white/[0.08] text-white rounded-xl">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent className="bg-card border-border">
+              <SelectItem value="ALL">All Reports</SelectItem>
+              <SelectItem value="PENDING">Pending</SelectItem>
+              <SelectItem value="UNDER_REVIEW">Under Review</SelectItem>
+              <SelectItem value="RESOLVED">Resolved</SelectItem>
+              <SelectItem value="DISMISSED">Dismissed</SelectItem>
+              <SelectItem value="ESCALATED">Escalated</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-    // CSV Export
-    const exportToCSV = () => {
-        const headers = ['ID', 'Reporter', 'Reported User', 'Reason', 'Status', 'Description', 'Date'];
-        const dataToExport = selectedReports.size > 0
-            ? reports.filter(r => selectedReports.has(r.id))
-            : reports;
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full admin-table">
+            <thead>
+              <tr>
+                <th className="w-10 px-4 py-3.5 text-left">
+                  <Checkbox checked={selectedReports.size === reports.length && reports.length > 0} onCheckedChange={toggleSelectAll} className="border-white/20" />
+                </th>
+                <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Reporter</th>
+                <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Reported User</th>
+                <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider hidden sm:table-cell">Reason</th>
+                <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider hidden md:table-cell">Description</th>
+                <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
+                <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider hidden lg:table-cell">Date</th>
+                <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                Array.from({ length: 7 }).map((_, i) => (
+                  <tr key={i} className="border-b border-white/[0.04]">
+                    <td className="px-4 py-3"><div className="w-4 h-4 skeleton-pulse rounded" /></td>
+                    {[140, 140, 100, 160, 80, 70].map((w, j) => (
+                      <td key={j} className="px-4 py-3"><div className={`w-${w} h-3.5 skeleton-pulse rounded`} style={{ width: w }} /></td>
+                    ))}
+                    <td className="px-4 py-3"><div className="w-8 h-8 skeleton-pulse rounded-lg ml-auto" /></td>
+                  </tr>
+                ))
+              ) : reports.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-16 text-center">
+                    <FileWarning className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+                    <p className="text-muted-foreground text-sm">No reports found</p>
+                  </td>
+                </tr>
+              ) : (
+                reports.map(report => (
+                  <tr key={report.id} className={`border-b border-white/[0.04] transition-colors ${selectedReports.has(report.id) ? 'bg-amber-500/5' : ''}`}>
+                    <td className="px-4 py-3.5">
+                      <Checkbox checked={selectedReports.has(report.id)} onCheckedChange={() => toggleSelectReport(report.id)} className="border-white/20" />
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className="text-sm text-white font-medium">{getUserName(report.reporter)}</span>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className="text-sm text-white font-medium">{getUserName(report.reportedUser)}</span>
+                    </td>
+                    <td className="px-4 py-3.5 hidden sm:table-cell">
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${REASON_STYLES}`}>
+                        {report.reason.replace(/_/g, ' ')}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 hidden md:table-cell">
+                      <p className="text-xs text-muted-foreground max-w-[160px] truncate" title={report.description}>
+                        {report.description || '—'}
+                      </p>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${STATUS_BADGES[report.status] || STATUS_BADGES.PENDING}`}>
+                        {report.status.replace(/_/g, ' ')}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 hidden lg:table-cell">
+                      <span className="text-xs text-muted-foreground">
+                        {formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-white transition-colors">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="bg-card border-border w-48">
+                          <DropdownMenuLabel className="text-xs text-muted-foreground">Update Status</DropdownMenuLabel>
+                          <DropdownMenuSeparator className="bg-white/[0.06]" />
+                          <DropdownMenuItem onClick={() => handleStatusChange(report.id, 'UNDER_REVIEW' as ReportStatus)} className="cursor-pointer text-blue-400 focus:text-blue-400 focus:bg-blue-500/10">Mark Under Review</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleStatusChange(report.id, 'RESOLVED' as ReportStatus)} className="cursor-pointer text-emerald-400 focus:text-emerald-400 focus:bg-emerald-500/10">Mark Resolved</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleStatusChange(report.id, 'DISMISSED' as ReportStatus)} className="cursor-pointer text-slate-400 focus:bg-slate-500/10">Dismiss</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleStatusChange(report.id, 'ESCALATED' as ReportStatus)} className="cursor-pointer text-red-400 focus:text-red-400 focus:bg-red-500/10">Escalate</DropdownMenuItem>
+                          <DropdownMenuSeparator className="bg-white/[0.06]" />
+                          <DropdownMenuItem onClick={() => handleBanUser(report.reportedUserId, report.reason, report.id)} className="cursor-pointer text-red-400 focus:text-red-400 focus:bg-red-500/10 gap-2 font-semibold">
+                            <Ban className="w-3.5 h-3.5" /> Ban Reported User
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
-        const rows = dataToExport.map(report => [
-            report.id,
-            report.reporter?.email || 'Unknown',
-            report.reportedUser?.email || 'Unknown',
-            report.reason,
-            report.status,
-            report.description?.replace(/"/g, '""') || '',
-            new Date(report.createdAt).toLocaleDateString(),
-        ]);
-
-        const csvContent = [
-            headers.join(','),
-            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-        ].join('\n');
-
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `reports_export_${new Date().toISOString().split('T')[0]}.csv`;
-        link.click();
-
-        toast({ title: 'Success', description: `Exported ${dataToExport.length} reports to CSV` });
-    };
-
-    return (
-        <AdminPageWrapper>
-            <Card>
-                <CardHeader>
-                    <div className="flex items-center justify-between mb-4">
-                        <CardTitle>Report Management</CardTitle>
-                        <div className="flex gap-2">
-                            <Button variant="outline" size="sm" onClick={exportToCSV} disabled={isLoading || reports.length === 0}>
-                                <Download className="mr-2 h-4 w-4" />
-                                Export CSV
-                            </Button>
-                            <Button variant="outline" size="sm" onClick={() => fetchReports(pagination.page)} disabled={isLoading}>
-                                <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-                                Refresh
-                            </Button>
-                        </div>
-                    </div>
-
-                    {/* Bulk Actions Bar */}
-                    {selectedReports.size > 0 && (
-                        <div className="flex items-center gap-4 p-3 bg-muted rounded-lg mb-4">
-                            <span className="text-sm font-medium">{selectedReports.size} selected</span>
-                            <div className="flex gap-2">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleBulkStatusChange('RESOLVED' as ReportStatus)}
-                                    disabled={isBulkProcessing}
-                                >
-                                    <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                                    Bulk Resolve
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleBulkStatusChange('DISMISSED' as ReportStatus)}
-                                    disabled={isBulkProcessing}
-                                >
-                                    <XCircle className="mr-2 h-4 w-4 text-red-500" />
-                                    Bulk Dismiss
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleBulkStatusChange('ESCALATED' as ReportStatus)}
-                                    disabled={isBulkProcessing}
-                                >
-                                    <AlertTriangle className="mr-2 h-4 w-4 text-yellow-500" />
-                                    Bulk Escalate
-                                </Button>
-                            </div>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setSelectedReports(new Set())}
-                            >
-                                Clear Selection
-                            </Button>
-                        </div>
-                    )}
-
-                    <div className="flex gap-4">
-                        <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as ReportStatus | 'ALL')}>
-                            <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Filter by status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="ALL">All Reports</SelectItem>
-                                <SelectItem value="PENDING">Pending</SelectItem>
-                                <SelectItem value="UNDER_REVIEW">Under Review</SelectItem>
-                                <SelectItem value="RESOLVED">Resolved</SelectItem>
-                                <SelectItem value="DISMISSED">Dismissed</SelectItem>
-                                <SelectItem value="ESCALATED">Escalated</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    {isLoading ? (
-                        <div className="space-y-3">
-                            {[...Array(5)].map((_, i) => (
-                                <Skeleton key={i} className="h-16 w-full" />
-                            ))}
-                        </div>
-                    ) : (
-                        <>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="w-12">
-                                            <Checkbox
-                                                checked={selectedReports.size === reports.length && reports.length > 0}
-                                                onCheckedChange={toggleSelectAll}
-                                            />
-                                        </TableHead>
-                                        <TableHead>Reporter</TableHead>
-                                        <TableHead>Reported User</TableHead>
-                                        <TableHead>Reason</TableHead>
-                                        <TableHead>Description</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="hidden md:table-cell">Date</TableHead>
-                                        <TableHead>Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {reports.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                                                No reports found
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : (
-                                        reports.map(report => (
-                                            <TableRow key={report.id} className={selectedReports.has(report.id) ? 'bg-muted/50' : ''}>
-                                                <TableCell>
-                                                    <Checkbox
-                                                        checked={selectedReports.has(report.id)}
-                                                        onCheckedChange={() => toggleSelectReport(report.id)}
-                                                    />
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div className="font-medium">
-                                                        {report.reporter?.profile
-                                                            ? `${report.reporter.profile.firstName} ${report.reporter.profile.lastName}`
-                                                            : report.reporter?.email?.split('@')[0] || 'Unknown'
-                                                        }
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div className="font-medium">
-                                                        {report.reportedUser?.profile
-                                                            ? `${report.reportedUser.profile.firstName} ${report.reportedUser.profile.lastName}`
-                                                            : report.reportedUser?.email?.split('@')[0] || 'Unknown'
-                                                        }
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge variant="outline">{report.reason.replace('_', ' ')}</Badge>
-                                                </TableCell>
-                                                <TableCell className="max-w-[200px] truncate" title={report.description}>
-                                                    {report.description}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge variant={statusColors[report.status]}>
-                                                        {report.status.replace('_', ' ')}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell className="hidden md:table-cell text-muted-foreground">
-                                                    {formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <Button variant="ghost" size="icon">
-                                                                <MoreHorizontal className="h-4 w-4" />
-                                                            </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                            <DropdownMenuLabel>Update Status</DropdownMenuLabel>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuItem onClick={() => handleStatusChange(report.id, 'UNDER_REVIEW' as ReportStatus)}>
-                                                                Mark Under Review
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleStatusChange(report.id, 'RESOLVED' as ReportStatus)}>
-                                                                Mark Resolved
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleStatusChange(report.id, 'DISMISSED' as ReportStatus)}>
-                                                                Dismiss Report
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleStatusChange(report.id, 'ESCALATED' as ReportStatus)}>
-                                                                Escalate
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuItem
-                                                                className="text-destructive font-bold"
-                                                                onClick={() => handleBanUser(report.reportedUserId, report.reason, report.id)}
-                                                            >
-                                                                Ban Reported User
-                                                            </DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    )}
-                                </TableBody>
-                            </Table>
-
-                            {/* Pagination */}
-                            <div className="flex items-center justify-between mt-4">
-                                <p className="text-sm text-muted-foreground">
-                                    Showing {reports.length} of {pagination.total} reports
-                                </p>
-                                <div className="flex gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => fetchReports(pagination.page - 1)}
-                                        disabled={pagination.page <= 1}
-                                    >
-                                        <ChevronLeft className="h-4 w-4" />
-                                        Prev
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => fetchReports(pagination.page + 1)}
-                                        disabled={pagination.page >= pagination.totalPages}
-                                    >
-                                        Next
-                                        <ChevronRight className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            </div>
-                        </>
-                    )}
-                </CardContent>
-            </Card>
-        </AdminPageWrapper>
-    );
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-4 py-3.5 border-t border-white/[0.06]">
+          <p className="text-xs text-muted-foreground">
+            Showing {reports.length} of {pagination.total} reports
+          </p>
+          <div className="flex gap-1.5">
+            <button onClick={() => fetchReports(pagination.page - 1)} disabled={pagination.page <= 1 || isLoading} className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-xs font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+              <ChevronLeft className="w-3.5 h-3.5" /> Prev
+            </button>
+            <button onClick={() => fetchReports(pagination.page + 1)} disabled={pagination.page >= pagination.totalPages || isLoading} className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-xs font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+              Next <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

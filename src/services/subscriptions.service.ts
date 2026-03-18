@@ -70,6 +70,7 @@ class SubscriptionsService {
             durationDays?: number;
             features?: string[];
             isActive?: boolean;
+            roleToAssign?: string;
         }
     ): Promise<SubscriptionPlan> {
         return this.fetchWithAuth<SubscriptionPlan>(

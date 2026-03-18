@@ -2,8 +2,8 @@
 
 export enum UserRole {
     USER = 'USER',
+    BASIC_USER = 'BASIC_USER',
     PREMIUM_USER = 'PREMIUM_USER',
-    VERIFIED_USER = 'VERIFIED_USER',
     ADMIN = 'ADMIN',
 }
 
@@ -144,7 +144,6 @@ export interface Agent {
     state?: string;
     totalUsersAdded: number;
     activeUsers: number;
-    premiumUsers: number;
     status: AgentStatus;
     isActive: boolean;
     createdAt: string;
@@ -166,6 +165,7 @@ export interface SubscriptionPlan {
     isActive: boolean;
     effectivePrice?: number;
     hasActiveDiscount?: boolean;
+    roleToAssign: UserRole;
 }
 
 // Dashboard Stats Type

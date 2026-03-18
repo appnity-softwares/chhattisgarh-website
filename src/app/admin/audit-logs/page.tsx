@@ -42,10 +42,10 @@ export default function AuditLogs() {
         'BAN_USER': 'text-red-600 bg-red-50 border-red-100'
     };
 
-    const filteredLogs = logs.filter(log => 
-        log.admin.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.details.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.action.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredLogs = (logs || []).filter(log => 
+        log.admin?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.details?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.action?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (

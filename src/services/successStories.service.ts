@@ -66,6 +66,20 @@ class SuccessStoriesService {
     }
 
     /**
+     * Create a new success story by admin
+     */
+    async create(data: any): Promise<SuccessStory> {
+        return this.fetchWithAuth<SuccessStory>(
+            apiConfig.endpoints.admin.successStories,
+            {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: { 'Content-Type': 'application/json' },
+            }
+        );
+    }
+
+    /**
      * Delete a success story
      */
     async delete(id: number): Promise<void> {

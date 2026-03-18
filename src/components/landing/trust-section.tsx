@@ -36,18 +36,18 @@ export function TrustSection() {
     const isInView = useInView(ref, { once: true, margin: "-100px" });
 
     return (
-        <section className="py-20 bg-secondary/30 relative overflow-hidden">
-            {/* Decorative Elements */}
-            <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-            <div className="absolute bottom-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none" />
+        <section className="py-24 bg-background relative overflow-hidden">
+            {/* High-end Decorative Elements */}
+            <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+            <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[120px] translate-x-1/2 translate-y-1/2 pointer-events-none" />
 
-            <div className="container mx-auto px-4" ref={ref}>
-                <div className="text-center mb-16 max-w-2xl mx-auto">
-                    <h2 className="text-3xl md:text-4xl font-bold font-headline mb-4 text-gray-900">
-                        Trusted by <span className="text-primary">Chhattisgarh</span>
+            <div className="container mx-auto px-4 relative z-10" ref={ref}>
+                <div className="text-center mb-20 max-w-3xl mx-auto">
+                    <h2 className="text-3xl md:text-5xl font-bold font-headline mb-6 text-foreground leading-tight">
+                        Trusted by <span className="text-primary italic">Chhattisgarh</span>
                     </h2>
-                    <p className="text-muted-foreground text-lg">
-                        We are the fastest growing and most trusted matrimony platform dedicated to the communities of Chhattisgarh.
+                    <p className="text-muted-foreground text-lg md:text-xl font-light leading-relaxed">
+                        The fastest growing and most trusted matrimony platform dedicated to the vibrant communities of Chhattisgarh.
                     </p>
                 </div>
 
@@ -56,17 +56,23 @@ export function TrustSection() {
                         <div
                             key={index}
                             className={`
-                                relative p-6 bg-white rounded-2xl shadow-sm border border-gray-100/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300
+                                relative p-8 bg-card/40 backdrop-blur-xl rounded-[2rem] border border-white/5 shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 transition-all duration-500
                                 transform ${isInView ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}
                             `}
                             style={{ transitionDelay: `${index * 100}ms` }}
                         >
-                            <div className="h-16 w-16 mx-auto mb-6 bg-secondary/50 rounded-full flex items-center justify-center">
+                            <div className="h-16 w-16 mx-auto mb-8 bg-primary/10 rounded-2xl flex items-center justify-center shadow-inner">
                                 {stat.icon}
                             </div>
-                            <h3 className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</h3>
-                            <p className="text-lg font-semibold text-gray-800 mb-2">{stat.label}</p>
-                            <p className="text-sm text-muted-foreground">{stat.description}</p>
+                            <h3 className="text-4xl font-black text-foreground mb-3 font-headline tracking-tighter">
+                                {stat.value}
+                            </h3>
+                            <p className="text-lg font-bold text-primary mb-3 uppercase tracking-wider text-sm">
+                                {stat.label}
+                            </p>
+                            <p className="text-sm text-muted-foreground leading-relaxed font-light">
+                                {stat.description}
+                            </p>
                         </div>
                     ))}
                 </div>

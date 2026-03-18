@@ -128,6 +128,22 @@ class AdminService {
         );
     }
 
+    async verifyProfile(profileId: number, isVerified: boolean): Promise<Profile> {
+        return this.fetchWithAuth<Profile>(`/admin/profiles/${profileId}/verify`, {
+            method: 'PUT',
+            body: JSON.stringify({ isVerified }),
+            headers: { 'Content-Type': 'application/json' },
+        });
+    }
+
+    async updateProfileStatus(profileId: number, isPublished: boolean, statusReason?: string): Promise<Profile> {
+        return this.fetchWithAuth<Profile>(`/admin/profiles/${profileId}/status`, {
+            method: 'PUT',
+            body: JSON.stringify({ isPublished, statusReason }),
+            headers: { 'Content-Type': 'application/json' },
+        });
+    }
+
     // Matches
     async getRecentMatches(limit = 10): Promise<MatchRequest[]> {
         return withMock(mockData.matches.slice(0, limit), () =>

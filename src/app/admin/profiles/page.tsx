@@ -14,9 +14,11 @@ import { adminService } from "@/services/admin.service";
 import type { Profile } from "@/types/api.types";
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from 'next/navigation';
 
 export default function AdminProfilesPage() {
     const { toast } = useToast();
+    const router = useRouter();
     const [profiles, setProfiles] = useState<Profile[]>([]);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 0 });
     const [isLoading, setIsLoading] = useState(true);
@@ -147,10 +149,52 @@ export default function AdminProfilesPage() {
                                                         <DropdownMenuContent align="end">
                                                             <DropdownMenuLabel>Review Actions</DropdownMenuLabel>
                                                             <DropdownMenuSeparator />
-                                                            <DropdownMenuItem>View Profile Details</DropdownMenuItem>
-                                                            <DropdownMenuItem>Approve</DropdownMenuItem>
-                                                            <DropdownMenuItem>Request Resubmission</DropdownMenuItem>
-                                                            <DropdownMenuItem className="text-destructive">Reject</DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => router.push(`/admin/users/${profile.userId}`)} className="cursor-pointer">
+                                                                View Profile Details
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem 
+                                                                onClick={async () => {
+                                                                    try {
+                                                                        await adminService.verifyProfile(profile.id, true);
+                                                                        toast({ title: 'Profile Verified', description: `${profile.firstName}'s profile is now verified.` });
+                                                                        fetchProfiles(pagination.page);
+                                                                    } catch (err: any) {
+                                                                        toast({ variant: 'destructive', title: 'Error', description: err.message });
+                                                                    }
+                                                                }}
+                                                                className="cursor-pointer text-emerald-400 focus:text-emerald-400"
+                                                            >
+                                                                Approve
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem 
+                                                                onClick={async () => {
+                                                                    try {
+                                                                        await adminService.updateProfileStatus(profile.id, false, 'Incomplete data');
+                                                                        toast({ title: 'Status Updated', description: 'User requested for resubmission.' });
+                                                                        fetchProfiles(pagination.page);
+                                                                    } catch (err: any) {
+                                                                        toast({ variant: 'destructive', title: 'Error', description: err.message });
+                                                                    }
+                                                                }}
+                                                                className="cursor-pointer"
+                                                            >
+                                                                Request Resubmission
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem 
+                                                                onClick={async () => {
+                                                                    if (!confirm('Reject this profile?')) return;
+                                                                    try {
+                                                                        await adminService.updateProfileStatus(profile.id, false, 'Rejected by admin');
+                                                                        toast({ title: 'Profile Rejected', description: 'Profile has been unpublished.' });
+                                                                        fetchProfiles(pagination.page);
+                                                                    } catch (err: any) {
+                                                                        toast({ variant: 'destructive', title: 'Error', description: err.message });
+                                                                    }
+                                                                }}
+                                                                className="text-destructive cursor-pointer"
+                                                            >
+                                                                Reject
+                                                            </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
                                                 </TableCell>

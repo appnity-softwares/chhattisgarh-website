@@ -40,7 +40,20 @@ export default function SuccessStoriesPage() {
   const [pagination, setPagination] = useState({ page: 1, total: 0 });
   
   const [viewDialog, setViewDialog] = useState<SuccessStory | null>(null);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
+
+  // Create form state
+  const [formData, setFormData] = useState({
+    userId1: '',
+    userId2: '',
+    partnerName: '',
+    title: '',
+    story: '',
+    weddingDate: '',
+    imageUrl: '',
+    isFeatured: false
+  });
 
   const fetchStories = async () => {
     setLoading(true);
@@ -62,6 +75,34 @@ export default function SuccessStoriesPage() {
   useEffect(() => {
     fetchStories();
   }, [filter, pagination.page]);
+
+  const handleCreateStory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.userId1 || !formData.title || !formData.story) {
+        toast({ variant: 'destructive', title: 'Validation Error', description: 'Please fill in required fields' });
+        return;
+    }
+    
+    setIsActionLoading(true);
+    try {
+        await successStoriesService.create({
+            ...formData,
+            userId1: parseInt(formData.userId1),
+            userId2: formData.userId2 ? parseInt(formData.userId2) : undefined
+        });
+        toast({ title: 'Success', description: 'Success story created manually' });
+        setCreateDialogOpen(false);
+        setFormData({
+            userId1: '', userId2: '', partnerName: '', title: '', 
+            story: '', weddingDate: '', imageUrl: '', isFeatured: false
+        });
+        fetchStories();
+    } catch (err: any) {
+        toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to create story' });
+    } finally {
+        setIsActionLoading(false);
+    }
+  };
 
   const handleUpdateStatus = async (id: number, status: SuccessStoryStatus) => {
     setIsActionLoading(true);
@@ -112,10 +153,15 @@ export default function SuccessStoriesPage() {
       title="Success Stories"
       description="Manage couple testimonials and feature them on the app"
       actions={
-        <Button variant="outline" size="sm" onClick={fetchStories} disabled={loading} className="gap-2">
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-          Refresh
-        </Button>
+        <div className="flex gap-2">
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl gap-2" size="sm" onClick={() => setCreateDialogOpen(true)}>
+                <Star className="w-4 h-4 fill-current" /> Add Story
+            </Button>
+            <Button variant="outline" size="sm" onClick={fetchStories} disabled={loading} className="gap-2 rounded-xl">
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            Refresh
+            </Button>
+        </div>
       }
     >
       <div className="space-y-6">
@@ -141,16 +187,16 @@ export default function SuccessStoriesPage() {
             <p className="text-zinc-400 text-lg">No success stories found in this section</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-outfit">
             {stories.map((story) => (
-              <Card key={story.id} className="overflow-hidden bg-white/5 border-white/10 flex flex-col group">
-                <div className="relative aspect-[4/3] bg-zinc-900">
+              <Card key={story.id} className="overflow-hidden bg-white/5 border-white/10 flex flex-col group transition-all hover:border-purple-500/30">
+                <div className="relative aspect-[4/3] bg-zinc-900 overflow-hidden">
                   {story.imageUrl ? (
                     <Image 
                       src={story.imageUrl} 
                       alt={story.title || 'Success Story'}
                       fill
-                      className="object-cover"
+                      className="object-cover transition-transform group-hover:scale-110"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center text-zinc-700">
@@ -160,7 +206,7 @@ export default function SuccessStoriesPage() {
                   <div className="absolute top-3 left-3 flex gap-2">
                     {getStatusBadge(story.status)}
                     {story.isFeatured && (
-                      <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 gap-1">
+                      <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 gap-1 backdrop-blur-md">
                         <Star className="w-3 h-3 fill-current" /> Featured
                       </Badge>
                     )}
@@ -228,9 +274,103 @@ export default function SuccessStoriesPage() {
         )}
       </div>
 
+      {/* Add Story Dialog */}
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogContent className="bg-zinc-950 border-white/10 text-white max-w-xl font-outfit">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Add Success Story</DialogTitle>
+            <DialogDescription className="text-zinc-500">Create a manual entry for a couple who found love on the platform.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleCreateStory} className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-zinc-400">User 1 ID (Primary)</label>
+                    <input 
+                        type="number" required
+                        value={formData.userId1}
+                        onChange={(e) => setFormData({...formData, userId1: e.target.value})}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-purple-500/50"
+                        placeholder="e.g. 124"
+                    />
+                </div>
+                <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-zinc-400">User 2 ID (Optional)</label>
+                    <input 
+                        type="number"
+                        value={formData.userId2}
+                        onChange={(e) => setFormData({...formData, userId2: e.target.value})}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-purple-500/50"
+                        placeholder="e.g. 125"
+                    />
+                </div>
+            </div>
+            {!formData.userId2 && (
+                <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-zinc-400">Partner Name (If User 2 is not registered)</label>
+                    <input 
+                        type="text"
+                        value={formData.partnerName}
+                        onChange={(e) => setFormData({...formData, partnerName: e.target.value})}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-purple-500/50"
+                        placeholder="e.g. Priya"
+                    />
+                </div>
+            )}
+            <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-400">Story Title</label>
+                <input 
+                    type="text" required
+                    value={formData.title}
+                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-purple-500/50"
+                    placeholder="e.g. A match made in Chhattisgarh"
+                />
+            </div>
+            <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-400">The Success Story</label>
+                <textarea 
+                    required minLength={50}
+                    value={formData.story}
+                    onChange={(e) => setFormData({...formData, story: e.target.value})}
+                    rows={4}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm outline-none resize-none focus:border-purple-500/50"
+                    placeholder="Describe their journey... (min 50 chars)"
+                />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-zinc-400">Wedding Date</label>
+                    <input 
+                        type="date"
+                        value={formData.weddingDate}
+                        onChange={(e) => setFormData({...formData, weddingDate: e.target.value})}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none focus:border-purple-500/50"
+                    />
+                </div>
+                <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-zinc-400">Image URL</label>
+                    <input 
+                        type="url"
+                        value={formData.imageUrl}
+                        onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-purple-500/50"
+                        placeholder="https://..."
+                    />
+                </div>
+            </div>
+            <DialogFooter className="pt-4 gap-2">
+                <Button variant="outline" type="button" onClick={() => setCreateDialogOpen(false)} className="rounded-xl border-white/10 hover:bg-white/5">Cancel</Button>
+                <Button type="submit" disabled={isActionLoading} className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl">
+                    {isActionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Publish Story"}
+                </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* View Details Dialog */}
       <Dialog open={!!viewDialog} onOpenChange={() => setViewDialog(null)}>
-        <DialogContent className="bg-zinc-950 border-white/10 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-zinc-950 border-white/10 text-white max-w-2xl max-h-[90vh] overflow-y-auto font-outfit">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">{viewDialog?.title || "Success Story"}</DialogTitle>
             <DialogDescription className="text-zinc-500">

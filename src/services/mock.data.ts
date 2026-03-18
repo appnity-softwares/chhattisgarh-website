@@ -17,6 +17,7 @@ export const mockData = {
         totalMessages: 15600,
         totalPayments: 840,
         pendingReports: 5,
+        pendingStories: 12,
         totalRevenue: 45000
     } as DashboardStats,
 
@@ -166,7 +167,13 @@ export const mockData = {
 
     configs: [
         { id: 1, key: 'app_theme', value: JSON.stringify({ primary: '#FF9900', secondary: '#78B13F', background: '#FDFBF7', surface: '#FFFFFF', text: '#3D2A20', muted: '#9C8B7B', accent: '#F0C040', border: '#D8D3C5' }), category: 'theme' },
-        { id: 2, key: 'app_info', value: JSON.stringify({ name: 'Chhattisgarh Shaadi', slogan: "Chhattisgarh's #1 Matrimony App", description: 'Find your perfect life partner in Chhattisgarh.' }), category: 'general' },
+        { id: 2, key: 'app_info', value: JSON.stringify({ 
+            name: 'Chhattisgarh Shaadi', 
+            slogan: "Chhattisgarh's #1 Matrimony App", 
+            description: 'Find your perfect life partner in Chhattisgarh.',
+            googlePlayUrl: 'https://play.google.com/store/apps',
+            apkUrl: '#'
+        }), category: 'general' },
         { id: 3, key: 'app_features', value: JSON.stringify({ 
             maintenanceMode: false, 
             disableChat: false, 

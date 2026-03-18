@@ -74,7 +74,9 @@ export default function SettingsPage() {
         description: 'Find your perfect life partner in Chhattisgarh.',
         supportEmail: 'support@chhattisgarhshadi.com',
         supportPhone: '+91 99999 88888',
-        website: 'https://chhattisgarhshadi.com'
+        website: 'https://chhattisgarhshadi.com',
+        googlePlayUrl: 'https://play.google.com/store/apps',
+        apkUrl: '#'
     });
 
     // Feature Toggles
@@ -114,15 +116,15 @@ export default function SettingsPage() {
             setLoading(true);
             const data = await configService.getAllConfigs();
             
-            // Map configs to state
+            // Map configs to state with safe merging
             const themeConfig = data.find(c => c.key === 'app_theme');
-            if (themeConfig) setTheme(JSON.parse(themeConfig.value));
+            if (themeConfig) setTheme(prev => ({ ...prev, ...JSON.parse(themeConfig.value) }));
 
             const infoConfig = data.find(c => c.key === 'app_info');
-            if (infoConfig) setAppInfo(JSON.parse(infoConfig.value));
+            if (infoConfig) setAppInfo(prev => ({ ...prev, ...JSON.parse(infoConfig.value) }));
 
             const featureConfig = data.find(c => c.key === 'app_features');
-            if (featureConfig) setFeatures(JSON.parse(featureConfig.value));
+            if (featureConfig) setFeatures(prev => ({ ...prev, ...JSON.parse(featureConfig.value) }));
 
         } catch (error) {
             console.error('Failed to load configs:', error);
@@ -372,8 +374,16 @@ export default function SettingsPage() {
                                     <Input value={appInfo.website} onChange={(e) => setAppInfo({...appInfo, website: e.target.value})} />
                                 </div>
                                 <div className="space-y-2">
+                                    <Label>Google Play Store Link</Label>
+                                    <Input value={appInfo.googlePlayUrl} onChange={(e) => setAppInfo({...appInfo, googlePlayUrl: e.target.value})} placeholder="https://play.google.com/store/apps/details?id=..." />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>APK Download Link</Label>
+                                    <Input value={appInfo.apkUrl} onChange={(e) => setAppInfo({...appInfo, apkUrl: e.target.value})} placeholder="Direct link to .apk file" />
+                                </div>
+                                <div className="space-y-2">
                                     <Label>Support Email</Label>
-                                    <Input value={appInfo.supportEmail} disabled className="bg-slate-50" />
+                                    <Input value={appInfo.supportEmail} disabled className="bg-white/5 border-white/10" />
                                     <p className="text-[10px] text-muted-foreground">Main contact email is locked for security.</p>
                                 </div>
                             </div>
@@ -391,39 +401,33 @@ export default function SettingsPage() {
                 <TabsContent value="features" className="mt-6">
                     <div className="grid gap-6">
                         {/* Operation Mode */}
-                        <Card className="border-orange-200 bg-orange-50/30">
-                            <CardHeader className="pb-3">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <div className={`p-2 rounded-lg ${offlineMode ? 'bg-orange-100' : 'bg-green-100'}`}>
-                                            <Database className={`w-5 h-5 ${offlineMode ? 'text-orange-600' : 'text-green-600'}`} />
-                                        </div>
-                                        <div>
-                                            <CardTitle>Operation Environment</CardTitle>
-                                            <CardDescription>Toggle between Local Mock data and Live Production API.</CardDescription>
-                                        </div>
+                        <div className="p-6 rounded-2xl border border-orange-500/20 bg-orange-500/5 backdrop-blur-sm">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                <div className="flex items-center gap-4">
+                                    <div className={`p-3 rounded-2xl ${offlineMode ? 'bg-orange-500/20' : 'bg-emerald-500/20'}`}>
+                                        <Database className={`w-6 h-6 ${offlineMode ? 'text-orange-400' : 'text-emerald-400'}`} />
                                     </div>
-                                    <div className="flex items-center gap-3 bg-white p-1 rounded-full border shadow-sm">
-                                        <Button 
-                                            variant={!offlineMode ? "default" : "ghost"} 
-                                            size="sm" 
-                                            className="rounded-full h-8"
-                                            onClick={() => toggleOfflineMode(false)}
-                                        >
-                                            Production
-                                        </Button>
-                                        <Button 
-                                            variant={offlineMode ? "default" : "ghost"} 
-                                            size="sm" 
-                                            className="rounded-full h-8"
-                                            onClick={() => toggleOfflineMode(true)}
-                                        >
-                                            Test Mode
-                                        </Button>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-white">Operation Environment</h3>
+                                        <p className="text-sm text-muted-foreground">Toggle between Local Mock data and Live Production API.</p>
                                     </div>
                                 </div>
-                            </CardHeader>
-                        </Card>
+                                <div className="flex items-center gap-2 bg-black/40 p-1.5 rounded-2xl border border-white/10 shadow-inner">
+                                    <button 
+                                        className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${!offlineMode ? 'bg-primary text-white shadow-lg' : 'text-muted-foreground hover:text-white'}`}
+                                        onClick={() => toggleOfflineMode(false)}
+                                    >
+                                        Production
+                                    </button>
+                                    <button 
+                                        className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${offlineMode ? 'bg-orange-500 text-white shadow-lg' : 'text-muted-foreground hover:text-white'}`}
+                                        onClick={() => toggleOfflineMode(true)}
+                                    >
+                                        Test Mode
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
 
                         <div className="grid gap-6 md:grid-cols-2">
                             <Card>
@@ -432,13 +436,13 @@ export default function SettingsPage() {
                                     <CardDescription>Control the global availability of your platform.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
-                                    <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-100">
-                                        <div className="space-y-0.5">
-                                            <Label className="text-base flex items-center text-red-900">
-                                                <AlertTriangle className="w-4 h-4 mr-2 text-red-600" />
+                                    <div className="flex items-center justify-between p-4 bg-red-500/5 rounded-2xl border border-red-500/20">
+                                        <div className="space-y-1">
+                                            <Label className="text-base font-bold flex items-center text-red-400">
+                                                <AlertTriangle className="w-4 h-4 mr-2" />
                                                 Under Maintenance
                                             </Label>
-                                            <p className="text-sm text-red-700/70">Block all users from accessing the app with a custom message.</p>
+                                            <p className="text-xs text-muted-foreground">Block all users from accessing the app with a system message.</p>
                                         </div>
                                         <Switch 
                                             checked={features.maintenanceMode} 
@@ -484,9 +488,9 @@ export default function SettingsPage() {
                                     <CardDescription>Granular control over available app functionalities.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="grid grid-cols-1 gap-4">
-                                    <div className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                                    <div className="flex items-center justify-between p-2 hover:bg-white/5 rounded-xl transition-colors">
                                         <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-green-100 rounded-lg"><MessageSquare className="w-4 h-4 text-green-600" /></div>
+                                            <div className="p-2 bg-emerald-500/10 rounded-lg"><MessageSquare className="w-4 h-4 text-emerald-400" /></div>
                                             <div>
                                                 <Label className="text-sm font-semibold">Real-time Chat</Label>
                                                 <p className="text-[10px] text-muted-foreground">Direct messaging system</p>
@@ -495,9 +499,9 @@ export default function SettingsPage() {
                                         <Switch checked={!features.disableChat} onCheckedChange={(val) => setFeatures({...features, disableChat: !val})} />
                                     </div>
 
-                                    <div className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                                    <div className="flex items-center justify-between p-2 hover:bg-white/5 rounded-xl transition-colors">
                                         <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-amber-100 rounded-lg"><CreditCard className="w-4 h-4 text-amber-600" /></div>
+                                            <div className="p-2 bg-amber-500/10 rounded-lg"><CreditCard className="w-4 h-4 text-amber-400" /></div>
                                             <div>
                                                 <Label className="text-sm font-semibold">Payments & Subs</Label>
                                                 <p className="text-[10px] text-muted-foreground">Premium purchasing & Razorpay</p>
@@ -506,9 +510,9 @@ export default function SettingsPage() {
                                         <Switch checked={features.enablePayments} onCheckedChange={(val) => setFeatures({...features, enablePayments: val})} />
                                     </div>
 
-                                    <div className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                                    <div className="flex items-center justify-between p-2 hover:bg-white/5 rounded-xl transition-colors">
                                         <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-blue-100 rounded-lg"><Zap className="w-4 h-4 text-blue-600" /></div>
+                                            <div className="p-2 bg-blue-500/10 rounded-lg"><Zap className="w-4 h-4 text-blue-400" /></div>
                                             <div>
                                                 <Label className="text-sm font-semibold">Match Discovery</Label>
                                                 <p className="text-[10px] text-muted-foreground">Finding and browsing profiles</p>
@@ -517,9 +521,9 @@ export default function SettingsPage() {
                                         <Switch checked={features.enableDiscovery} onCheckedChange={(val) => setFeatures({...features, enableDiscovery: val})} />
                                     </div>
 
-                                    <div className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                                    <div className="flex items-center justify-between p-2 hover:bg-white/5 rounded-xl transition-colors">
                                         <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-purple-100 rounded-lg"><Shield className="w-4 h-4 text-purple-600" /></div>
+                                            <div className="p-2 bg-purple-500/10 rounded-lg"><Shield className="w-4 h-4 text-purple-400" /></div>
                                             <div>
                                                 <Label className="text-sm font-semibold">KYC Verification</Label>
                                                 <p className="text-[10px] text-muted-foreground">AADHAAR/Selfie upload flows</p>
@@ -528,9 +532,9 @@ export default function SettingsPage() {
                                         <Switch checked={features.enableVerification} onCheckedChange={(val) => setFeatures({...features, enableVerification: val})} />
                                     </div>
 
-                                    <div className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                                    <div className="flex items-center justify-between p-2 hover:bg-white/5 rounded-xl transition-colors">
                                         <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-pink-100 rounded-lg"><Layout className="w-4 h-4 text-pink-600" /></div>
+                                            <div className="p-2 bg-pink-500/10 rounded-lg"><Layout className="w-4 h-4 text-pink-400" /></div>
                                             <div>
                                                 <Label className="text-sm font-semibold">Testimonials</Label>
                                                 <p className="text-[10px] text-muted-foreground">Success stories on home screen</p>
@@ -539,9 +543,9 @@ export default function SettingsPage() {
                                         <Switch checked={features.showTestimonials} onCheckedChange={(val) => setFeatures({...features, showTestimonials: val})} />
                                     </div>
                                     
-                                    <div className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                                    <div className="flex items-center justify-between p-2 hover:bg-white/5 rounded-xl transition-colors">
                                         <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-orange-100 rounded-lg"><UserPlus className="w-4 h-4 text-orange-600" /></div>
+                                            <div className="p-2 bg-orange-500/10 rounded-lg"><UserPlus className="w-4 h-4 text-orange-400" /></div>
                                             <div>
                                                 <Label className="text-sm font-semibold">Agency Dashboard</Label>
                                                 <p className="text-[10px] text-muted-foreground">Allow Agent/Partner logins</p>
@@ -569,18 +573,18 @@ export default function SettingsPage() {
                             <CardDescription>Critical backend and API security settings.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="p-4 bg-slate-50 rounded-lg border flex items-start gap-4">
-                                <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+                            <div className="p-4 bg-emerald-500/5 rounded-xl border border-emerald-500/20 flex items-start gap-4">
+                                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
                                 <div>
-                                    <h4 className="font-bold text-sm">Automated Security Active</h4>
+                                    <h4 className="font-bold text-sm text-emerald-300">Automated Security Active</h4>
                                     <p className="text-xs text-muted-foreground">Your server is currently handling JWT verification and Rate Limiting automatically.</p>
                                 </div>
                             </div>
-                            <div className="p-4 bg-amber-50 rounded-lg border border-amber-200 flex items-start gap-4">
-                                <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                            <div className="p-4 bg-amber-500/5 rounded-xl border border-amber-500/20 flex items-start gap-4">
+                                <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                                 <div>
-                                    <h4 className="font-bold text-sm text-amber-800">Advanced Lockdown</h4>
-                                    <p className="text-xs text-amber-700">Database connection strings and API keys are protected in environment variables and cannot be modified here for safety.</p>
+                                    <h4 className="font-bold text-sm text-amber-300">Advanced Lockdown</h4>
+                                    <p className="text-xs text-muted-foreground">Database connection strings and API keys are protected in environment variables and cannot be modified here.</p>
                                 </div>
                             </div>
                         </CardContent>

@@ -176,6 +176,7 @@ export interface DashboardStats {
     totalMessages: number;
     totalPayments: number;
     pendingReports: number;
+    pendingStories: number;
 }
 
 // Match Request Type
@@ -238,6 +239,54 @@ export enum ContactMessageStatus {
     PENDING = 'PENDING',
     READ = 'READ',
     REPLIED = 'REPLIED',
+}
+
+export enum SuccessStoryStatus {
+    PENDING = 'PENDING',
+    APPROVED = 'APPROVED',
+    REJECTED = 'REJECTED',
+    ARCHIVED = 'ARCHIVED',
+}
+
+export interface PromoCode {
+    id: number;
+    code: string;
+    discount: number;
+    discountType: 'PERCENTAGE' | 'FLAT';
+    usageCount: number;
+    maxUsage?: number;
+    isActive: boolean;
+    expiresAt: string;
+    createdAt: string;
+}
+
+export interface SuccessStory {
+    id: number;
+    userId1: number;
+    user1: {
+        id: number;
+        email: string;
+        phone?: string;
+        profile?: Profile;
+    };
+    userId2?: number;
+    user2?: {
+        id: number;
+        email: string;
+        phone?: string;
+        profile?: Profile;
+    };
+    partnerName?: string;
+    title?: string;
+    story: string;
+    weddingDate?: string;
+    imageUrl?: string;
+    galleryUrls?: string; // JSON string
+    status: SuccessStoryStatus;
+    isFeatured: boolean;
+    views: number;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface ContactMessage {

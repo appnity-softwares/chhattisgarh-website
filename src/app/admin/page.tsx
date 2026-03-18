@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { 
   Users, DollarSign, UserCheck, FileWarning, RefreshCw, TrendingUp,
   TrendingDown, ArrowRight, Activity, BarChart3, Zap, Crown, 
-  Eye, AlertTriangle, CheckCircle2
+  Eye, AlertTriangle, CheckCircle2, Heart
 } from 'lucide-react';
 import Link from 'next/link';
 import { adminService } from '@/services/admin.service';
@@ -159,6 +159,14 @@ export default function AdminPage() {
       icon: FileWarning,
       colorClass: stats?.pendingReports ? 'stat-card-red' : 'stat-card-orange',
       delay: 'stagger-4',
+    },
+    {
+      title: 'Success Stories',
+      value: stats?.pendingStories ?? (isLoading ? '—' : 0),
+      subtitle: 'Stories for approval',
+      icon: Heart,
+      colorClass: 'stat-card-purple',
+      delay: 'stagger-1',
     },
   ];
 

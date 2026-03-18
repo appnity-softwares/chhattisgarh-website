@@ -52,6 +52,8 @@ export const apiConfig = {
             // Referrals & Agents
             referralsStats: '/admin/referrals/stats',
             agentCommission: '/admin/agents/commissions',
+            successStories: '/admin/success-stories',
+            successStoryById: (id: string) => `/admin/success-stories/${id}`,
         },
         // Contact
         contact: {

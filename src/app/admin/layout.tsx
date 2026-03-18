@@ -7,7 +7,7 @@ import {
   BarChart3, LineChart, Send, DollarSign, FileText, Users, Shield,
   BadgeCheck, Briefcase, FileWarning, Mail, Settings, HelpCircle,
   LogOut, Bell, ChevronLeft, ChevronRight, LayoutDashboard,
-  Wallet, ClipboardList, Menu, X, Sparkles, Activity, Palette
+  Wallet, ClipboardList, Menu, X, Sparkles, Activity, Palette, Heart
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import authService from '@/services/auth.service';
@@ -37,7 +37,6 @@ const navGroups = [
     items: [
       { href: '/admin/users', label: 'Users', icon: Users },
       { href: '/admin/profiles', label: 'Profiles', icon: Shield },
-      { href: '/admin/verifications', label: 'Verifications', icon: BadgeCheck },
       { href: '/admin/agents', label: 'Agents', icon: Briefcase },
     ]
   },
@@ -45,6 +44,7 @@ const navGroups = [
     label: 'Content & Support',
     items: [
       { href: '/admin/reports', label: 'Reports', icon: FileWarning },
+      { href: '/admin/stories', label: 'Success Stories', icon: Heart },
       { href: '/admin/messages', label: 'Messages', icon: Mail },
       { href: '/admin/faqs', label: 'FAQs', icon: HelpCircle },
     ]
@@ -60,7 +60,6 @@ const navGroups = [
   {
     label: 'System',
     items: [
-      { href: '/admin/audit-logs', label: 'Audit Logs', icon: ClipboardList },
       { href: '/admin/theme', label: 'App Theme', icon: Palette },
       { href: '/admin/settings', label: 'Settings', icon: Settings },
     ]

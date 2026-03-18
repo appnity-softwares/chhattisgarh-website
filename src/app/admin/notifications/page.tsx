@@ -1,169 +1,264 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
+import { 
+  Send, Users, History, Bell, Search, 
+  Trash2, Filter, Info, CheckCircle, 
+  AlertTriangle, RefreshCw, Smartphone, 
+  Target, Image as ImageIcon, Zap
+} from 'lucide-react';
+import { AdminPageWrapper } from '../admin-page-wrapper';
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { 
+  Select, SelectContent, SelectItem, 
+  SelectTrigger, SelectValue 
+} from '@/components/ui/select';
+import { marketingService, type Broadcast } from '@/services/marketing.service';
 import { useToast } from '@/hooks/use-toast';
-import { marketingService, PushNotification } from '@/services/marketing.service';
-import { Loader2, Send, History, Users, Target, Image as ImageIcon, Bell } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 
-export default function NotificationCenter() {
+export default function NotificationsPage() {
+    const [history, setHistory] = useState<Broadcast[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSending, setIsSending] = useState(false);
     const { toast } = useToast();
-    const [loading, setLoading] = useState(true);
-    const [sending, setSending] = useState(false);
-    const [history, setHistory] = useState<PushNotification[]>([]);
-    
-    const [form, setForm] = useState({
+
+    // Form state
+    const [formData, setFormData] = useState({
         title: '',
         body: '',
         imageUrl: '',
-        target: 'ALL'
+        target: 'EVERYONE' as any
     });
 
-    useEffect(() => {
-        loadHistory();
-    }, []);
-
-    const loadHistory = async () => {
+    const fetchHistory = async () => {
+        setIsLoading(true);
         try {
-            setLoading(true);
-            const data = await marketingService.getNotificationHistory();
+            const data = await marketingService.getHistory();
             setHistory(data);
-        } catch (error) {
-            console.error('Failed to load history:', error);
+        } catch (error: any) {
+            toast({
+                title: 'Error',
+                description: error.message || 'Failed to fetch notification history',
+                variant: 'destructive'
+            });
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
-    const handleSend = async () => {
-        if (!form.title || !form.body) {
-            toast({ title: 'Error', description: 'Title and body are required', variant: 'destructive' });
+    useEffect(() => {
+        fetchHistory();
+    }, []);
+
+    const handleSend = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!formData.title || !formData.body) {
+            toast({
+                title: 'Validation Error',
+                description: 'Please provide both a title and message body.',
+                variant: 'destructive'
+            });
             return;
         }
 
+        setIsSending(true);
         try {
-            setSending(true);
-            await marketingService.sendNotification(form);
-            toast({ title: 'Success', description: 'Notification sent successfully to queue.' });
-            setForm({ title: '', body: '', imageUrl: '', target: 'ALL' });
-            loadHistory();
-        } catch (error) {
-            toast({ title: 'Error', description: 'Failed to send notification', variant: 'destructive' });
+            const result = await marketingService.sendBroadcast(formData);
+            toast({
+                title: 'Success!',
+                description: `Notification sent to ${result.sentCount} active devices.`,
+                className: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+            });
+            // Reset form
+            setFormData({
+                title: '',
+                body: '',
+                imageUrl: '',
+                target: 'EVERYONE'
+            });
+            fetchHistory();
+        } catch (error: any) {
+            toast({
+                title: 'Error Sending Notification',
+                description: error.message || 'Check your internet or API logs.',
+                variant: 'destructive'
+            });
         } finally {
-            setSending(false);
+            setIsSending(false);
         }
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500 pb-20">
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight">Push Notification Center</h1>
-                <p className="text-muted-foreground">Broadcast messages to your app users in real-time.</p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-                {/* Send Notification */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Send className="w-5 h-5 text-primary" />
-                            Broadcast Message
+        <AdminPageWrapper
+            title="Push Notification Center"
+            description="Manage and send bulk push notifications to your users for announcements or promotions."
+            actions={
+                <Button variant="outline" size="sm" onClick={fetchHistory} disabled={isLoading} className="gap-2">
+                    <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                    Refresh History
+                </Button>
+            }
+        >
+            <div className="grid gap-6 grid-cols-1 lg:grid-cols-12">
+                {/* Send New Notification Form */}
+                <Card className="lg:col-span-5 bg-navy-900/50 border-white/10 overflow-hidden">
+                    <CardHeader className="bg-white/[0.03] border-b border-white/10">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                           <Zap className="w-5 h-5 text-yellow-400" />
+                           Create Broadcast
                         </CardTitle>
-                        <CardDescription>Send a "Megaphone" alert to specific user segments.</CardDescription>
+                        <CardDescription>Target specific user groups with rich notifications</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label>Heading / Title</Label>
-                            <Input 
-                                placeholder="E.g. Happy Holi! Special Offer 🎨" 
-                                value={form.title}
-                                onChange={(e) => setForm({...form, title: e.target.value})}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Message Body</Label>
-                            <Textarea 
-                                placeholder="Details about your announcement..." 
-                                rows={4}
-                                value={form.body}
-                                onChange={(e) => setForm({...form, body: e.target.value})}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Target Segment</Label>
-                            <Select value={form.target} onValueChange={(val) => setForm({...form, target: val})}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select target" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="ALL">All Users (Broadast)</SelectItem>
-                                    <SelectItem value="FREE">Free Users Only</SelectItem>
-                                    <SelectItem value="PREMIUM">Premium Users Only</SelectItem>
-                                    <SelectItem value="PARTIAL_PROFILES">Incomplete Profiles</SelectItem>
-                                    <SelectItem value="RAIPUR">Users in Raipur</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Rich Image URL (Optional)</Label>
-                            <div className="flex gap-2">
-                                <Input 
-                                    placeholder="https://example.com/banner.jpg" 
-                                    value={form.imageUrl}
-                                    onChange={(e) => setForm({...form, imageUrl: e.target.value})}
-                                />
-                                <div className="p-2 border rounded bg-slate-50">
-                                    <ImageIcon className="w-5 h-5 text-muted-foreground" />
-                                </div>
+                    <CardContent className="p-6">
+                        <form onSubmit={handleSend} className="space-y-5">
+                            <div className="space-y-2">
+                                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Target Audience</label>
+                                <Select 
+                                    value={formData.target} 
+                                    onValueChange={(val) => setFormData({ ...formData, target: val })}
+                                >
+                                    <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                                        <SelectValue placeholder="Select Audience" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-navy-900 border-white/10">
+                                        <SelectItem value="EVERYONE" className="text-zinc-300">🎉 Everyone (All Users)</SelectItem>
+                                        <SelectItem value="PREMIUM" className="text-zinc-300">💎 Premium Members Only</SelectItem>
+                                        <SelectItem value="FREE" className="text-zinc-300">🆓 Free Users Only</SelectItem>
+                                        <SelectItem value="INACTIVE" className="text-zinc-300">💤 Inactive Users (30+ days)</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
-                        </div>
+
+                            <div className="space-y-2">
+                                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Notification Title</label>
+                                <Input 
+                                    placeholder="e.g. Special Weekend Offer! 🎁" 
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    className="bg-white/5 border-white/10 text-white"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Message Body</label>
+                                <Textarea 
+                                    placeholder="Enter your message here..."
+                                    rows={4}
+                                    value={formData.body}
+                                    onChange={(e) => setFormData({ ...formData, body: e.target.value })}
+                                    className="bg-white/5 border-white/10 text-white resize-none"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider flex items-center justify-between">
+                                    <span>Rich Image URL (Optional)</span>
+                                    <ImageIcon className="w-3.5 h-3.5 text-zinc-600" />
+                                </label>
+                                <Input 
+                                    placeholder="https://example.com/image.jpg"
+                                    type="url"
+                                    value={formData.imageUrl}
+                                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                                    className="bg-white/5 border-white/10 text-white font-mono text-xs"
+                                />
+                            </div>
+
+                            <div className="pt-4 border-t border-white/5">
+                                <Button 
+                                    type="submit" 
+                                    disabled={isSending}
+                                    className="w-full h-12 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-purple-600/20"
+                                >
+                                    {isSending ? (
+                                        <div className="flex items-center gap-2">
+                                            <RefreshCw className="w-4 h-4 animate-spin" />
+                                            Sending Broadcast...
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center gap-2">
+                                            <Send className="w-4 h-4" />
+                                            Dispatch Push Notification
+                                        </div>
+                                    )}
+                                </Button>
+                            </div>
+                        </form>
                     </CardContent>
-                    <CardFooter className="border-t pt-4">
-                        <Button className="w-full" onClick={handleSend} disabled={sending}>
-                            {sending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Bell className="w-4 h-4 mr-2" />}
-                            Send Now
-                        </Button>
-                    </CardFooter>
                 </Card>
 
-                {/* History */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <History className="w-5 h-5 text-primary" />
-                            Recent Activity
-                        </CardTitle>
-                        <CardDescription>History of last sent broadcasts.</CardDescription>
+                {/* History Listing */}
+                <Card className="lg:col-span-7 bg-navy-900/50 border-white/10 overflow-hidden flex flex-col">
+                    <CardHeader className="bg-white/[0.03] border-b border-white/10 h-20">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <CardTitle className="text-lg">Recent Broadcasts</CardTitle>
+                                <CardDescription>View delivery status of past notifications</CardDescription>
+                            </div>
+                        </div>
                     </CardHeader>
-                    <CardContent>
-                        {loading ? (
-                            <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>
+                    <CardContent className="p-0 flex-1 overflow-auto max-h-[600px]">
+                        {isLoading ? (
+                            <div className="p-10 space-y-4">
+                                {[...Array(5)].map((_, i) => (
+                                    <div key={i} className="h-16 w-full bg-white/5 rounded-xl animate-pulse" />
+                                ))}
+                            </div>
+                        ) : history.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center p-20 text-center opacity-40">
+                                <History className="w-12 h-12 mb-3" />
+                                <p className="text-sm">No broadcast history found</p>
+                            </div>
                         ) : (
-                            <div className="space-y-4">
+                            <div className="divide-y divide-white/[0.05]">
                                 {history.map((item) => (
-                                    <div key={item.id} className="p-3 border rounded-lg hover:bg-slate-50 transition-colors">
-                                        <div className="flex justify-between items-start mb-1">
-                                            <h4 className="font-bold text-sm">{item.title}</h4>
-                                            <Badge variant="outline" className="text-[10px]">{item.status}</Badge>
+                                    <div key={item.id} className="p-5 hover:bg-white/[0.02] transition-colors group">
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`p-2 rounded-lg ${
+                                                    item.status === 'SENT' ? 'bg-emerald-500/10 text-emerald-400' :
+                                                    item.status === 'FAILED' ? 'bg-red-500/10 text-red-400' : 
+                                                    'bg-blue-500/10 text-blue-400'
+                                                }`}>
+                                                    <Smartphone className="w-5 h-5" />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <h4 className="text-white font-medium text-sm truncate">{item.title}</h4>
+                                                    <p className="text-zinc-500 text-xs line-clamp-1 mt-0.5">{item.body}</p>
+                                                </div>
+                                            </div>
+                                            <div className="text-right flex-shrink-0">
+                                                <div className="flex items-center justify-end gap-1.5 mb-1">
+                                                    <Users className="w-3 h-3 text-zinc-500" />
+                                                    <span className="text-xs font-semibold text-white">{item.sentCount}</span>
+                                                </div>
+                                                <p className="text-[10px] text-zinc-600 uppercase font-bold tracking-tighter">{item.target}</p>
+                                            </div>
                                         </div>
-                                        <p className="text-xs text-muted-foreground line-clamp-1 mb-2">{item.body}</p>
-                                        <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                                            <div className="flex items-center gap-1">
-                                                <Target className="w-3 h-3" />
-                                                {item.target}
+                                        
+                                        <div className="mt-4 flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                                                    item.status === 'SENT' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                                                    item.status === 'FAILED' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 
+                                                    'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                                                }`}>
+                                                    {item.status}
+                                                </span>
+                                                <span className="text-[10px] text-zinc-500">
+                                                    {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+                                                </span>
                                             </div>
-                                            <div className="flex items-center gap-1">
-                                                <Users className="w-3 h-3" />
-                                                Reached {item.reach}
-                                            </div>
-                                            <span>{format(new Date(item.sentAt), 'MMM d, h:mm a')}</span>
+                                            
+                                            {item.imageUrl && (
+                                                <div className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[9px] text-zinc-400 font-mono">
+                                                    HAS_IMAGE
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
@@ -172,6 +267,6 @@ export default function NotificationCenter() {
                     </CardContent>
                 </Card>
             </div>
-        </div>
+        </AdminPageWrapper>
     );
 }

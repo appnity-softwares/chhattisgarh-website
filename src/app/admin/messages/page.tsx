@@ -1,95 +1,51 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { AdminPageWrapper } from "@/app/admin/admin-page-wrapper";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-    MoreHorizontal,
-    RefreshCw,
-    ChevronLeft,
-    ChevronRight,
-    Mail,
-    Phone,
-    MessageSquare,
-    Trash2,
-    CheckCircle,
-    Clock
-} from "lucide-react";
-import {
-    DropdownMenu,
-    DropdownMenuTrigger,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue
-} from "@/components/ui/select";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "@/components/ui/dialog";
-import { contactService } from "@/services/contact.service";
-import { ContactMessage, ContactMessageStatus } from "@/types/api.types";
+import { useState, useEffect } from 'react';
+import { 
+  Mail, Search, Trash2, Filter, 
+  RefreshCw, CheckCircle, Clock, 
+  MoreVertical, Reply, Eye, 
+  MessageSquare, User as UserIcon, Calendar,
+  ArrowRight, Phone, Info
+} from 'lucide-react';
+import { AdminPageWrapper } from '../admin-page-wrapper';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { 
+  Select, SelectContent, SelectItem, 
+  SelectTrigger, SelectValue 
+} from '@/components/ui/select';
+import { 
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, 
+  DropdownMenuTrigger, DropdownMenuSeparator 
+} from '@/components/ui/dropdown-menu';
+import { contactService } from '@/services/contact.service';
+import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
-import { useToast } from "@/hooks/use-toast";
+import { ContactMessageStatus, SuccessStoryStatus } from '@/types/api.types';
+import type { ContactMessage } from '@/types/api.types';
 
-const statusColors: Record<ContactMessageStatus, 'default' | 'secondary' | 'outline'> = {
-    PENDING: 'secondary',
-    READ: 'outline',
-    REPLIED: 'default',
-};
-
-export default function AdminMessagesPage() {
-    const { toast } = useToast();
+export default function MessagesPage() {
     const [messages, setMessages] = useState<ContactMessage[]>([]);
-    const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 0 });
-    const [isLoading, setIsLoading] = useState(true);
-    const [statusFilter, setStatusFilter] = useState<ContactMessageStatus | 'ALL'>('ALL');
     const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
-    const [isViewOpen, setIsViewOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [filterStatus, setFilterStatus] = useState<string>('ALL');
+    const { toast } = useToast();
 
-    const fetchMessages = async (page = 1) => {
+    const fetchMessages = async () => {
         setIsLoading(true);
         try {
-            const result = await contactService.getMessages(
-                page,
-                10,
-                statusFilter === 'ALL' ? undefined : statusFilter
-            );
-            // Result is expected to be ContactMessage[] from fetchWithAuth, but our service might return {messages, pagination}
-            // Based on contactService.ts: result = await this.fetchWithAuth<ContactMessage[]>(url);
-            // But my backend returns { success, data, pagination }
-            // Let's assume the data is in result if fetchWithAuth returns data.
-            // If result is an array, then it's messages.
-            if (Array.isArray(result)) {
-                setMessages(result);
-                setPagination({ page, limit: 10, total: result.length, totalPages: 1 });
-            } else {
-                // If result is { messages, pagination } or something else
-                const res = result as any;
-                setMessages(res.messages || res.data || []);
-                setPagination(res.pagination || { page: 1, limit: 10, total: 0, totalPages: 1 });
-            }
-        } catch (err: any) {
-            console.error('Failed to fetch messages:', err);
+            // Reusing getMessages
+            const status = filterStatus === 'ALL' ? undefined : filterStatus as ContactMessageStatus;
+            const result = await contactService.getMessages(1, 100, status);
+            // Result is actually mapping to 'data' in our controller response
+            setMessages(Array.isArray(result) ? result : (result as any).data || []);
+        } catch (error: any) {
             toast({
-                variant: 'destructive',
                 title: 'Error',
-                description: err.message || 'Failed to load messages',
+                description: error.message || 'Failed to fetch contact messages',
+                variant: 'destructive'
             });
         } finally {
             setIsLoading(false);
@@ -98,21 +54,25 @@ export default function AdminMessagesPage() {
 
     useEffect(() => {
         fetchMessages();
-    }, [statusFilter]);
+    }, [filterStatus]);
 
-    const handleStatusChange = async (messageId: number, newStatus: ContactMessageStatus) => {
+    const handleUpdateStatus = async (id: number, status: ContactMessageStatus) => {
         try {
-            await contactService.updateStatus(messageId.toString(), newStatus);
+            await contactService.updateStatus(id.toString(), status);
             toast({
-                title: 'Success',
-                description: 'Message status updated successfully',
+                title: 'Status Updated',
+                description: `Message marked as ${status.toLowerCase()}`,
+                className: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
             });
-            fetchMessages(pagination.page);
-        } catch (err: any) {
+            fetchMessages();
+            if (selectedMessage?.id === id) {
+                setSelectedMessage({ ...selectedMessage, status });
+            }
+        } catch (error: any) {
             toast({
-                variant: 'destructive',
                 title: 'Error',
-                description: err.message || 'Failed to update message',
+                description: error.message || 'Failed to update status',
+                variant: 'destructive'
             });
         }
     };
@@ -122,231 +82,229 @@ export default function AdminMessagesPage() {
         try {
             await contactService.deleteMessage(id.toString());
             toast({
-                title: 'Deleted',
-                description: 'Message deleted successfully',
+                title: 'Message Deleted',
+                description: 'Support request removed permanently.'
             });
-            fetchMessages(pagination.page);
-        } catch (err: any) {
+            fetchMessages();
+            if (selectedMessage?.id === id) setSelectedMessage(null);
+        } catch (error: any) {
             toast({
-                variant: 'destructive',
                 title: 'Error',
-                description: err.message || 'Failed to delete message',
+                description: error.message || 'Failed to delete message',
+                variant: 'destructive'
             });
         }
     };
 
-    const openViewDialog = (message: ContactMessage) => {
-        setSelectedMessage(message);
-        setIsViewOpen(true);
-        if (message.status === 'PENDING') {
-            handleStatusChange(message.id, 'READ' as ContactMessageStatus);
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'PENDING': return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+            case 'READ': return 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20';
+            case 'REPLIED': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+            default: return 'bg-zinc-500/10 text-zinc-400';
         }
     };
 
     return (
-        <AdminPageWrapper>
-            <div className="flex flex-col gap-6">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Contact Messages</h1>
-                        <p className="text-muted-foreground">
-                            View and manage messages from the website contact form.
-                        </p>
-                    </div>
-                    <Button variant="outline" size="sm" onClick={() => fetchMessages(pagination.page)} disabled={isLoading}>
-                        <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-                        Refresh
-                    </Button>
-                </div>
-
-                <Card>
-                    <CardHeader>
-                        <div className="flex gap-4">
-                            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as ContactMessageStatus | 'ALL')}>
-                                <SelectTrigger className="w-[180px]">
-                                    <SelectValue placeholder="Filter by status" />
+        <AdminPageWrapper
+            title="Customer Support Requests"
+            description="Manage incoming inquiries and support requests from users and visitors."
+            actions={
+                <Button variant="outline" size="sm" onClick={fetchMessages} disabled={isLoading} className="gap-2">
+                    <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                    Refresh
+                </Button>
+            }
+        >
+            <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-220px)] min-h-[500px]">
+                {/* Master List */}
+                <Card className="lg:w-1/3 bg-navy-900/50 border-white/10 flex flex-col overflow-hidden">
+                    <div className="p-4 border-b border-white/10 bg-white/[0.03]">
+                        <div className="flex items-center gap-2 mb-3">
+                            <Input 
+                                placeholder="Search messages..."
+                                className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 h-9"
+                            />
+                            <Select value={filterStatus} onValueChange={setFilterStatus}>
+                                <SelectTrigger className="w-[110px] bg-white/5 border-white/10 text-white h-9">
+                                    <SelectValue placeholder="Status" />
                                 </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="ALL">All Messages</SelectItem>
-                                    <SelectItem value="PENDING">Pending</SelectItem>
+                                <SelectContent className="bg-navy-900 border-white/10">
+                                    <SelectItem value="ALL">All</SelectItem>
+                                    <SelectItem value="PENDING">New</SelectItem>
                                     <SelectItem value="READ">Read</SelectItem>
                                     <SelectItem value="REPLIED">Replied</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
-                    </CardHeader>
-                    <CardContent>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto divide-y divide-white/[0.05]">
                         {isLoading ? (
-                            <div className="space-y-3">
+                            <div className="p-8 space-y-4">
                                 {[...Array(5)].map((_, i) => (
-                                    <Skeleton key={i} className="h-16 w-full" />
+                                    <div key={i} className="h-16 w-full bg-white/5 rounded-xl animate-pulse" />
                                 ))}
                             </div>
+                        ) : messages.length === 0 ? (
+                            <div className="p-12 text-center opacity-40">
+                                <Mail className="w-10 h-10 mx-auto mb-3" />
+                                <p className="text-sm">No messages found</p>
+                            </div>
                         ) : (
-                            <>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Sender</TableHead>
-                                            <TableHead>Subject</TableHead>
-                                            <TableHead>Status</TableHead>
-                                            <TableHead className="hidden md:table-cell">Date</TableHead>
-                                            <TableHead className="text-right">Actions</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {messages.length === 0 ? (
-                                            <TableRow>
-                                                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                                                    No messages found
-                                                </TableCell>
-                                            </TableRow>
-                                        ) : (
-                                            messages.map(msg => (
-                                                <TableRow key={msg.id}>
-                                                    <TableCell>
-                                                        <div className="flex flex-col">
-                                                            <span className="font-medium">{msg.name}</span>
-                                                            <span className="text-xs text-muted-foreground">{msg.email}</span>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <span className="truncate max-w-[200px] block">
-                                                            {msg.subject || 'No Subject'}
-                                                        </span>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Badge variant={statusColors[msg.status]}>
-                                                            {msg.status}
-                                                        </Badge>
-                                                    </TableCell>
-                                                    <TableCell className="hidden md:table-cell text-muted-foreground">
-                                                        {formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true })}
-                                                    </TableCell>
-                                                    <TableCell className="text-right">
-                                                        <div className="flex justify-end gap-2">
-                                                            <Button variant="ghost" size="icon" onClick={() => openViewDialog(msg)}>
-                                                                <MessageSquare className="h-4 w-4" />
-                                                            </Button>
-                                                            <DropdownMenu>
-                                                                <DropdownMenuTrigger asChild>
-                                                                    <Button variant="ghost" size="icon">
-                                                                        <MoreHorizontal className="h-4 w-4" />
-                                                                    </Button>
-                                                                </DropdownMenuTrigger>
-                                                                <DropdownMenuContent align="end">
-                                                                    <DropdownMenuLabel>Manage</DropdownMenuLabel>
-                                                                    <DropdownMenuSeparator />
-                                                                    <DropdownMenuItem onClick={() => handleStatusChange(msg.id, 'REPLIED' as ContactMessageStatus)}>
-                                                                        <CheckCircle className="mr-2 h-4 w-4" />
-                                                                        Mark Replied
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuItem onClick={() => handleStatusChange(msg.id, 'PENDING' as ContactMessageStatus)}>
-                                                                        <Clock className="mr-2 h-4 w-4" />
-                                                                        Mark Pending
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuSeparator />
-                                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(msg.id)}>
-                                                                        <Trash2 className="mr-2 h-4 w-4" />
-                                                                        Delete
-                                                                    </DropdownMenuItem>
-                                                                </DropdownMenuContent>
-                                                            </DropdownMenu>
-                                                        </div>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))
-                                        )}
-                                    </TableBody>
-                                </Table>
-
-                                {/* Pagination */}
-                                <div className="flex items-center justify-between mt-4">
-                                    <p className="text-sm text-muted-foreground">
-                                        Showing {messages.length} of {pagination.total} messages
+                            messages.map((msg) => (
+                                <div 
+                                    key={msg.id} 
+                                    onClick={() => setSelectedMessage(msg)}
+                                    className={`p-4 cursor-pointer transition-all hover:bg-white/[0.03] relative border-l-2 ${
+                                        selectedMessage?.id === msg.id ? 'bg-white/[0.05] border-purple-500' : 
+                                        msg.status === 'PENDING' ? 'border-blue-500' : 'border-transparent'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between mb-1">
+                                        <h4 className="text-white font-semibold text-sm truncate max-w-[150px]">{msg.name}</h4>
+                                        <span className="text-[10px] text-zinc-500">
+                                            {formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true })}
+                                        </span>
+                                    </div>
+                                    <p className={`text-xs truncate ${msg.status === 'PENDING' ? 'text-zinc-300 font-medium' : 'text-zinc-500'}`}>
+                                        {msg.subject || 'Support Request'}
                                     </p>
-                                    <div className="flex gap-2">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => fetchMessages(pagination.page - 1)}
-                                            disabled={pagination.page <= 1}
-                                        >
-                                            <ChevronLeft className="h-4 w-4" />
-                                            Prev
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => fetchMessages(pagination.page + 1)}
-                                            disabled={pagination.page >= pagination.totalPages}
-                                        >
-                                            Next
-                                            <ChevronRight className="h-4 w-4" />
-                                        </Button>
+                                    <div className="mt-2 flex items-center justify-between">
+                                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase ${getStatusColor(msg.status)}`}>
+                                            {msg.status}
+                                        </span>
                                     </div>
                                 </div>
-                            </>
+                            ))
                         )}
-                    </CardContent>
+                    </div>
                 </Card>
-            </div>
 
-            {/* View Message Dialog */}
-            <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-                <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                        <DialogTitle>Message Details</DialogTitle>
-                        <DialogDescription>
-                            Received {selectedMessage && formatDistanceToNow(new Date(selectedMessage.createdAt), { addSuffix: true })}
-                        </DialogDescription>
-                    </DialogHeader>
-                    {selectedMessage && (
-                        <div className="space-y-4 py-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <span className="text-sm font-medium text-muted-foreground">From</span>
-                                    <p className="flex items-center gap-2">
-                                        <Mail className="h-4 w-4 text-primary" />
-                                        {selectedMessage.name} ({selectedMessage.email})
-                                    </p>
-                                </div>
-                                {selectedMessage.phone && (
-                                    <div className="space-y-1">
-                                        <span className="text-sm font-medium text-muted-foreground">Phone</span>
-                                        <p className="flex items-center gap-2">
-                                            <Phone className="h-4 w-4 text-primary" />
-                                            {selectedMessage.phone}
-                                        </p>
+                {/* Detail View */}
+                <Card className="lg:w-2/3 bg-navy-900/50 border-white/10 flex flex-col overflow-hidden">
+                    {selectedMessage ? (
+                        <div className="h-full flex flex-col">
+                            <div className="p-6 border-b border-white/10 bg-white/[0.03] flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-full bg-purple-600/20 border border-purple-500/20 flex items-center justify-center">
+                                       <UserIcon className="w-6 h-6 text-purple-400" />
                                     </div>
-                                )}
+                                    <div>
+                                        <h2 className="text-xl font-bold text-white uppercase tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                                            {selectedMessage.name}
+                                        </h2>
+                                        <div className="flex items-center gap-2 text-xs text-zinc-500 mt-0.5">
+                                            <Mail className="w-3 h-3" /> {selectedMessage.email}
+                                            {selectedMessage.phone && (
+                                                <>
+                                                  <span className="opacity-30">|</span>
+                                                  <Phone className="w-3 h-3" /> {selectedMessage.phone}
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="outline" size="icon" className="h-9 w-9 bg-white/5 border-white/10">
+                                                <MoreVertical className="w-4 h-4 text-white" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent className="bg-navy-900 border-white/10">
+                                            <DropdownMenuItem onClick={() => handleUpdateStatus(selectedMessage.id, ContactMessageStatus.REPLIED)} className="text-emerald-400">
+                                                <CheckCircle className="w-4 h-4 mr-2" /> Mark as Replied
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => handleUpdateStatus(selectedMessage.id, ContactMessageStatus.READ)} className="text-blue-400">
+                                                <Eye className="w-4 h-4 mr-2" /> Mark as Read
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator className="bg-white/5" />
+                                            <DropdownMenuItem onClick={() => handleDelete(selectedMessage.id)} className="text-red-400">
+                                                <Trash2 className="w-4 h-4 mr-2" /> Delete Message
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </div>
                             </div>
-                            <div className="space-y-1">
-                                <span className="text-sm font-medium text-muted-foreground">Subject</span>
-                                <p className="font-medium text-lg">{selectedMessage.subject || 'No Subject'}</p>
+
+                            <div className="flex-1 p-8 overflow-y-auto space-y-8">
+                                <section className="space-y-3">
+                                    <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                                        <MessageSquare className="w-3 h-3" /> Subject
+                                    </div>
+                                    <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-white font-medium">
+                                        {selectedMessage.subject || 'Inquiry regarding services'}
+                                    </div>
+                                </section>
+
+                                <section className="space-y-3">
+                                    <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                                        <Reply className="w-3 h-3" /> Message Content
+                                    </div>
+                                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-zinc-300 leading-relaxed font-light text-base italic shadow-inner">
+                                        "{selectedMessage.message}"
+                                    </div>
+                                </section>
+
+                                <div className="grid grid-cols-2 gap-4 mt-8">
+                                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 flex items-center gap-3">
+                                        <Calendar className="w-4 h-4 text-zinc-600" />
+                                        <div>
+                                            <p className="text-[10px] text-zinc-600 uppercase font-bold tracking-tighter">Received</p>
+                                            <p className="text-xs text-zinc-400">{new Date(selectedMessage.createdAt).toLocaleString()}</p>
+                                        </div>
+                                    </div>
+                                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 flex items-center gap-3">
+                                        <Clock className="w-4 h-4 text-zinc-600" />
+                                        <div>
+                                            <p className="text-[10px] text-zinc-600 uppercase font-bold tracking-tighter">Last Status</p>
+                                            <p className={`text-xs font-semibold ${
+                                                selectedMessage.status === 'PENDING' ? 'text-blue-400' :
+                                                selectedMessage.status === 'REPLIED' ? 'text-emerald-400' : 'text-zinc-500'
+                                            }`}>
+                                                {selectedMessage.status}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="space-y-1">
-                                <span className="text-sm font-medium text-muted-foreground">Message</span>
-                                <div className="p-4 bg-muted rounded-lg whitespace-pre-wrap">
-                                    {selectedMessage.message}
+
+                            <div className="p-6 border-t border-white/10 bg-white/[0.03] flex items-center justify-between">
+                                <div className="text-xs text-zinc-500 flex items-center gap-1">
+                                    <Info className="w-3 h-3" /> 
+                                    Click the action menu to update status after responding via email or phone.
+                                </div>
+                                <div className="flex gap-3">
+                                    <Button 
+                                      variant="outline" 
+                                      onClick={() => window.open(`mailto:${selectedMessage.email}?subject=Re: ${selectedMessage.subject || 'Matrimony Support'}`)}
+                                      className="border-blue-500/20 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500/40"
+                                    >
+                                        <Mail className="w-4 h-4 mr-2" /> Email Reply
+                                    </Button>
+                                    <Button 
+                                      className="bg-purple-600 hover:bg-purple-500 text-white"
+                                      onClick={() => handleUpdateStatus(selectedMessage.id, ContactMessageStatus.REPLIED)}
+                                    >
+                                        Mark as Handled
+                                    </Button>
                                 </div>
                             </div>
                         </div>
+                    ) : (
+                        <div className="h-full flex flex-col items-center justify-center p-20 text-center opacity-30">
+                            <div className="w-20 h-20 rounded-full border-2 border-dashed border-zinc-700 flex items-center justify-center mb-6">
+                                <Mail className="w-8 h-8 text-zinc-600" />
+                            </div>
+                            <h3 className="text-xl font-medium text-white mb-2">Select a Message</h3>
+                            <p className="text-sm max-w-[300px]">
+                                Click on a support request from the list to view its contents and take action.
+                            </p>
+                        </div>
                     )}
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsViewOpen(false)}>Close</Button>
-                        <Button onClick={() => {
-                            if (selectedMessage) {
-                                window.location.href = `mailto:${selectedMessage.email}?subject=RE: ${selectedMessage.subject}`;
-                                handleStatusChange(selectedMessage.id, 'REPLIED' as ContactMessageStatus);
-                                setIsViewOpen(false);
-                            }
-                        }}>
-                            Reply via Email
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                </Card>
+            </div>
         </AdminPageWrapper>
     );
 }

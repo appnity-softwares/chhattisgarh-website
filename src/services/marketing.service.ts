@@ -1,31 +1,37 @@
 import apiConfig, { getAuthHeaders, ApiResponse } from '@/lib/api.config';
-import { withMock, mockData } from './mock.data';
+import type { PromoCode } from '@/types/api.types';
 
-export interface PushNotification {
+export interface Broadcast {
     id: number;
     title: string;
     body: string;
     imageUrl?: string;
     target: string;
-    status: string;
-    sentAt: string;
-    reach: number;
-}
-
-export interface PromoCode {
-    id: number;
-    code: string;
-    discount: number;
-    type: 'PERCENTAGE' | 'FLAT';
-    usageCount: number;
-    isActive: boolean;
-    expiresAt: string;
+    sentCount: number;
+    failedCount: number;
+    status: 'DRAFT' | 'SENDING' | 'SENT' | 'FAILED';
+    sentAt?: string;
+    createdAt: string;
 }
 
 class MarketingService {
-    private async fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    private getToken(): string | null {
+        if (typeof window === 'undefined') return null;
         const storage = localStorage.getItem('admin-auth-storage');
-        const token = storage ? JSON.parse(storage).state?.accessToken : null;
+        if (!storage) return null;
+        try {
+            const parsed = JSON.parse(storage);
+            return parsed.state?.accessToken || null;
+        } catch {
+            return null;
+        }
+    }
+
+    private async fetchWithAuth<T>(
+        endpoint: string,
+        options: RequestInit = {}
+    ): Promise<T> {
+        const token = this.getToken();
 
         const response = await fetch(`${apiConfig.baseUrl}${endpoint}`, {
             ...options,
@@ -36,49 +42,67 @@ class MarketingService {
         });
 
         const data: ApiResponse<T> = await response.json();
-        if (!response.ok) throw new Error(data.message || 'Request failed');
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Request failed');
+        }
+
         return data.data;
     }
 
-    // Notifications
-    async getNotificationHistory(): Promise<PushNotification[]> {
-        return withMock(mockData.notifications, () => 
-            this.fetchWithAuth<PushNotification[]>(apiConfig.endpoints.admin.notificationsHistory)
-        );
-    }
-
-    async sendNotification(data: any): Promise<any> {
-        return withMock({ success: true, message: 'Notification scheduled' }, () =>
-            this.fetchWithAuth(apiConfig.endpoints.admin.notificationsSend, {
+    /**
+     * Send a bulk notification
+     */
+    async sendBroadcast(data: {
+        title: string;
+        body: string;
+        imageUrl?: string;
+        target: 'EVERYONE' | 'PREMIUM' | 'FREE' | 'INACTIVE';
+    }): Promise<{ sentCount: number }> {
+        return this.fetchWithAuth<{ sentCount: number }>(
+            apiConfig.endpoints.admin.notificationsSend,
+            {
                 method: 'POST',
-                body: JSON.stringify(data)
-            })
+                body: JSON.stringify(data),
+            }
         );
     }
 
-    // Promo Codes
+    /**
+     * Get broadcast history
+     */
+    async getHistory(): Promise<Broadcast[]> {
+        return this.fetchWithAuth<Broadcast[]>(
+            apiConfig.endpoints.admin.notificationsHistory
+        );
+    }
+
+    /**
+     * Get all promo codes
+     */
     async getPromoCodes(): Promise<PromoCode[]> {
-        return withMock(mockData.promoCodes as PromoCode[], () =>
-            this.fetchWithAuth<PromoCode[]>(apiConfig.endpoints.admin.promoCodes)
-        );
+        return this.fetchWithAuth<PromoCode[]>(apiConfig.endpoints.admin.promoCodes);
     }
 
+    /**
+     * Create a new promo code
+     */
     async createPromoCode(data: any): Promise<PromoCode> {
-        return withMock({ id: Math.random(), usageCount: 0, ...data }, () =>
-            this.fetchWithAuth<PromoCode>(apiConfig.endpoints.admin.promoCodes, {
-                method: 'POST',
-                body: JSON.stringify(data)
-            })
-        );
+        return this.fetchWithAuth<PromoCode>(apiConfig.endpoints.admin.promoCodes, {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
     }
 
+    /**
+     * Delete a promo code
+     */
     async deletePromoCode(id: number): Promise<void> {
-        return withMock(undefined, () =>
-            this.fetchWithAuth<void>(apiConfig.endpoints.admin.promoCodeById(String(id)), {
-                method: 'DELETE'
-            })
-        );
+        return this.fetchWithAuth<void>(apiConfig.endpoints.admin.promoCodeById(id.toString()), {
+            method: 'DELETE',
+        });
     }
 }
 
 export const marketingService = new MarketingService();
+export default marketingService;

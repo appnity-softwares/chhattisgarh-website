@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.chhattisgarhshaadi.app",
+      "sha256_cert_fingerprints": [
+        "8B:28:9A:F7:51:1A:7F:5C:2B:6D:72:99:65:C5:ED:E9:77:27:7A:55:B4:AD:10:5B:77:9A:E1:C4:85:B4:66:9C"
+      ]
+    }
+  }
+]

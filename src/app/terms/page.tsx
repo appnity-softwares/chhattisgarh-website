@@ -139,7 +139,20 @@ export default function TermsPage() {
 
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>9. नियमों में बदलाव</CardTitle>
+                                    <CardTitle>9. बाल सुरक्षा और CSAE नीति (Child Safety & CSAE Policy)</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <p className="font-semibold">App Name: ChhattisgarhShadi.Com</p>
+                                    <p className="font-semibold">Developer: Appnity Softwares Private Limited</p>
+                                    <p>छत्तीसगढ़ शादी के उपयोग के लिए आपकी आयु 18 वर्ष या उससे अधिक होनी चाहिए। हम बाल यौन शोषण और दुर्व्यवहार (Child Sexual Abuse and Exploitation - CSAE) के खिलाफ जीरो-टॉलरेंस नीति रखते हैं।</p>
+                                    <p>CSAE या बाल सुरक्षा से संबंधित किसी भी प्रावधान का उल्लंघन करने वाले किसी भी खाते को तुरंत समाप्त कर दिया जाएगा और उचित कानूनी एजेंसियों (Law Enforcement) को रिपोर्ट किया जाएगा।</p>
+                                    <p>यदि आपको बच्चों की सुरक्षा को लेकर कोई संदिग्ध गतिविधि दिखाई देती है, तो कृपया ऐप के रिपोर्ट विकल्प का उपयोग करें या तुरंत हमारे बाल सुरक्षा संपर्क बिंदु (Child safety-specific point of contact) <a href="mailto:support@chhattisgarhshadi.com" className="text-primary hover:underline">support@chhattisgarhshadi.com</a> पर सूचित करें।</p>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>10. नियमों में बदलाव</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <p>हम समय–समय पर इन नियमों में बदलाव कर सकते हैं। नवीनतम नियम हमारी वेबसाइट/ऐप पर उपलब्ध होंगे।</p>

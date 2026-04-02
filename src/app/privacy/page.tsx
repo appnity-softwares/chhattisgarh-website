@@ -122,6 +122,25 @@ export default function PrivacyPage() {
                                     <CardTitle>7. बच्चों की सुरक्षा और CSAE नीति (Child Safety & CSAE Policy)</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
+                                    <div className="border-l-4 border-primary pl-4 py-2 bg-primary/5 rounded-r-lg mb-6 text-sm">
+                                        <p className="font-bold text-base mb-2 underline text-card-foreground">English Version (Mandatory for Google Play Compliance)</p>
+                                        <p className="font-semibold italic mb-1">App: ChhattisgarhShadi.Com</p>
+                                        <p className="font-semibold italic mb-3">Developer: Appnity Softwares Private Limited</p>
+                                        
+                                        <p className="mb-2 font-bold text-red-600">Zero-Tolerance for CSAE & Predatory Behavior:</p>
+                                        <ul className="mb-4 text-xs list-disc pl-5 space-y-1">
+                                            <li>Inappropriate interaction targeted at a child.</li>
+                                            <li>Child grooming and solicitation.</li>
+                                            <li>Sexualization of a minor and portrayals of exploitation.</li>
+                                            <li>Sextortion and blackmail of children.</li>
+                                            <li>Trafficking of children for commercial sexual exploitation.</li>
+                                            <li>Creation or distribution of Child Sexual Abuse Material (CSAM).</li>
+                                        </ul>
+                                        <p className="mb-2"><strong>Platform Policy:</strong> Our service is exclusively for adults (18+). Any interaction endangering minors will lead to immediate account termination and reporting to LEAs and NCMEC.</p>
+                                        <p className="mb-2"><strong>Reporting Mechanism:</strong> Users MUST report any violative content using the in-app reporting tools. We take action immediately upon knowledge.</p>
+                                        <p className="mb-2"><strong>Safety Contact:</strong> For concerns, email our designated child safety point of contact: <a href="mailto:chhattisgarhshadi@gmail.com" className="text-primary font-bold hover:underline">chhattisgarhshadi@gmail.com</a>.</p>
+                                    </div>
+                                    <hr className="my-4" />
                                     <p className="font-semibold">App Name: ChhattisgarhShadi.Com</p>
                                     <p className="font-semibold">Developer: Appnity Softwares Private Limited</p>
                                     <p>18 वर्ष से कम उम्र के लोगों को यह प्लेटफ़ॉर्म उपयोग करने की अनुमति नहीं है।</p>
@@ -129,7 +148,7 @@ export default function PrivacyPage() {
                                         ChhattisgarhShadi.Com पर बाल यौन शोषण और दुर्व्यवहार (Child Sexual Abuse and Exploitation - CSAE) सख्त वर्जित है। हमारा प्लेटफ़ॉर्म बच्चों की सुरक्षा सुनिश्चित करने के लिए प्रतिबद्ध है। यदि कोई उपयोगकर्ता इस नीति का उल्लंघन करते हुए पाया जाता है, तो उसका खाता तुरंत प्रभाव से बंद कर दिया जाएगा और हम संबंधित कानूनी जांच एजेंसियों (Law Enforcement) को इसकी सूचना देंगे।
                                     </p>
                                     <p>
-                                        यदि आपको कोई ऐसी गतिविधि या सामग्री दिखाई देती है जो बाल सुरक्षा के खिलाफ है, तो कृपया ऐप के भीतर 'Report' विकल्प का उपयोग करें या तुरंत हमारे बाल सुरक्षा संपर्क बिंदु (Child safety-specific point of contact) <a href="mailto:support@chhattisgarhshadi.com" className="text-primary hover:underline">support@chhattisgarhshadi.com</a> पर सूचित करें।
+                                        यदि आपको कोई ऐसी गतिविधि या सामग्री दिखाई देती है जो बाल सुरक्षा के खिलाफ है, तो कृपया ऐप के भीतर 'Report' विकल्प का उपयोग करें या तुरंत हमारे बाल सुरक्षा संपर्क बिंदु (Child safety-specific point of contact) <a href="mailto:chhattisgarhshadi@gmail.com" className="text-primary hover:underline">chhattisgarhshadi@gmail.com</a> पर सूचित करें।
                                     </p>
                                 </CardContent>
                             </Card>

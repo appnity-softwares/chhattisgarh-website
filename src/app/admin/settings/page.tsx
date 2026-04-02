@@ -72,7 +72,7 @@ export default function SettingsPage() {
         name: 'Chhattisgarh Shaadi',
         slogan: "Chhattisgarh's #1 Matrimony App",
         description: 'Find your perfect life partner in Chhattisgarh.',
-        supportEmail: 'support@chhattisgarhshadi.com',
+        supportEmail: 'chhattisgarhshadi@gmail.com',
         supportPhone: '+91 99999 88888',
         website: 'https://chhattisgarhshadi.com',
         googlePlayUrl: 'https://play.google.com/store/apps',

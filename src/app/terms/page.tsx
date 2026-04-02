@@ -142,11 +142,33 @@ export default function TermsPage() {
                                     <CardTitle>9. बाल सुरक्षा और CSAE नीति (Child Safety & CSAE Policy)</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
+                                    <div className="border-l-4 border-primary pl-4 py-2 bg-primary/5 rounded-r-lg mb-6">
+                                        <p className="font-bold text-lg mb-2 underline">English Version (Mandatory for Google Play Compliance)</p>
+                                        <p className="font-semibold italic mb-1">App Name: ChhattisgarhShadi.Com</p>
+                                        <p className="font-semibold italic mb-3">Developer: Appnity Softwares Private Limited</p>
+                                        
+                                        <p className="mb-2 font-bold text-red-600">Strict Zero-Tolerance Policy for Child Sexual Abuse and Exploitation (CSAE):</p>
+                                        <p className="mb-2 text-sm text-foreground">ChhattisgarhShadi.Com strictly prohibits any behavior, content, or activity that facilitates the exploitation or abuse of children. We have a Zero-Tolerance policy for the following:</p>
+                                        <ul className="mb-4 text-sm list-disc pl-5 space-y-1">
+                                            <li><strong>Inappropriate interaction targeted at a child:</strong> solicitation, physical contact, or caressing.</li>
+                                            <li><strong>Child grooming:</strong> befriending a child online to facilitate sexual contact or exchanging imagery.</li>
+                                            <li><strong>Sexualization of a minor:</strong> imagery that depicts, encourages, or promotes sexual exploitation.</li>
+                                            <li><strong>Sextortion:</strong> threatening or blackmailing children using intimate images or access reports.</li>
+                                            <li><strong>Trafficking:</strong> advertising, solicitation, or facilitation of commercial sexual exploitation of children.</li>
+                                            <li><strong>CSAM:</strong> Creation, sharing, or distribution of Child Sexual Abuse Material.</li>
+                                        </ul>
+                                        <p className="mb-2 text-sm">Our platform is strictly for matrimonial services for adults (18+). Minors are strictly prohibited from using this service.</p>
+                                        <p className="mb-2 text-sm">Any user found violating child safety standards will face immediate account termination and permanent ban. We will report all confirmed CSAM and related incidents to Law Enforcement Agencies (LEA) and the National Center for Missing & Exploited Children (NCMEC).</p>
+                                        <p className="mb-2 text-sm"><strong>In-App Reporting:</strong> Users can report concerns directly in the app. All reports are addressed immediately.</p>
+                                        <p className="mb-2 text-sm"><strong>Safety Contact:</strong> For child safety-specific notifications, contact our point of contact at: <a href="mailto:chhattisgarhshadi@gmail.com" className="text-primary font-bold hover:underline">chhattisgarhshadi@gmail.com</a>.</p>
+                                    </div>
+                                    <hr className="my-4" />
+                                    <p className="font-semibold text-muted-foreground italic underline">हिंदी संस्करण (Hindi Translation):</p>
                                     <p className="font-semibold">App Name: ChhattisgarhShadi.Com</p>
                                     <p className="font-semibold">Developer: Appnity Softwares Private Limited</p>
                                     <p>छत्तीसगढ़ शादी के उपयोग के लिए आपकी आयु 18 वर्ष या उससे अधिक होनी चाहिए। हम बाल यौन शोषण और दुर्व्यवहार (Child Sexual Abuse and Exploitation - CSAE) के खिलाफ जीरो-टॉलरेंस नीति रखते हैं।</p>
                                     <p>CSAE या बाल सुरक्षा से संबंधित किसी भी प्रावधान का उल्लंघन करने वाले किसी भी खाते को तुरंत समाप्त कर दिया जाएगा और उचित कानूनी एजेंसियों (Law Enforcement) को रिपोर्ट किया जाएगा।</p>
-                                    <p>यदि आपको बच्चों की सुरक्षा को लेकर कोई संदिग्ध गतिविधि दिखाई देती है, तो कृपया ऐप के रिपोर्ट विकल्प का उपयोग करें या तुरंत हमारे बाल सुरक्षा संपर्क बिंदु (Child safety-specific point of contact) <a href="mailto:support@chhattisgarhshadi.com" className="text-primary hover:underline">support@chhattisgarhshadi.com</a> पर सूचित करें।</p>
+                                    <p>यदि आपको बच्चों की सुरक्षा को लेकर कोई संदिग्ध गतिविधि दिखाई देती है, तो कृपया ऐप के रिपोर्ट विकल्प का उपयोग करें या तुरंत हमारे बाल सुरक्षा संपर्क बिंदु (Child safety-specific point of contact) <a href="mailto:chhattisgarhshadi@gmail.com" className="text-primary hover:underline">chhattisgarhshadi@gmail.com</a> पर सूचित करें।</p>
                                 </CardContent>
                             </Card>
 

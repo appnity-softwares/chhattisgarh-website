@@ -51,11 +51,11 @@ class AdminService {
     }
 
     async banUser(userId: string, reason: string): Promise<User> {
-        return this.handleResponse<User>(apiService.post(`/admin/users/${userId}/ban`, { reason }));
+        return this.handleResponse<User>(apiService.post(apiConfig.endpoints.admin.userBan(userId), { reason }));
     }
 
     async unbanUser(userId: string): Promise<User> {
-        return this.handleResponse<User>(apiService.post(`/admin/users/${userId}/unban`));
+        return this.handleResponse<User>(apiService.post(apiConfig.endpoints.admin.userUnban(userId)));
     }
 
     // ADDED: Bulk User Upload
@@ -63,7 +63,7 @@ class AdminService {
         const formData = new FormData();
         formData.append('file', file);
         return this.handleResponse<{ success: number, failed: number, errors: any[] }>(
-            apiService.post('/admin/users/bulk-upload', formData, {
+            apiService.post(apiConfig.endpoints.admin.userBulkUpload, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             })
         );
@@ -78,11 +78,11 @@ class AdminService {
     }
 
     async verifyProfile(profileId: number, isVerified: boolean): Promise<Profile> {
-        return this.handleResponse<Profile>(apiService.put(`/admin/profiles/${profileId}/verify`, { isVerified }));
+        return this.handleResponse<Profile>(apiService.put(apiConfig.endpoints.admin.profileVerify(profileId), { isVerified }));
     }
 
     async updateProfileStatus(profileId: number, isPublished: boolean, statusReason?: string): Promise<Profile> {
-        return this.handleResponse<Profile>(apiService.put(`/admin/profiles/${profileId}/status`, { isPublished, statusReason }));
+        return this.handleResponse<Profile>(apiService.put(apiConfig.endpoints.admin.profileStatus(profileId), { isPublished, statusReason }));
     }
 
     // Matches
@@ -96,7 +96,7 @@ class AdminService {
 
     // Token Cleanup
     async cleanupExpiredTokens(): Promise<{ count: number }> {
-        return this.handleResponse<{ count: number }>(apiService.post('/admin/cleanup/tokens'));
+        return this.handleResponse<{ count: number }>(apiService.post(apiConfig.endpoints.admin.cleanupTokens));
     }
 
     // Audit Logs

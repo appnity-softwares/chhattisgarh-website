@@ -89,13 +89,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
 
             {/* Sidebar - Desktop */}
-            <aside className="hidden lg:flex w-72 flex-col border-r border-white/5 bg-card/10 backdrop-blur-xl relative z-20">
+            <aside className="hidden lg:flex w-72 h-screen flex-col border-r border-white/5 bg-card/10 backdrop-blur-xl relative z-20 overflow-hidden sticky top-0">
                 <div className="p-8">
                     <Logo />
                 </div>
 
-                <nav className="flex-1 px-4 space-y-2 mt-4">
-                    <p className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4">Discovery</p>
+                <nav className="flex-1 px-4 space-y-1.5 mt-2 overflow-y-auto custom-scrollbar no-scrollbar">
+                    <p className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3 opacity-50">Discovery</p>
                     {sidebarLinks.map((link) => {
                         const Icon = link.icon;
                         const active = pathname === link.href;
@@ -105,7 +105,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all group ${active ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'}`}
+                                className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group ${active ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'}`}
                             >
                                 <Icon className={`w-5 h-5 ${active ? 'text-white' : 'text-primary group-hover:scale-110 transition-transform'}`} />
                                 <span className="font-bold text-sm tracking-tight">{link.label}</span>
@@ -121,7 +121,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         );
                     })}
 
-                    <p className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-10 mb-4">Account</p>
+                    <p className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-8 mb-3 opacity-50">Account</p>
                     {secondaryLinks.map((link) => {
                         const Icon = link.icon;
                         const active = pathname === link.href;
@@ -129,7 +129,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all group ${active ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'}`}
+                                className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group ${active ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'}`}
                             >
                                 <Icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                                 <span className="font-bold text-sm tracking-tight">{link.label}</span>
@@ -138,15 +138,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     })}
                 </nav>
 
-                <div className="p-6 border-t border-white/5">
-                    <div className="bg-gradient-to-br from-rose-500/10 to-primary/10 border border-primary/20 rounded-3xl p-5 relative overflow-hidden group">
+                <div className="p-4 border-t border-white/5">
+                    <div className="bg-gradient-to-br from-rose-500/10 to-primary/10 border border-primary/20 rounded-3xl p-4 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-16 h-16 bg-primary/20 rounded-bl-full -mr-4 -mt-4 blur-xl group-hover:scale-150 transition-transform duration-700" />
-                        <h4 className="text-sm font-black text-white mb-1">{user?.subscription?.planName || "Get Premium"}</h4>
-                        <p className="text-[10px] text-primary font-bold uppercase tracking-widest mb-3">
+                        <h4 className="text-xs font-black text-white mb-0.5">{user?.subscription?.planName || "Get Premium"}</h4>
+                        <p className="text-[9px] text-primary font-bold uppercase tracking-widest mb-2">
                             {user?.subscription ? `Expires in ${daysLeft} days` : "Unlock full features"}
                         </p>
                         <Link href="/dashboard/membership">
-                            <Button size="sm" className="w-full bg-white/5 hover:bg-white/10 text-white border-white/10 text-[10px] font-black rounded-xl h-8">
+                            <Button size="sm" className="w-full bg-white/5 hover:bg-white/10 text-white border-white/10 text-[9px] font-black rounded-xl h-7">
                                 {user?.subscription ? "EXTEND PLAN" : "UPGRADE NOW"}
                             </Button>
                         </Link>

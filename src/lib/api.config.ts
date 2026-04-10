@@ -132,7 +132,7 @@ export const apiConfig = {
         admin: {
             stats: '/admin/stats',
             users: '/admin/users',
-            recentUsers: '/admin/users/recent', // Updated to match backend
+            recentUsers: '/admin/users/recent',
             userById: (id: string) => `/admin/users/${id}`,
             userRole: (id: string) => `/admin/users/${id}/role`,
             profiles: '/admin/profiles',
@@ -140,13 +140,16 @@ export const apiConfig = {
             analyticsRevenue: '/admin/analytics/revenue',
             analyticsSignups: '/admin/analytics/signups',
             analyticsSubscriptions: '/admin/analytics/subscriptions',
-            recentMatches: '/admin/matches/recent', // Updated to match backend
+            recentMatches: '/admin/matches/recent',
             reports: '/admin/reports',
             notifications: '/admin/notifications/send',
+            notificationsSend: '/admin/notifications/send',
+            notificationsHistory: '/admin/notifications/history',
             promoCodes: '/admin/promo-codes',
+            promoCodeById: (id: string) => `/admin/promo-codes/${id}`,
             successStories: '/admin/success-stories',
             auditLogs: '/admin/activity-logs',
-            activityLogs: '/admin/activity-logs', // Alias
+            activityLogs: '/admin/activity-logs',
             activityLogsStats: '/admin/activity-logs/stats',
             reportById: (id: string) => `/admin/reports/${id}`,
             verificationsPending: '/admin/verifications/pending',
@@ -156,7 +159,19 @@ export const apiConfig = {
             verificationResubmit: (id: string) => `/admin/verifications/${id}/resubmit`,
             grantSubscription: (id: string) => `/admin/users/${id}/grant-subscription`,
             userProfile: (id: string) => `/admin/users/${id}/profile`,
+            userBan: (id: string) => `/admin/users/${id}/ban`,
+            userUnban: (id: string) => `/admin/users/${id}/unban`,
+            userBulkUpload: '/admin/users/bulk-upload',
+            profileVerify: (id: number) => `/admin/profiles/${id}/verify`,
+            profileStatus: (id: number) => `/admin/profiles/${id}/status`,
+            cleanupTokens: '/admin/cleanup/tokens',
             plans: '/admin/plans',
+            planById: (id: number) => `/admin/plans/${id}`,
+            planDiscount: (id: number) => `/admin/plans/${id}/discount`,
+            // Agents Management
+            agents: '/admin/agents',
+            agentById: (id: string) => `/admin/agents/${id}`,
+            agentUsers: (id: string) => `/admin/agents/${id}/users`,
         },
         public: {
             faq: '/faq',

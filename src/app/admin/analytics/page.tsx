@@ -177,7 +177,7 @@ export default function AdminAnalyticsPage() {
                                 </CardHeader>
                                 <CardContent>
                                     {revenueData?.data && revenueData.data.length > 0 ? (
-                                        <ChartContainer config={revenueChartConfig} className="h-[250px] w-full">
+                                        <ChartContainer config={revenueChartConfig} className="h-[250px] w-full min-h-[250px]">
                                             <LineChart data={revenueData.data} margin={{ left: -20, right: 20 }}>
                                                 <CartesianGrid vertical={false} />
                                                 <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
@@ -200,7 +200,7 @@ export default function AdminAnalyticsPage() {
                                 </CardHeader>
                                 <CardContent>
                                     {signupsData?.data && signupsData.data.length > 0 ? (
-                                        <ChartContainer config={signupsChartConfig} className="h-[250px] w-full">
+                                        <ChartContainer config={signupsChartConfig} className="h-[250px] w-full min-h-[250px]">
                                             <BarChart data={signupsData.data} margin={{ left: -20, right: 20 }}>
                                                 <CartesianGrid vertical={false} />
                                                 <XAxis dataKey="district" tickLine={false} axisLine={false} tickMargin={8} />

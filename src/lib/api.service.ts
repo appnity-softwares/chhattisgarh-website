@@ -11,7 +11,22 @@ const api = axios.create({
 // Request Interceptor for Auth Token
 api.interceptors.request.use(
     (config) => {
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        let token = null;
+        if (typeof window !== "undefined") {
+            const storage = localStorage.getItem("admin-auth-storage");
+            if (storage) {
+                try {
+                    const parsed = JSON.parse(storage);
+                    token = parsed.state?.accessToken;
+                } catch (e) {
+                    console.error("Failed to parse auth storage", e);
+                }
+            }
+            if (!token) {
+                token = localStorage.getItem("token");
+            }
+        }
+        
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }

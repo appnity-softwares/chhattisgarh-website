@@ -1,5 +1,5 @@
-import apiConfig, { getAuthHeaders, ApiResponse, PaginatedResponse } from '@/lib/api.config';
-import axios from 'axios'; 
+import apiConfig, { ApiResponse } from '@/lib/api.config';
+import apiService from '@/lib/api.service';
 import { withMock, mockData } from './mock.data';
 
 import type {
@@ -10,167 +10,111 @@ import type {
 } from '@/types/api.types';
 
 class AdminService {
-    private getToken(): string | null {
-        if (typeof window === 'undefined') return null;
-        const storage = localStorage.getItem('admin-auth-storage');
-        if (!storage) return null;
+    // Helper to extract response data
+    private async handleResponse<T>(promise: Promise<any>): Promise<T> {
         try {
-            const parsed = JSON.parse(storage);
-            return parsed.state?.accessToken || null;
-        } catch {
-            return null;
+            const res = await promise;
+            return res.data?.data || res.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || error.message || 'Request failed');
         }
-    }
-
-    private async fetchWithAuth<T>(
-        endpoint: string,
-        options: RequestInit = {}
-    ): Promise<T> {
-        const token = this.getToken();
-
-        const response = await fetch(`${apiConfig.baseUrl}${endpoint}`, {
-            ...options,
-            headers: {
-                ...getAuthHeaders(token || undefined),
-                ...options.headers,
-            },
-        });
-
-        const data: ApiResponse<T> = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || 'Request failed');
-        }
-
-        return data.data;
     }
 
     // Dashboard Stats
     async getDashboardStats(): Promise<DashboardStats> {
         return withMock(mockData.stats, () => 
-            this.fetchWithAuth<DashboardStats>(apiConfig.endpoints.admin.stats)
+            this.handleResponse<DashboardStats>(apiService.get(apiConfig.endpoints.admin.stats))
         );
     }
 
     // Users
     async getUsers(page = 1, limit = 10): Promise<{ users: User[]; pagination: any }> {
         return withMock({ users: mockData.users, pagination: { page, limit, total: mockData.users.length, totalPages: 1 } }, () =>
-            this.fetchWithAuth<{ users: User[]; pagination: any }>(
-                `${apiConfig.endpoints.admin.users}?page=${page}&limit=${limit}`
+            this.handleResponse<{ users: User[]; pagination: any }>(
+                apiService.get(apiConfig.endpoints.admin.users, { params: { page, limit } })
             )
         );
     }
 
     async getRecentUsers(limit = 10): Promise<User[]> {
         return withMock(mockData.users.slice(0, limit), () =>
-            this.fetchWithAuth<User[]>(
-                `${apiConfig.endpoints.admin.recentUsers}?limit=${limit}`
+            this.handleResponse<User[]>(
+                apiService.get(apiConfig.endpoints.admin.recentUsers, { params: { limit } })
             )
         );
     }
 
     async getUserById(userId: string): Promise<User> {
-        return this.fetchWithAuth<User>(apiConfig.endpoints.admin.userById(userId));
+        return this.handleResponse<User>(apiService.get(apiConfig.endpoints.admin.userById(userId)));
     }
 
     async updateUserRole(userId: string, role: string): Promise<User> {
-        return this.fetchWithAuth<User>(apiConfig.endpoints.admin.userRole(userId), {
-            method: 'PUT',
-            body: JSON.stringify({ role }),
-        });
+        return this.handleResponse<User>(apiService.put(apiConfig.endpoints.admin.userRole(userId), { role }));
     }
 
     async deleteUser(userId: string): Promise<void> {
-        return this.fetchWithAuth<void>(apiConfig.endpoints.admin.userById(userId), {
-            method: 'DELETE',
-        });
+        return this.handleResponse<void>(apiService.delete(apiConfig.endpoints.admin.userById(userId)));
     }
 
     async banUser(userId: string, reason: string): Promise<User> {
-        return this.fetchWithAuth<User>(`/admin/users/${userId}/ban`, {
-            method: 'POST',
-            body: JSON.stringify({ reason }),
-            headers: { 'Content-Type': 'application/json' },
-        });
+        return this.handleResponse<User>(apiService.post(`/admin/users/${userId}/ban`, { reason }));
     }
 
     async unbanUser(userId: string): Promise<User> {
-        return this.fetchWithAuth<User>(`/admin/users/${userId}/unban`, {
-            method: 'POST',
-        });
+        return this.handleResponse<User>(apiService.post(`/admin/users/${userId}/unban`));
     }
 
     // ADDED: Bulk User Upload
     async bulkUploadUsers(file: File): Promise<{ success: number, failed: number, errors: any[] }> {
         const formData = new FormData();
         formData.append('file', file);
-
-        const token = this.getToken();
-        // Use axios for multipart/form-data as it handles boundary automatically better than fetch in some envs
-        const response = await axios.post(
-            `${apiConfig.baseUrl}/admin/users/bulk-upload`,
-            formData,
-            {
-                headers: {
-                    ...getAuthHeaders(token || undefined),
-                    'Content-Type': 'multipart/form-data',
-                } as any
-            }
+        return this.handleResponse<{ success: number, failed: number, errors: any[] }>(
+            apiService.post('/admin/users/bulk-upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            })
         );
-        return response.data.data;
     }
 
 
     // Profiles
     async getProfiles(page = 1, limit = 10): Promise<{ profiles: Profile[]; pagination: any }> {
-        return this.fetchWithAuth<{ profiles: Profile[]; pagination: any }>(
-            `${apiConfig.endpoints.admin.profiles}?page=${page}&limit=${limit}`
+        return this.handleResponse<{ profiles: Profile[]; pagination: any }>(
+            apiService.get(apiConfig.endpoints.admin.profiles, { params: { page, limit } })
         );
     }
 
     async verifyProfile(profileId: number, isVerified: boolean): Promise<Profile> {
-        return this.fetchWithAuth<Profile>(`/admin/profiles/${profileId}/verify`, {
-            method: 'PUT',
-            body: JSON.stringify({ isVerified }),
-            headers: { 'Content-Type': 'application/json' },
-        });
+        return this.handleResponse<Profile>(apiService.put(`/admin/profiles/${profileId}/verify`, { isVerified }));
     }
 
     async updateProfileStatus(profileId: number, isPublished: boolean, statusReason?: string): Promise<Profile> {
-        return this.fetchWithAuth<Profile>(`/admin/profiles/${profileId}/status`, {
-            method: 'PUT',
-            body: JSON.stringify({ isPublished, statusReason }),
-            headers: { 'Content-Type': 'application/json' },
-        });
+        return this.handleResponse<Profile>(apiService.put(`/admin/profiles/${profileId}/status`, { isPublished, statusReason }));
     }
 
     // Matches
     async getRecentMatches(limit = 10): Promise<MatchRequest[]> {
         return withMock(mockData.matches.slice(0, limit), () =>
-            this.fetchWithAuth<MatchRequest[]>(
-                `${apiConfig.endpoints.admin.recentMatches}?limit=${limit}`
+            this.handleResponse<MatchRequest[]>(
+                apiService.get(apiConfig.endpoints.admin.recentMatches, { params: { limit } })
             )
         );
     }
 
     // Token Cleanup
     async cleanupExpiredTokens(): Promise<{ count: number }> {
-        return this.fetchWithAuth<{ count: number }>(
-            `${apiConfig.baseUrl}/admin/cleanup/tokens`,
-            { method: 'POST' }
-        );
+        return this.handleResponse<{ count: number }>(apiService.post('/admin/cleanup/tokens'));
     }
 
     // Audit Logs
     async getAuditLogs(): Promise<any[]> {
         return withMock(mockData.auditLogs, () =>
-            this.fetchWithAuth<any[]>(apiConfig.endpoints.admin.activityLogs)
+            this.handleResponse<any[]>(apiService.get(apiConfig.endpoints.admin.activityLogs))
         );
     }
 
     async getAuditLogsStats(): Promise<any> {
         return withMock({ total: 156, uniqueAdmins: 3, todayActions: 12 }, () =>
-            this.fetchWithAuth<any>(apiConfig.endpoints.admin.activityLogsStats)
+            this.handleResponse<any>(apiService.get(apiConfig.endpoints.admin.activityLogsStats))
         );
     }
 }

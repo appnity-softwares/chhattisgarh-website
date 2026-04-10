@@ -1,4 +1,5 @@
-import apiConfig, { getAuthHeaders, ApiResponse } from '@/lib/api.config';
+import apiConfig, { ApiResponse } from '@/lib/api.config';
+import apiService from '@/lib/api.service';
 import { withMock, mockData } from './mock.data';
 
 export interface RevenueData {
@@ -36,61 +37,36 @@ export interface SubscriptionAnalytics {
 }
 
 class AnalyticsService {
-    private getToken(): string | null {
-        if (typeof window === 'undefined') return null;
-        const storage = localStorage.getItem('admin-auth-storage');
-        if (!storage) return null;
+    // Helper to extract response data
+    private async handleResponse<T>(promise: Promise<any>): Promise<T> {
         try {
-            const parsed = JSON.parse(storage);
-            return parsed.state?.accessToken || null;
-        } catch {
-            return null;
+            const res = await promise;
+            return res.data?.data || res.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || error.message || 'Request failed');
         }
-    }
-
-    private async fetchWithAuth<T>(
-        endpoint: string,
-        options: RequestInit = {}
-    ): Promise<T> {
-        const token = this.getToken();
-
-        const response = await fetch(`${apiConfig.baseUrl}${endpoint}`, {
-            ...options,
-            headers: {
-                ...getAuthHeaders(token || undefined),
-                ...options.headers,
-            },
-        });
-
-        const data: ApiResponse<T> = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || 'Request failed');
-        }
-
-        return data.data;
     }
 
     async getRevenueAnalytics(months: number = 6): Promise<RevenueAnalytics> {
         return withMock(mockData.revenue, () =>
-            this.fetchWithAuth<RevenueAnalytics>(
-                `${apiConfig.endpoints.admin.analyticsRevenue}?months=${months}`
+            this.handleResponse<RevenueAnalytics>(
+                apiService.get(apiConfig.endpoints.admin.analyticsRevenue, { params: { months } })
             )
         );
     }
 
     async getSignupAnalytics(limit: number = 10): Promise<SignupAnalytics> {
         return withMock(mockData.signups, () =>
-            this.fetchWithAuth<SignupAnalytics>(
-                `${apiConfig.endpoints.admin.analyticsSignups}?limit=${limit}`
+            this.handleResponse<SignupAnalytics>(
+                apiService.get(apiConfig.endpoints.admin.analyticsSignups, { params: { limit } })
             )
         );
     }
 
     async getSubscriptionAnalytics(): Promise<SubscriptionAnalytics> {
         return withMock(mockData.subscriptions, () =>
-            this.fetchWithAuth<SubscriptionAnalytics>(
-                apiConfig.endpoints.admin.analyticsSubscriptions
+            this.handleResponse<SubscriptionAnalytics>(
+                apiService.get(apiConfig.endpoints.admin.analyticsSubscriptions)
             )
         );
     }

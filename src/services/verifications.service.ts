@@ -1,5 +1,5 @@
-import apiConfig, { getAuthHeaders, ApiResponse } from '@/lib/api.config';
-import { useAuthStore } from '@/stores/auth-store';
+import apiConfig, { ApiResponse } from '@/lib/api.config';
+import apiService from '@/lib/api.service';
 import { withMock, mockData } from './mock.data';
 
 export interface PendingVerification {
@@ -27,24 +27,14 @@ export interface VerificationStats {
 }
 
 class VerificationsService {
-    private async fetchWithAuth<T>(endpoint: string, options?: RequestInit): Promise<T> {
-        const { accessToken } = useAuthStore.getState();
-
-        const response = await fetch(`${apiConfig.baseUrl}${endpoint}`, {
-            ...options,
-            headers: {
-                ...getAuthHeaders(accessToken || undefined),
-                ...options?.headers,
-            },
-        });
-
-        const data: ApiResponse<T> = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || 'Request failed');
+    // Helper to extract response data
+    private async handleResponse<T>(promise: Promise<any>): Promise<T> {
+        try {
+            const res = await promise;
+            return res.data?.data || res.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || error.message || 'Request failed');
         }
-
-        return data.data;
     }
 
     /**
@@ -58,8 +48,8 @@ class VerificationsService {
             verifications: mockData.verifications,
             pagination: { page, limit, total: mockData.verifications.length, totalPages: 1 }
         }, () =>
-            this.fetchWithAuth(
-                `${apiConfig.endpoints.admin.verificationsPending}?page=${page}&limit=${limit}`
+            this.handleResponse(
+                apiService.get(apiConfig.endpoints.admin.verificationsPending, { params: { page, limit } })
             )
         );
     }
@@ -69,7 +59,7 @@ class VerificationsService {
      */
     async getStats(): Promise<VerificationStats> {
         return withMock(mockData.verifStats, () =>
-            this.fetchWithAuth(apiConfig.endpoints.admin.verificationsStats)
+            this.handleResponse(apiService.get(apiConfig.endpoints.admin.verificationsStats))
         );
     }
 
@@ -77,29 +67,21 @@ class VerificationsService {
      * Approve a verification
      */
     async approve(mediaId: string): Promise<void> {
-        await this.fetchWithAuth(apiConfig.endpoints.admin.verificationApprove(mediaId), {
-            method: 'POST',
-        });
+        await this.handleResponse(apiService.post(apiConfig.endpoints.admin.verificationApprove(mediaId)));
     }
 
     /**
      * Reject a verification
      */
     async reject(mediaId: string, reason: string): Promise<void> {
-        await this.fetchWithAuth(apiConfig.endpoints.admin.verificationReject(mediaId), {
-            method: 'POST',
-            body: JSON.stringify({ reason }),
-        });
+        await this.handleResponse(apiService.post(apiConfig.endpoints.admin.verificationReject(mediaId), { reason }));
     }
 
     /**
      * Request resubmission
      */
     async requestResubmission(mediaId: string, reason: string): Promise<void> {
-        await this.fetchWithAuth(apiConfig.endpoints.admin.verificationResubmit(mediaId), {
-            method: 'POST',
-            body: JSON.stringify({ reason }),
-        });
+        await this.handleResponse(apiService.post(apiConfig.endpoints.admin.verificationResubmit(mediaId), { reason }));
     }
 }
 

@@ -1,40 +1,16 @@
-import apiConfig, { getAuthHeaders, ApiResponse } from '@/lib/api.config';
+import apiConfig, { ApiResponse } from '@/lib/api.config';
+import apiService from '@/lib/api.service';
 import type { Report, ReportStatus } from '@/types/api.types';
 
 class ReportsService {
-    private getToken(): string | null {
-        if (typeof window === 'undefined') return null;
-        const storage = localStorage.getItem('admin-auth-storage');
-        if (!storage) return null;
+    // Helper to extract response data
+    private async handleResponse<T>(promise: Promise<any>): Promise<T> {
         try {
-            const parsed = JSON.parse(storage);
-            return parsed.state?.accessToken || null;
-        } catch {
-            return null;
+            const res = await promise;
+            return res.data?.data || res.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || error.message || 'Request failed');
         }
-    }
-
-    private async fetchWithAuth<T>(
-        endpoint: string,
-        options: RequestInit = {}
-    ): Promise<T> {
-        const token = this.getToken();
-
-        const response = await fetch(`${apiConfig.baseUrl}${endpoint}`, {
-            ...options,
-            headers: {
-                ...getAuthHeaders(token || undefined),
-                ...options.headers,
-            },
-        });
-
-        const data: ApiResponse<T> = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || 'Request failed');
-        }
-
-        return data.data;
     }
 
     // Get all reports
@@ -43,16 +19,16 @@ class ReportsService {
         limit = 10,
         status?: ReportStatus
     ): Promise<{ reports: Report[]; pagination: any }> {
-        let url = `${apiConfig.endpoints.admin.reports}?page=${page}&limit=${limit}`;
-        if (status) {
-            url += `&status=${status}`;
-        }
-        return this.fetchWithAuth<{ reports: Report[]; pagination: any }>(url);
+        return this.handleResponse<{ reports: Report[]; pagination: any }>(
+            apiService.get(apiConfig.endpoints.admin.reports, { 
+                params: { page, limit, status } 
+            })
+        );
     }
 
     // Get report by ID
     async getReportById(id: string): Promise<Report> {
-        return this.fetchWithAuth<Report>(apiConfig.endpoints.admin.reportById(id));
+        return this.handleResponse<Report>(apiService.get(apiConfig.endpoints.admin.reportById(id)));
     }
 
     // Update report status
@@ -60,10 +36,9 @@ class ReportsService {
         id: string,
         data: { status: ReportStatus; reviewNote?: string; actionTaken?: string }
     ): Promise<Report> {
-        return this.fetchWithAuth<Report>(apiConfig.endpoints.admin.reportById(id), {
-            method: 'PUT',
-            body: JSON.stringify(data),
-        });
+        return this.handleResponse<Report>(
+            apiService.put(apiConfig.endpoints.admin.reportById(id), data)
+        );
     }
 }
 

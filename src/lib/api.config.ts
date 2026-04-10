@@ -58,15 +58,28 @@ export const apiConfig = {
         admin: {
             stats: '/admin/stats',
             users: '/admin/users',
+            recentUsers: '/admin/users', // Reusing users with limit
+            userById: (id: string) => `/admin/users/${id}`,
+            userRole: (id: string) => `/admin/users/${id}/role`,
             profiles: '/admin/profiles',
             verifications: '/admin/verifications',
             analyticsRevenue: '/admin/analytics/revenue',
             analyticsSignups: '/admin/analytics/signups',
+            analyticsSubscriptions: '/admin/analytics/subscriptions',
+            recentMatches: '/admin/matches', // Reusing matches with limit
             reports: '/admin/reports',
             notifications: '/admin/notifications/send',
             promoCodes: '/admin/promo-codes',
             successStories: '/admin/success-stories',
             auditLogs: '/admin/activity-logs',
+            activityLogs: '/admin/activity-logs', // Alias
+            activityLogsStats: '/admin/activity-logs/stats',
+            reportById: (id: string) => `/admin/reports/${id}`,
+            verificationsPending: '/admin/verifications/pending',
+            verificationsStats: '/admin/verifications/stats',
+            verificationApprove: (id: string) => `/admin/verifications/${id}/approve`,
+            verificationReject: (id: string) => `/admin/verifications/${id}/reject`,
+            verificationResubmit: (id: string) => `/admin/verifications/${id}/resubmit`,
         },
         public: {
             faq: '/faq',

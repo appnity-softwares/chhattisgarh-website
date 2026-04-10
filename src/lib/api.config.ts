@@ -82,6 +82,7 @@ export const apiConfig = {
             verificationResubmit: (id: string) => `/admin/verifications/${id}/resubmit`,
             grantSubscription: (id: string) => `/admin/users/${id}/grant-subscription`,
             userProfile: (id: string) => `/admin/users/${id}/profile`,
+            plans: '/admin/plans',
         },
         public: {
             faq: '/faq',

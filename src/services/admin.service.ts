@@ -137,6 +137,10 @@ class AdminService {
             apiService.delete(apiConfig.endpoints.admin.userProfile(userId))
         );
     }
+
+    async getPlans(): Promise<any[]> {
+        return this.handleResponse<any[]>(apiService.get(apiConfig.endpoints.admin.plans));
+    }
 }
 
 export const adminService = new AdminService();

@@ -14,11 +14,13 @@ import {
     AlertTriangle, CreditCard, Activity,
     User as UserIcon, Briefcase, GraduationCap
 } from "lucide-react";
-import { adminService } from "@/services/admin.service";
-import type { User, Report, ActivityLog } from "@/types/api.types";
-import { useToast } from "@/hooks/use-toast";
-import { formatDistanceToNow } from 'date-fns';
-import { useRouter } from 'next/navigation';
+    Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 export default function UserDetailPage({ params }: { params: Promise<{ userId: string }> }) {
     const { toast } = useToast();
@@ -30,6 +32,11 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
 
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [plans, setPlans] = useState<any[]>([]);
+    const [isGrantingSub, setIsGrantingSub] = useState(false);
+    const [grantDialogOpen, setGrantDialogOpen] = useState(false);
+    const [selectedPlanId, setSelectedPlanId] = useState<string>('');
+    const [customDays, setCustomDays] = useState<string>('');
 
     const fetchUser = async () => {
         if (!userId) return;
@@ -49,18 +56,38 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
         }
     };
 
+    const fetchPlans = async () => {
+        try {
+            // We'll add getPlans to adminService if not already there
+            // Based on earlier view, it exists in backend, let's assume it's in service.
+            const data = await (adminService as any).getPlans?.() || [];
+            setPlans(data);
+        } catch (err) {
+            console.error('Failed to fetch plans:', err);
+        }
+    };
+
     useEffect(() => {
         fetchUser();
+        fetchPlans();
     }, [userId]);
 
-    const handleRoleChange = async (newRole: string) => {
-        if (!userId) return;
+    const handleGrantSubscription = async () => {
+        if (!userId || !selectedPlanId) return;
+        setIsGrantingSub(true);
         try {
-            await adminService.updateUserRole(userId, newRole);
-            toast({ title: 'Success', description: `User role updated to ${newRole}` });
+            await adminService.grantSubscription(
+                userId, 
+                parseInt(selectedPlanId), 
+                customDays ? parseInt(customDays) : undefined
+            );
+            toast({ title: 'Success', description: `Premium subscription granted successfully` });
+            setGrantDialogOpen(false);
             fetchUser();
         } catch (err: any) {
             toast({ variant: 'destructive', title: 'Error', description: err.message });
+        } finally {
+            setIsGrantingSub(false);
         }
     };
 
@@ -137,14 +164,56 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
                         </div>
                     </div>
                     <div className="flex gap-2">
-                        {user.role !== 'ADMIN' && (
-                            <Button
-                                variant={user.role === 'PREMIUM_USER' ? "secondary" : "default"}
-                                onClick={() => handleRoleChange(user.role === 'PREMIUM_USER' ? 'USER' : 'PREMIUM_USER')}
-                            >
-                                {user.role === 'PREMIUM_USER' ? 'Remove Premium' : 'Make Premium'}
-                            </Button>
-                        )}
+                        <Dialog open={grantDialogOpen} onOpenChange={setGrantDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Button variant="secondary" className="bg-amber-100 text-amber-900 border-amber-200 hover:bg-amber-200">
+                                    <CreditCard className="mr-2 h-4 w-4" /> Grant Subscription
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-md bg-card border-border">
+                                <DialogHeader>
+                                    <DialogTitle>Grant Premium Access</DialogTitle>
+                                    <DialogDescription>
+                                        This will immediately activate a premium plan for this user.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4 py-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="plan">Select Plan</Label>
+                                        <Select onValueChange={setSelectedPlanId} value={selectedPlanId}>
+                                            <SelectTrigger className="bg-muted border-none">
+                                                <SelectValue placeholder="Choose a plan..." />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-card border-border">
+                                                {plans.map((plan: any) => (
+                                                    <SelectItem key={plan.id} value={plan.id.toString()}>
+                                                        {plan.name} - {plan.duration} Days
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="days">Custom Duration (Optional Days)</Label>
+                                        <Input 
+                                            id="days" 
+                                            type="number" 
+                                            placeholder="Leave empty for plan default" 
+                                            value={customDays}
+                                            onChange={(e) => setCustomDays(e.target.value)}
+                                            className="bg-muted border-none"
+                                        />
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button variant="outline" onClick={() => setGrantDialogOpen(false)} disabled={isGrantingSub}>Cancel</Button>
+                                    <Button onClick={handleGrantSubscription} disabled={!selectedPlanId || isGrantingSub}>
+                                        {isGrantingSub ? 'Granting...' : 'Confirm Grant'}
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+
                         <Button variant="destructive">
                             <Ban className="mr-2 h-4 w-4" /> Ban User
                         </Button>

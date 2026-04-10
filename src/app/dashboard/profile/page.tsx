@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
     User, 
     Camera, 
@@ -291,5 +291,3 @@ export default function ProfilePage() {
     );
 }
 
-// Wrap with AnimatePresence for transitions
-import { AnimatePresence } from "framer-motion";

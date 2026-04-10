@@ -145,7 +145,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+      <nav className="flex-1 overflow-hidden py-4 px-3 space-y-1">
         {navGroups.map((group) => (
           <div key={group.label} className="mb-3">
             {!sidebarCollapsed && (

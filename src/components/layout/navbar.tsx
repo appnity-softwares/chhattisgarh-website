@@ -8,6 +8,9 @@ import { LanguageSwitcher } from "./language-switcher";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Menu, LogIn, Download } from "lucide-react";
 import { configService } from "@/services/config.service";
+import { useUserAuthStore } from "@/stores/user-auth-store";
+import { useAuthStore } from "@/stores/auth-store";
+import { LayoutDashboard } from "lucide-react";
 
 const navLinks = [
   { href: "/browse", label: "Browse Profiles" },
@@ -17,6 +20,8 @@ const navLinks = [
 
 export function Navbar() {
   const [apkUrl, setApkUrl] = useState("/#download");
+  const user = useUserAuthStore((state) => state.user);
+  const admin = useAuthStore((state) => state.user);
 
   useEffect(() => {
     const loadConfig = async () => {
@@ -93,18 +98,36 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
           
-          <Button variant="ghost" asChild className="hidden sm:flex text-muted-foreground hover:text-primary font-bold">
-            <Link href="/login" className="flex items-center gap-2">
-              <LogIn className="w-4 h-4" />
-              Login
-            </Link>
-          </Button>
+          {user ? (
+            <Button variant="default" asChild className="bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-9 shadow-lg shadow-primary/20">
+              <Link href="/dashboard" className="flex items-center gap-2">
+                <LayoutDashboard className="w-4 h-4" />
+                Dashboard
+              </Link>
+            </Button>
+          ) : admin ? (
+            <Button variant="default" asChild className="bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-9 shadow-lg shadow-primary/20">
+              <Link href="/admin" className="flex items-center gap-2">
+                <LayoutDashboard className="w-4 h-4" />
+                Admin Panel
+              </Link>
+            </Button>
+          ) : (
+            <>
+              <Button variant="ghost" asChild className="hidden sm:flex text-muted-foreground hover:text-primary font-bold">
+                <Link href="/login" className="flex items-center gap-2">
+                  <LogIn className="w-4 h-4" />
+                  Login
+                </Link>
+              </Button>
 
-          <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-9 group shadow-lg shadow-primary/20">
-            <Link href="/register">
-              Join Now
-            </Link>
-          </Button>
+              <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-9 group shadow-lg shadow-primary/20">
+                <Link href="/register">
+                  Join Now
+                </Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </header>

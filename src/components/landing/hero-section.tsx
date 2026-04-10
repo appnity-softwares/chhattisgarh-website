@@ -12,8 +12,12 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
+import { useUserAuthStore } from "@/stores/user-auth-store";
+import Link from "next/link";
+import { Sparkles, LayoutDashboard } from "lucide-react";
 
 export function HeroSection() {
+    const user = useUserAuthStore((state) => state.user);
     return (
         <section className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-background">
             {/* Immersive Background Decor */}
@@ -62,9 +66,25 @@ export function HeroSection() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: 0.3 }}
-                            className="flex flex-wrap gap-4 pt-4"
+                            className="flex flex-wrap gap-4 pt-4 items-center"
                         >
-                            <div className="flex -space-x-3 overflow-hidden">
+                            {user ? (
+                                <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white font-black text-lg h-16 px-10 rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
+                                    <Link href="/dashboard" className="flex items-center gap-2">
+                                        <LayoutDashboard className="w-5 h-5" />
+                                        EXPLORE PROFILES
+                                    </Link>
+                                </Button>
+                            ) : (
+                                <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white font-black text-lg h-16 px-10 rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95 group">
+                                    <Link href="/register">
+                                        JOIN NOW
+                                        <Sparkles className="w-5 h-5 ml-2 group-hover:rotate-12 transition-transform" />
+                                    </Link>
+                                </Button>
+                            )}
+
+                            <div className="flex -space-x-3 overflow-hidden ml-4">
                                 {[1,2,3,4].map((i) => (
                                     <div key={i} className="inline-block h-10 w-10 rounded-full ring-2 ring-background bg-muted border border-border" />
                                 ))}

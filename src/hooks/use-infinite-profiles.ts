@@ -21,16 +21,50 @@ export interface Profile {
 
 export function useInfiniteProfiles(params: any = {}) {
     return useInfiniteQuery({
-        queryKey: ["profiles", "discovery", params],
+        queryKey: ["profiles", params.type || "discovery", params],
         queryFn: async ({ pageParam = 1 }) => {
-            const res = await apiService.get(apiConfig.endpoints.profiles.search, {
+            let endpoint = apiConfig.endpoints.profiles.search;
+            
+            // Handle different types for Matches Page
+            if (params.type === 'accepted') endpoint = apiConfig.endpoints.matches.accepted;
+            if (params.type === 'sent') endpoint = apiConfig.endpoints.matches.sent;
+            if (params.type === 'received' || params.type === 'new') endpoint = apiConfig.endpoints.matches.received;
+            if (params.type === 'recommendations') endpoint = apiConfig.endpoints.profiles.recommendations;
+
+            const res = await apiService.get(endpoint, {
                 params: {
                     ...params,
                     page: pageParam,
                     limit: 12,
                 },
             });
-            return res.data.data;
+
+            const rawData = res.data.data;
+            
+            // Normalize data: match endpoints return 'matches', search returns 'profiles'
+            let profiles = rawData.profiles || [];
+            
+            if (rawData.matches) {
+                profiles = rawData.matches.map((m: any) => {
+                    // For matches, the profile we want to show is usually the 'other' person.
+                    // If we are looking at 'sent', we want 'receiver'
+                    // If we are looking at 'received', we want 'sender'
+                    const target = params.type === 'sent' ? m.receiver : m.sender;
+                    const profileData = target?.profile || target || {};
+                    
+                    return {
+                        ...profileData,
+                        id: profileData.id || target?.id || m.id,
+                        firstName: profileData.firstName || "User",
+                        lastName: profileData.lastName || "",
+                    };
+                });
+            }
+
+            return {
+                profiles,
+                pagination: rawData.pagination || { page: pageParam, totalPages: 1 }
+            };
         },
         initialPageParam: 1,
         getNextPageParam: (lastPage) => {

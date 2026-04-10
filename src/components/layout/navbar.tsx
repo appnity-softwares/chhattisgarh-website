@@ -21,7 +21,7 @@ export function Navbar() {
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        const data = await configService.getAllConfigs();
+        const data = await configService.getPublicConfigs();
         const infoConfig = data.find(c => c.key === 'app_info');
         if (infoConfig) {
           const info = JSON.parse(infoConfig.value);

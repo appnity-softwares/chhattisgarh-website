@@ -11,7 +11,8 @@ import {
     Sparkles,
     RotateCcw,
     ChevronLeft,
-    CheckCircle2
+    CheckCircle2,
+    Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,13 +28,37 @@ import {
 } from "@/components/ui/select";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { auth } from "@/lib/firebase";
+import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from "firebase/auth";
+import userAuthService from "@/services/user-auth.service";
+import { useUserAuthStore } from "@/stores/user-auth-store";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+import apiConfig, { getAuthHeaders } from "@/lib/api.config";
 
 export default function RegisterPage() {
+    const { toast } = useToast();
+    const router = useRouter();
+    const loginStore = useUserAuthStore((state) => state.login);
+    
     const [step, setStep] = useState(1);
+    const [isLoading, setIsLoading] = useState(false);
+    
+    // Step 1 - Basic Info
+    const [creatingFor, setCreatingFor] = useState("self");
+    const [gender, setGender] = useState<'MALE' | 'FEMALE'>("MALE");
+    const [dateOfBirth, setDateOfBirth] = useState("");
+    
+    // Step 2 - Name + Phone
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [phone, setPhone] = useState("");
+    
+    // Step 3 - OTP
     const [otp, setOtp] = useState("");
     const [timer, setTimer] = useState(30);
     const [canResend, setCanResend] = useState(false);
+    const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
     // Timer Logic for OTP Step
     useEffect(() => {
@@ -47,6 +72,148 @@ export default function RegisterPage() {
         }
         return () => clearInterval(interval);
     }, [step, timer]);
+
+    // Setup Recaptcha
+    const setupRecaptcha = () => {
+        if (!(window as any).recaptchaVerifier) {
+            (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                'size': 'invisible',
+                'callback': () => {}
+            });
+        }
+    };
+
+    const handleStep1Continue = () => {
+        if (!dateOfBirth) {
+            toast({
+                variant: "destructive",
+                title: "Missing Info",
+                description: "Please select your date of birth.",
+            });
+            return;
+        }
+        setStep(2);
+    };
+
+    const handleSendOTP = async () => {
+        if (!firstName.trim()) {
+            toast({ variant: "destructive", title: "Missing Name", description: "Please enter your first name." });
+            return;
+        }
+        if (phone.length < 10) {
+            toast({ variant: "destructive", title: "Invalid Phone", description: "Please enter a valid 10-digit number." });
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            setupRecaptcha();
+            const appVerifier = (window as any).recaptchaVerifier;
+            const fullPhone = `+91${phone}`;
+            
+            const result = await signInWithPhoneNumber(auth, fullPhone, appVerifier);
+            setConfirmationResult(result);
+            setStep(3);
+            setTimer(30);
+            setCanResend(false);
+            toast({
+                title: "OTP Sent!",
+                description: `Verification code sent to +91 ${phone}`,
+            });
+        } catch (error: any) {
+            console.error("OTP Error:", error);
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: error.message || "Failed to send OTP. Please try again.",
+            });
+            if ((window as any).recaptchaVerifier) {
+                (window as any).recaptchaVerifier.clear();
+                delete (window as any).recaptchaVerifier;
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleVerifyAndRegister = async () => {
+        if (otp.length !== 6 || !confirmationResult) {
+            toast({ variant: "destructive", title: "Invalid OTP", description: "Please enter the 6-digit code." });
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            // 1. Verify OTP with Firebase
+            const userCredential = await confirmationResult.confirm(otp);
+            const idToken = await userCredential.user.getIdToken();
+            
+            // 2. Authenticate with backend (this creates user if new)
+            const authData = await userAuthService.authenticateWithPhone(idToken);
+            
+            // 3. Store tokens
+            loginStore(authData.user, authData.accessToken, authData.refreshToken);
+            
+            // 4. Create profile if new user
+            if (authData.isNewUser || !authData.user.profile) {
+                try {
+                    const profileRes = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.profiles.create}`, {
+                        method: 'POST',
+                        headers: getAuthHeaders(authData.accessToken),
+                        body: JSON.stringify({
+                            firstName: firstName.trim(),
+                            lastName: lastName.trim(),
+                            gender,
+                            dateOfBirth,
+                            createdFor: creatingFor,
+                        }),
+                    });
+                    const profileData = await profileRes.json();
+                    if (!profileRes.ok) {
+                        console.warn("Profile creation response:", profileData);
+                    }
+                } catch (profileError) {
+                    console.warn("Profile creation error (continuing anyway):", profileError);
+                }
+            }
+            
+            toast({
+                title: "Welcome to CG Shaadi! 🎉",
+                description: "Your account has been created successfully.",
+            });
+
+            // 5. Redirect to profile page to complete setup
+            router.push("/dashboard/profile");
+            
+        } catch (error: any) {
+            console.error("Registration Error:", error);
+            toast({
+                variant: "destructive",
+                title: "Registration Failed",
+                description: error.message || "Something went wrong. Please try again.",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleResendOTP = async () => {
+        setTimer(30);
+        setCanResend(false);
+        setIsLoading(true);
+        try {
+            setupRecaptcha();
+            const appVerifier = (window as any).recaptchaVerifier;
+            const fullPhone = `+91${phone}`;
+            const result = await signInWithPhoneNumber(auth, fullPhone, appVerifier);
+            setConfirmationResult(result);
+            toast({ title: "OTP Resent!", description: `New code sent to +91 ${phone}` });
+        } catch (error: any) {
+            toast({ variant: "destructive", title: "Error", description: error.message || "Failed to resend OTP." });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center p-4 bg-background overflow-hidden">
@@ -72,6 +239,14 @@ export default function RegisterPage() {
                 </div>
 
                 <Card className="glass-card rounded-[2.5rem] border-white/10 shadow-3xl overflow-hidden relative">
+                    {isLoading && (
+                        <div className="absolute inset-0 z-50 bg-background/60 backdrop-blur-sm flex items-center justify-center">
+                            <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                                <Loader2 className="w-10 h-10 text-primary" />
+                            </motion.div>
+                        </div>
+                    )}
+
                     <div className="p-8 md:p-12">
                         
                         {/* Progress Stepper */}
@@ -97,7 +272,7 @@ export default function RegisterPage() {
                                 >
                                     <div className="space-y-3">
                                         <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Creating account for</Label>
-                                        <Select defaultValue="self">
+                                        <Select defaultValue={creatingFor} onValueChange={setCreatingFor}>
                                             <SelectTrigger className="h-16 bg-white/5 border-white/10 rounded-2xl focus:ring-primary/20 font-black text-sm uppercase">
                                                 <SelectValue />
                                             </SelectTrigger>
@@ -115,8 +290,18 @@ export default function RegisterPage() {
                                         <div className="space-y-3">
                                             <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Gender</Label>
                                             <div className="flex p-1.5 bg-white/5 rounded-2xl border border-white/10 h-16">
-                                                <Button variant="ghost" className="flex-1 bg-primary text-white h-full rounded-xl text-[10px] font-black tracking-widest uppercase">MALE</Button>
-                                                <Button variant="ghost" className="flex-1 hover:bg-white/5 h-full rounded-xl text-[10px] font-black tracking-widest text-muted-foreground uppercase">FEMALE</Button>
+                                                <Button 
+                                                    type="button"
+                                                    variant="ghost" 
+                                                    onClick={() => setGender("MALE")}
+                                                    className={`flex-1 h-full rounded-xl text-[10px] font-black tracking-widest uppercase ${gender === 'MALE' ? 'bg-primary text-white' : 'hover:bg-white/5 text-muted-foreground'}`}
+                                                >MALE</Button>
+                                                <Button 
+                                                    type="button"
+                                                    variant="ghost" 
+                                                    onClick={() => setGender("FEMALE")}
+                                                    className={`flex-1 h-full rounded-xl text-[10px] font-black tracking-widest uppercase ${gender === 'FEMALE' ? 'bg-primary text-white' : 'hover:bg-white/5 text-muted-foreground'}`}
+                                                >FEMALE</Button>
                                             </div>
                                         </div>
                                         <div className="space-y-3">
@@ -125,6 +310,8 @@ export default function RegisterPage() {
                                                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
                                                 <Input 
                                                     type="date"
+                                                    value={dateOfBirth}
+                                                    onChange={(e) => setDateOfBirth(e.target.value)}
                                                     className="pl-12 h-16 bg-white/5 border-white/10 rounded-2xl focus:ring-primary/20 font-bold"
                                                 />
                                             </div>
@@ -132,7 +319,7 @@ export default function RegisterPage() {
                                     </div>
 
                                     <Button 
-                                        onClick={() => setStep(2)}
+                                        onClick={handleStep1Continue}
                                         className="w-full h-16 bg-primary hover:bg-primary/90 text-white font-black text-lg rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] mt-4"
                                     >
                                         CONTINUE
@@ -149,13 +336,26 @@ export default function RegisterPage() {
                                     exit={{ opacity: 0, x: -20 }}
                                     className="space-y-6"
                                 >
-                                    <div className="space-y-3">
-                                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Full Name</Label>
-                                        <div className="relative">
-                                            <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-3">
+                                            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">First Name</Label>
+                                            <div className="relative">
+                                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
+                                                <Input 
+                                                    placeholder="First name" 
+                                                    value={firstName}
+                                                    onChange={(e) => setFirstName(e.target.value)}
+                                                    className="pl-14 h-16 bg-white/5 border-white/10 rounded-2xl focus:ring-primary/20 font-black"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Last Name</Label>
                                             <Input 
-                                                placeholder="Enter full name" 
-                                                className="pl-14 h-16 bg-white/5 border-white/10 rounded-2xl focus:ring-primary/20 font-black"
+                                                placeholder="Last name" 
+                                                value={lastName}
+                                                onChange={(e) => setLastName(e.target.value)}
+                                                className="h-16 bg-white/5 border-white/10 rounded-2xl focus:ring-primary/20 font-black"
                                             />
                                         </div>
                                     </div>
@@ -187,8 +387,8 @@ export default function RegisterPage() {
                                             Back
                                         </Button>
                                         <Button 
-                                            onClick={() => setStep(3)}
-                                            disabled={phone.length < 10}
+                                            onClick={handleSendOTP}
+                                            disabled={phone.length < 10 || !firstName.trim()}
                                             className="flex-1 h-16 bg-primary hover:bg-primary/90 text-white font-black text-lg rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] group"
                                         >
                                             CREATE PROFILE
@@ -234,10 +434,7 @@ export default function RegisterPage() {
 
                                             <button 
                                                 disabled={!canResend}
-                                                onClick={() => {
-                                                    setTimer(30);
-                                                    setCanResend(false);
-                                                }}
+                                                onClick={handleResendOTP}
                                                 className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest transition-colors ${canResend ? 'text-primary hover:text-primary/80' : 'text-muted-foreground opacity-50 cursor-not-allowed'}`}
                                             >
                                                 <RotateCcw className={`w-3 h-3 ${!canResend && 'animate-spin-slow'}`} />
@@ -246,7 +443,11 @@ export default function RegisterPage() {
                                         </div>
                                     </div>
 
-                                    <Button className="w-full h-16 bg-primary hover:bg-primary/90 text-white font-black text-lg rounded-2xl shadow-xl shadow-primary/20 active:scale-95 transition-all">
+                                    <Button 
+                                        onClick={handleVerifyAndRegister}
+                                        disabled={otp.length < 6}
+                                        className="w-full h-16 bg-primary hover:bg-primary/90 text-white font-black text-lg rounded-2xl shadow-xl shadow-primary/20 active:scale-95 transition-all"
+                                    >
                                         VERIFY & REGISTER
                                     </Button>
                                 </motion.div>
@@ -259,6 +460,8 @@ export default function RegisterPage() {
                             </Link>
                         </div>
                     </div>
+
+                    <div id="recaptcha-container"></div>
                 </Card>
 
                 {/* Secure Trust Badge */}

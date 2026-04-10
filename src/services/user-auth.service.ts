@@ -3,6 +3,36 @@ import type { AuthResponse } from '@/types/api.types';
 
 class UserAuthService {
     /**
+     * Authenticate with Firebase ID Token (Phone Login)
+     */
+    async authenticateWithPhone(firebaseIdToken: string): Promise<AuthResponse & { isNewUser: boolean }> {
+        try {
+            const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.auth.phoneLogin}`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    firebaseIdToken,
+                    deviceInfo: {
+                        userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'Web',
+                        deviceType: 'WEB'
+                    }
+                }),
+            });
+
+            const data: ApiResponse<AuthResponse & { isNewUser: boolean }> = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Phone authentication failed');
+            }
+
+            return data.data;
+        } catch (error: any) {
+            console.error('Phone Auth Error:', error);
+            throw new Error(error.message || 'Failed to authenticate with phone');
+        }
+    }
+
+    /**
      * Exchange Google authorization code with backend for JWT tokens
      * Note: Unlike admin auth, this does NOT check for admin role
      */

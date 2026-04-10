@@ -67,9 +67,14 @@ npm install
 echo -e "\n${YELLOW}[3/5] Building & starting Admin panel...${NC}"
 npm run build
 
-# Start or restart with PM2 on port 3001
+echo "📂 Copying static assets for standalone server..."
+cp -r public .next/standalone/ 2>/dev/null || true
+cp -r .next/static .next/standalone/.next/ 2>/dev/null || true
+
+# Start or restart with PM2 on port 3001 using standalone server
 pm2 delete "$APP_NAME" 2>/dev/null || true
-pm2 start npm --name "$APP_NAME" -- start -- -p $PORT
+# Next.js standalone mode runs server.js instead of npm start for highly optimized cold starts
+PORT=$PORT pm2 start .next/standalone/server.js --name "$APP_NAME"
 
 pm2 save
 

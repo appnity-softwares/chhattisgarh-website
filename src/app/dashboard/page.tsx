@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { 
     Users, 
     Heart, 
@@ -38,10 +39,10 @@ export default function DashboardPage() {
     const topPicks = profilePages?.pages[0]?.profiles?.slice(0, 4) || [];
 
     const statsConfig = [
-        { label: "Profile Views", value: profileViews, trend: "+12%", icon: Users, color: "text-blue-400" },
-        { label: "New Matches", value: newMatches, trend: "Discover", icon: Sparkles, color: "text-primary" },
-        { label: "Interests", value: interestsReceived, trend: "Pending", icon: Heart, color: "text-accent" },
-        { label: "Messages", value: unreadMessages, trend: "Unread", icon: MessageSquare, color: "text-green-400" },
+        { label: "Profile Views", value: profileViews, trend: "+12%", icon: Users, color: "text-blue-400", link: "/dashboard/activity" },
+        { label: "New Matches", value: newMatches, trend: "Discover", icon: Sparkles, color: "text-primary", link: "/dashboard/matches" },
+        { label: "Interests", value: interestsReceived, trend: "Pending", icon: Heart, color: "text-accent", link: "/dashboard/activity" },
+        { label: "Messages", value: unreadMessages, trend: "Unread", icon: MessageSquare, color: "text-chat", link: "/dashboard/chat" },
     ];
 
     return (
@@ -77,25 +78,28 @@ export default function DashboardPage() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: i * 0.1 }}
+                        className="flex"
                     >
-                        <Card className="border-white/5 bg-card/40 backdrop-blur-md rounded-3xl overflow-hidden group hover:border-primary/20 transition-all cursor-pointer">
-                            <CardContent className="p-6">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className={`p-3 rounded-2xl bg-white/5 ${stat.color} group-hover:bg-primary group-hover:text-white transition-all`}>
-                                        <stat.icon className="w-5 h-5" />
+                        <Link href={stat.link} className="w-full">
+                            <Card className="border-white/5 bg-card/40 backdrop-blur-md rounded-3xl overflow-hidden group hover:border-primary/20 transition-all cursor-pointer h-full">
+                                <CardContent className="p-6">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className={`p-3 rounded-2xl bg-white/5 ${stat.color} group-hover:bg-primary group-hover:text-white transition-all`}>
+                                            <stat.icon className="w-5 h-5" />
+                                        </div>
+                                        <span className="text-[10px] font-black text-green-400 bg-green-400/10 px-2 py-1 rounded-full">{stat.trend}</span>
                                     </div>
-                                    <span className="text-[10px] font-black text-green-400 bg-green-400/10 px-2 py-1 rounded-full">{stat.trend}</span>
-                                </div>
-                                <div>
-                                    {statsLoading ? (
-                                        <Loader2 className="w-8 h-8 animate-spin text-primary opacity-30 mb-2" />
-                                    ) : (
-                                        <p className="text-4xl font-black text-foreground mb-1 tracking-tighter">{stat.value}</p>
-                                    )}
-                                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                    <div>
+                                        {statsLoading ? (
+                                            <Loader2 className="w-8 h-8 animate-spin text-primary opacity-30 mb-2" />
+                                        ) : (
+                                            <p className="text-4xl font-black text-foreground mb-1 tracking-tighter">{stat.value}</p>
+                                        )}
+                                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </Link>
                     </motion.div>
                 ))}
             </div>
@@ -129,6 +133,7 @@ export default function DashboardPage() {
                                     transition={{ delay: 0.1 * i }}
                                 >
                                     <ProfileCard 
+                                        id={profile.id}
                                         name={`${profile.firstName} ${profile.lastName}`}
                                         age={profile.age}
                                         city={profile.city}
@@ -136,6 +141,7 @@ export default function DashboardPage() {
                                         gender={profile.gender.toLowerCase()}
                                         isVerified={profile.isVerified}
                                         image={profile.media?.[0]?.url}
+                                        priority={i < 2}
                                     />
                                 </motion.div>
                             ))}

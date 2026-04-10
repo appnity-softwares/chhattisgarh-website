@@ -30,21 +30,30 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useState, useEffect } from "react";
-
-// Mock Results
-const MOCK_RESULTS = [
-    { id: 1, name: "Sneha Patel", age: 24, city: "Raipur", occupation: "Doctor", gender: 'female' as const, isVerified: true },
-    { id: 2, name: "Anjali Sahu", age: 25, city: "Durg", occupation: "Architect", gender: 'female' as const, isVerified: true },
-    { id: 3, name: "Pooja Verma", age: 23, city: "Bilaspur", occupation: "Designer", gender: 'female' as const, isVerified: false },
-    { id: 4, name: "Megha Yadav", age: 26, city: "Bhilai", occupation: "HR Manager", gender: 'female' as const, isVerified: true },
-    { id: 5, name: "Neha Dewangan", age: 26, city: "Raipur", occupation: "Software Engineer", gender: 'female' as const, isVerified: true },
-];
+import { useInfiniteProfiles } from "@/hooks/use-infinite-profiles";
 
 export default function SearchPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [isSearching, setIsSearching] = useState(false);
     const [showFilters, setShowFilters] = useState(true);
     const [ageRange, setAgeRange] = useState([18, 50]);
+
+    // Use our hook
+    const { 
+        data, 
+        fetchNextPage, 
+        hasNextPage, 
+        isFetchingNextPage, 
+        isLoading,
+        refetch
+    } = useInfiniteProfiles({
+        search: searchQuery,
+        minAge: ageRange[0],
+        maxAge: ageRange[1]
+    });
+
+    // Flatten pages into a single array
+    const profiles = data?.pages.flatMap(page => page.profiles) || [];
 
     useEffect(() => {
         if (searchQuery.length > 2) {
@@ -171,10 +180,15 @@ export default function SearchPage() {
                                         </div>
                                     </div>
 
-                                    <Button className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-black text-sm uppercase tracking-widest rounded-xl shadow-xl shadow-primary/20">
+                                    <Button onClick={() => refetch()} className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-black text-sm uppercase tracking-widest rounded-xl shadow-xl shadow-primary/20">
                                         APPLY FILTERS
                                     </Button>
-                                    <button className="w-full text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+                                    <button 
+                                        onClick={() => {
+                                            setAgeRange([18, 50]);
+                                            setSearchQuery("");
+                                        }}
+                                        className="w-full text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
                                         Reset All
                                     </button>
                                 </CardContent>
@@ -187,7 +201,9 @@ export default function SearchPage() {
                 <div className={`${showFilters ? 'lg:col-span-9' : 'lg:col-span-12'} space-y-8`}>
                     <div className="flex items-center justify-between px-2">
                         <div className="flex items-center gap-4">
-                            <span className="text-sm font-black uppercase tracking-widest text-muted-foreground">Found {MOCK_RESULTS.length} Profiles</span>
+                            <span className="text-sm font-black uppercase tracking-widest text-muted-foreground">
+                                {isLoading ? "Searching Profiles..." : `Found ${profiles.length} Profiles`}
+                            </span>
                             <div className="w-px h-4 bg-white/10" />
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
@@ -211,26 +227,59 @@ export default function SearchPage() {
                     </div>
 
                     <div className={`grid gap-8 ${showFilters ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'}`}>
-                        {MOCK_RESULTS.map((profile, i) => (
+                        {isLoading ? (
+                            <div className="col-span-full py-20 flex justify-center items-center">
+                                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                            </div>
+                        ) : profiles.length === 0 ? (
+                            <div className="col-span-full py-20 flex flex-col justify-center items-center text-muted-foreground">
+                                <Search className="w-12 h-12 mb-4 opacity-50" />
+                                <h3 className="text-xl font-bold">No Profiles Found</h3>
+                                <p>Try adjusting your search filters.</p>
+                            </div>
+                        ) : profiles.map((profile, i) => (
                             <motion.div 
                                 key={profile.id} 
                                 initial={{ opacity: 0, y: 10 }} 
                                 animate={{ opacity: 1, y: 0 }} 
                                 transition={{ delay: i * 0.05 }}
                             >
-                                <ProfileCard {...profile} />
+                                <ProfileCard 
+                                    id={profile.id}
+                                    name={`${profile.firstName} ${profile.lastName}`} 
+                                    age={profile.age} 
+                                    city={profile.city} 
+                                    occupation={profile.occupation} 
+                                    education={profile.education} 
+                                    image={profile.media?.[0]?.url} 
+                                    isVerified={profile.isVerified} 
+                                    gender={profile.gender?.toLowerCase() as 'male'|'female' || 'female'} 
+                                />
                             </motion.div>
                         ))}
                     </div>
 
                     {/* Pagination / Loaded more */}
-                    <div className="flex flex-col items-center py-10 space-y-6">
-                        <div className="w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
-                        <Button variant="ghost" className="h-14 px-10 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 font-bold text-muted-foreground hover:text-foreground group">
-                            LOAD MORE PROFILES
-                            <ChevronDown className="w-5 h-5 ml-2 group-hover:translate-y-1 transition-transform" />
-                        </Button>
-                    </div>
+                    {hasNextPage && (
+                        <div className="flex flex-col items-center py-10 space-y-6">
+                            <div className="w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+                            <Button 
+                                variant="ghost" 
+                                onClick={() => fetchNextPage()}
+                                disabled={isFetchingNextPage}
+                                className="h-14 px-10 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 font-bold text-muted-foreground hover:text-foreground group"
+                            >
+                                {isFetchingNextPage ? (
+                                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                                ) : (
+                                    <>
+                                        LOAD MORE PROFILES
+                                        <ChevronDown className="w-5 h-5 ml-2 group-hover:translate-y-1 transition-transform" />
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

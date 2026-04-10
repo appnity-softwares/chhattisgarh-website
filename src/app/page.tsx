@@ -19,25 +19,25 @@ export default function Home() {
     showTestimonials: true,
     enableDiscovery: true,
   });
-  const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const checkConfigs = async () => {
-      try {
-        const data = await configService.getAllConfigs();
-        const featureConfig = data.find(c => c.key === 'app_features');
-        if (featureConfig) {
-          const f = JSON.parse(featureConfig.value);
-          setFeatures(f);
-        }
-      } catch (err) {
-        console.error("Config check failed");
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkConfigs();
-  }, []);
+    useEffect(() => {
+        const checkConfigs = async () => {
+            try {
+                const data = await configService.getPublicConfigs();
+                const featureConfig = data.find(c => c.key === 'app_features');
+                if (featureConfig) {
+                    const f = JSON.parse(featureConfig.value);
+                    setFeatures(f);
+                }
+            } catch (err) {
+                console.error("Config check failed");
+            } finally {
+                setLoading(false);
+            }
+        };
+        checkConfigs();
+    }, []);
 
   if (loading) {
     return (

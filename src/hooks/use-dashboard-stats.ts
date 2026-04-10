@@ -48,8 +48,14 @@ export function useDashboardStats(): DashboardStats {
     const { data: viewsData, isLoading: viewsLoading } = useQuery({
         queryKey: ["stats", "profile-views"],
         queryFn: async () => {
-            // Replicating app logic if profileViewService exists
-            return Math.floor(Math.random() * 50) + 100; // Placeholder for now or fetch if endpoint added
+            try {
+                // Now using the valid visitors endpoint to count profile views
+                const res = await apiService.get(apiConfig.endpoints.views.visitors);
+                // Check both potential keys: 'profiles' (from app API) and 'visitors' (legacy/fallback)
+                return res.data.data.profiles?.length || res.data.data.visitors?.length || 0;
+            } catch (err) {
+                return 0; // Fallback to 0 if endpoint issues
+            }
         },
         staleTime: 300000,
     });

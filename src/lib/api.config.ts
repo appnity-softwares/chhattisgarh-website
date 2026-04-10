@@ -7,7 +7,7 @@ export const apiConfig = {
     endpoints: {
         // Shared User Auth
         auth: {
-            login: '/auth/login',
+            login: '/admin/login',
             register: '/auth/register',
             google: '/auth/google',
             refresh: '/auth/refresh',
@@ -20,9 +20,11 @@ export const apiConfig = {
             create: '/profiles',
             search: '/profiles/search',
             recommendations: '/profiles/recommendations',
+            preferences: '/preference',
             byId: (userId: number) => `/profiles/${userId}`,
             photos: '/uploads/profile-photos',
             deletePhoto: (mediaId: number) => `/profiles/photos/${mediaId}`,
+            completion: '/profile/completion',
         },
         // Matches & Interactions
         matches: {
@@ -38,6 +40,36 @@ export const apiConfig = {
             list: '/shortlist',
             delete: (id: number) => `/shortlist/${id}`,
         },
+        blocks: {
+            create: '/block',
+            list: '/block',
+            delete: (id: number) => `/block/${id}`,
+        },
+        reports: {
+            create: '/report',
+        },
+        views: {
+            record: '/view',
+            history: '/view/history',
+            visitors: '/view/who-viewed-me',
+        },
+        contactRequests: {
+            send: '/contact-request',
+            received: '/contact-request/received',
+            sent: '/contact-request/sent',
+            accept: (id: number) => `/contact-request/${id}/accept`,
+            reject: (id: number) => `/contact-request/${id}/reject`,
+        },
+        photoRequests: {
+            send: '/photo-request',
+            received: '/photo-request/received',
+            sent: '/photo-request/sent',
+            accept: (id: number) => `/photo-request/${id}/accept`,
+            reject: (id: number) => `/photo-request/${id}/reject`,
+        },
+        recommendations: {
+            get: '/recommendations',
+        },
         // Communication
         messages: {
             send: '/messages',
@@ -45,6 +77,12 @@ export const apiConfig = {
             history: (userId: number) => `/messages/${userId}`,
             unreadCount: '/messages/unread-count',
             markRead: (userId: number) => `/messages/${userId}/read`,
+        },
+        notifications: {
+            list: '/notifications',
+            unreadCount: '/notifications/unread-count',
+            markRead: (id: number) => `/notifications/${id}/read`,
+            markAllRead: '/notifications/mark-all-read',
         },
         // Payments & Business
         payments: {
@@ -54,11 +92,47 @@ export const apiConfig = {
             history: '/payments/me',
             validatePromo: '/payments/promo-codes/validate',
         },
+        webPayments: {
+            createLink: '/web/payment/create-link',
+            initiateSession: '/web/payment/initiate-session',
+            details: '/web/payment/details',
+            success: '/web/payment/success',
+            failed: '/web/payment/failed',
+            boostCreateLink: '/web/boost/create-link',
+            boostDetails: '/web/boost/details',
+            boostSuccess: '/web/boost/success',
+        },
+        boosts: {
+            packages: '/boost/packages',
+            active: '/boost/active',
+            history: '/boost/history',
+        },
+        astrology: {
+            generateKundli: '/astrology/kundli',
+            match: '/astrology/match',
+        },
+        horoscope: {
+            match: '/horoscope/match',
+            details: '/horoscope/details',
+        },
+        // Settings & Privacy
+        settings: {
+            privacy: '/privacy/profile',
+            communication: '/privacy/communication',
+            photoPrivacy: '/settings/photos/privacy',
+            notifications: '/settings/notifications',
+        },
+        // Meta Data / Dictionaries
+        metadata: {
+            education: '/education',
+            occupation: '/occupation',
+            locationByPin: (pin: string) => `/location/pincode/${pin}`,
+        },
         // Admin Specific (Unique to Web Admin Console)
         admin: {
             stats: '/admin/stats',
             users: '/admin/users',
-            recentUsers: '/admin/users', // Reusing users with limit
+            recentUsers: '/admin/users/recent', // Updated to match backend
             userById: (id: string) => `/admin/users/${id}`,
             userRole: (id: string) => `/admin/users/${id}/role`,
             profiles: '/admin/profiles',
@@ -66,7 +140,7 @@ export const apiConfig = {
             analyticsRevenue: '/admin/analytics/revenue',
             analyticsSignups: '/admin/analytics/signups',
             analyticsSubscriptions: '/admin/analytics/subscriptions',
-            recentMatches: '/admin/matches', // Reusing matches with limit
+            recentMatches: '/admin/matches/recent', // Updated to match backend
             reports: '/admin/reports',
             notifications: '/admin/notifications/send',
             promoCodes: '/admin/promo-codes',
@@ -86,8 +160,10 @@ export const apiConfig = {
         },
         public: {
             faq: '/faq',
-            successStories: '/admin/success-stories', // Shared with admin
+            successStories: '/success-stories', 
             stats: '/admin/verifications/stats', // Example public stat
+            theme: '/theme',
+            config: '/config/public',
         }
     },
     socketEvents: {

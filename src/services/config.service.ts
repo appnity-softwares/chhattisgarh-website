@@ -26,6 +26,27 @@ class ConfigService {
         }
     }
 
+    private async fetchPublic<T>(
+        endpoint: string,
+        options: RequestInit = {}
+    ): Promise<T> {
+        const response = await fetch(`${apiConfig.baseUrl}${endpoint}`, {
+            ...options,
+            headers: {
+                ...getAuthHeaders(), // No token
+                ...options.headers,
+            },
+        });
+
+        const data: ApiResponse<T> = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Request failed');
+        }
+
+        return data.data;
+    }
+
     private async fetchWithAuth<T>(
         endpoint: string,
         options: RequestInit = {}
@@ -52,6 +73,12 @@ class ConfigService {
     async getAllConfigs(): Promise<SystemConfig[]> {
         return withMock(mockData.configs, () =>
             this.fetchWithAuth<SystemConfig[]>('/config')
+        );
+    }
+
+    async getPublicConfigs(): Promise<SystemConfig[]> {
+        return withMock(mockData.configs.filter(c => c.isPublic), () =>
+            this.fetchPublic<SystemConfig[]>('/config/public')
         );
     }
 

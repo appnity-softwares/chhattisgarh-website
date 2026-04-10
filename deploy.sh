@@ -45,10 +45,14 @@ fi
 echo "🏗️  Building Next.js application..."
 npm run build
 
-# 5. Start/Restart with PM2
-echo "⚡ Starting application with PM2..."
+echo "📂 Copying static assets for standalone server..."
+cp -r public .next/standalone/ 2>/dev/null || true
+cp -r .next/static .next/standalone/.next/ 2>/dev/null || true
+
+# 5. Start/Restart with PM2 (Standalone mode)
+echo "⚡ Starting application with PM2 (Standalone mode)..."
 pm2 delete $APP_NAME 2>/dev/null || true
-pm2 start npm --name "$APP_NAME" -- start -- -p 3000
+PORT=3000 pm2 start .next/standalone/server.js --name "$APP_NAME"
 
 # 6. Save PM2 state
 pm2 save

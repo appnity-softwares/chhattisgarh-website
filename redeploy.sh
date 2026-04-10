@@ -36,9 +36,13 @@ rm -rf .next
 echo -e "${YELLOW}Step 4: Creating new production build...${NC}"
 npm run build
 
+echo -e "${YELLOW}Step 4.5: Copying static assets for standalone server...${NC}"
+cp -r public .next/standalone/ 2>/dev/null || true
+cp -r .next/static .next/standalone/.next/ 2>/dev/null || true
+
 # 5. Restart with PM2
 echo -e "${YELLOW}Step 5: Restarting PM2 process...${NC}"
-pm2 restart "$APP_NAME" || pm2 start npm --name "$APP_NAME" -- start -- -p 3000
+pm2 restart "$APP_NAME" || PORT=3000 pm2 start .next/standalone/server.js --name "$APP_NAME"
 
 # 6. Save PM2 state
 pm2 save

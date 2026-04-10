@@ -2,14 +2,14 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { 
-    Users, 
-    Heart, 
-    MessageSquare, 
-    Sparkles, 
-    User, 
-    Settings, 
+import { usePathname, useRouter } from "next/navigation";
+import {
+    Users,
+    Heart,
+    MessageSquare,
+    Sparkles,
+    User,
+    Settings,
     LogOut,
     Menu,
     X,
@@ -51,9 +51,12 @@ const secondaryLinks = [
 ];
 
 import { useProfile } from "@/hooks/use-profile";
+import { useUserAuthStore } from "@/stores/user-auth-store";
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const pathname = usePathname();
+    const router = useRouter(); // Added router for logout redirection
+    const userStore = useUserAuthStore();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { unreadMessages } = useDashboardStats();
     const { data: user } = useProfile();
@@ -62,8 +65,20 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const userRole = user?.subscription?.planName ? `${user.subscription.planName} Member` : "Free Member";
     const userAvatar = user?.profile?.media?.[0]?.url || "";
 
-    const daysLeft = user?.subscription?.endDate ? 
+    const daysLeft = user?.subscription?.endDate ?
         Math.max(0, Math.ceil((new Date(user.subscription.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))) : 0;
+
+    const [mounted, setMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return <div className="min-h-screen bg-[#0a0a0a]" />;
+    }
+
+    const hasUnreadNotifications = unreadMessages > 0;
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-foreground flex overflow-hidden">
@@ -85,10 +100,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         const Icon = link.icon;
                         const active = pathname === link.href;
                         const hasBadge = link.badge === "unreadMessages" && unreadMessages > 0;
-                        
+
                         return (
-                            <Link 
-                                key={link.href} 
+                            <Link
+                                key={link.href}
                                 href={link.href}
                                 className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all group ${active ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'}`}
                             >
@@ -111,8 +126,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         const Icon = link.icon;
                         const active = pathname === link.href;
                         return (
-                            <Link 
-                                key={link.href} 
+                            <Link
+                                key={link.href}
                                 href={link.href}
                                 className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all group ${active ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'}`}
                             >
@@ -144,9 +159,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 {/* Header */}
                 <header className="h-20 border-b border-white/5 flex items-center justify-between px-6 lg:px-10 bg-background/50 backdrop-blur-md">
                     <div className="flex items-center gap-4">
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             className="lg:hidden hover:bg-white/5 rounded-xl"
                             onClick={() => setIsMobileMenuOpen(true)}
                         >
@@ -161,10 +176,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         <Link href="/dashboard/notifications">
                             <Button variant="outline" size="icon" className="rounded-full bg-white/5 border-white/10 relative group h-10 w-10">
                                 <Bell className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                                <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-[#0a0a0a]" />
+                                {hasUnreadNotifications && (
+                                    <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-[#0a0a0a]" />
+                                )}
                             </Button>
                         </Link>
-                        
+
                         <div className="h-8 w-px bg-white/10 mx-2 hidden sm:block" />
 
                         <div className="flex items-center gap-3 pl-2">
@@ -172,13 +189,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                 <p className="text-sm font-black text-foreground">{userName}</p>
                                 <p className="text-[10px] text-primary font-bold uppercase tracking-widest">{userRole}</p>
                             </div>
-                            
+
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <button className="outline-none focus:ring-0">
                                         <Avatar className="h-10 w-10 ring-2 ring-primary/20 hover:ring-primary/40 transition-all cursor-pointer">
-                                            <AvatarImage src={userAvatar} />
-                                            <AvatarFallback>{userName.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
+                                            <AvatarImage src={userAvatar} loading="eager" />
+                                            <AvatarFallback>{userName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                                         </Avatar>
                                     </button>
                                 </DropdownMenuTrigger>
@@ -201,7 +218,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator className="bg-white/5" />
-                                    <DropdownMenuItem className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer hover:bg-red-500/10 text-red-400 group">
+                                    <DropdownMenuItem
+                                        onClick={() => {
+                                            userStore.logout();
+                                            router.push('/login');
+                                        }}
+                                        className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer hover:bg-red-500/10 text-red-400 group"
+                                    >
                                         <LogOut className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                         <span className="font-bold text-sm">Sign Out</span>
                                     </DropdownMenuItem>
@@ -229,13 +252,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     ].map((tab) => {
                         const active = pathname === tab.href;
                         return (
-                            <Link 
+                            <Link
                                 key={tab.href}
                                 href={tab.href}
                                 className="flex flex-col items-center justify-center gap-1 group relative w-12"
                             >
                                 {active && (
-                                    <motion.div 
+                                    <motion.div
                                         layoutId="bottom-nav-active"
                                         className="absolute -top-3 w-8 h-1 bg-primary rounded-full shadow-[0_0_8px_rgba(224,30,90,0.8)]"
                                     />
@@ -251,13 +274,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {/* Mobile Menu Overlay */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm lg:hidden"
                     >
-                        <motion.aside 
+                        <motion.aside
                             initial={{ x: -280 }}
                             animate={{ x: 0 }}
                             exit={{ x: -280 }}
@@ -273,8 +296,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             <nav className="flex-1 space-y-2 overflow-y-auto">
                                 <p className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4">Discovery</p>
                                 {sidebarLinks.map((link) => (
-                                    <Link 
-                                        key={link.href} 
+                                    <Link
+                                        key={link.href}
                                         href={link.href}
                                         onClick={() => setIsMobileMenuOpen(false)}
                                         className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all ${pathname === link.href ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-muted-foreground hover:bg-white/5'}`}
@@ -285,7 +308,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                 ))}
 
                                 <p className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-8 mb-4">Support & Care</p>
-                                <Link 
+                                <Link
                                     href="/help"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className="flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all text-muted-foreground hover:bg-white/5"
@@ -293,7 +316,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                     <ShieldCheck className="w-5 h-5 text-green-500" />
                                     <span className="font-bold text-sm">Help & Safety</span>
                                 </Link>
-                                <Link 
+                                <Link
                                     href="/help"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className="flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all text-muted-foreground hover:bg-white/5"

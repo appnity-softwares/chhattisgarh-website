@@ -29,8 +29,10 @@ import {
     SelectTrigger, 
     SelectValue 
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useProfile, useProfileCompletion } from "@/hooks/use-profile";
+import { useRef } from "react";
 
 const SECTIONS = [
     { id: "basic", label: "Basic Info", icon: User },
@@ -43,19 +45,38 @@ const SECTIONS = [
 
 export default function ProfilePage() {
     const { toast } = useToast();
+    const { data: userData, isLoading, updateProfile, uploadPhotos, deletePhoto } = useProfile();
+    const { data: completion } = useProfileCompletion();
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [activeSection, setActiveSection] = useState("basic");
-    const [isSaving, setIsSaving] = useState(false);
+    const [formData, setFormData] = useState<any>({});
+
+    useEffect(() => {
+        if (userData?.profile) {
+            setFormData(userData.profile);
+        }
+    }, [userData]);
+
+    const isSaving = updateProfile.isPending || uploadPhotos.isPending || deletePhoto.isPending;
 
     const handleSave = () => {
-        setIsSaving(true);
-        setTimeout(() => {
-            setIsSaving(false);
-            toast({
-                title: "Profile Updated",
-                description: "Your changes have been saved successfully.",
-            });
-        }, 1500);
+        updateProfile.mutate(formData);
     };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length > 0) {
+            uploadPhotos.mutate(files);
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="h-full w-full flex items-center justify-center">
+                <Loader2 className="w-10 h-10 animate-spin text-primary opacity-30" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 pb-20">
@@ -98,45 +119,44 @@ export default function ProfilePage() {
                     <Card className="bg-card/40 backdrop-blur-3xl border-white/10 rounded-[2.5rem] shadow-3xl overflow-hidden min-h-[600px]">
                         <CardContent className="p-8 md:p-12">
                             <AnimatePresence mode="wait">
-                                {activeSection === "basic" && (
+                                 {activeSection === "basic" && (
                                     <motion.div key="basic" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Full Name</Label>
-                                                <Input defaultValue="Priya Sahu" className="h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold" />
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">First Name</Label>
+                                                <Input 
+                                                    value={formData.firstName || ""} 
+                                                    onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold" 
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Last Name</Label>
+                                                <Input 
+                                                    value={formData.lastName || ""} 
+                                                    onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold" 
+                                                />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Date of Birth</Label>
                                                 <div className="relative">
                                                     <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
-                                                    <Input type="date" className="pl-12 h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold" />
+                                                    <Input 
+                                                        type="date" 
+                                                        value={formData.dateOfBirth ? new Date(formData.dateOfBirth).toISOString().split('T')[0] : ""} 
+                                                        onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})}
+                                                        className="pl-12 h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold" 
+                                                    />
                                                 </div>
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Height</Label>
-                                                <Select defaultValue="5-4">
-                                                    <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="5-0">5' 0"</SelectItem>
-                                                        <SelectItem value="5-4">5' 4"</SelectItem>
-                                                        <SelectItem value="5-8">5' 8"</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Mother Tongue</Label>
-                                                <Select defaultValue="chhattisgarhi">
-                                                    <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="chhattisgarhi">Chhattisgarhi</SelectItem>
-                                                        <SelectItem value="hindi">Hindi</SelectItem>
-                                                        <SelectItem value="english">English</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Height (e.g. 5.4)</Label>
+                                                <Input 
+                                                    value={formData.height || ""} 
+                                                    onChange={(e) => setFormData({...formData, height: e.target.value})}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold" 
+                                                />
                                             </div>
                                         </div>
                                     </motion.div>
@@ -242,22 +262,47 @@ export default function ProfilePage() {
                                     <motion.div key="photos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-10">
                                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
                                             {/* Existing Photos */}
-                                            <div className="relative group aspect-square rounded-[1.5rem] overflow-hidden border-2 border-primary/20">
-                                                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-                                                <button className="absolute top-2 right-2 w-8 h-8 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                                <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent">
-                                                    <span className="text-[8px] font-black text-white uppercase tracking-widest">Main Photo</span>
+                                            {formData.media?.map((media: any, idx: number) => (
+                                                <div key={media.id} className="relative group aspect-square rounded-[1.5rem] overflow-hidden border-2 border-primary/20">
+                                                    <img src={media.url} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                                                    <button 
+                                                        onClick={() => deletePhoto.mutate(media.id)}
+                                                        className="absolute top-2 right-2 w-8 h-8 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    >
+                                                        {deletePhoto.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                                    </button>
+                                                    {idx === 0 && (
+                                                        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent">
+                                                            <span className="text-[8px] font-black text-white uppercase tracking-widest">Main Photo</span>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            </div>
+                                            ))}
 
                                             {/* Add Photo Slot */}
-                                            <button className="aspect-square rounded-[1.5rem] bg-white/5 border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-3 hover:bg-white/10 transition-all hover:border-primary/40 group">
-                                                <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                                                    <Plus className="w-6 h-6 text-primary" />
-                                                </div>
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Add Photo</span>
+                                            <button 
+                                                onClick={() => fileInputRef.current?.click()}
+                                                disabled={uploadPhotos.isPending}
+                                                className="aspect-square rounded-[1.5rem] bg-white/5 border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-3 hover:bg-white/10 transition-all hover:border-primary/40 group overflow-hidden"
+                                            >
+                                                {uploadPhotos.isPending ? (
+                                                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                                                ) : (
+                                                    <>
+                                                        <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                                            <Plus className="w-6 h-6 text-primary" />
+                                                        </div>
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Add Photo</span>
+                                                    </>
+                                                )}
+                                                <input 
+                                                    type="file" 
+                                                    ref={fileInputRef} 
+                                                    className="hidden" 
+                                                    accept="image/*" 
+                                                    multiple 
+                                                    onChange={handleFileChange} 
+                                                />
                                             </button>
                                         </div>
 
@@ -279,11 +324,22 @@ export default function ProfilePage() {
                         <div className="bg-amber-400 p-3 rounded-2xl shadow-lg shadow-amber-400/20">
                             <Star className="w-5 h-5 text-black" />
                         </div>
-                        <div>
-                            <p className="font-black text-sm uppercase tracking-widest text-foreground">Profile Completeness: 85%</p>
-                            <p className="text-xs text-muted-foreground font-medium">Add more photos to reach 100% and get featured in 'New Profiles'</p>
+                        <div className="flex-1">
+                            <div className="flex justify-between items-center mb-1">
+                                <p className="font-black text-sm uppercase tracking-widest text-foreground">Profile Completeness: {completion?.percentage || 0}%</p>
+                            </div>
+                            <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+                                <motion.div 
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${completion?.percentage || 0}%` }}
+                                    className="h-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)]" 
+                                />
+                            </div>
+                            {completion?.missingFields?.length > 0 && (
+                                <p className="text-[9px] text-muted-foreground font-bold mt-2 uppercase">Missing: {completion.missingFields.slice(0, 3).join(', ')}...</p>
+                            )}
                         </div>
-                        <Button variant="outline" className="ml-auto rounded-xl border-amber-400/30 font-bold active:scale-95">View Tips</Button>
+                        <Button variant="outline" className="ml-auto rounded-xl border-amber-400/30 font-bold active:scale-95 text-xs">View Tips</Button>
                     </div>
                 </div>
             </div>

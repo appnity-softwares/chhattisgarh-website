@@ -20,22 +20,31 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
+import { 
+    DropdownMenu, 
+    DropdownMenuContent, 
+    DropdownMenuItem, 
+    DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { Trash2 } from "lucide-react";
 import { useChat, Message } from "@/hooks/use-chat";
 import { useConversations } from "@/hooks/use-conversations";
 
-export default function ChatPage() {
+export default function ChatPage({ initialUserId }: { initialUserId?: number | null }) {
     const { data: conversations, isLoading: convsLoading } = useConversations();
-    const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+    const [selectedUserId, setSelectedUserId] = useState<number | null>(initialUserId || null);
     
-    // Auto-select first conversation
+    // Auto-select first conversation if no initial ID or if ID changes
     useEffect(() => {
-        if (conversations && conversations.length > 0 && !selectedUserId) {
+        if (initialUserId) {
+            setSelectedUserId(initialUserId);
+        } else if (conversations && conversations.length > 0 && !selectedUserId) {
             setSelectedUserId(conversations[0].user.id);
         }
-    }, [conversations, selectedUserId]);
+    }, [conversations, initialUserId]);
 
     const activeConv = conversations?.find(c => c.user.id === selectedUserId);
-    const { messages, isTyping, isOnline, isLoading: chatLoading, sendMessage, sendTyping } = useChat(selectedUserId);
+    const { messages, isTyping, isOnline, isLoading: chatLoading, sendMessage, sendTyping, deleteMessage, deleteConversation } = useChat(selectedUserId);
     
     const [msgInput, setMsgInput] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -165,7 +174,26 @@ export default function ChatPage() {
                             <div className="flex items-center gap-2">
                                 <Button variant="ghost" size="icon" className="rounded-xl hover:bg-white/5 text-muted-foreground"><Phone className="h-5 w-5" /></Button>
                                 <Button variant="ghost" size="icon" className="rounded-xl hover:bg-white/5 text-muted-foreground"><Video className="h-5 w-5" /></Button>
-                                <Button variant="ghost" size="icon" className="rounded-xl hover:bg-white/5 text-muted-foreground"><MoreVertical className="h-5 w-5" /></Button>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="rounded-xl hover:bg-white/5 text-muted-foreground"><MoreVertical className="h-5 w-5" /></Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="bg-[#1a1a1a] border-white/10 rounded-2xl w-48 p-2">
+                                        <DropdownMenuItem 
+                                            onClick={() => {
+                                                if (selectedUserId && window.confirm("Delete this entire conversation?")) {
+                                                    deleteConversation.mutate(selectedUserId, {
+                                                        onSuccess: () => setSelectedUserId(null)
+                                                    });
+                                                }
+                                            }}
+                                            className="text-red-400 focus:text-red-400 focus:bg-red-400/10 rounded-xl cursor-pointer p-3 font-bold uppercase tracking-widest text-[10px]"
+                                        >
+                                            <Trash2 className="w-4 h-4 mr-3" />
+                                            Delete Chat
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </div>
                         </div>
 
@@ -189,12 +217,25 @@ export default function ChatPage() {
                                         <motion.div 
                                             initial={{ opacity: 0, scale: 0.9, y: 10 }}
                                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                                            className={`max-w-[80%] p-5 rounded-[1.75rem] text-sm font-medium leading-relaxed shadow-xl ${message.sender === 'me' ? 'bg-primary text-white rounded-br-none shadow-primary/10' : 'bg-white/10 text-foreground rounded-bl-none border border-white/5'}`}
+                                            className={`relative group/msg max-w-[80%] p-5 rounded-[1.75rem] text-sm font-medium leading-relaxed shadow-xl ${message.sender === 'me' ? 'bg-primary text-white rounded-br-none shadow-primary/10' : 'bg-white/10 text-foreground rounded-bl-none border border-white/5'}`}
                                         >
                                             {message.type === "IMAGE" && message.imageUrl ? (
                                                 <img src={message.imageUrl} alt="chat" className="rounded-xl max-h-64 object-cover mb-2" />
                                             ) : (
                                                 message.text
+                                            )}
+                                            
+                                            {message.id && (
+                                                <button 
+                                                    onClick={() => {
+                                                        if (window.confirm("Delete this message?")) {
+                                                            deleteMessage.mutate(message.id!);
+                                                        }
+                                                    }}
+                                                    className={`absolute top-0 ${message.sender === 'me' ? '-left-10' : '-right-10'} opacity-0 group-hover/msg:opacity-100 transition-opacity p-2 text-muted-foreground hover:text-red-400`}
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
                                             )}
                                         </motion.div>
                                         <div className="flex items-center gap-1.5 mt-2 px-1">

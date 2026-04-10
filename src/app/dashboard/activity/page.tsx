@@ -17,15 +17,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ProfileCard } from "@/components/profile/profile-card";
 import { useState } from "react";
-
-const MOCK_VIEWERS = [
-    { id: 1, name: "Sneha Patel", age: 24, city: "Raipur", occupation: "Doctor", gender: 'female' as const, isVerified: true, viewedAt: "10 mins ago" },
-    { id: 2, name: "Anjali Sahu", age: 25, city: "Durg", occupation: "Architect", gender: 'female' as const, isVerified: true, viewedAt: "2 hours ago" },
-    { id: 3, name: "Pooja Verma", age: 23, city: "Bilaspur", occupation: "Designer", gender: 'female' as const, isVerified: false, viewedAt: "Yesterday" },
-];
+import { useProfileVisitors } from "@/hooks/use-interactions";
+import { Loader2 } from "lucide-react";
 
 export default function ActivityPage() {
     const [filter, setFilter] = useState("all");
+    const { data: visitorsData, isLoading } = useProfileVisitors();
+    
+    // We assume the data contains a list of profiles or interactions with viewer profiles
+    const visitors = visitorsData?.visitors || visitorsData || [];
+    const totalViews = visitors.length;
+    const viewsToday = visitors.filter((v: any) => new Date(v.viewedAt || v.createdAt).toDateString() === new Date().toDateString()).length;
 
     return (
         <div className="space-y-10 pb-20">
@@ -38,11 +40,11 @@ export default function ActivityPage() {
 
                 <div className="lg:col-span-4 flex gap-4">
                     <Card className="flex-1 bg-primary/10 border-primary/20 rounded-2xl p-4 flex flex-col items-center justify-center text-center">
-                        <span className="text-2xl font-black text-primary">124</span>
+                        <span className="text-2xl font-black text-primary">{isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : totalViews}</span>
                         <span className="text-[10px] font-black uppercase tracking-widest text-primary/80">Total Views</span>
                     </Card>
                     <Card className="flex-1 bg-amber-400/10 border-amber-400/20 rounded-2xl p-4 flex flex-col items-center justify-center text-center">
-                        <span className="text-2xl font-black text-amber-500">+12</span>
+                        <span className="text-2xl font-black text-amber-500">{isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : `+${viewsToday}`}</span>
                         <span className="text-[10px] font-black uppercase tracking-widest text-amber-500/80">Viewed Today</span>
                     </Card>
                 </div>
@@ -65,23 +67,44 @@ export default function ActivityPage() {
                 {/* Main Results Area */}
                 <div className="lg:col-span-8 space-y-8">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                        {MOCK_VIEWERS.map((profile, i) => (
-                            <motion.div 
-                                key={profile.id}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.1 }}
-                                className="relative group"
-                            >
-                                <div className="absolute top-4 left-4 z-20">
-                                    <Badge className="bg-black/40 backdrop-blur-md border-white/10 text-[8px] font-black uppercase tracking-widest">
-                                        <Clock className="w-2.5 h-2.5 mr-1" />
-                                        Seen {profile.viewedAt}
-                                    </Badge>
-                                </div>
-                                <ProfileCard {...profile} />
-                            </motion.div>
-                        ))}
+                        {isLoading ? (
+                            <div className="col-span-full py-12 flex justify-center border border-white/5 rounded-[2.5rem] bg-card/30">
+                                <Loader2 className="w-8 h-8 animate-spin text-primary opacity-50" />
+                            </div>
+                        ) : visitors.length === 0 ? (
+                            <div className="col-span-full py-12 flex flex-col items-center justify-center border border-white/5 rounded-[2.5rem] bg-card/30">
+                                <Eye className="w-8 h-8 text-muted-foreground opacity-30 mb-2" />
+                                <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">No recent visitors</span>
+                            </div>
+                        ) : visitors.map((interaction: any, i: number) => {
+                            const profile = interaction.viewer || interaction.profile || interaction;
+                            return (
+                                <motion.div 
+                                    key={interaction.id || i}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: i * 0.1 }}
+                                    className="relative group"
+                                >
+                                    <div className="absolute top-4 left-4 z-20">
+                                        <Badge className="bg-black/40 backdrop-blur-md border-white/10 text-[8px] font-black uppercase tracking-widest">
+                                            <Clock className="w-2.5 h-2.5 mr-1" />
+                                            Seen {new Date(interaction.viewedAt || interaction.createdAt).toLocaleDateString()}
+                                        </Badge>
+                                    </div>
+                                    <ProfileCard 
+                                        id={profile.id}
+                                        name={`${profile.firstName} ${profile.lastName}`}
+                                        age={profile.age}
+                                        city={profile.city}
+                                        occupation={profile.occupation}
+                                        gender={profile.gender?.toLowerCase() || 'female'}
+                                        isVerified={profile.isVerified}
+                                        image={profile.media?.[0]?.url}
+                                    />
+                                </motion.div>
+                            );
+                        })}
                     </div>
 
                     {/* Empty State / Load More simulation */}

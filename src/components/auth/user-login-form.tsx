@@ -20,17 +20,39 @@ import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/ui/logo";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
+import { auth } from "@/lib/firebase";
+import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from "firebase/auth";
+import userAuthService from "@/services/user-auth.service";
+import { useUserAuthStore } from "@/stores/user-auth-store";
+import { useRouter } from "next/navigation";
 
 export function UserLoginForm() {
     const { toast } = useToast();
+    const router = useRouter();
+    const login = useUserAuthStore((state) => state.login);
+    
+    const [isMounted, setIsMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
     const [otpSent, setOtpSent] = useState(false);
     const [phone, setPhone] = useState("");
     const [otp, setOtp] = useState("");
     const [timer, setTimer] = useState(30);
     const [canResend, setCanResend] = useState(false);
+    const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
-    // Timer Logic for OTP Resend
+    // Setup Recaptcha
+    const setupRecaptcha = () => {
+        if (!(window as any).recaptchaVerifier) {
+            (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                'size': 'invisible',
+                'callback': () => {}
+            });
+        }
+    };
     useEffect(() => {
         let interval: NodeJS.Timeout;
         if (otpSent && timer > 0) {
@@ -55,9 +77,13 @@ export function UserLoginForm() {
         }
 
         setIsLoading(true);
-        // Simulate API call to backend /auth/phone/login
-        setTimeout(() => {
-            setIsLoading(false);
+        try {
+            setupRecaptcha();
+            const appVerifier = (window as any).recaptchaVerifier;
+            const fullPhone = `+91${phone}`;
+            
+            const result = await signInWithPhoneNumber(auth, fullPhone, appVerifier);
+            setConfirmationResult(result);
             setOtpSent(true);
             setTimer(30);
             setCanResend(false);
@@ -65,12 +91,25 @@ export function UserLoginForm() {
                 title: "OTP Sent!",
                 description: `Verification code sent to +91 ${phone}`,
             });
-        }, 1500);
+        } catch (error: any) {
+            console.error("OTP Error:", error);
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: error.message || "Failed to send OTP. Please try again.",
+            });
+            if ((window as any).recaptchaVerifier) {
+                (window as any).recaptchaVerifier.clear();
+                delete (window as any).recaptchaVerifier;
+            }
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleVerifyOTP = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (otp.length !== 6) {
+        if (otp.length !== 6 || !confirmationResult) {
             toast({
                 variant: "destructive",
                 title: "Invalid OTP",
@@ -80,15 +119,37 @@ export function UserLoginForm() {
         }
 
         setIsLoading(true);
-        // Simulate Verification
-        setTimeout(() => {
-            setIsLoading(false);
+        try {
+            const userCredential = await confirmationResult.confirm(otp);
+            const idToken = await userCredential.user.getIdToken();
+            
+            // Send idToken to our backend
+            const authData = await userAuthService.authenticateWithPhone(idToken);
+            
+            // Store in state
+            login(authData.user, authData.accessToken, authData.refreshToken);
+            
             toast({
                 title: "Login Successful",
                 description: "Welcome back to Chhattisgarh Shaadi!",
             });
-            // window.location.href = "/dashboard";
-        }, 1500);
+
+            // Redirect based on profile status
+            if (authData.isNewUser || !authData.user.profile) {
+                router.push("/dashboard/profile");
+            } else {
+                router.push("/dashboard");
+            }
+        } catch (error: any) {
+            console.error("Verification Error:", error);
+            toast({
+                variant: "destructive",
+                title: "Login Failed",
+                description: "Invalid OTP or authentication error. Please try again.",
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -99,7 +160,7 @@ export function UserLoginForm() {
                 <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-accent/20 rounded-full blur-[140px] opacity-30" />
                 
                 {/* Floating Hearts */}
-                {[...Array(6)].map((_, i) => (
+                {isMounted && [...Array(6)].map((_, i) => (
                     <motion.div
                         key={i}
                         initial={{ opacity: 0, scale: 0 }}
@@ -249,6 +310,7 @@ export function UserLoginForm() {
                         </AnimatePresence>
                     </div>
 
+                    <div id="recaptcha-container"></div>
                     {/* Trust Footer */}
                     <div className="bg-white/5 p-6 border-t border-white/5 flex items-center justify-center gap-3">
                         <ShieldCheck className="w-4 h-4 text-green-500" />

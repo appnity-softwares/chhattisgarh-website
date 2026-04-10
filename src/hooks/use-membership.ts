@@ -22,14 +22,16 @@ export function useMembership() {
     const { data: plans, isLoading: plansLoading } = useQuery({
         queryKey: ["membership-plans"],
         queryFn: async () => {
-            const res = await apiService.get('/web/payment/plans');
-            return res.data.data as Plan[];
+            const res = await apiService.get(apiConfig.endpoints.payments.plans);
+            const data = res.data.data;
+            // Handle both structure: direct array or { plans: [] }
+            return Array.isArray(data) ? data : (data?.plans || []);
         }
     });
 
     const initiatePayment = useMutation({
         mutationFn: async (planId: number) => {
-            const res = await apiService.post('/web/payment/initiate-session', { planId });
+            const res = await apiService.post(apiConfig.endpoints.webPayments.initiateSession, { planId });
             return res.data.data;
         },
         onError: (error: any) => {

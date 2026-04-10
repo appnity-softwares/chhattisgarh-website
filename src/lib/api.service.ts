@@ -13,23 +13,68 @@ api.interceptors.request.use(
     (config) => {
         let token = null;
         if (typeof window !== "undefined") {
-            const storage = localStorage.getItem("admin-auth-storage");
-            if (storage) {
+            const path = window.location.pathname;
+            const isDashboardRoute = path.startsWith('/dashboard');
+
+            if (isDashboardRoute) {
+                // Priority for User Dashboard
                 try {
-                    const parsed = JSON.parse(storage);
-                    token = parsed.state?.accessToken;
+                    const userStorage = localStorage.getItem("user-auth-storage");
+                    if (userStorage) {
+                        const parsed = JSON.parse(userStorage);
+                        token = parsed.state?.accessToken;
+                    }
                 } catch (e) {
-                    console.error("Failed to parse auth storage", e);
+                    console.error("Failed to parse user auth storage", e);
+                }
+                
+                if (!token) {
+                    // Fallback to admin if no user token (though unlikely on dashboard)
+                    const adminStorage = localStorage.getItem("admin-auth-storage");
+                    if (adminStorage) {
+                        try {
+                            const parsed = JSON.parse(adminStorage);
+                            token = parsed.state?.accessToken;
+                        } catch (e) {}
+                    }
+                }
+            } else {
+                // Priority for Admin Panel
+                try {
+                    const adminStorage = localStorage.getItem("admin-auth-storage");
+                    if (adminStorage) {
+                        const parsed = JSON.parse(adminStorage);
+                        token = parsed.state?.accessToken;
+                    }
+                } catch (e) {
+                    console.error("Failed to parse admin auth storage", e);
+                }
+
+                if (!token) {
+                    const userStorage = localStorage.getItem("user-auth-storage");
+                    if (userStorage) {
+                        try {
+                            const parsed = JSON.parse(userStorage);
+                            token = parsed.state?.accessToken;
+                        } catch (e) {}
+                    }
                 }
             }
+
+            // Fallback for everything else
             if (!token) {
                 token = localStorage.getItem("token");
             }
         }
         
         if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+            config.headers.Authorization = `Bearer ${token.trim()}`;
+            // Optional: for debugging
+            // console.log(`[API] Authorized request to ${config.url}`);
+        } else {
+            // console.warn(`[API] No token found for request to ${config.url}`);
         }
+        
         return config;
     },
     (error) => Promise.reject(error)
@@ -40,17 +85,11 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            // Handle Unauthorized - maybe redirect to login or refresh token
+            console.warn(`Unauthorized (401) at ${error.config?.url}. Token present: ${!!error.config?.headers?.Authorization}`);
         }
         return Promise.reject(error);
     }
 );
 
-export const apiService = {
-    get: api.get,
-    post: api.post,
-    put: api.put,
-    delete: api.delete,
-};
-
-export default apiService;
+export const apiService = api;
+export default api;

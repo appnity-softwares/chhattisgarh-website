@@ -84,7 +84,7 @@ export default function MembershipPage() {
         }
     };
 
-    const activePlan = plans?.find(p => p.id === selectedPlanId);
+    const activePlan = Array.isArray(plans) ? plans.find(p => p.id === selectedPlanId) : null;
 
     return (
         <div className="space-y-12 pb-20">
@@ -139,7 +139,7 @@ export default function MembershipPage() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {plans?.map((plan, i) => (
+                    {plans?.map((plan: any, i: number) => (
                         <motion.div
                             key={plan.id}
                             initial={{ opacity: 0, y: 20 }}
@@ -170,7 +170,7 @@ export default function MembershipPage() {
                                     </div>
 
                                     <div className="flex-1 space-y-4 mb-10">
-                                        {plan.features.map((feature, idx) => (
+                                        {plan.features.map((feature: string, idx: number) => (
                                             <div key={idx} className="flex items-start gap-3">
                                                 <div className="bg-primary/10 p-1 rounded-full mt-0.5">
                                                     <CheckCircle2 className="w-4 h-4 text-primary" />

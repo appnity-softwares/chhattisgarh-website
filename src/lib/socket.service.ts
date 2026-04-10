@@ -3,11 +3,13 @@ import apiConfig from "./api.config";
 
 class SocketService {
     private socket: Socket | null = null;
+    private isConnecting: boolean = false;
     private listeners: Map<string, Function[]> = new Map();
 
     connect(token: string) {
-        if (this.socket?.connected) return;
+        if (this.socket?.connected || this.isConnecting) return;
 
+        this.isConnecting = true;
         this.socket = io(apiConfig.socketUrl, {
             auth: { token },
             transports: ["websocket"],
@@ -16,7 +18,13 @@ class SocketService {
         });
 
         this.socket.on("connect", () => {
+            this.isConnecting = false;
             console.log("Socket Connected to:", apiConfig.socketUrl);
+        });
+
+        this.socket.on("connect_error", (error) => {
+            this.isConnecting = false;
+            console.error("Socket Connection Error:", error);
         });
 
         this.socket.on("disconnect", () => {
@@ -32,6 +40,7 @@ class SocketService {
     }
 
     disconnect() {
+        this.isConnecting = false;
         if (this.socket) {
             this.socket.disconnect();
             this.socket = null;

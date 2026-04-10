@@ -15,7 +15,7 @@ export function AppStoreBadges({ className }: { className?: string }) {
   useEffect(() => {
     const loadLinks = async () => {
       try {
-        const data = await configService.getAllConfigs();
+        const data = await configService.getPublicConfigs();
         const infoConfig = data.find(c => c.key === 'app_info');
         if (infoConfig) {
           const info = JSON.parse(infoConfig.value);

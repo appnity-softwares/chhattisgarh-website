@@ -209,6 +209,7 @@ export interface AuthResponse {
 
 export interface AdminLoginResponse {
     token: string;
+    refreshToken: string;
     user: {
         email: string;
         role: string;

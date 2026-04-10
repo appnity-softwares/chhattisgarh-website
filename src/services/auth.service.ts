@@ -7,24 +7,19 @@ class AuthService {
      * Admin Login with Username/Password
      */
     async adminLogin(username: string, password: string): Promise<AdminLoginResponse> {
-        return withMock({
-            token: 'mock-admin-jwt-token',
-            user: { email: username, role: 'ADMIN' }
-        }, async () => {
-            const response = await fetch(`${apiConfig.baseUrl}/admin/login`, {
-                method: 'POST',
-                headers: getAuthHeaders(),
-                body: JSON.stringify({ username, password }),
-            });
-
-            const data: ApiResponse<AdminLoginResponse> = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Authentication failed');
-            }
-
-            return data.data;
+        const response = await fetch(`${apiConfig.baseUrl}/admin/login`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ username, password }),
         });
+
+        const data: ApiResponse<AdminLoginResponse> = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Authentication failed');
+        }
+
+        return data.data;
     }
 
     /**

@@ -22,25 +22,19 @@ class AdminService {
 
     // Dashboard Stats
     async getDashboardStats(): Promise<DashboardStats> {
-        return withMock(mockData.stats, () => 
-            this.handleResponse<DashboardStats>(apiService.get(apiConfig.endpoints.admin.stats))
-        );
+        return this.handleResponse<DashboardStats>(apiService.get(apiConfig.endpoints.admin.stats));
     }
 
     // Users
     async getUsers(page = 1, limit = 10): Promise<{ users: User[]; pagination: any }> {
-        return withMock({ users: mockData.users, pagination: { page, limit, total: mockData.users.length, totalPages: 1 } }, () =>
-            this.handleResponse<{ users: User[]; pagination: any }>(
-                apiService.get(apiConfig.endpoints.admin.users, { params: { page, limit } })
-            )
+        return this.handleResponse<{ users: User[]; pagination: any }>(
+            apiService.get(apiConfig.endpoints.admin.users, { params: { page, limit } })
         );
     }
 
     async getRecentUsers(limit = 10): Promise<User[]> {
-        return withMock(mockData.users.slice(0, limit), () =>
-            this.handleResponse<User[]>(
-                apiService.get(apiConfig.endpoints.admin.recentUsers, { params: { limit } })
-            )
+        return this.handleResponse<User[]>(
+            apiService.get(apiConfig.endpoints.admin.recentUsers, { params: { limit } })
         );
     }
 
@@ -115,6 +109,32 @@ class AdminService {
     async getAuditLogsStats(): Promise<any> {
         return withMock({ total: 156, uniqueAdmins: 3, todayActions: 12 }, () =>
             this.handleResponse<any>(apiService.get(apiConfig.endpoints.admin.activityLogsStats))
+        );
+    }
+
+    // NEW: Grant Subscription
+    async grantSubscription(userId: string, planId: number, customDays?: number): Promise<any> {
+        return this.handleResponse<any>(
+            apiService.post(apiConfig.endpoints.admin.grantSubscription(userId), { planId, customDays })
+        );
+    }
+
+    // NEW: Admin Profile Management
+    async createProfile(userId: string, data: any): Promise<Profile> {
+        return this.handleResponse<Profile>(
+            apiService.post(apiConfig.endpoints.admin.userProfile(userId), data)
+        );
+    }
+
+    async updateProfile(userId: string, data: any): Promise<Profile> {
+        return this.handleResponse<Profile>(
+            apiService.put(apiConfig.endpoints.admin.userProfile(userId), data)
+        );
+    }
+
+    async deleteProfile(userId: string): Promise<void> {
+        return this.handleResponse<void>(
+            apiService.delete(apiConfig.endpoints.admin.userProfile(userId))
         );
     }
 }

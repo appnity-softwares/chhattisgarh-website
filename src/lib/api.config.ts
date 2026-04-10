@@ -80,6 +80,8 @@ export const apiConfig = {
             verificationApprove: (id: string) => `/admin/verifications/${id}/approve`,
             verificationReject: (id: string) => `/admin/verifications/${id}/reject`,
             verificationResubmit: (id: string) => `/admin/verifications/${id}/resubmit`,
+            grantSubscription: (id: string) => `/admin/users/${id}/grant-subscription`,
+            userProfile: (id: string) => `/admin/users/${id}/profile`,
         },
         public: {
             faq: '/faq',

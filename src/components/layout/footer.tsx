@@ -34,8 +34,8 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/login" className="text-muted-foreground hover:text-foreground transition-colors">
-                  View My Stats
+                <Link href="/browse" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Search Profiles
                 </Link>
               </li>
             </ul>

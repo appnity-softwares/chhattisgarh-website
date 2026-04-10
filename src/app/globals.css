@@ -8,47 +8,34 @@
 
 @layer base {
   :root {
-    --background: 222 47% 6%;
-    --foreground: 220 15% 92%;
-    --card: 222 40% 9%;
-    --card-foreground: 220 15% 92%;
-    --popover: 222 40% 9%;
-    --popover-foreground: 220 15% 92%;
-    --primary: 258 90% 65%;
+    --background: 340 40% 4%;
+    --foreground: 340 10% 98%;
+    --card: 340 40% 7%;
+    --card-foreground: 340 10% 98%;
+    --popover: 340 40% 7%;
+    --popover-foreground: 340 10% 98%;
+    --primary: 340 85% 55%; /* Rich Magenta */
     --primary-foreground: 0 0% 100%;
-    --secondary: 222 35% 14%;
-    --secondary-foreground: 220 15% 80%;
-    --muted: 222 35% 12%;
-    --muted-foreground: 220 10% 55%;
-    --accent: 258 70% 60%;
+    --secondary: 340 30% 12%;
+    --secondary-foreground: 340 10% 85%;
+    --muted: 340 30% 10%;
+    --muted-foreground: 340 10% 65%;
+    --accent: 345 80% 60%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 55%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 222 30% 16%;
-    --input: 222 30% 14%;
-    --ring: 258 90% 65%;
-    --radius: 0.75rem;
-    --chart-1: 258 90% 65%;
-    --chart-2: 165 80% 50%;
-    --chart-3: 200 80% 55%;
-    --chart-4: 45 100% 55%;
-    --chart-5: 340 80% 60%;
-    --sidebar-background: 222 50% 5%;
-    --sidebar-foreground: 220 15% 85%;
-    --sidebar-primary: 258 90% 65%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 35% 12%;
-    --sidebar-accent-foreground: 258 80% 75%;
-    --sidebar-border: 222 30% 12%;
-    --sidebar-ring: 258 90% 65%;
-
-    /* Custom admin tokens */
-    --admin-gradient-from: #6d28d9;
-    --admin-gradient-to: #4f46e5;
-    --admin-glow: 0 0 40px rgba(109, 40, 217, 0.3);
-    --admin-card-glow: 0 0 20px rgba(109, 40, 217, 0.15);
-    --glass-bg: rgba(255, 255, 255, 0.04);
-    --glass-border: rgba(255, 255, 255, 0.08);
+    --border: 340 30% 15%;
+    --input: 340 30% 15%;
+    --ring: 340 85% 55%;
+    --radius: 1rem;
+    
+    /* Premium Matrimony Tokens */
+    --admin-gradient-from: #E11B4C;
+    --admin-gradient-to: #AD1457;
+    --admin-glow: 0 0 40px rgba(225, 27, 76, 0.3);
+    --admin-card-glow: 0 0 20px rgba(225, 27, 76, 0.15);
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.07);
   }
 
   * {
@@ -95,7 +82,7 @@
 
 /* ===== GRADIENT TEXT ===== */
 .gradient-text {
-  background: linear-gradient(135deg, #a78bfa, #818cf8, #60a5fa);
+  background: linear-gradient(135deg, #FF4D8D, #E11B4C, #AD1457);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

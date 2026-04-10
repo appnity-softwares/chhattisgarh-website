@@ -93,7 +93,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <div className="flex h-screen items-center justify-center login-bg">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
-            <div className="w-14 h-14 rounded-full border-2 border-purple-500/30 animate-spin border-t-purple-500" />
+            <div className="w-14 h-14 rounded-full border-2 border-primary/30 animate-spin border-t-primary" />
             <div className="absolute inset-0 rounded-full animate-pulse-glow" />
           </div>
           <p className="text-muted-foreground text-sm font-medium animate-pulse">Verifying session...</p>
@@ -129,17 +129,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Logo Area */}
       <div className={`flex items-center gap-3 px-4 py-5 border-b border-white/[0.06] ${sidebarCollapsed ? 'justify-center px-2' : ''}`}>
         <div className="relative flex-shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center glow-purple">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-600 to-primary flex items-center justify-center glow-purple">
             <Sparkles className="w-5 h-5 text-white" />
           </div>
-          <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[hsl(222_50%_5%)]" />
+          <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[hsl(340_40_4%)]" />
         </div>
         {!sidebarCollapsed && (
           <div className="min-w-0">
             <h2 className="text-sm font-bold text-white leading-tight truncate" style={{ fontFamily: 'Outfit, sans-serif' }}>
               CG Shaadi
             </h2>
-            <p className="text-[10px] text-purple-400 font-medium tracking-wider uppercase">Admin Console</p>
+            <p className="text-[10px] text-rose-400 font-medium tracking-wider uppercase">Admin Console</p>
           </div>
         )}
       </div>
@@ -169,10 +169,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     `}
                     title={sidebarCollapsed ? item.label : undefined}
                   >
-                    <Icon className={`flex-shrink-0 w-4 h-4 transition-colors ${active ? 'text-purple-400' : 'text-muted-foreground group-hover:text-purple-400'}`} />
+                    <Icon className={`flex-shrink-0 w-4 h-4 transition-colors ${active ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`} />
                     {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
                     {active && !sidebarCollapsed && (
-                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-purple-400 flex-shrink-0" />
+                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
                     )}
                   </Link>
                 );
@@ -197,9 +197,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className={`group flex items-center gap-3 rounded-xl p-2 w-full hover:bg-white/[0.04] transition-all ${sidebarCollapsed ? 'justify-center' : ''}`}>
-              <Avatar className="w-8 h-8 flex-shrink-0 ring-2 ring-purple-500/30">
+              <Avatar className="w-8 h-8 flex-shrink-0 ring-2 ring-primary/30">
                 <AvatarImage src={user?.profilePicture || undefined} />
-                <AvatarFallback className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white text-xs font-bold">
+                <AvatarFallback className="bg-gradient-to-br from-rose-600 to-primary text-white text-xs font-bold">
                   {userInitials}
                 </AvatarFallback>
               </Avatar>
@@ -230,7 +230,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   );
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: 'hsl(222 47% 6%)' }}>
+    <div className="flex h-screen overflow-hidden" style={{ background: 'hsl(340 40% 4%)' }}>
       {/* Mobile Sidebar Overlay */}
       {mobileSidebarOpen && (
         <div
@@ -304,9 +304,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-white/10 transition-colors">
-                  <Avatar className="w-7 h-7 ring-2 ring-purple-500/30">
+                  <Avatar className="w-7 h-7 ring-2 ring-primary/30">
                     <AvatarImage src={user?.profilePicture || undefined} />
-                    <AvatarFallback className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white text-xs font-bold">
+                    <AvatarFallback className="bg-gradient-to-br from-rose-600 to-primary text-white text-xs font-bold">
                       {userInitials}
                     </AvatarFallback>
                   </Avatar>

@@ -1,79 +1,94 @@
-// API Configuration
+// API Configuration - Synchronized with Mobile App Backend
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.chhattisgarhshadi.com/api/v1';
 
 export const apiConfig = {
     baseUrl: API_BASE_URL,
+    socketUrl: 'https://api.chhattisgarhshadi.com',
     endpoints: {
-        // Auth
+        // Shared User Auth
         auth: {
+            login: '/auth/login',
+            register: '/auth/register',
             google: '/auth/google',
             refresh: '/auth/refresh',
             logout: '/auth/logout',
+            phoneLogin: '/auth/phone/login',
         },
-        // Admin
+        // Shared User Profiles
+        profiles: {
+            me: '/profiles/me',
+            create: '/profiles',
+            search: '/profiles/search',
+            recommendations: '/profiles/recommendations',
+            byId: (userId: number) => `/profiles/${userId}`,
+            photos: '/uploads/profile-photos',
+            deletePhoto: (mediaId: number) => `/profiles/photos/${mediaId}`,
+        },
+        // Matches & Interactions
+        matches: {
+            send: '/matches',
+            sent: '/matches/sent',
+            received: '/matches/received',
+            accepted: '/matches/accepted',
+            accept: (id: number) => `/matches/${id}/accept`,
+            reject: (id: number) => `/matches/${id}/reject`,
+        },
+        shortlists: {
+            create: '/shortlist',
+            list: '/shortlist',
+            delete: (id: number) => `/shortlist/${id}`,
+        },
+        // Communication
+        messages: {
+            send: '/messages',
+            conversations: '/messages/conversations',
+            history: (userId: number) => `/messages/${userId}`,
+            unreadCount: '/messages/unread-count',
+            markRead: (userId: number) => `/messages/${userId}/read`,
+        },
+        // Payments & Business
+        payments: {
+            plans: '/plans',
+            createOrder: '/payments/orders',
+            verify: '/payments/verify',
+            history: '/payments/me',
+            validatePromo: '/payments/promo-codes/validate',
+        },
+        // Admin Specific (Unique to Web Admin Console)
         admin: {
             stats: '/admin/stats',
             users: '/admin/users',
-            recentUsers: '/admin/users/recent',
-            userById: (userId: string) => `/admin/users/${userId}`,
-            userRole: (userId: string) => `/admin/users/${userId}/role`,
             profiles: '/admin/profiles',
-            recentMatches: '/admin/matches/recent',
-            reports: '/admin/reports',
-            reportById: (id: string) => `/admin/reports/${id}`,
-            plans: '/admin/plans',
-            planById: (planId: string) => `/admin/plans/${planId}`,
-            planDiscount: (planId: string) => `/admin/plans/${planId}/discount`,
-            agents: '/admin/agents',
-            agentById: (agentId: string) => `/admin/agents/${agentId}`,
-            agentUsers: (agentId: string) => `/admin/agents/${agentId}/users`,
             verifications: '/admin/verifications',
-            // Analytics
             analyticsRevenue: '/admin/analytics/revenue',
             analyticsSignups: '/admin/analytics/signups',
-            analyticsSubscriptions: '/admin/analytics/subscriptions',
-            // Verifications
-            verificationsPending: '/admin/verifications/pending',
-            verificationsStats: '/admin/verifications/stats',
-            verificationById: (mediaId: string) => `/admin/verifications/${mediaId}`,
-            verificationApprove: (mediaId: string) => `/admin/verifications/${mediaId}/approve`,
-            verificationReject: (mediaId: string) => `/admin/verifications/${mediaId}/reject`,
-            verificationResubmit: (mediaId: string) => `/admin/verifications/${mediaId}/resubmit`,
-            // Activity Logs
-            activityLogs: '/admin/activity-logs',
-            activityLogsStats: '/admin/activity-logs/stats',
-            // Notifications
-            notificationsSend: '/admin/notifications/send',
-            notificationsHistory: '/admin/notifications/history',
-            // Promo Codes
+            reports: '/admin/reports',
+            notifications: '/admin/notifications/send',
             promoCodes: '/admin/promo-codes',
-            promoCodeById: (id: string) => `/admin/promo-codes/${id}`,
-            promoStats: '/admin/promo-codes/stats',
-            // Referrals & Agents
-            referralsStats: '/admin/referrals/stats',
-            agentCommission: '/admin/agents/commissions',
             successStories: '/admin/success-stories',
-            successStoryById: (id: string) => `/admin/success-stories/${id}`,
+            auditLogs: '/admin/activity-logs',
         },
-        // Contact
-        contact: {
-            submit: '/contact',
-            messages: '/contact',
-            messageById: (id: string) => `/contact/${id}`,
-            updateStatus: (id: string) => `/contact/${id}/status`,
-        },
-        // FAQ
-        faq: {
-            public: '/faq',
-            admin: '/faq/admin',
-            create: '/faq',
-            update: (id: number) => `/faq/${id}`,
-            delete: (id: number) => `/faq/${id}`,
-        },
+        public: {
+            faq: '/faq',
+            successStories: '/admin/success-stories', // Shared with admin
+            stats: '/admin/verifications/stats', // Example public stat
+        }
     },
+    socketEvents: {
+        CONNECTION: 'connection',
+        DISCONNECT: 'disconnect',
+        MESSAGE_SEND: 'message:send',
+        MESSAGE_RECEIVED: 'message:received',
+        MESSAGE_READ: 'message:read',
+        MESSAGE_DELIVERED: 'message:delivered',
+        TYPING_START: 'typing:start',
+        TYPING_STOP: 'typing:stop',
+        USER_ONLINE: 'user:online',
+        USER_OFFLINE: 'user:offline',
+    }
 };
 
-// Create headers with auth token
+// Create headers with auth token for web fetch/axios
 export const getAuthHeaders = (token?: string): HeadersInit => {
     const headers: HeadersInit = {
         'Content-Type': 'application/json',
@@ -86,30 +101,12 @@ export const getAuthHeaders = (token?: string): HeadersInit => {
     return headers;
 };
 
-// API Response wrapper
+// API Response wrapper consistent with backend
 export interface ApiResponse<T> {
     statusCode: number;
     data: T;
     message: string;
     success: boolean;
-}
-
-// Pagination
-export interface PaginationParams {
-    page?: number;
-    limit?: number;
-}
-
-export interface PaginatedResponse<T> {
-    data: T[];
-    pagination: {
-        page: number;
-        limit: number;
-        total: number;
-        totalPages: number;
-        hasNextPage: boolean;
-        hasPrevPage: boolean;
-    };
 }
 
 export default apiConfig;

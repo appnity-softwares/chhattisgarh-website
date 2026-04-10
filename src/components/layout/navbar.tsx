@@ -10,8 +10,9 @@ import { Menu, LogIn, Download } from "lucide-react";
 import { configService } from "@/services/config.service";
 
 const navLinks = [
-  { href: "#features", label: "Features" },
-  { href: "#stories", label: "Success Stories" },
+  { href: "/browse", label: "Browse Profiles" },
+  { href: "/#features", label: "Features" },
+  { href: "/#stories", label: "Success Stories" },
 ];
 
 export function Navbar() {
@@ -91,14 +92,17 @@ export function Navbar() {
         {/* Right Section for Desktop Actions */}
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
-          <Button asChild className="hidden sm:flex bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-9 group">
-            <Link 
-              href={apkUrl} 
-              target={apkUrl.startsWith("http") ? "_blank" : "_self"}
-              className="flex items-center gap-2"
-            >
-              <Download className="w-4 h-4 group-hover:bounce transition-transform" />
-              Download App
+          
+          <Button variant="ghost" asChild className="hidden sm:flex text-muted-foreground hover:text-primary font-bold">
+            <Link href="/login" className="flex items-center gap-2">
+              <LogIn className="w-4 h-4" />
+              Login
+            </Link>
+          </Button>
+
+          <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-9 group shadow-lg shadow-primary/20">
+            <Link href="/register">
+              Join Now
             </Link>
           </Button>
         </div>

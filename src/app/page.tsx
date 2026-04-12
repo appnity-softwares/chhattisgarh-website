@@ -9,6 +9,7 @@ import { FeatureSection } from "@/components/landing/feature-section";
 import { SuccessStories } from "@/components/landing/success-stories";
 import { PublicStatsSection } from "@/components/landing/public-stats-section";
 import { AppStoreBadges } from "@/components/layout/app-store-badges";
+import { PricingSection } from "@/components/landing/pricing-section";
 import { configService } from "@/services/config.service";
 import { AlertTriangle, Hammer, RefreshCw } from "lucide-react";
 
@@ -17,6 +18,7 @@ export default function Home() {
   const [features, setFeatures] = useState({
     maintenanceMode: false,
     showTestimonials: true,
+    showPricing: true,
     enableDiscovery: true,
   });
     const [loading, setLoading] = useState(true);
@@ -82,6 +84,7 @@ export default function Home() {
         <TrustSection />
         <PublicStatsSection />
         <FeatureSection />
+        {features.showPricing && <PricingSection />}
         {features.showTestimonials && <SuccessStories />}
 
         {/* Final CTA / App Download Section */}

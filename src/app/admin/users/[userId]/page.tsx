@@ -78,14 +78,15 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
         fetchPlans();
     }, [userId]);
 
-    const handleGrantSubscription = async () => {
-        if (!userId || !selectedPlanId) return;
+    const handleGrantSubscription = async (planId?: number, days?: number) => {
+        const targetPlanId = planId || parseInt(selectedPlanId);
+        if (!userId || !targetPlanId) return;
         setIsGrantingSub(true);
         try {
             await adminService.grantSubscription(
                 userId, 
-                parseInt(selectedPlanId), 
-                customDays ? parseInt(customDays) : undefined
+                targetPlanId, 
+                days || (customDays ? parseInt(customDays) : undefined)
             );
             toast({ title: 'Success', description: `Premium subscription granted successfully` });
             setGrantDialogOpen(false);
@@ -213,12 +214,22 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
                                 </div>
                                 <DialogFooter>
                                     <Button variant="outline" onClick={() => setGrantDialogOpen(false)} disabled={isGrantingSub}>Cancel</Button>
-                                    <Button onClick={handleGrantSubscription} disabled={!selectedPlanId || isGrantingSub}>
+                                    <Button onClick={() => handleGrantSubscription()} disabled={!selectedPlanId || isGrantingSub}>
                                         {isGrantingSub ? 'Granting...' : 'Confirm Grant'}
                                     </Button>
                                 </DialogFooter>
                             </DialogContent>
                         </Dialog>
+
+                        <Button 
+                            variant="default" 
+                            className="bg-yellow-500 hover:bg-yellow-600 text-white border-none shadow-lg shadow-yellow-500/20"
+                            onClick={() => handleGrantSubscription(2, 90)}
+                            disabled={isGrantingSub || user.role === 'PREMIUM_USER'}
+                        >
+                            <CreditCard className="mr-2 h-4 w-4" /> 
+                            {user.role === 'PREMIUM_USER' ? 'Already Premium' : 'Make Premium (Quick)'}
+                        </Button>
 
                         <Button variant="destructive">
                             <Ban className="mr-2 h-4 w-4" /> Ban User

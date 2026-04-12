@@ -2,35 +2,42 @@
 
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
-import { Quote } from "lucide-react";
+import { Quote, Loader2 } from "lucide-react";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
-const stories = [
-    {
-        id: 1,
-        names: "Rahul & Priya (Raipur)",
-        image: PlaceHolderImages.find(img => img.id === 'testimonial-1')?.imageUrl || "/placeholder.jpg",
-        date: "Married Dec 2024",
-        quote: "We found each other on Chhattisgarh Shaadi within a week. The caste filters made it so easy to find compatible families."
-    },
-    {
-        id: 2,
-        names: "Amit & Sneha (Bilaspur)",
-        image: PlaceHolderImages.find(img => img.id === 'testimonial-2')?.imageUrl || "/placeholder.jpg",
-        date: "Married Nov 2024",
-        quote: "The verification process gave us peace of mind. Highly recommended for anyone looking for a serious relationship."
-    },
-    {
-        id: 3,
-        names: "Vikram & Anjali (Durg)",
-        image: PlaceHolderImages.find(img => img.id === 'testimonial-3')?.imageUrl || "/placeholder.jpg",
-        date: "Married Oct 2024",
-        quote: "Thank you for helping me find my soulmate. The app is very user friendly, even for our parents."
-    }
-];
+import { useEffect, useState } from "react";
+import { publicService } from "@/services/public.service";
+import type { SuccessStory } from "@/types/api.types";
 
 export function SuccessStories() {
+    const [stories, setStories] = useState<SuccessStory[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStories = async () => {
+            try {
+                const data = await publicService.getSuccessStories();
+                setStories(data || []);
+            } catch (err) {
+                console.error("Failed to fetch success stories");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStories();
+    }, []);
+
+    if (loading && stories.length === 0) {
+        return (
+            <div className="py-24 bg-background flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            </div>
+        );
+    }
+
+    if (!stories || stories.length === 0) return null;
+
     return (
         <section id="stories" className="py-24 bg-background relative overflow-hidden">
             {/* Background Pattern */}
@@ -56,17 +63,19 @@ export function SuccessStories() {
                                         <Card className="border border-white/5 shadow-2xl hover:shadow-primary/10 transition-all duration-500 overflow-hidden h-full flex flex-col bg-card/40 backdrop-blur-md rounded-[2.5rem] transform hover:-translate-y-2">
                                             <div className="relative h-72 w-full overflow-hidden">
                                                 <Image
-                                                    src={story.image}
-                                                    alt={story.names}
+                                                    src={story.imageUrl || "/placeholder.jpg"}
+                                                    alt={story.title || "Success Story"}
                                                     fill
                                                     className="object-cover transition-transform duration-1000 group-hover:scale-110"
                                                 />
                                                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-90" />
                                                 <div className="absolute bottom-6 left-6 right-6 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                                                    <p className="font-bold text-2xl mb-1">{story.names}</p>
+                                                    <p className="font-bold text-2xl mb-1">{story.title || story.partnerName}</p>
                                                     <div className="flex items-center gap-2">
                                                         <div className="h-1.5 w-1.5 bg-primary rounded-full animate-pulse shadow-[0_0_8px_hsl(var(--primary))]"></div>
-                                                        <p className="text-[10px] uppercase tracking-widest font-bold text-gray-300">{story.date}</p>
+                                                        <p className="text-[10px] uppercase tracking-widest font-bold text-gray-300">
+                                                            {story.weddingDate ? new Date(story.weddingDate).getFullYear() : "Success Story"}
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -75,7 +84,7 @@ export function SuccessStories() {
                                                     <Quote className="h-6 w-6 text-primary rotate-180" />
                                                 </div>
                                                 <p className="text-muted-foreground italic leading-relaxed pt-2 text-base font-light group-hover:text-foreground transition-colors duration-500">
-                                                    "{story.quote}"
+                                                    "{story.story}"
                                                 </p>
                                             </CardContent>
                                         </Card>

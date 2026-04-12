@@ -93,6 +93,7 @@ export const apiConfig = {
             validatePromo: '/payments/promo-codes/validate',
         },
         webPayments: {
+            plans: '/web/payment/plans',
             createLink: '/web/payment/create-link',
             initiateSession: '/web/payment/initiate-session',
             details: '/web/payment/details',

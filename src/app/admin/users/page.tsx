@@ -83,8 +83,14 @@ export default function AdminUsersPage() {
 
   const handleRoleChange = async (userId: number, newRole: UserRole) => {
     try {
-      await adminService.updateUserRole(userId.toString(), newRole);
-      toast({ title: 'Role Updated', description: 'User role changed successfully' });
+      if (newRole === 'PREMIUM_USER') {
+        // For premium, use the grant subscription method which creates a subscription entry
+        await adminService.grantSubscription(userId.toString(), 2, 90);
+        toast({ title: 'Premium Granted', description: 'Premium Plan (90 Days) granted successfully' });
+      } else {
+        await adminService.updateUserRole(userId.toString(), newRole);
+        toast({ title: 'Role Updated', description: 'User role changed successfully' });
+      }
       fetchUsers(pagination.page);
     } catch (err: any) {
       toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to update role' });

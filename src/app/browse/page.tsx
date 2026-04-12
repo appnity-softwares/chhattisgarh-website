@@ -13,40 +13,34 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Filter, Search, RefreshCw, SlidersHorizontal } from "lucide-react";
+import { Filter, Search, RefreshCw, SlidersHorizontal, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Mock profiles for the demonstration
-const MOCK_PROFILES = [
-  { id: 1, name: "Priya Sahu", age: 24, city: "Raipur", occupation: "Software Engineer", education: "B.Tech IT", gender: 'female' as const, isVerified: true },
-  { id: 2, name: "Rahul Verma", age: 28, city: "Bilaspur", occupation: "Bank Manager", education: "MBA Finance", gender: 'male' as const, isVerified: true },
-  { id: 3, name: "Sneha Patel", age: 25, city: "Durg", occupation: "Digital Marketer", education: "BBA", gender: 'female' as const, isVerified: false },
-  { id: 4, name: "Amit Yadav", age: 27, city: "Raipur", occupation: "Business Owner", education: "Graduate", gender: 'male' as const, isVerified: true },
-  { id: 5, name: "Anjali Singh", age: 23, city: "Korba", occupation: "Nurse", education: "B.Sc Nursing", gender: 'female' as const, isVerified: true },
-  { id: 6, name: "Vikram Kurmi", age: 29, city: "Bhilai", occupation: "Civil Engineer", education: "M.Tech", gender: 'male' as const, isVerified: false },
-  { id: 7, name: "Neha Dewangan", age: 26, city: "Raipur", occupation: "Teacher", education: "M.A. B.Ed", gender: 'female' as const, isVerified: true },
-  { id: 8, name: "Sandeep Sahu", age: 30, city: "Dhamtari", occupation: "Agriculture Officer", education: "B.Sc Agriculture", gender: 'male' as const, isVerified: true },
-];
+import { useInfiniteProfiles } from "@/hooks/use-infinite-profiles";
 
 export default function BrowsePage() {
-  const [loading, setLoading] = useState(true);
-  const [profiles, setProfiles] = useState(MOCK_PROFILES);
   const [searchTerm, setSearchTerm] = useState("");
+  const [gender, setGender] = useState<string | undefined>(undefined);
+  const [city, setCity] = useState<string | undefined>(undefined);
 
-  useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => setLoading(false), 800);
-    return () => clearTimeout(timer);
-  }, []);
+  const {
+    data,
+    isLoading,
+    isRefetching,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useInfiniteProfiles({
+    search: searchTerm,
+    gender,
+    city,
+    type: 'discovery'
+  });
+
+  const profiles = data?.pages.flatMap(page => page.profiles) || [];
 
   const handleSearch = (val: string) => {
     setSearchTerm(val);
-    const filtered = MOCK_PROFILES.filter(p => 
-      p.name.toLowerCase().includes(val.toLowerCase()) || 
-      p.city.toLowerCase().includes(val.toLowerCase()) ||
-      p.occupation.toLowerCase().includes(val.toLowerCase())
-    );
-    setProfiles(filtered);
   };
 
   return (
@@ -103,7 +97,7 @@ export default function BrowsePage() {
 
         {/* Main Grid */}
         <AnimatePresence mode="wait">
-          {loading ? (
+          {isLoading ? (
             <motion.div 
               key="loading"
               initial={{ opacity: 0 }}
@@ -116,23 +110,52 @@ export default function BrowsePage() {
               ))}
             </motion.div>
           ) : profiles.length > 0 ? (
-            <motion.div 
-              key="grid"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
-            >
-              {profiles.map((profile, index) => (
-                <motion.div
-                  key={profile.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <ProfileCard {...profile} />
-                </motion.div>
-              ))}
-            </motion.div>
+            <div className="space-y-12">
+              <motion.div 
+                key="grid"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+              >
+                {profiles.map((profile, index) => (
+                  <motion.div
+                    key={profile.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: (index % 12) * 0.05 }}
+                  >
+                    <ProfileCard 
+                      id={profile.id}
+                      name={`${profile.firstName} ${profile.lastName}`}
+                      age={profile.age}
+                      city={profile.city}
+                      occupation={profile.occupation}
+                      education={profile.education}
+                      gender={profile.gender?.toLowerCase() as 'male' | 'female'}
+                      isVerified={profile.isVerified}
+                      image={profile.media?.[0]?.url}
+                    />
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              {hasNextPage && (
+                <div className="flex justify-center pt-8">
+                  <Button 
+                    onClick={() => fetchNextPage()} 
+                    disabled={isFetchingNextPage}
+                    variant="outline"
+                    className="rounded-2xl h-14 px-10 border-white/10 bg-white/5 hover:bg-white/10 font-black tracking-widest uppercase gap-2"
+                  >
+                    {isFetchingNextPage ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <>Load More Profiles <RefreshCw className="w-4 h-4" /></>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </div>
           ) : (
             <motion.div 
               key="empty"

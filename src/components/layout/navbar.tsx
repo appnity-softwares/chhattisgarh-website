@@ -14,6 +14,7 @@ import { LayoutDashboard } from "lucide-react";
 
 const navLinks = [
   { href: "/browse", label: "Browse Profiles" },
+  { href: "/#pricing", label: "Pricing" },
   { href: "/#features", label: "Features" },
   { href: "/#stories", label: "Success Stories" },
 ];
@@ -31,9 +32,12 @@ export function Navbar() {
         if (infoConfig) {
           const info = JSON.parse(infoConfig.value);
           if (info.apkUrl) setApkUrl(info.apkUrl);
+        } else {
+          setApkUrl("https://play.google.com/store/apps/details?id=com.cgshadi.official");
         }
       } catch (err) {
         console.error("Failed to load nav links");
+        setApkUrl("https://play.google.com/store/apps/details?id=com.cgshadi.official");
       }
     };
     loadConfig();
@@ -66,7 +70,7 @@ export function Navbar() {
                   ))}
                   <Link
                     href={apkUrl}
-                    target={apkUrl.startsWith("http") ? "_blank" : "_self"}
+                    target="_blank"
                     className="text-lg font-bold text-primary py-4 flex items-center gap-2"
                   >
                     <Download className="w-5 h-5" />
@@ -97,6 +101,13 @@ export function Navbar() {
         {/* Right Section for Desktop Actions */}
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
+
+          <Button variant="ghost" asChild className="hidden lg:flex text-muted-foreground hover:text-primary font-bold">
+            <Link href={apkUrl} target="_blank" className="flex items-center gap-2">
+              <Download className="w-4 h-4" />
+              Download App
+            </Link>
+          </Button>
           
           {user ? (
             <Button variant="default" asChild className="bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-9 shadow-lg shadow-primary/20">

@@ -166,8 +166,8 @@ export const apiConfig = {
             profileStatus: (id: number) => `/admin/profiles/${id}/status`,
             cleanupTokens: '/admin/cleanup/tokens',
             plans: '/admin/plans',
-            planById: (id: number) => `/admin/plans/${id}`,
-            planDiscount: (id: number) => `/admin/plans/${id}/discount`,
+            planById: (id: string | number) => `/admin/plans/${id}`,
+            planDiscount: (id: string | number) => `/admin/plans/${id}/discount`,
             // Agents Management
             agents: '/admin/agents',
             agentById: (id: string) => `/admin/agents/${id}`,

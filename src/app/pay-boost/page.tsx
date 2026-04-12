@@ -9,7 +9,7 @@ import {
     AlertCircle, 
     CreditCard, 
     Zap, 
-    CheckCircle2,
+    Shield,
     Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

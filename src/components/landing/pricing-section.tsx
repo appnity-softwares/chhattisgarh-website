@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Crown, Zap, Shield, Sparkles } from "lucide-react";
+import { Check, Crown, Zap, Shield, Sparkles, CreditCard, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { webPaymentService } from "@/services/web-payment.service";

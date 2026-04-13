@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { 
     Users, 
@@ -47,9 +48,17 @@ export default function DashboardPage() {
         isLoading: discoveryLoading 
     } = useInfiniteProfiles({ type: 'discovery' });
 
-    const featuredProfiles = featuredPages?.pages[0]?.profiles?.slice(0, 6) || [];
-    const newProfiles = newPages?.pages[0]?.profiles?.slice(0, 4) || [];
-    const discoveryProfiles = discoveryPages?.pages[0]?.profiles?.slice(0, 8) || [];
+    const featuredProfiles = featuredPages?.pages[0]?.profiles?.slice(0, 12) || [];
+    const newProfiles = newPages?.pages[0]?.profiles?.slice(0, 12) || [];
+    const discoveryProfiles = discoveryPages?.pages[0]?.profiles || [];
+
+    const [activeTab, setActiveTab] = useState<'suggested' | 'new' | 'discover'>('suggested');
+
+    const tabs = [
+        { id: 'suggested', label: 'Suggested', icon: Sparkles, color: 'text-primary' },
+        { id: 'new', label: 'New Members', icon: Zap, color: 'text-accent' },
+        { id: 'discover', label: 'Discover', icon: Users, color: 'text-blue-400' },
+    ];
 
     const statsConfig: Array<{
         label: string;
@@ -124,110 +133,149 @@ export default function DashboardPage() {
                 ))}
             </div>
 
-            {/* Featured / Recommended - Horizontal Scroll */}
-            <div className="space-y-6">
-                <div className="flex items-center justify-between px-2">
-                    <div className="flex items-center gap-3">
-                        <div className="w-2.5 h-10 bg-primary rounded-full shadow-[0_0_15px_rgba(224,30,90,0.5)]" />
-                        <h3 className="text-3xl font-black tracking-tighter text-foreground uppercase">Suggested <span className="text-primary italic">For You</span></h3>
-                    </div>
-                </div>
-
-                <div className="flex gap-6 overflow-x-auto pb-6 px-2 no-scrollbar scroll-smooth">
-                    {featuredLoading ? (
-                        [1, 2, 3, 4, 5].map(i => (
-                            <div key={i} className="min-w-[320px] h-96 bg-card/20 rounded-[3rem] animate-pulse" />
-                        ))
-                    ) : (
-                        featuredProfiles.map((profile: Profile, i: number) => (
-                            <div key={profile.id} className="min-w-[320px]">
-                                <ProfileCard 
-                                    id={profile.id}
-                                    name={`${profile.firstName} ${profile.lastName}`}
-                                    age={profile.age}
-                                    city={profile.city}
-                                    occupation={profile.occupation}
-                                    gender={(profile.gender?.toLowerCase() || 'male') as "male" | "female" | "other"}
-                                    isVerified={profile.isVerified}
-                                    image={profile.media?.[0]?.url}
-                                    priority={i < 2}
+            {/* Tabs Navigation */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2">
+                <div className="flex p-1.5 bg-card/20 backdrop-blur-3xl rounded-[2rem] border border-white/5 w-fit relative overflow-hidden">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id as any)}
+                            className={`relative px-8 py-4 rounded-[1.5rem] text-sm font-black uppercase tracking-widest transition-all duration-500 z-10 flex items-center gap-3 ${
+                                activeTab === tab.id ? "text-white" : "text-muted-foreground hover:text-white"
+                            }`}
+                        >
+                            {activeTab === tab.id && (
+                                <motion.div
+                                    layoutId="activeTab"
+                                    className="absolute inset-0 bg-primary shadow-2xl shadow-primary/20 rounded-[1.5rem]"
+                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                 />
-                            </div>
-                        ))
-                    )}
+                            )}
+                            <tab.icon className={`w-4 h-4 relative z-20 ${activeTab === tab.id ? "text-white" : tab.color}`} />
+                            <span className="relative z-20">{tab.label}</span>
+                        </button>
+                    ))}
+                </div>
+                
+                <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mr-4">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    Live Activity
                 </div>
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
-                {/* Discovery Feed */}
-                <div className="xl:col-span-2 space-y-10">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="w-2.5 h-10 bg-accent rounded-full shadow-[0_0_15px_rgba(255,100,100,0.5)]" />
-                            <h3 className="text-3xl font-black tracking-tighter text-foreground uppercase">New <span className="text-accent italic">Members</span></h3>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {newLoading ? (
-                            [1, 2, 3, 4].map(i => (
-                                <div key={i} className="h-96 bg-card/20 rounded-[3rem] animate-pulse" />
-                            ))
-                        ) : (
-                            newProfiles.map((profile: Profile) => (
-                                <ProfileCard 
-                                    key={profile.id}
-                                    id={profile.id}
-                                    name={`${profile.firstName} ${profile.lastName}`}
-                                    age={profile.age}
-                                    city={profile.city}
-                                    occupation={profile.occupation}
-                                    gender={(profile.gender?.toLowerCase() || 'male') as "male" | "female" | "other"}
-                                    isVerified={profile.isVerified}
-                                    image={profile.media?.[0]?.url}
-                                />
-                            ))
+                {/* Main Content Area */}
+                <div className="xl:col-span-2 min-h-[600px]">
+                    <AnimatePresence mode="wait">
+                        {activeTab === 'suggested' && (
+                            <motion.div
+                                key="suggested"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                className="space-y-10"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-2 h-10 bg-primary rounded-full" />
+                                    <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">Suggested <span className="text-primary italic">Matches</span></h3>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    {featuredLoading ? (
+                                        [1, 2, 4, 6].map(i => <div key={i} className="h-96 bg-card/10 rounded-[2.5rem] animate-pulse" />)
+                                    ) : (
+                                        featuredProfiles.map((profile: Profile) => (
+                                            <ProfileCard 
+                                                key={profile.id}
+                                                id={profile.id}
+                                                name={`${profile.firstName} ${profile.lastName}`}
+                                                age={profile.age}
+                                                city={profile.city}
+                                                occupation={profile.occupation}
+                                                gender={(profile.gender?.toLowerCase() || 'male') as any}
+                                                isVerified={profile.isVerified}
+                                                image={profile.media?.[0]?.url}
+                                            />
+                                        ))
+                                    )}
+                                </div>
+                            </motion.div>
                         )}
-                    </div>
 
-                    <div className="pt-10 space-y-10">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-2.5 h-10 bg-primary/40 rounded-full" />
-                                <h3 className="text-3xl font-black tracking-tighter text-foreground uppercase">Discover <span className="opacity-40">All Users</span></h3>
-                            </div>
-                        </div>
+                        {activeTab === 'new' && (
+                            <motion.div
+                                key="new"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                className="space-y-10"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-2 h-10 bg-accent rounded-full shadow-[0_0_20px_rgba(224,30,90,0.3)]" />
+                                    <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">New <span className="text-accent italic">Members</span></h3>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    {newLoading ? (
+                                        [1, 2, 4, 6].map(i => <div key={i} className="h-96 bg-card/10 rounded-[2.5rem] animate-pulse" />)
+                                    ) : (
+                                        newProfiles.map((profile: Profile) => (
+                                            <ProfileCard 
+                                                key={profile.id}
+                                                id={profile.id}
+                                                name={`${profile.firstName} ${profile.lastName}`}
+                                                age={profile.age}
+                                                city={profile.city}
+                                                occupation={profile.occupation}
+                                                gender={(profile.gender?.toLowerCase() || 'male') as any}
+                                                isVerified={profile.isVerified}
+                                                image={profile.media?.[0]?.url}
+                                            />
+                                        ))
+                                    )}
+                                </div>
+                            </motion.div>
+                        )}
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {discoveryLoading ? (
-                                [1, 2, 3, 4].map(i => (
-                                    <div key={i} className="h-96 bg-card/20 rounded-[3rem] animate-pulse" />
-                                ))
-                            ) : (
-                                discoveryProfiles.map((profile: Profile) => (
-                                    <ProfileCard 
-                                        key={profile.id}
-                                        id={profile.id}
-                                        name={`${profile.firstName} ${profile.lastName}`}
-                                        age={profile.age}
-                                        city={profile.city}
-                                        occupation={profile.occupation}
-                                        gender={(profile.gender?.toLowerCase() || 'male') as "male" | "female" | "other"}
-                                        isVerified={profile.isVerified}
-                                        image={profile.media?.[0]?.url}
-                                    />
-                                ))
-                            )}
-                        </div>
-
-                        <div className="flex justify-center pt-8">
-                            <Link href="/dashboard/matches">
-                                <Button size="lg" variant="outline" className="rounded-2xl h-14 px-10 border-white/10 bg-white/5 hover:bg-white/10 font-black tracking-widest uppercase">
-                                    Browse More Profiles
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
+                        {activeTab === 'discover' && (
+                            <motion.div
+                                key="discover"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                className="space-y-10"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-2 h-10 bg-blue-500 rounded-full" />
+                                    <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">Discover <span className="opacity-40">All Users</span></h3>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    {discoveryLoading ? (
+                                        [1, 2, 4, 6].map(i => <div key={i} className="h-96 bg-card/10 rounded-[2.5rem] animate-pulse" />)
+                                    ) : (
+                                        discoveryProfiles.map((profile: Profile) => (
+                                            <ProfileCard 
+                                                key={profile.id}
+                                                id={profile.id}
+                                                name={`${profile.firstName} ${profile.lastName}`}
+                                                age={profile.age}
+                                                city={profile.city}
+                                                occupation={profile.occupation}
+                                                gender={(profile.gender?.toLowerCase() || 'male') as any}
+                                                isVerified={profile.isVerified}
+                                                image={profile.media?.[0]?.url}
+                                            />
+                                        ))
+                                    )}
+                                </div>
+                                <div className="flex justify-center pt-8">
+                                    <Link href="/dashboard/matches">
+                                        <Button size="lg" variant="outline" className="rounded-2xl h-14 px-10 border-white/10 bg-white/5 hover:bg-white/10 font-black tracking-widest uppercase">
+                                            Browse More Profiles
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
 
                 {/* Sidebar Widgets */}

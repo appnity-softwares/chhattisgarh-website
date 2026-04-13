@@ -3,7 +3,7 @@ import apiConfig, { getAuthHeaders } from '@/lib/api.config';
 export class PremiumWebService {
     // --- Web Payments ---
     async getPlans() {
-        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.payments.plans}`);
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.plans.list}`);
         return res.json();
     }
 
@@ -22,7 +22,7 @@ export class PremiumWebService {
         return res.json();
     }
 
-    async verifyPaymentSuccess(data: any) {
+    async verifyPaymentSuccess(data: Record<string, unknown>) {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.webPayments.success}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -57,10 +57,8 @@ export class PremiumWebService {
 
     // --- Astrology ---
     async matchHoroscope(partnerId: number, token: string) {
-        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.astrology.match}`, {
-            method: 'POST',
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.astrology.match(partnerId)}`, {
             headers: getAuthHeaders(token),
-            body: JSON.stringify({ targetUserId: partnerId }),
         });
         return res.json();
     }

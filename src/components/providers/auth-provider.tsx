@@ -5,7 +5,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
 import { useUserAuthStore } from '@/stores/user-auth-store';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { QueryProvider } from './query-provider';
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';

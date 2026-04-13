@@ -35,7 +35,7 @@ export default function TermsPage() {
                         <div className="mb-8 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg flex items-start gap-3">
                             <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
                             <p className="text-sm text-amber-900 dark:text-amber-200">
-                                ChhattisgarhShadi.com ("हम", "हमारा प्लेटफ़ॉर्म") का उपयोग करने पर आप नीचे दी गई सभी शर्तों का पालन करने के लिए सहमत होते हैं। यदि आप इन शर्तों से सहमत नहीं हैं, कृपया वेबसाइट/ऐप का उपयोग न करें।
+                                ChhattisgarhShadi.com (&quot;हम&quot;, &quot;हमारा प्लेटफ़ॉर्म&quot;) का उपयोग करने पर आप नीचे दी गई सभी शर्तों का पालन करने के लिए सहमत होते हैं। यदि आप इन शर्तों से सहमत नहीं हैं, कृपया वेबसाइट/ऐप का उपयोग न करें।
                             </p>
                         </div>
 

@@ -15,7 +15,7 @@ export class ProfileWebService {
         return res.json();
     }
 
-    async updateProfile(data: any, token: string) {
+    async updateProfile(data: Record<string, unknown>, token: string) {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.profiles.me}`, {
             method: 'PUT',
             headers: getAuthHeaders(token),
@@ -39,7 +39,7 @@ export class ProfileWebService {
         return res.json();
     }
 
-    async updatePreferences(data: any, token: string) {
+    async updatePreferences(data: Record<string, unknown>, token: string) {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.profiles.preferences}`, {
             method: 'PUT',
             headers: getAuthHeaders(token),
@@ -48,7 +48,7 @@ export class ProfileWebService {
         return res.json();
     }
 
-    async searchProfiles(token: string, searchParams: Record<string, any>) {
+    async searchProfiles(token: string, searchParams: Record<string, unknown>) {
         const queryParams = new URLSearchParams();
         Object.entries(searchParams).forEach(([key, value]) => {
             if (value !== undefined && value !== null) {
@@ -89,7 +89,7 @@ export class ProfileWebService {
     }
 
     // Create profile (for registration)
-    async createProfile(data: any, token: string) {
+    async createProfile(data: Record<string, unknown>, token: string) {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.profiles.create}`, {
             method: 'POST',
             headers: getAuthHeaders(token),

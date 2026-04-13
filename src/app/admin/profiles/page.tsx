@@ -30,12 +30,13 @@ export default function AdminProfilesPage() {
             const data = await adminService.getProfiles(page, 10);
             setProfiles(data.profiles || []);
             setPagination(data.pagination || { page: 1, limit: 10, total: 0, totalPages: 0 });
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Failed to fetch profiles:', err);
+            const errorMsg = err as { message?: string };
             toast({
                 variant: 'destructive',
                 title: 'Error',
-                description: err.message || 'Failed to load profiles',
+                description: errorMsg.message || 'Failed to load profiles',
             });
         } finally {
             setIsLoading(false);
@@ -44,6 +45,7 @@ export default function AdminProfilesPage() {
 
     useEffect(() => {
         fetchProfiles();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const filteredProfiles = profiles.filter(profile =>
@@ -158,8 +160,9 @@ export default function AdminProfilesPage() {
                                                                         await adminService.verifyProfile(profile.id, true);
                                                                         toast({ title: 'Profile Verified', description: `${profile.firstName}'s profile is now verified.` });
                                                                         fetchProfiles(pagination.page);
-                                                                    } catch (err: any) {
-                                                                        toast({ variant: 'destructive', title: 'Error', description: err.message });
+                                                                    } catch (err: unknown) {
+                                                                        const errorMsg = err as { message?: string };
+                                                                        toast({ variant: 'destructive', title: 'Error', description: errorMsg.message });
                                                                     }
                                                                 }}
                                                                 className="cursor-pointer text-emerald-400 focus:text-emerald-400"
@@ -172,8 +175,9 @@ export default function AdminProfilesPage() {
                                                                         await adminService.updateProfileStatus(profile.id, false, 'Incomplete data');
                                                                         toast({ title: 'Status Updated', description: 'User requested for resubmission.' });
                                                                         fetchProfiles(pagination.page);
-                                                                    } catch (err: any) {
-                                                                        toast({ variant: 'destructive', title: 'Error', description: err.message });
+                                                                    } catch (err: unknown) {
+                                                                        const errorMsg = err as { message?: string };
+                                                                        toast({ variant: 'destructive', title: 'Error', description: errorMsg.message });
                                                                     }
                                                                 }}
                                                                 className="cursor-pointer"
@@ -187,8 +191,9 @@ export default function AdminProfilesPage() {
                                                                         await adminService.updateProfileStatus(profile.id, false, 'Rejected by admin');
                                                                         toast({ title: 'Profile Rejected', description: 'Profile has been unpublished.' });
                                                                         fetchProfiles(pagination.page);
-                                                                    } catch (err: any) {
-                                                                        toast({ variant: 'destructive', title: 'Error', description: err.message });
+                                                                    } catch (err: unknown) {
+                                                                        const errorMsg = err as { message?: string };
+                                                                        toast({ variant: 'destructive', title: 'Error', description: errorMsg.message });
                                                                     }
                                                                 }}
                                                                 className="text-destructive cursor-pointer"

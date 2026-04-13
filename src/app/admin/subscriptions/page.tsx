@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AdminPageWrapper } from "@/app/admin/admin-page-wrapper";
+
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RefreshCw, Percent, Edit, Check, X, Plus, Crown, DollarSign, Clock } from "lucide-react";
+import { RefreshCw, Percent, Edit, Check, X, Plus, Crown, Clock } from "lucide-react";
 import { subscriptionsService } from "@/services/subscriptions.service";
 import { type SubscriptionPlan, UserRole } from "@/types/api.types";
 import { useToast } from "@/hooks/use-toast";
@@ -54,9 +54,9 @@ export default function AdminSubscriptionsPage() {
   const [newFeature, setNewFeature] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  const parseFeatures = (features: any): string[] => {
+  const parseFeatures = (features: unknown): string[] => {
     if (!features) return [];
-    if (Array.isArray(features)) return features;
+    if (Array.isArray(features)) return features as string[];
     if (typeof features === 'string') {
       try { const p = JSON.parse(features); return Array.isArray(p) ? p : []; } catch { return []; }
     }
@@ -68,14 +68,18 @@ export default function AdminSubscriptionsPage() {
     try {
       const data = await subscriptionsService.getPlans();
       setPlans(data || []);
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to load plans' });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to load plans' });
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => { fetchPlans(); }, []);
+  useEffect(() => { 
+    fetchPlans(); 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const openDiscountDialog = (plan: SubscriptionPlan) => {
     setDiscountDialog(plan);
@@ -91,8 +95,9 @@ export default function AdminSubscriptionsPage() {
       toast({ title: 'Discount Updated', description: 'Plan discount has been saved' });
       setDiscountDialog(null);
       fetchPlans();
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to update discount' });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to update discount' });
     } finally {
       setIsSaving(false);
     }
@@ -125,8 +130,9 @@ export default function AdminSubscriptionsPage() {
       toast({ title: 'Plan Updated', description: 'Subscription plan has been saved' });
       setEditPlanDialog(null);
       fetchPlans();
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to update plan' });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to update plan' });
     } finally {
       setIsSaving(false);
     }
@@ -142,7 +148,6 @@ export default function AdminSubscriptionsPage() {
   };
 
   const activePlans = plans.filter(p => p.isActive);
-  const inactivePlans = plans.filter(p => !p.isActive);
 
   return (
     <div className="space-y-5">

@@ -6,9 +6,7 @@ import {
     Heart, 
     Smartphone, 
     ArrowRight, 
-    CheckCircle2, 
     ShieldCheck,
-    Lock,
     ChevronLeft,
     RotateCcw,
     Loader2
@@ -30,6 +28,11 @@ export function UserLoginForm() {
     const { toast } = useToast();
     const router = useRouter();
     const login = useUserAuthStore((state) => state.login);
+
+    interface CustomWindow extends Window {
+        recaptchaVerifier?: RecaptchaVerifier;
+    }
+    const win = (typeof window !== "undefined" ? window : {}) as CustomWindow;
     
     const [isMounted, setIsMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -46,8 +49,8 @@ export function UserLoginForm() {
 
     // Setup Recaptcha
     const setupRecaptcha = () => {
-        if (!(window as any).recaptchaVerifier) {
-            (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        if (!win.recaptchaVerifier) {
+            win.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
                 'size': 'invisible',
                 'callback': () => {}
             });
@@ -79,7 +82,8 @@ export function UserLoginForm() {
         setIsLoading(true);
         try {
             setupRecaptcha();
-            const appVerifier = (window as any).recaptchaVerifier;
+            const appVerifier = win.recaptchaVerifier;
+            if (!appVerifier) throw new Error("Recaptcha not initialized");
             const fullPhone = `+91${phone}`;
             
             const result = await signInWithPhoneNumber(auth, fullPhone, appVerifier);
@@ -91,16 +95,17 @@ export function UserLoginForm() {
                 title: "OTP Sent!",
                 description: `Verification code sent to +91 ${phone}`,
             });
-        } catch (error: any) {
-            console.error("OTP Error:", error);
+        } catch (error: unknown) {
+            const err = error as Error;
+            console.error("OTP Error:", err);
             toast({
                 variant: "destructive",
                 title: "Error",
-                description: error.message || "Failed to send OTP. Please try again.",
+                description: err.message || "Failed to send OTP. Please try again.",
             });
-            if ((window as any).recaptchaVerifier) {
-                (window as any).recaptchaVerifier.clear();
-                delete (window as any).recaptchaVerifier;
+            if (win.recaptchaVerifier) {
+                win.recaptchaVerifier.clear();
+                delete win.recaptchaVerifier;
             }
         } finally {
             setIsLoading(false);
@@ -140,8 +145,9 @@ export function UserLoginForm() {
             } else {
                 router.push("/dashboard");
             }
-        } catch (error: any) {
-            console.error("Verification Error:", error);
+        } catch (error: unknown) {
+            const err = error as Error;
+            console.error("Verification Error:", err);
             toast({
                 variant: "destructive",
                 title: "Login Failed",

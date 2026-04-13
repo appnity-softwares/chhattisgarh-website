@@ -37,7 +37,14 @@ export function useChat(otherUserId: number | null) {
             setIsLoading(true);
             try {
                 const res = await apiService.get(apiConfig.endpoints.messages.history(otherUserId));
-                const history = res.data.data.messages.map((msg: any) => ({
+                const history = res.data.data.messages.map((msg: { 
+                    id: number; 
+                    content: string; 
+                    senderId: number; 
+                    createdAt: string; 
+                    status: string; 
+                    contentType?: string; 
+                }) => ({
                     id: msg.id,
                     text: msg.content,
                     sender: msg.senderId === otherUserId ? "them" : "me",
@@ -61,17 +68,18 @@ export function useChat(otherUserId: number | null) {
         fetchHistory();
     }, [otherUserId]);
     
-    const handleNewMessage = useCallback((payload: any) => {
+    const handleNewMessage = useCallback((...args: unknown[]) => {
+        const payload = args[0] as Record<string, unknown>;
         if (!otherUserId) return;
         if (payload.senderId === otherUserId || payload.receiverId === otherUserId) {
             const newMessage: Message = {
-                id: payload.id,
-                text: payload.content,
+                id: payload.id as number,
+                text: payload.content as string,
                 sender: payload.senderId === otherUserId ? "them" : "me",
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 status: "received",
-                type: payload.contentType || "TEXT",
-                imageUrl: payload.contentType === "IMAGE" ? payload.content : undefined
+                type: (payload.contentType as "TEXT" | "IMAGE" | "SYSTEM") || "TEXT",
+                imageUrl: payload.contentType === "IMAGE" ? (payload.content as string) : undefined
             };
             setMessages(prev => [...prev, newMessage]);
             
@@ -81,15 +89,8 @@ export function useChat(otherUserId: number | null) {
         }
     }, [otherUserId]);
 
-    const handleTyping = useCallback((payload: any) => {
-        if (payload.userId === otherUserId) setIsTyping(payload.isTyping);
-    }, [otherUserId]);
-
-    const handleStatus = useCallback((payload: any) => {
-        if (payload.userId === otherUserId) setIsOnline(payload.online);
-    }, [otherUserId]);
-
-    const handleMessageRead = useCallback((payload: any) => {
+    const handleMessageRead = useCallback((...args: unknown[]) => {
+        const payload = args[0] as Record<string, unknown>;
         if (payload.byUser === otherUserId) {
             setMessages(prev => prev.map(msg => 
                 msg.sender === "me" ? { ...msg, status: "read" } : msg
@@ -103,8 +104,14 @@ export function useChat(otherUserId: number | null) {
         socketService.on("message:received", handleNewMessage);
         socketService.on("typing:start", () => setIsTyping(true));
         socketService.on("typing:stop", () => setIsTyping(false));
-        socketService.on("user:online", (data: any) => { if (data.userId === otherUserId) setIsOnline(true); });
-        socketService.on("user:offline", (data: any) => { if (data.userId === otherUserId) setIsOnline(false); });
+        socketService.on("user:online", (data: unknown) => { 
+            const d = data as { userId: number };
+            if (d.userId === otherUserId) setIsOnline(true); 
+        });
+        socketService.on("user:offline", (data: unknown) => { 
+            const d = data as { userId: number };
+            if (d.userId === otherUserId) setIsOnline(false); 
+        });
         socketService.on("message:read", handleMessageRead);
 
         return () => {
@@ -146,8 +153,9 @@ export function useChat(otherUserId: number | null) {
             setMessages(prev => prev.filter(msg => msg.id !== deleteMessage.variables));
             toast({ title: "Message deleted" });
         },
-        onError: (err: any) => {
-            toast({ title: "Error", description: err.message, variant: "destructive" });
+        onError: (err: unknown) => {
+            const error = err as Error;
+            toast({ title: "Error", description: error.message, variant: "destructive" });
         }
     });
 
@@ -162,8 +170,9 @@ export function useChat(otherUserId: number | null) {
             queryClient.invalidateQueries({ queryKey: ["conversations"] });
             toast({ title: "Conversation deleted" });
         },
-        onError: (err: any) => {
-            toast({ title: "Error", description: err.message, variant: "destructive" });
+        onError: (err: unknown) => {
+            const error = err as Error;
+            toast({ title: "Error", description: error.message, variant: "destructive" });
         }
     });
 

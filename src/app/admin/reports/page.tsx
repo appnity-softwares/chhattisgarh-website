@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AdminPageWrapper } from "@/app/admin/admin-page-wrapper";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   MoreHorizontal, RefreshCw, ChevronLeft, ChevronRight, Download,
@@ -46,22 +45,27 @@ export default function AdminReportsPage() {
       const data = await reportsService.getReports(page, 10, statusFilter === 'ALL' ? undefined : statusFilter);
       setReports(data.reports || []);
       setPagination(data.pagination || { page: 1, limit: 10, total: 0, totalPages: 0 });
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to load reports' });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to load reports' });
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => { fetchReports(); }, [statusFilter]);
+  useEffect(() => { 
+    fetchReports(); 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter]);
 
   const handleStatusChange = async (reportId: number, newStatus: ReportStatus) => {
     try {
       await reportsService.updateReport(reportId.toString(), { status: newStatus });
       toast({ title: 'Status Updated', description: `Report marked as ${newStatus.replace(/_/g, ' ').toLowerCase()}` });
       fetchReports(pagination.page);
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to update report' });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to update report' });
     }
   };
 
@@ -71,7 +75,11 @@ export default function AdminReportsPage() {
   };
   const toggleSelectReport = (id: number) => {
     const next = new Set(selectedReports);
-    next.has(id) ? next.delete(id) : next.add(id);
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
     setSelectedReports(next);
   };
 
@@ -95,8 +103,9 @@ export default function AdminReportsPage() {
       await reportsService.updateReport(reportId.toString(), { status: 'RESOLVED' as ReportStatus, actionTaken: 'USER_BANNED' });
       toast({ title: 'User Banned', description: 'User banned and report resolved' });
       fetchReports(pagination.page);
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed' });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed' });
     }
   };
 
@@ -116,7 +125,7 @@ export default function AdminReportsPage() {
     toast({ title: 'Exported', description: `${data.length} reports exported` });
   };
 
-  const getUserName = (user: any) => {
+  const getUserName = (user: { profile?: { firstName: string; lastName: string }; email?: string }) => {
     if (user?.profile) return `${user.profile.firstName} ${user.profile.lastName}`;
     return user?.email?.split('@')[0] || 'Unknown';
   };

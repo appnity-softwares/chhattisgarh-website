@@ -4,20 +4,20 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import {
-  BarChart3, LineChart, Send, DollarSign, FileText, Users, Shield,
-  BadgeCheck, Briefcase, FileWarning, Mail, Settings, HelpCircle,
+  LineChart, Send, DollarSign, Users, Shield,
+  Briefcase, FileWarning, Mail, Settings, HelpCircle,
   LogOut, Bell, ChevronLeft, ChevronRight, LayoutDashboard,
-  Wallet, ClipboardList, Menu, X, Sparkles, Activity, Palette, Heart
+  Wallet, Menu, X, Sparkles, Activity, Palette, Heart
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import authService from '@/services/auth.service';
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
+import type { User } from '@/types/api.types';
 
 type AdminLayoutProps = {
   children: React.ReactNode;
@@ -53,6 +53,7 @@ const navGroups = [
     label: 'Business',
     items: [
       { href: '/admin/subscriptions', label: 'Subscriptions', icon: Wallet },
+      { href: '/admin/payments', label: 'Payments', icon: DollarSign },
       { href: '/admin/promo-codes', label: 'Promo Codes', icon: DollarSign },
       { href: '/admin/notifications', label: 'Push Center', icon: Send },
     ]
@@ -79,13 +80,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     if (!isAuthenticated) {
       router.push('/admin-secure-login');
     } else {
-      setIsChecking(false);
+      // Use setTimeout to avoid synchronous setState warning
+      setTimeout(() => setIsChecking(false), 0);
     }
   }, [isAuthenticated, router]);
 
   // Close mobile sidebar on route change
   useEffect(() => {
-    setMobileSidebarOpen(false);
+    setTimeout(() => setMobileSidebarOpen(false), 0);
   }, [pathname]);
 
   if (!isAuthenticated && isChecking) {
@@ -110,7 +112,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       logout();
       toast({ title: 'Logged out', description: 'You have been successfully logged out.' });
       router.push('/admin-secure-login');
-    } catch (error) {
+    } catch {
       logout();
       router.push('/admin-secure-login');
     }
@@ -124,7 +126,147 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const userInitials = user?.email?.charAt(0).toUpperCase() || 'A';
   const userEmail = user?.email || 'admin@example.com';
 
-  const SidebarContent = () => (
+  const sidebarProps = {
+    user,
+    userInitials,
+    userEmail,
+    sidebarCollapsed,
+    setSidebarCollapsed,
+    mobileSidebarOpen,
+    setMobileSidebarOpen,
+    isActive,
+    handleLogout
+  };
+
+  return (
+    <div className="flex h-screen overflow-hidden" style={{ background: 'hsl(340 40% 4%)' }}>
+      {/* Mobile Sidebar Overlay */}
+      {mobileSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar - Desktop */}
+      <aside
+        className={`
+          hidden lg:flex flex-col flex-shrink-0
+          admin-sidebar transition-[width] duration-300 ease-in-out overflow-hidden
+          ${sidebarCollapsed ? 'w-16' : 'w-60'}
+        `}
+      >
+        <SidebarContent {...sidebarProps} />
+      </aside>
+
+      {/* Sidebar - Mobile */}
+      <aside
+        className={`
+          fixed left-0 top-0 bottom-0 z-50 flex flex-col w-64
+          admin-sidebar transition-transform duration-300 ease-in-out lg:hidden
+          ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}
+      >
+        <div className="absolute top-4 right-4">
+          <button
+            onClick={() => setMobileSidebarOpen(false)}
+            className="p-1 rounded-lg text-muted-foreground hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <SidebarContent {...sidebarProps} />
+      </aside>
+
+      {/* Main Content */}
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+        {/* Top Header */}
+        <header className="admin-header flex-shrink-0 h-14 flex items-center px-4 sm:px-6 gap-4 z-30">
+          {/* Mobile menu button */}
+          <button
+            className="lg:hidden p-1.5 rounded-lg text-muted-foreground hover:text-white hover:bg-white/10 transition-colors"
+            onClick={() => setMobileSidebarOpen(true)}
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+
+          {/* Page breadcrumb area */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground hidden sm:inline">Admin</span>
+              <span className="text-muted-foreground hidden sm:inline">/</span>
+              <span className="text-white font-medium capitalize truncate max-w-[200px]">
+                {pathname === '/admin' ? 'Dashboard' : pathname.split('/').pop()?.replace(/-/g, ' ') || 'Dashboard'}
+              </span>
+            </div>
+          </div>
+
+          {/* Right side */}
+          <div className="flex items-center gap-2">
+            {/* Notification bell */}
+            <button className="relative p-1.5 rounded-lg text-muted-foreground hover:text-white hover:bg-white/10 transition-colors">
+              <Bell className="w-4.5 h-4.5" />
+              <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-rose-500 rounded-full" />
+            </button>
+
+            {/* User dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-white/10 transition-colors">
+                  <Avatar className="w-7 h-7 ring-2 ring-primary/30">
+                    <AvatarImage src={user?.profilePicture || undefined} />
+                    <AvatarFallback className="bg-gradient-to-br from-rose-600 to-primary text-white text-xs font-bold">
+                      {userInitials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm text-white font-medium hidden sm:block max-w-[120px] truncate">
+                    {userEmail.split('@')[0]}
+                  </span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52 bg-card border-border">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col">
+                    <span className="text-white">Administrator</span>
+                    <span className="text-xs font-normal text-muted-foreground truncate">{userEmail}</span>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-red-400 focus:text-red-400 focus:bg-red-500/10 cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="animate-fade-in">
+            {children}
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+interface SidebarContentProps {
+  user: User | null;
+  userInitials: string;
+  userEmail: string;
+  sidebarCollapsed: boolean;
+  setSidebarCollapsed: (v: boolean) => void;
+  isActive: (href: string) => boolean;
+  handleLogout: () => void;
+}
+
+function SidebarContent({ 
+  user, userInitials, userEmail, sidebarCollapsed, setSidebarCollapsed, 
+  isActive, handleLogout 
+}: SidebarContentProps) {
+  return (
     <div className="flex flex-col h-full">
       {/* Logo Area */}
       <div className={`flex items-center gap-3 px-4 py-5 border-b border-white/[0.06] ${sidebarCollapsed ? 'justify-center px-2' : ''}`}>
@@ -225,119 +367,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="flex h-screen overflow-hidden" style={{ background: 'hsl(340 40% 4%)' }}>
-      {/* Mobile Sidebar Overlay */}
-      {mobileSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
-          onClick={() => setMobileSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar - Desktop */}
-      <aside
-        className={`
-          hidden lg:flex flex-col flex-shrink-0
-          admin-sidebar transition-[width] duration-300 ease-in-out overflow-hidden
-          ${sidebarCollapsed ? 'w-16' : 'w-60'}
-        `}
-      >
-        <SidebarContent />
-      </aside>
-
-      {/* Sidebar - Mobile */}
-      <aside
-        className={`
-          fixed left-0 top-0 bottom-0 z-50 flex flex-col w-64
-          admin-sidebar transition-transform duration-300 ease-in-out lg:hidden
-          ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        `}
-      >
-        <div className="absolute top-4 right-4">
-          <button
-            onClick={() => setMobileSidebarOpen(false)}
-            className="p-1 rounded-lg text-muted-foreground hover:text-white hover:bg-white/10 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-        <SidebarContent />
-      </aside>
-
-      {/* Main Content */}
-      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        {/* Top Header */}
-        <header className="admin-header flex-shrink-0 h-14 flex items-center px-4 sm:px-6 gap-4 z-30">
-          {/* Mobile menu button */}
-          <button
-            className="lg:hidden p-1.5 rounded-lg text-muted-foreground hover:text-white hover:bg-white/10 transition-colors"
-            onClick={() => setMobileSidebarOpen(true)}
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-
-          {/* Page breadcrumb area */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground hidden sm:inline">Admin</span>
-              <span className="text-muted-foreground hidden sm:inline">/</span>
-              <span className="text-white font-medium capitalize truncate max-w-[200px]">
-                {pathname === '/admin' ? 'Dashboard' : pathname.split('/').pop()?.replace(/-/g, ' ') || 'Dashboard'}
-              </span>
-            </div>
-          </div>
-
-          {/* Right side */}
-          <div className="flex items-center gap-2">
-            {/* Notification bell */}
-            <button className="relative p-1.5 rounded-lg text-muted-foreground hover:text-white hover:bg-white/10 transition-colors">
-              <Bell className="w-4.5 h-4.5" />
-              <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-rose-500 rounded-full" />
-            </button>
-
-            {/* User dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-white/10 transition-colors">
-                  <Avatar className="w-7 h-7 ring-2 ring-primary/30">
-                    <AvatarImage src={user?.profilePicture || undefined} />
-                    <AvatarFallback className="bg-gradient-to-br from-rose-600 to-primary text-white text-xs font-bold">
-                      {userInitials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm text-white font-medium hidden sm:block max-w-[120px] truncate">
-                    {userEmail.split('@')[0]}
-                  </span>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-52 bg-card border-border">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col">
-                    <span className="text-white">Administrator</span>
-                    <span className="text-xs font-normal text-muted-foreground truncate">{userEmail}</span>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-red-400 focus:text-red-400 focus:bg-red-500/10 cursor-pointer">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
-
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
-          <div className="animate-fade-in">
-            {children}
-          </div>
-        </main>
       </div>
     </div>
   );

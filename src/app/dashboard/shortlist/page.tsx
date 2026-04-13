@@ -10,41 +10,98 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ProfileCard } from "@/components/profile/profile-card";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useShortlist } from "@/hooks/use-shortlist";
+import Link from "next/link";
+
+interface ShortlistItem {
+    id: number;
+    shortlistedUser?: {
+        id: number;
+        profilePicture?: string;
+        isPhoneVerified?: boolean;
+        profile?: Record<string, unknown>;
+    };
+    user?: {
+        id: number;
+        profilePicture?: string;
+        isPhoneVerified?: boolean;
+    };
+    profile?: Record<string, unknown>;
+}
+
+interface ProfileData {
+    userId?: number;
+    firstName?: string;
+    lastName?: string;
+    age?: number;
+    dateOfBirth?: string;
+    city?: string;
+    occupation?: string;
+    education?: string;
+    gender?: string;
+    isVerified?: boolean;
+    media?: { url: string }[];
+}
+
+interface UserData {
+    id?: number;
+    isPhoneVerified?: boolean;
+    profilePicture?: string;
+}
+
+
+interface ProfileSummary {
+    shortlistId: number;
+    id: number;
+    name: string;
+    firstName: string;
+    lastName: string;
+    age?: number;
+    city?: string;
+    occupation?: string;
+    education?: string;
+    gender: 'male' | 'female' | 'other';
+    isVerified?: boolean;
+    image?: string;
+}
 
 export default function ShortlistPage() {
     const { shortlist, isLoading, removeFromShortlist } = useShortlist();
     const [searchQuery, setSearchQuery] = useState("");
+    const [now] = useState(() => Date.now());
 
     // Extract profile from shortlist item (backend returns the shortlisted user with profile)
-    const profiles = (shortlist || []).map((item: any) => {
-        const profile = item.shortlistedUser?.profile || item.profile || item;
-        const user = item.shortlistedUser || item.user || {};
-        return {
-            shortlistId: item.id,
-            id: user.id || profile.userId || item.id,
-            name: `${profile.firstName || ''} ${profile.lastName || ''}`.trim(),
-            firstName: profile.firstName,
-            lastName: profile.lastName,
-            age: profile.age || (profile.dateOfBirth ? Math.floor((Date.now() - new Date(profile.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : undefined),
-            city: profile.city,
-            occupation: profile.occupation,
-            education: profile.education,
-            gender: profile.gender?.toLowerCase() as 'male' | 'female' || 'female',
-            isVerified: profile.isVerified || user.isPhoneVerified,
-            image: profile.media?.[0]?.url || user.profilePicture,
-        };
-    });
+    const profiles = useMemo((): ProfileSummary[] => {
+        return (shortlist || []).map((item: ShortlistItem) => {
+            const profile = (item.shortlistedUser?.profile || item.profile || item) as ProfileData;
+            const user = (item.shortlistedUser || item.user || {}) as UserData;
+            
+            return {
+                shortlistId: item.id,
+                id: Number(user.id || profile.userId || item.id),
+                name: `${profile.firstName || ''} ${profile.lastName || ''}`.trim(),
+                firstName: profile.firstName || '',
+                lastName: profile.lastName || '',
+                age: profile.age || (profile.dateOfBirth ? Math.floor((now - new Date(profile.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : 0),
+                city: profile.city,
+                occupation: profile.occupation,
+                education: profile.education,
+                gender: (profile.gender?.toLowerCase() as 'male' | 'female' | 'other') || 'female',
+                isVerified: profile.isVerified || user.isPhoneVerified,
+                image: profile.media?.[0]?.url || user.profilePicture,
+            };
+        });
+    }, [shortlist, now]);
 
     // Filter by search
-    const filteredProfiles = profiles.filter((p: any) => {
+    const filteredProfiles = profiles.filter((p) => {
         if (!searchQuery) return true;
         const q = searchQuery.toLowerCase();
         return (
-            p.name?.toLowerCase().includes(q) ||
-            p.city?.toLowerCase().includes(q) ||
-            p.occupation?.toLowerCase().includes(q)
+            (p.name as string)?.toLowerCase().includes(q) ||
+            (p.city as string)?.toLowerCase().includes(q) ||
+            (p.occupation as string)?.toLowerCase().includes(q)
         );
     });
 
@@ -94,7 +151,7 @@ export default function ShortlistPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
                 >
-                    {filteredProfiles.map((profile: any, index: number) => (
+                    {filteredProfiles.map((profile: ProfileSummary, index: number) => (
                         <motion.div
                             key={profile.shortlistId || profile.id}
                             initial={{ opacity: 0, scale: 0.95 }}
@@ -102,7 +159,12 @@ export default function ShortlistPage() {
                             transition={{ delay: index * 0.05 }}
                             className="relative group"
                         >
-                            <ProfileCard id={profile.id} {...profile} />
+                            <ProfileCard 
+                                {...profile} 
+                                age={profile.age || 0} 
+                                city={profile.city || "Not Specified"}
+                                occupation={profile.occupation || "Not Specified"}
+                            />
                             {/* Remove from shortlist button */}
                             <button
                                 onClick={(e) => {
@@ -143,7 +205,7 @@ export default function ShortlistPage() {
                     </div>
                     {!searchQuery && (
                         <Button asChild className="bg-primary hover:bg-primary/90 text-white font-black rounded-xl h-12 px-8 shadow-xl shadow-primary/20">
-                            <a href="/dashboard">EXPLORE PROFILES</a>
+                            <Link href="/dashboard">EXPLORE PROFILES</Link>
                         </Button>
                     )}
                 </div>

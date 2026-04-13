@@ -38,7 +38,7 @@ class ContactService {
     }
 
     // Submit contact form (Public)
-    async submitContactForm(data: any): Promise<any> {
+    async submitContactForm(data: Record<string, unknown>): Promise<unknown> {
         const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.contact.submit}`, {
             method: 'POST',
             headers: {
@@ -59,7 +59,7 @@ class ContactService {
         page = 1,
         limit = 10,
         status?: ContactMessageStatus
-    ): Promise<{ data: ContactMessage[]; pagination: any }> {
+    ): Promise<{ data: ContactMessage[]; pagination: { total: number; pages: number; currentPage: number; limit: number } }> {
         let url = `${apiConfig.endpoints.contact.messages}?page=${page}&limit=${limit}`;
         if (status) {
             url += `&status=${status}`;
@@ -68,7 +68,7 @@ class ContactService {
         // Note: The backend returns { success, data, pagination }. fetchWithAuth returns data.
         // However, my fetchWithAuth is designed based on reports.service.ts which seems to expect data to be the object containing reports and pagination.
         // Let's re-check reports.service.ts return type.
-        return result as any;
+        return result as unknown as { data: ContactMessage[]; pagination: { total: number; pages: number; currentPage: number; limit: number } };
     }
 
     // Update message status (Admin)

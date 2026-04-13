@@ -10,12 +10,10 @@ import {
     ChevronUp,
     ShieldCheck,
     Zap,
-    Heart,
-    Smartphone,
     Search as SearchIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Navbar } from "@/components/layout/navbar";

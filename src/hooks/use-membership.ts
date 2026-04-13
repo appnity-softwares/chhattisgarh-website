@@ -22,7 +22,7 @@ export function useMembership() {
     const { data: plans, isLoading: plansLoading } = useQuery({
         queryKey: ["membership-plans"],
         queryFn: async () => {
-            const res = await apiService.get(apiConfig.endpoints.payments.plans);
+            const res = await apiService.get(apiConfig.endpoints.plans.list);
             const data = res.data.data;
             // Handle both structure: direct array or { plans: [] }
             return Array.isArray(data) ? data : (data?.plans || []);
@@ -34,10 +34,11 @@ export function useMembership() {
             const res = await apiService.post(apiConfig.endpoints.webPayments.initiateSession, { planId });
             return res.data.data;
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
+            const err = error as { response?: { data?: { error?: string } } };
             toast({
                 title: "Payment Error",
-                description: error.response?.data?.error || "Failed to initiate payment",
+                description: err.response?.data?.error || "Failed to initiate payment",
                 variant: "destructive"
             });
         }
@@ -59,10 +60,11 @@ export function useMembership() {
             });
             window.location.href = "/dashboard";
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
+            const err = error as { response?: { data?: { error?: string } } };
             toast({
                 title: "Verification Failed",
-                description: error.response?.data?.error || "Payment verification failed",
+                description: err.response?.data?.error || "Payment verification failed",
                 variant: "destructive"
             });
         }

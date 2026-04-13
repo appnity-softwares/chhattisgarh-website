@@ -10,7 +10,7 @@ export function useSuccessStories() {
         queryKey: ["success-stories"],
         queryFn: async () => {
             const res = await apiService.get(apiConfig.endpoints.public.successStories);
-            return res.data.data;
+            return res.data.data.stories || [];
         },
     });
 }
@@ -20,7 +20,7 @@ export function useCreateSuccessStory() {
     const { toast } = useToast();
 
     return useMutation({
-        mutationFn: async (data: any) => {
+        mutationFn: async (data: Record<string, unknown>) => {
             const res = await apiService.post(apiConfig.endpoints.public.successStories, data);
             return res.data;
         },

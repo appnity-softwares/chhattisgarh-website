@@ -11,10 +11,8 @@ import {
     CheckCircle2, 
     Save,
     Plus,
-    X,
     Trash2,
     Calendar,
-    ChevronRight,
     Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,7 +28,6 @@ import {
     SelectValue 
 } from "@/components/ui/select";
 import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { useProfile, useProfileCompletion } from "@/hooks/use-profile";
 import { useRef } from "react";
 
@@ -43,21 +40,73 @@ const SECTIONS = [
     { id: "photos", label: "Photos", icon: Camera },
 ];
 
+const GENDER_OPTIONS = ["MALE", "FEMALE", "OTHER"] as const;
+const MARITAL_STATUS_OPTIONS = [
+    "NEVER_MARRIED",
+    "DIVORCED",
+    "WIDOWED",
+    "AWAITING_DIVORCE",
+    "ANNULLED",
+] as const;
+const RELIGION_OPTIONS = [
+    "HINDU",
+    "MUSLIM",
+    "CHRISTIAN",
+    "SIKH",
+    "BUDDHIST",
+    "JAIN",
+    "PARSI",
+    "JEWISH",
+    "BAHAI",
+    "NO_RELIGION",
+    "SPIRITUAL",
+    "OTHER",
+] as const;
+const MOTHER_TONGUE_OPTIONS = [
+    "CHHATTISGARHI",
+    "HINDI",
+    "ENGLISH",
+    "MARATHI",
+    "GUJARATI",
+    "PUNJABI",
+    "BENGALI",
+    "URDU",
+    "OTHER",
+] as const;
+const ANNUAL_INCOME_OPTIONS = [
+    "Below 3 LPA",
+    "3-5 LPA",
+    "5-8 LPA",
+    "8-12 LPA",
+    "12-20 LPA",
+    "20+ LPA",
+] as const;
+
+const enumLabel = (value: string) =>
+    value
+        .toLowerCase()
+        .split("_")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+
 export default function ProfilePage() {
-    const { toast } = useToast();
     const { data: userData, isLoading, updateProfile, uploadPhotos, deletePhoto } = useProfile();
     const { data: completion } = useProfileCompletion();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [activeSection, setActiveSection] = useState("basic");
-    const [formData, setFormData] = useState<any>({});
+    const [formData, setFormData] = useState<Record<string, unknown>>({});
 
     useEffect(() => {
         if (userData?.profile) {
-            setFormData(userData.profile);
+            setTimeout(() => setFormData(userData.profile), 0);
         }
     }, [userData]);
 
     const isSaving = updateProfile.isPending || uploadPhotos.isPending || deletePhoto.isPending;
+    const media = Array.isArray(formData.media) ? formData.media : [];
+    const dateOfBirthValue = formData.dateOfBirth
+        ? new Date(formData.dateOfBirth).toISOString().split("T")[0]
+        : "";
 
     const handleSave = () => {
         updateProfile.mutate(formData);
@@ -144,19 +193,49 @@ export default function ProfilePage() {
                                                     <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
                                                     <Input 
                                                         type="date" 
-                                                        value={formData.dateOfBirth ? new Date(formData.dateOfBirth).toISOString().split('T')[0] : ""} 
+                                                        value={dateOfBirthValue} 
                                                         onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})}
                                                         className="pl-12 h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold" 
                                                     />
                                                 </div>
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Height (e.g. 5.4)</Label>
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Height (cm)</Label>
                                                 <Input 
                                                     value={formData.height || ""} 
                                                     onChange={(e) => setFormData({...formData, height: e.target.value})}
                                                     className="h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold" 
                                                 />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Gender</Label>
+                                                <Select value={formData.gender || undefined} onValueChange={(value) => setFormData({ ...formData, gender: value })}>
+                                                    <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
+                                                        <SelectValue placeholder="Select gender" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {GENDER_OPTIONS.map((option) => (
+                                                            <SelectItem key={option} value={option}>
+                                                                {enumLabel(option)}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Marital Status</Label>
+                                                <Select value={formData.maritalStatus || undefined} onValueChange={(value) => setFormData({ ...formData, maritalStatus: value })}>
+                                                    <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
+                                                        <SelectValue placeholder="Select status" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {MARITAL_STATUS_OPTIONS.map((option) => (
+                                                            <SelectItem key={option} value={option}>
+                                                                {enumLabel(option)}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
                                             </div>
                                         </div>
                                     </motion.div>
@@ -167,37 +246,73 @@ export default function ProfilePage() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Religion</Label>
-                                                <Select defaultValue="hindu">
+                                                <Select value={formData.religion || undefined} onValueChange={(value) => setFormData({ ...formData, religion: value })}>
                                                     <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
-                                                        <SelectValue />
+                                                        <SelectValue placeholder="Select religion" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="hindu">Hindu</SelectItem>
-                                                        <SelectItem value="jain">Jain</SelectItem>
-                                                        <SelectItem value="sikh">Sikh</SelectItem>
+                                                        {RELIGION_OPTIONS.map((option) => (
+                                                            <SelectItem key={option} value={option}>
+                                                                {enumLabel(option)}
+                                                            </SelectItem>
+                                                        ))}
                                                     </SelectContent>
                                                 </Select>
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Caste</Label>
-                                                <Input defaultValue="Sahu" className="h-14 bg-white/5 border-white/10 rounded-xl" />
+                                                <Input 
+                                                    value={formData.caste || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, caste: e.target.value })}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Gothram</Label>
-                                                <Input placeholder="Enter your Gothram" className="h-14 bg-white/5 border-white/10 rounded-xl" />
+                                                <Input 
+                                                    value={formData.gothram || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, gothram: e.target.value })}
+                                                    placeholder="Enter your Gothram" 
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Manglik Status</Label>
-                                                <Select defaultValue="no">
+                                                <Select 
+                                                    value={typeof formData.manglik === "boolean" ? String(formData.manglik) : undefined}
+                                                    onValueChange={(value) => setFormData({ ...formData, manglik: value === "true" })}
+                                                >
                                                     <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
-                                                        <SelectValue />
+                                                        <SelectValue placeholder="Select status" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="no">No</SelectItem>
-                                                        <SelectItem value="yes">Yes</SelectItem>
-                                                        <SelectItem value="partial">Anshik Manglik</SelectItem>
+                                                        <SelectItem value="false">No</SelectItem>
+                                                        <SelectItem value="true">Yes</SelectItem>
                                                     </SelectContent>
                                                 </Select>
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Mother Tongue</Label>
+                                                <Select value={formData.motherTongue || undefined} onValueChange={(value) => setFormData({ ...formData, motherTongue: value })}>
+                                                    <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
+                                                        <SelectValue placeholder="Select mother tongue" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {MOTHER_TONGUE_OPTIONS.map((option) => (
+                                                            <SelectItem key={option} value={option}>
+                                                                {enumLabel(option)}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Sub Caste</Label>
+                                                <Input 
+                                                    value={formData.subCaste || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, subCaste: e.target.value })}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                />
                                             </div>
                                         </div>
                                     </motion.div>
@@ -207,34 +322,107 @@ export default function ProfilePage() {
                                     <motion.div key="education" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Education</Label>
-                                                <Input defaultValue="Master of Commerce" className="h-14 bg-white/5 border-white/10 rounded-xl" />
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Highest Education</Label>
+                                                <Input 
+                                                    value={formData.highestEducation || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, highestEducation: e.target.value })}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Occupation</Label>
-                                                <Select defaultValue="finance">
+                                                <Input 
+                                                    value={formData.occupation || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, occupation: e.target.value })}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Annual Income</Label>
+                                                <Select value={formData.annualIncome || undefined} onValueChange={(value) => setFormData({ ...formData, annualIncome: value })}>
                                                     <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
-                                                        <SelectValue />
+                                                        <SelectValue placeholder="Select annual income" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="finance">Finance Professional</SelectItem>
-                                                        <SelectItem value="it">IT Professional</SelectItem>
-                                                        <SelectItem value="doctor">Medical Doctor</SelectItem>
+                                                        {ANNUAL_INCOME_OPTIONS.map((option) => (
+                                                            <SelectItem key={option} value={option}>
+                                                                {option}
+                                                            </SelectItem>
+                                                        ))}
                                                     </SelectContent>
                                                 </Select>
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Annual Income</Label>
-                                                <Select defaultValue="8-12">
-                                                    <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="5-8">₹5 - 8 LPA</SelectItem>
-                                                        <SelectItem value="8-12">₹8 - 12 LPA</SelectItem>
-                                                        <SelectItem value="12+">₹12+ LPA</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Designation</Label>
+                                                <Input 
+                                                    value={formData.designation || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                />
+                                            </div>
+                                            <div className="space-y-3 md:col-span-2">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Education Details</Label>
+                                                <Textarea 
+                                                    value={formData.educationDetails || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, educationDetails: e.target.value })}
+                                                    placeholder="Degree, specialization, institution, certifications..." 
+                                                    className="min-h-[120px] bg-white/5 border-white/10 rounded-2xl p-5 font-medium leading-relaxed"
+                                                />
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {activeSection === "location" && (
+                                    <motion.div key="location" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">City</Label>
+                                                <Input 
+                                                    value={formData.city || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">State</Label>
+                                                <Input 
+                                                    value={formData.state || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Country</Label>
+                                                <Input 
+                                                    value={formData.country || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Native Village</Label>
+                                                <Input 
+                                                    value={formData.nativeVillage || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, nativeVillage: e.target.value })}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Work Location</Label>
+                                                <Input 
+                                                    value={formData.workLocation || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, workLocation: e.target.value })}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Residency Status</Label>
+                                                <Input 
+                                                    value={formData.residencyStatus || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, residencyStatus: e.target.value })}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                />
                                             </div>
                                         </div>
                                     </motion.div>
@@ -247,13 +435,44 @@ export default function ProfilePage() {
                                             <Textarea 
                                                 placeholder="Describe yourself, your interests and what you are looking for in a partner..." 
                                                 className="min-h-[200px] bg-white/5 border-white/10 rounded-2xl p-6 text-lg font-medium leading-relaxed"
-                                                defaultValue="I am a simple, down-to-earth person with a positive outlook on life..."
+                                                value={formData.bio || ""}
+                                                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                                             />
                                             <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest text-right">Min 50 characters recommended</p>
                                         </div>
-                                        <div className="space-y-4">
-                                            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Hobbies & Interests</Label>
-                                            <Input defaultValue="Cooking, Traveling, Classical Music" className="h-14 bg-white/5 border-white/10 rounded-xl" />
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            <div className="space-y-4">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Hobbies</Label>
+                                                <Input 
+                                                    value={formData.hobbies || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, hobbies: e.target.value })}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                />
+                                            </div>
+                                            <div className="space-y-4">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Interests</Label>
+                                                <Input 
+                                                    value={formData.interests || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, interests: e.target.value })}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                />
+                                            </div>
+                                            <div className="space-y-4 md:col-span-2">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">About Family</Label>
+                                                <Textarea 
+                                                    value={formData.aboutFamily || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, aboutFamily: e.target.value })}
+                                                    className="min-h-[120px] bg-white/5 border-white/10 rounded-2xl p-5 font-medium leading-relaxed"
+                                                />
+                                            </div>
+                                            <div className="space-y-4 md:col-span-2">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Partner Expectations</Label>
+                                                <Textarea 
+                                                    value={formData.partnerExpectations || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, partnerExpectations: e.target.value })}
+                                                    className="min-h-[120px] bg-white/5 border-white/10 rounded-2xl p-5 font-medium leading-relaxed"
+                                                />
+                                            </div>
                                         </div>
                                     </motion.div>
                                 )}
@@ -262,9 +481,9 @@ export default function ProfilePage() {
                                     <motion.div key="photos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-10">
                                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
                                             {/* Existing Photos */}
-                                            {formData.media?.map((media: any, idx: number) => (
-                                                <div key={media.id} className="relative group aspect-square rounded-[1.5rem] overflow-hidden border-2 border-primary/20">
-                                                    <img src={media.url} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                                            {media.map((media: Record<string, unknown>, idx: number) => (
+                                                <div key={media.id || idx} className="relative group aspect-square rounded-[1.5rem] overflow-hidden border-2 border-primary/20">
+                                                    <img src={media.url as string} alt={String(formData.firstName || 'Profile Photo')} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
                                                     <button 
                                                         onClick={() => deletePhoto.mutate(media.id)}
                                                         className="absolute top-2 right-2 w-8 h-8 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
@@ -346,4 +565,3 @@ export default function ProfilePage() {
         </div>
     );
 }
-

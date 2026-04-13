@@ -5,20 +5,17 @@ import {
     Zap, 
     CheckCircle2, 
     ShieldCheck, 
-    Star, 
-    Crown, 
     Rocket,
     Clock,
-    Heart,
-    ChevronRight,
     Lock,
+    ChevronRight,
     Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
-import { useMembership } from "@/hooks/use-membership";
+import { useMembership, Plan } from "@/hooks/use-membership";
 import { loadScript } from "@/lib/script-loader";
 import { useToast } from "@/hooks/use-toast";
 
@@ -30,7 +27,7 @@ export default function MembershipPage() {
     // Set default selected plan
     useEffect(() => {
         if (plans && plans.length > 0 && selectedPlanId === null) {
-            setSelectedPlanId(plans[0].id);
+            setTimeout(() => setSelectedPlanId(plans[0].id), 0);
         }
     }, [plans, selectedPlanId]);
 
@@ -59,7 +56,11 @@ export default function MembershipPage() {
                 description: `Subscription: ${orderData.plan.name}`,
                 image: "/logo.png",
                 order_id: orderData.orderId,
-                handler: async function (response: any) {
+                handler: async function (response: {
+                    razorpay_order_id: string;
+                    razorpay_payment_id: string;
+                    razorpay_signature: string;
+                }) {
                     await verifyPayment.mutateAsync({
                         razorpay_order_id: response.razorpay_order_id,
                         razorpay_payment_id: response.razorpay_payment_id,
@@ -76,7 +77,8 @@ export default function MembershipPage() {
                 },
             };
 
-            const paymentObject = new (window as any).Razorpay(options);
+            // @ts-expect-error - Razorpay is loaded via script
+            const paymentObject = new window.Razorpay(options);
             paymentObject.open();
 
         } catch (error) {
@@ -139,7 +141,7 @@ export default function MembershipPage() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {plans?.map((plan: any, i: number) => (
+                    {plans?.map((plan: Plan, i: number) => (
                         <motion.div
                             key={plan.id}
                             initial={{ opacity: 0, y: 20 }}

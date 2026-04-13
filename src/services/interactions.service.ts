@@ -1,7 +1,14 @@
-import apiConfig, { getAuthHeaders, ApiResponse } from '@/lib/api.config';
+import apiConfig, { getAuthHeaders } from '@/lib/api.config';
 
 export class InteractionsService {
     // --- Matches ---
+    async getAcceptedMatches(token: string) {
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.matches.accepted}`, {
+            headers: getAuthHeaders(token),
+        });
+        return res.json();
+    }
+
     async getReceivedMatches(token: string) {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.matches.received}`, {
             headers: getAuthHeaders(token),
@@ -20,14 +27,14 @@ export class InteractionsService {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.matches.send}`, {
             method: 'POST',
             headers: getAuthHeaders(token),
-            body: JSON.stringify({ targetUserId: userId }),
+            body: JSON.stringify({ receiverId: userId }),
         });
         return res.json();
     }
 
     async acceptMatch(matchId: number, token: string) {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.matches.accept(matchId)}`, {
-            method: 'PUT',
+            method: 'POST',
             headers: getAuthHeaders(token),
         });
         return res.json();
@@ -35,7 +42,7 @@ export class InteractionsService {
 
     async rejectMatch(matchId: number, token: string) {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.matches.reject(matchId)}`, {
-            method: 'PUT',
+            method: 'POST',
             headers: getAuthHeaders(token),
         });
         return res.json();
@@ -53,7 +60,7 @@ export class InteractionsService {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.shortlists.create}`, {
             method: 'POST',
             headers: getAuthHeaders(token),
-            body: JSON.stringify({ targetUserId: userId }),
+            body: JSON.stringify({ shortlistedUserId: userId }),
         });
         return res.json();
     }
@@ -78,7 +85,7 @@ export class InteractionsService {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.blocks.create}`, {
             method: 'POST',
             headers: getAuthHeaders(token),
-            body: JSON.stringify({ targetUserId: userId }),
+            body: JSON.stringify({ blockedId: userId }),
         });
         return res.json();
     }
@@ -99,19 +106,29 @@ export class InteractionsService {
         return res.json();
     }
 
-    async sendContactRequest(userId: number, token: string) {
+    async sendContactRequest(profileId: number, token: string, requestType: 'PHONE' | 'EMAIL' | 'WHATSAPP' = 'PHONE', message?: string) {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.contactRequests.send}`, {
             method: 'POST',
             headers: getAuthHeaders(token),
-            body: JSON.stringify({ targetUserId: userId }),
+            body: JSON.stringify({ profileId, requestType, message }),
         });
         return res.json();
     }
 
     async acceptContactRequest(requestId: number, token: string) {
-        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.contactRequests.accept(requestId)}`, {
-            method: 'PUT',
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.contactRequests.respond(requestId)}`, {
+            method: 'POST',
             headers: getAuthHeaders(token),
+            body: JSON.stringify({ status: 'APPROVED' }),
+        });
+        return res.json();
+    }
+
+    async rejectContactRequest(requestId: number, token: string) {
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.contactRequests.respond(requestId)}`, {
+            method: 'POST',
+            headers: getAuthHeaders(token),
+            body: JSON.stringify({ status: 'REJECTED' }),
         });
         return res.json();
     }
@@ -124,19 +141,29 @@ export class InteractionsService {
         return res.json();
     }
 
-    async sendPhotoRequest(userId: number, token: string) {
+    async sendPhotoRequest(photoId: number, token: string, message?: string) {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.photoRequests.send}`, {
             method: 'POST',
             headers: getAuthHeaders(token),
-            body: JSON.stringify({ targetUserId: userId }),
+            body: JSON.stringify({ photoId, message }),
         });
         return res.json();
     }
 
     async acceptPhotoRequest(requestId: number, token: string) {
-        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.photoRequests.accept(requestId)}`, {
-            method: 'PUT',
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.photoRequests.respond(requestId)}`, {
+            method: 'POST',
             headers: getAuthHeaders(token),
+            body: JSON.stringify({ status: 'APPROVED' }),
+        });
+        return res.json();
+    }
+
+    async rejectPhotoRequest(requestId: number, token: string) {
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.photoRequests.respond(requestId)}`, {
+            method: 'POST',
+            headers: getAuthHeaders(token),
+            body: JSON.stringify({ status: 'REJECTED' }),
         });
         return res.json();
     }
@@ -153,7 +180,7 @@ export class InteractionsService {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.views.record}`, {
             method: 'POST',
             headers: getAuthHeaders(token),
-            body: JSON.stringify({ targetUserId: userId }),
+            body: JSON.stringify({ profileId: userId }),
         });
         return res.json();
     }

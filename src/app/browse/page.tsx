@@ -1,39 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { ProfileCard } from "@/components/profile/profile-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { Filter, Search, RefreshCw, SlidersHorizontal, Loader2 } from "lucide-react";
+import { Search, RefreshCw, SlidersHorizontal, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { useInfiniteProfiles } from "@/hooks/use-infinite-profiles";
 
 export default function BrowsePage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [gender, setGender] = useState<string | undefined>(undefined);
-  const [city, setCity] = useState<string | undefined>(undefined);
+
 
   const {
     data,
     isLoading,
-    isRefetching,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
   } = useInfiniteProfiles({
     search: searchTerm,
-    gender,
-    city,
     type: 'discovery'
   });
 
@@ -169,7 +158,7 @@ export default function BrowsePage() {
               <div className="max-w-md">
                 <h3 className="text-2xl font-bold text-foreground mb-2">No matches found</h3>
                 <p className="text-muted-foreground font-light">
-                  We couldn't find any profiles matching "{searchTerm}". Try broadening your search terms or adjusting filters.
+                  We couldn&apos;t find any profiles matching &ldquo;{searchTerm}&rdquo;. Try broadening your search terms or adjusting filters.
                 </p>
               </div>
               <Button 

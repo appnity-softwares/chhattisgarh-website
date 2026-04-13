@@ -32,7 +32,7 @@ export default function Home() {
                     const f = JSON.parse(featureConfig.value);
                     setFeatures(f);
                 }
-            } catch (err) {
+            } catch {
                 console.error("Config check failed");
             } finally {
                 setLoading(false);
@@ -59,10 +59,10 @@ export default function Home() {
             <Hammer className="w-12 h-12 text-primary" />
           </div>
           <h1 className="text-4xl md:text-6xl font-black mb-6 text-foreground leading-tight">
-            We're Tinkering <br /> <span className="text-primary italic">With Perfection</span>
+            We&apos;re Tinkering <br /> <span className="text-primary italic">With Perfection</span>
           </h1>
           <p className="text-xl text-muted-foreground mb-12 font-light leading-relaxed">
-            Our platform is currently undergoing scheduled maintenance to bring you new features and a better experience. We'll be back shortly!
+            Our platform is currently undergoing scheduled maintenance to bring you new features and a better experience. We&apos;ll be back shortly!
           </p>
           <div className="bg-card/50 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex items-center gap-4 text-left">
             <AlertTriangle className="w-6 h-6 text-amber-400 shrink-0" />

@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Palette, Smartphone, RefreshCw, Save, CheckCircle2, 
   Sparkles, Zap, Layout, Monitor, MessageSquare, 
-  User, Search, Heart, ShieldCheck, Sun, Moon 
+  User, Search, Heart, ShieldCheck
 } from 'lucide-react';
 
 const DEFAULTS = {
@@ -43,7 +43,7 @@ const PRESET_THEMES = [
   }
 ];
 
-const ColorField = ({ keyId, label, theme, onChange, desc }: { keyId: keyof typeof DEFAULTS, label: string, theme: any, onChange: any, desc: string }) => (
+const ColorField = ({ keyId, label, theme, onChange, desc }: { keyId: keyof typeof DEFAULTS, label: string, theme: Record<string, string>, onChange: (key: keyof typeof DEFAULTS, value: string) => void, desc: string }) => (
   <div className="flex flex-col gap-2.5">
     <div className="flex justify-between items-end">
       <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{label}</label>
@@ -77,25 +77,24 @@ export default function ThemeSettingsPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchTheme();
-  }, []);
-
-  const fetchTheme = async () => {
-    try {
-      const token = localStorage.getItem('adminToken');
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/theme`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.data?.data) {
-        setTheme({ ...DEFAULTS, ...res.data.data });
+    const fetchTheme = async () => {
+      try {
+        const token = localStorage.getItem('adminToken');
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/theme`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.data?.data) {
+          setTheme({ ...DEFAULTS, ...res.data.data });
+        }
+      } catch (error) {
+        console.error(error);
+        toast({ title: 'Error', description: 'Failed to load theme settings', variant: 'destructive' });
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error(error);
-      toast({ title: 'Error', description: 'Failed to load theme settings', variant: 'destructive' });
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    fetchTheme();
+  }, [toast]);
 
   const handleSave = async () => {
     try {
@@ -205,7 +204,7 @@ export default function ThemeSettingsPage() {
               ].map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as 'brand' | 'surface' | 'text')}
                   className={`flex-1 flex flex-col items-center gap-1.5 py-2.5 rounded-xl transition-all ${activeTab === tab.id ? 'bg-primary text-white shadow-lg' : 'text-muted-foreground hover:text-white hover:bg-white/5'}`}
                 >
                   <tab.icon className="w-4 h-4" />
@@ -277,7 +276,7 @@ export default function ThemeSettingsPage() {
               ].map((s) => (
                 <button
                   key={s.id}
-                  onClick={() => setPreviewScreen(s.id as any)}
+                  onClick={() => setPreviewScreen(s.id as 'feed' | 'profile' | 'chat')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all ${previewScreen === s.id ? 'bg-primary text-white scale-105 shadow-xl shadow-primary/20' : 'text-muted-foreground hover:text-white'}`}
                 >
                   <s.icon className="w-3.5 h-3.5" />
@@ -375,7 +374,7 @@ export default function ThemeSettingsPage() {
                       <p className="text-xs" style={{ color: theme.textSecondary }}>Complete your details to find better matches</p>
                     </div>
                     <div className="space-y-3">
-                      {['Account Settings', 'Preferences', 'Privacy'].map((item, i) => (
+                      {['Account Settings', 'Preferences', 'Privacy'].map((item) => (
                         <div key={item} className="flex items-center justify-between p-4 rounded-2xl border border-white/5" style={{ backgroundColor: theme.surfaceColor }}>
                           <span className="text-sm font-bold" style={{ color: theme.textPrimary }}>{item}</span>
                           <div className="w-6 h-6 rounded-full flex items-center justify-center opacity-40" style={{ backgroundColor: theme.textSecondary + '20' }}>
@@ -397,7 +396,7 @@ export default function ThemeSettingsPage() {
                     </div>
                     <div className="flex gap-3 justify-end">
                       <div className="p-4 rounded-2xl rounded-tr-none shadow-lg shadow-primary/10" style={{ backgroundColor: theme.primaryColor }}>
-                        <p className="text-xs font-bold text-white leading-relaxed">Hello! Thank you for reaching out. I'm interested too.</p>
+                        <p className="text-xs font-bold text-white leading-relaxed">Hello! Thank you for reaching out. I&apos;m interested too.</p>
                       </div>
                     </div>
                     <div className="pt-2">

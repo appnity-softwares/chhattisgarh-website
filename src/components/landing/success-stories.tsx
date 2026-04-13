@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Quote, Loader2 } from "lucide-react";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 import { useEffect, useState } from "react";
@@ -19,7 +18,7 @@ export function SuccessStories() {
             try {
                 const data = await publicService.getSuccessStories();
                 setStories(data || []);
-            } catch (err) {
+            } catch {
                 console.error("Failed to fetch success stories");
             } finally {
                 setLoading(false);
@@ -84,7 +83,7 @@ export function SuccessStories() {
                                                     <Quote className="h-6 w-6 text-primary rotate-180" />
                                                 </div>
                                                 <p className="text-muted-foreground italic leading-relaxed pt-2 text-base font-light group-hover:text-foreground transition-colors duration-500">
-                                                    "{story.story}"
+                                                    &quot;{story.story}&quot;
                                                 </p>
                                             </CardContent>
                                         </Card>

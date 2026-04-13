@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 import { 
     RefreshCw, 
     ShieldCheck, 
     AlertCircle, 
     CreditCard, 
     Crown, 
-    ArrowRight,
     CheckCircle2,
     Shield
 } from "lucide-react";
@@ -21,18 +20,29 @@ import Script from "next/script";
 
 declare global {
     interface Window {
-        Razorpay: any;
+        Razorpay: {
+            new (options: unknown): {
+                open: () => void;
+            };
+        };
     }
 }
 
 function CheckoutContent() {
     const searchParams = useSearchParams();
-    const router = useRouter();
     const token = searchParams.get("token");
 
     const [loading, setLoading] = useState(true);
     const [verifying, setVerifying] = useState(false);
-    const [details, setDetails] = useState<any>(null);
+    const [details, setDetails] = useState<{
+        razorpayKey: string;
+        amount: number;
+        currency: string;
+        orderId: string;
+        plan: { name: string; duration: string; features: string[] };
+        user: { id: number; name: string; email: string; phone: string };
+        deepLinkSuccess: string;
+    } | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
 
@@ -47,9 +57,10 @@ function CheckoutContent() {
             try {
                 const data = await webPaymentService.getPaymentDetails(token);
                 setDetails(data);
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error("Payment details error:", err);
-                setError(err.message || "Failed to load payment session.");
+                const errorMsg = err as { message?: string };
+                setError(errorMsg.message || "Failed to load payment session.");
             } finally {
                 setLoading(false);
             }
@@ -68,7 +79,7 @@ function CheckoutContent() {
             name: "Chhattisgarh Shadi",
             description: `${details.plan.name} - ${details.plan.duration} Subscription`,
             order_id: details.orderId,
-            handler: async (response: any) => {
+            handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
                 setVerifying(true);
                 try {
                     const result = await webPaymentService.handlePaymentSuccess({
@@ -84,8 +95,9 @@ function CheckoutContent() {
                             window.location.href = result.redirectUrl;
                         }, 3000);
                     }
-                } catch (err: any) {
-                    setError(err.message || "Payment verification failed.");
+                } catch (err: unknown) {
+                    const errorMsg = err as { message?: string };
+                    setError(errorMsg.message || "Payment verification failed.");
                     setVerifying(false);
                 }
             },

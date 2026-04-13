@@ -4,16 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
     Search, 
     SlidersHorizontal, 
-    Filter, 
-    X, 
-    CheckCircle2, 
     Loader2,
-    MapPin,
-    Briefcase,
-    GraduationCap,
-    Heart,
-    ChevronDown,
-    TrendingUp
+    ChevronDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -56,12 +48,11 @@ export default function SearchPage() {
     const profiles = data?.pages.flatMap(page => page.profiles) || [];
 
     useEffect(() => {
-        if (searchQuery.length > 2) {
-            setIsSearching(true);
+        if (isSearching) {
             const timer = setTimeout(() => setIsSearching(false), 800);
             return () => clearTimeout(timer);
         }
-    }, [searchQuery]);
+    }, [isSearching]);
 
     return (
         <div className="space-y-8 pb-20">
@@ -79,7 +70,15 @@ export default function SearchPage() {
                             placeholder="Type Name, Profession or City..." 
                             className="h-16 pl-14 pr-6 bg-card/40 backdrop-blur-xl border-white/5 rounded-2xl text-lg font-bold shadow-2xl shadow-primary/5 focus:ring-primary/20 transition-all"
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setSearchQuery(val);
+                                if (val.length > 2) {
+                                    setIsSearching(true);
+                                } else {
+                                    setIsSearching(false);
+                                }
+                            }}
                         />
                         {isSearching && (
                             <div className="absolute right-5 top-1/2 -translate-y-1/2">

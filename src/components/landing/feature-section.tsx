@@ -11,7 +11,7 @@ const features = [
     {
         icon: <Globe className="h-10 w-10 text-primary" />,
         title: "Community Focused",
-        description: "Specialized filters for Chhattisgarh's unique castes (Sahu, Kurmi, Yadav, etc.) and regions."
+        description: "Specialized filters for Chhattisgarh&apos;s unique castes (Sahu, Kurmi, Yadav, etc.) and regions."
     },
     {
         icon: <Smartphone className="h-10 w-10 text-primary" />,
@@ -48,7 +48,7 @@ export function FeatureSection() {
                         Why Choose <span className="text-primary italic">Chhattisgarh Shaadi?</span>
                     </h2>
                     <p className="text-muted-foreground text-lg max-w-2xl mx-auto font-light leading-relaxed">
-                        Because finding a life partner is not just about algorithms, it's about understanding culture, values, and trust.
+                        Because finding a life partner is not just about algorithms, it&apos;s about understanding culture, values, and trust.
                     </p>
                 </div>
 

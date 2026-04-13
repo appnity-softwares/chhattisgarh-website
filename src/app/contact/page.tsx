@@ -27,7 +27,7 @@ export default function ContactPage() {
                             Contact Us
                         </h1>
                         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                            We'd love to hear from you. Reach out to us for any queries,
+                            We&apos;d love to hear from you. Reach out to us for any queries,
                             support, or feedback about Chhattisgarh Shaadi.
                         </p>
                     </div>
@@ -112,7 +112,7 @@ export default function ContactPage() {
                                         </CardHeader>
                                         <CardContent>
                                             <p className="text-sm text-muted-foreground">
-                                                We're here to help you find your perfect match.
+                                                We&apos;re here to help you find your perfect match.
                                             </p>
                                         </CardContent>
                                     </Card>

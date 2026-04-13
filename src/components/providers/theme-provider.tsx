@@ -19,35 +19,13 @@ const ThemeContext = createContext<{ theme: Theme | null }>({ theme: null });
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme | null>(null);
 
-  useEffect(() => {
-    async function fetchTheme() {
-      try {
-        const response = await fetch(`${apiConfig.baseUrl}/config/public`);
-        const result = await response.json();
-        
-        if (result.success) {
-          const themeConfig = result.data.find((c: any) => c.key === 'app_theme');
-          if (themeConfig) {
-            const parsedTheme = JSON.parse(themeConfig.value);
-            setTheme(parsedTheme);
-            applyTheme(parsedTheme);
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch theme:', error);
-      }
-    }
-
-    fetchTheme();
-  }, []);
-
   const hexToHsl = (hex: string): string => {
     hex = hex.replace(/^#/, '');
     if (hex.length === 3) hex = hex.split('').map(s => s + s).join('');
 
-    let r = parseInt(hex.substring(0, 2), 16) / 255;
-    let g = parseInt(hex.substring(2, 4), 16) / 255;
-    let b = parseInt(hex.substring(4, 6), 16) / 255;
+    const r = parseInt(hex.substring(0, 2), 16) / 255;
+    const g = parseInt(hex.substring(2, 4), 16) / 255;
+    const b = parseInt(hex.substring(4, 6), 16) / 255;
 
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
@@ -73,7 +51,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return `${h} ${s}% ${l}%`;
   };
 
-  const applyTheme = (theme: Theme) => {
+  const applyTheme = React.useCallback((theme: Theme) => {
     const colorMap: Record<string, string> = {
         primary: '--primary',
         secondary: '--secondary',
@@ -109,7 +87,29 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             }
         }
     });
-  };
+  }, []);
+
+  useEffect(() => {
+    async function fetchTheme() {
+      try {
+        const response = await fetch(`${apiConfig.baseUrl}/config/public`);
+        const result = await response.json();
+        
+        if (result.success) {
+          const themeConfig = result.data.find((c: { key: string; value: string }) => c.key === 'app_theme');
+          if (themeConfig) {
+            const parsedTheme = JSON.parse(themeConfig.value);
+            setTheme(parsedTheme);
+            applyTheme(parsedTheme);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch theme:', error);
+      }
+    }
+
+    fetchTheme();
+  }, [applyTheme]);
 
   return (
     <ThemeContext.Provider value={{ theme }}>

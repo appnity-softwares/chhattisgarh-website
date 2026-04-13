@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { 
-  Send, Users, History, Bell, Search, 
-  Trash2, Filter, Info, CheckCircle, 
-  AlertTriangle, RefreshCw, Smartphone, 
-  Target, Image as ImageIcon, Zap
+  Send, Users, History, RefreshCw, Smartphone, 
+  Image as ImageIcon, Zap
 } from 'lucide-react';
 import { AdminPageWrapper } from '../admin-page-wrapper';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
@@ -31,7 +29,7 @@ export default function NotificationsPage() {
         title: '',
         body: '',
         imageUrl: '',
-        target: 'EVERYONE' as any
+        target: 'EVERYONE' as 'EVERYONE' | 'PREMIUM' | 'FREE' | 'INACTIVE'
     });
 
     const fetchHistory = async () => {
@@ -39,10 +37,11 @@ export default function NotificationsPage() {
         try {
             const data = await marketingService.getHistory();
             setHistory(data);
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as { message?: string };
             toast({
                 title: 'Error',
-                description: error.message || 'Failed to fetch notification history',
+                description: err.message || 'Failed to fetch notification history',
                 variant: 'destructive'
             });
         } finally {
@@ -52,6 +51,7 @@ export default function NotificationsPage() {
 
     useEffect(() => {
         fetchHistory();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleSend = async (e: React.FormEvent) => {
@@ -81,10 +81,11 @@ export default function NotificationsPage() {
                 target: 'EVERYONE'
             });
             fetchHistory();
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as { message?: string };
             toast({
                 title: 'Error Sending Notification',
-                description: error.message || 'Check your internet or API logs.',
+                description: err.message || 'Check your internet or API logs.',
                 variant: 'destructive'
             });
         } finally {
@@ -119,7 +120,7 @@ export default function NotificationsPage() {
                                 <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Target Audience</label>
                                 <Select 
                                     value={formData.target} 
-                                    onValueChange={(val) => setFormData({ ...formData, target: val })}
+                                    onValueChange={(val) => setFormData({ ...formData, target: val as "EVERYONE" | "PREMIUM" | "FREE" | "INACTIVE" })}
                                 >
                                     <SelectTrigger className="bg-white/5 border-white/10 text-white">
                                         <SelectValue placeholder="Select Audience" />

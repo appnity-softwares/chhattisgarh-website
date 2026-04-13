@@ -1,4 +1,4 @@
-import apiConfig, { ApiResponse } from '@/lib/api.config';
+import apiConfig from '@/lib/api.config';
 import apiService from '@/lib/api.service';
 import { withMock, mockData } from './mock.data';
 
@@ -6,17 +6,21 @@ import type {
     DashboardStats,
     User,
     Profile,
-    MatchRequest
+    MatchRequest,
+    AdminPaymentsResponse,
+    PaymentStatus
 } from '@/types/api.types';
 
 class AdminService {
     // Helper to extract response data
-    private async handleResponse<T>(promise: Promise<any>): Promise<T> {
+    private async handleResponse<T>(promise: Promise<{ data: { data?: T } | T }>): Promise<T> {
         try {
             const res = await promise;
-            return res.data?.data || res.data;
-        } catch (error: any) {
-            throw new Error(error.response?.data?.message || error.message || 'Request failed');
+            const data = (res.data as { data?: T }).data;
+            return (data !== undefined ? data : res.data) as T;
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } }; message?: string };
+            throw new Error(err.response?.data?.message || err.message || 'Request failed');
         }
     }
 
@@ -26,8 +30,8 @@ class AdminService {
     }
 
     // Users
-    async getUsers(page = 1, limit = 10): Promise<{ users: User[]; pagination: any }> {
-        return this.handleResponse<{ users: User[]; pagination: any }>(
+    async getUsers(page = 1, limit = 10): Promise<{ users: User[]; pagination: Record<string, unknown> }> {
+        return this.handleResponse<{ users: User[]; pagination: Record<string, unknown> }>(
             apiService.get(apiConfig.endpoints.admin.users, { params: { page, limit } })
         );
     }
@@ -59,10 +63,10 @@ class AdminService {
     }
 
     // ADDED: Bulk User Upload
-    async bulkUploadUsers(file: File): Promise<{ success: number, failed: number, errors: any[] }> {
+    async bulkUploadUsers(file: File): Promise<{ success: number, failed: number, errors: { row: number; email: string; error: string }[] }> {
         const formData = new FormData();
         formData.append('file', file);
-        return this.handleResponse<{ success: number, failed: number, errors: any[] }>(
+        return this.handleResponse<{ success: number, failed: number, errors: { row: number; email: string; error: string }[] }>(
             apiService.post(apiConfig.endpoints.admin.userBulkUpload, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             })
@@ -71,8 +75,8 @@ class AdminService {
 
 
     // Profiles
-    async getProfiles(page = 1, limit = 10): Promise<{ profiles: Profile[]; pagination: any }> {
-        return this.handleResponse<{ profiles: Profile[]; pagination: any }>(
+    async getProfiles(page = 1, limit = 10): Promise<{ profiles: Profile[]; pagination: Record<string, unknown> }> {
+        return this.handleResponse<{ profiles: Profile[]; pagination: Record<string, unknown> }>(
             apiService.get(apiConfig.endpoints.admin.profiles, { params: { page, limit } })
         );
     }
@@ -94,39 +98,57 @@ class AdminService {
         );
     }
 
+    async getPayments(params?: {
+        page?: number;
+        limit?: number;
+        status?: PaymentStatus | 'all';
+        search?: string;
+    }): Promise<AdminPaymentsResponse> {
+        const queryParams = {
+            page: params?.page ?? 1,
+            limit: params?.limit ?? 10,
+            ...(params?.status && params.status !== 'all' ? { status: params.status } : {}),
+            ...(params?.search?.trim() ? { search: params.search.trim() } : {}),
+        };
+
+        return this.handleResponse<AdminPaymentsResponse>(
+            apiService.get(apiConfig.endpoints.admin.payments, { params: queryParams })
+        );
+    }
+
     // Token Cleanup
     async cleanupExpiredTokens(): Promise<{ count: number }> {
         return this.handleResponse<{ count: number }>(apiService.post(apiConfig.endpoints.admin.cleanupTokens));
     }
 
     // Audit Logs
-    async getAuditLogs(): Promise<any[]> {
+    async getAuditLogs(): Promise<Record<string, unknown>[]> {
         return withMock(mockData.auditLogs, () =>
-            this.handleResponse<any[]>(apiService.get(apiConfig.endpoints.admin.activityLogs))
+            this.handleResponse<Record<string, unknown>[]>(apiService.get(apiConfig.endpoints.admin.activityLogs))
         );
     }
 
-    async getAuditLogsStats(): Promise<any> {
+    async getAuditLogsStats(): Promise<Record<string, unknown>> {
         return withMock({ total: 156, uniqueAdmins: 3, todayActions: 12 }, () =>
-            this.handleResponse<any>(apiService.get(apiConfig.endpoints.admin.activityLogsStats))
+            this.handleResponse<Record<string, unknown>>(apiService.get(apiConfig.endpoints.admin.activityLogsStats))
         );
     }
 
     // NEW: Grant Subscription
-    async grantSubscription(userId: string, planId: number, customDays?: number): Promise<any> {
-        return this.handleResponse<any>(
+    async grantSubscription(userId: string, planId: number, customDays?: number): Promise<unknown> {
+        return this.handleResponse<unknown>(
             apiService.post(apiConfig.endpoints.admin.grantSubscription(userId), { planId, customDays })
         );
     }
 
     // NEW: Admin Profile Management
-    async createProfile(userId: string, data: any): Promise<Profile> {
+    async createProfile(userId: string, data: Record<string, unknown>): Promise<Profile> {
         return this.handleResponse<Profile>(
             apiService.post(apiConfig.endpoints.admin.userProfile(userId), data)
         );
     }
 
-    async updateProfile(userId: string, data: any): Promise<Profile> {
+    async updateProfile(userId: string, data: Record<string, unknown>): Promise<Profile> {
         return this.handleResponse<Profile>(
             apiService.put(apiConfig.endpoints.admin.userProfile(userId), data)
         );
@@ -138,8 +160,8 @@ class AdminService {
         );
     }
 
-    async getPlans(): Promise<any[]> {
-        return this.handleResponse<any[]>(apiService.get(apiConfig.endpoints.admin.plans));
+    async getPlans(): Promise<Record<string, unknown>[]> {
+        return this.handleResponse<Record<string, unknown>[]>(apiService.get(apiConfig.endpoints.admin.plans));
     }
 }
 

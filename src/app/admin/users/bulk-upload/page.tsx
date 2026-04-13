@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function BulkUploadPage() {
     const [file, setFile] = useState<File | null>(null);
     const [isUploading, setIsUploading] = useState(false);
-    const [result, setResult] = useState<{ success: number; failed: number; errors: any[] } | null>(null);
+    const [result, setResult] = useState<{ success: number; failed: number; errors: { row: number; email: string; error: string }[] } | null>(null);
     const { toast } = useToast();
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,11 +44,12 @@ export default function BulkUploadPage() {
                     variant: "destructive",
                 });
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error(error);
+            const err = error as { message?: string };
             toast({
                 title: "Error",
-                description: error.message || "Failed to upload file",
+                description: err.message || "Failed to upload file",
                 variant: "destructive",
             });
         } finally {

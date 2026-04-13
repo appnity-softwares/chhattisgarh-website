@@ -1,4 +1,5 @@
-import apiConfig, { getAuthHeaders, ApiResponse, PaginatedResponse } from '@/lib/api.config';
+import apiConfig, { getAuthHeaders, ApiResponse } from '@/lib/api.config';
+import type { PaginatedResponse } from '@/lib/api.config';
 
 // User Stats Types
 export interface ProfileViewStats {
@@ -81,10 +82,10 @@ class UserStatsService {
     /**
      * Get profile view stats - who viewed the user's profile
      */
-    async getProfileViews(): Promise<{ data: any[]; total: number }> {
+    async getProfileViews(): Promise<{ data: unknown[]; total: number }> {
         try {
-            const result = await this.fetchWithAuth<PaginatedResponse<any>>(
-                '/profile-views/who-viewed-me?page=1&limit=10'
+            const result = await this.fetchWithAuth<PaginatedResponse<unknown>>(
+                `${apiConfig.endpoints.views.visitors}?page=1&limit=10`
             );
             return {
                 data: result.data || [],
@@ -101,7 +102,7 @@ class UserStatsService {
      */
     async getSentMatchesCount(): Promise<number> {
         try {
-            const result = await this.fetchWithAuth<PaginatedResponse<any>>(
+            const result = await this.fetchWithAuth<PaginatedResponse<unknown>>(
                 '/matches/sent?page=1&limit=1'
             );
             return result.pagination?.total || 0;
@@ -116,7 +117,7 @@ class UserStatsService {
      */
     async getReceivedMatchesCount(): Promise<number> {
         try {
-            const result = await this.fetchWithAuth<PaginatedResponse<any>>(
+            const result = await this.fetchWithAuth<PaginatedResponse<unknown>>(
                 '/matches/received?page=1&limit=1'
             );
             return result.pagination?.total || 0;
@@ -131,7 +132,7 @@ class UserStatsService {
      */
     async getAcceptedMatchesCount(): Promise<number> {
         try {
-            const result = await this.fetchWithAuth<PaginatedResponse<any>>(
+            const result = await this.fetchWithAuth<PaginatedResponse<unknown>>(
                 '/matches/accepted?page=1&limit=1'
             );
             return result.pagination?.total || 0;
@@ -146,8 +147,8 @@ class UserStatsService {
      */
     async getShortlistCount(): Promise<number> {
         try {
-            const result = await this.fetchWithAuth<PaginatedResponse<any>>(
-                '/shortlists?page=1&limit=1'
+            const result = await this.fetchWithAuth<PaginatedResponse<unknown>>(
+                `${apiConfig.endpoints.shortlists.list}?page=1&limit=1`
             );
             return result.pagination?.total || 0;
         } catch (error) {
@@ -165,11 +166,21 @@ class UserStatsService {
         expiry?: string;
     }> {
         try {
-            const result = await this.fetchWithAuth<any>('/subscriptions/current');
+            const [access, user] = await Promise.all([
+                this.fetchWithAuth<{ isPremium: boolean }>(apiConfig.endpoints.users.access),
+                this.fetchWithAuth<{ subscriptions: Array<{ status: string; endDate?: string }> }>(apiConfig.endpoints.users.me),
+            ]);
+
+            const activeSubscription = user?.subscriptions?.find(
+                (subscription: { status: string; endDate?: string }) =>
+                    subscription.status === 'ACTIVE' &&
+                    (!subscription.endDate || new Date(subscription.endDate) > new Date())
+            );
+
             return {
-                isPremium: result?.isActive || false,
-                status: result?.status,
-                expiry: result?.endDate,
+                isPremium: access?.isPremium || false,
+                status: activeSubscription?.status,
+                expiry: activeSubscription?.endDate,
             };
         } catch (error) {
             console.error('Get subscription error:', error);

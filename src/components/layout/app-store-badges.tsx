@@ -24,7 +24,7 @@ export function AppStoreBadges({ className }: { className?: string }) {
             apk: info.apkUrl || "#"
           });
         }
-      } catch (err) {
+      } catch {
         console.error("Failed to load store links");
       }
     };

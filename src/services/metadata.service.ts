@@ -27,7 +27,7 @@ export class MetadataService {
     }
 
     async getActiveTheme() {
-        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.public.theme}/active`);
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.public.theme}`);
         return res.json();
     }
 }

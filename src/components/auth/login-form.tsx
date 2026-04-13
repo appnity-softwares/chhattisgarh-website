@@ -7,6 +7,8 @@ import { authService } from '@/services/auth.service';
 import { useAuthStore } from '@/stores/auth-store';
 import { useToast } from '@/hooks/use-toast';
 
+import { UserRole, type User } from '@/types/api.types';
+
 export function LoginForm() {
   const router = useRouter();
   const { toast } = useToast();
@@ -31,17 +33,28 @@ export function LoginForm() {
     try {
       const response = await authService.adminLogin(username, password);
       login(
-        { email: response.user.email, role: response.user.role as any } as any,
+        { 
+          id: 0,
+          email: response.user.email, 
+          role: response.user.role as UserRole,
+          phone: '',
+          isPhoneVerified: true,
+          isActive: true,
+          isBanned: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        } as User,
         response.token,
-        ''
+        response.refreshToken || ''
       );
       toast({ title: 'Welcome back!', description: 'Signed into Admin Console.' });
       router.push('/admin');
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Invalid credentials. Please try again.';
       toast({
         variant: 'destructive',
         title: 'Authentication Failed',
-        description: error.message || 'Invalid credentials. Please try again.',
+        description: errorMessage,
       });
     } finally {
       setIsLoading(false);

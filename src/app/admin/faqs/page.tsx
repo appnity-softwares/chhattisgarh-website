@@ -21,7 +21,6 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from '@/components/ui/dialog';
 import {
     Table,
@@ -33,7 +32,7 @@ import {
 } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Plus, Pencil, Trash2, HelpCircle, GripVertical, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Plus, Pencil, Trash2, HelpCircle } from 'lucide-react';
 import apiConfig, { getAuthHeaders } from '@/lib/api.config';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -100,7 +99,7 @@ export default function AdminFAQPage() {
             if (data.success) {
                 setFaqs(data.data || []);
             }
-        } catch (err) {
+        } catch {
             toast({ title: 'Error', description: 'Failed to fetch FAQs', variant: 'destructive' });
         } finally {
             setLoading(false);
@@ -109,6 +108,7 @@ export default function AdminFAQPage() {
 
     useEffect(() => {
         fetchFAQs();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleCreate = async () => {
@@ -272,7 +272,7 @@ export default function AdminFAQPage() {
                         <div className="text-center py-12">
                             <HelpCircle className="w-16 h-16 mx-auto text-muted-foreground/20 mb-4" />
                             <p className="text-muted-foreground text-lg">No FAQs yet</p>
-                            <p className="text-muted-foreground text-sm mt-1">Click "Add FAQ" to create your first question</p>
+                            <p className="text-muted-foreground text-sm mt-1">Click &quot;Add FAQ&quot; to create your first question</p>
                         </div>
                     ) : (
                         <Table>

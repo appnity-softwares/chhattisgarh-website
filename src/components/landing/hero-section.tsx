@@ -1,9 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Search, Heart, User, ShieldCheck } from "lucide-react";
+import { Search, Heart, ShieldCheck } from "lucide-react";
 import { 
   Select, 
   SelectContent, 
@@ -39,7 +38,7 @@ export function HeroSection() {
                             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-black uppercase tracking-[0.2em]"
                         >
                             <ShieldCheck className="w-4 h-4" />
-                            Chhattisgarh's #1 Trusted Matrimony
+                            Chhattisgarh&apos;s #1 Trusted Matrimony
                         </motion.div>
 
                         <motion.h1 

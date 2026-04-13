@@ -100,6 +100,15 @@ ${colorConfig
   )
 }
 
+type ChartPayload = {
+  payload: Record<string, unknown>
+  name?: string
+  value?: number | string
+  dataKey?: string | number
+  color?: string
+  fill?: string
+}
+
 const ChartTooltip = RechartsPrimitive.Tooltip
 
 const ChartTooltipContent = React.forwardRef<
@@ -128,7 +137,21 @@ const ChartTooltipContent = React.forwardRef<
       color,
       nameKey,
       labelKey,
-    } = props as any
+    } = props as {
+      active?: boolean
+      payload?: ChartPayload[]
+      className?: string
+      indicator?: "line" | "dot" | "dashed"
+      hideLabel?: boolean
+      hideIndicator?: boolean
+      label?: string | number
+      labelFormatter?: (label: React.ReactNode, payload: ChartPayload[]) => React.ReactNode
+      labelClassName?: string
+      formatter?: (value: number | string, name: string, item: ChartPayload, index: number, payload: Record<string, unknown>) => React.ReactNode
+      color?: string
+      nameKey?: string
+      labelKey?: string
+    }
     const { config } = useChart()
 
     const tooltipLabel = React.useMemo(() => {
@@ -136,7 +159,7 @@ const ChartTooltipContent = React.forwardRef<
         return null
       }
 
-      const [item] = payload as any[]
+      const [item] = payload as ChartPayload[]
       const key = `${labelKey || item.dataKey || item.name || "value"}`
       const itemConfig = getPayloadConfigFromPayload(config, item, key)
       const value =
@@ -183,10 +206,10 @@ const ChartTooltipContent = React.forwardRef<
       >
         {!nestLabel ? tooltipLabel : null}
         <div className="grid gap-1.5">
-          {(payload as any[]).map((item, index) => {
+          {(payload as ChartPayload[]).map((item, index) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`
             const itemConfig = getPayloadConfigFromPayload(config, item, key)
-            const indicatorColor = color || item.payload.fill || item.color
+            const indicatorColor = color || (item.payload?.fill as string) || item.color
 
             return (
               <div
@@ -259,13 +282,21 @@ const ChartLegend = RechartsPrimitive.Legend
 const ChartLegendContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> &
-    Pick<any, "payload" | "verticalAlign"> & {
+    {
+      payload?: ChartPayload[]
+      verticalAlign?: "top" | "bottom"
       hideIcon?: boolean
       nameKey?: string
     }
 >(
   (props, ref) => {
-    const { className, hideIcon = false, payload, verticalAlign = "bottom", nameKey } = props as any
+    const { className, hideIcon = false, payload, verticalAlign = "bottom", nameKey } = props as {
+      className?: string
+      hideIcon?: boolean
+      payload?: ChartPayload[]
+      verticalAlign?: "top" | "bottom"
+      nameKey?: string
+    }
     const { config } = useChart()
 
     if (!payload?.length) {
@@ -281,7 +312,7 @@ const ChartLegendContent = React.forwardRef<
           className
         )}
       >
-        {(payload as any[]).map((item) => {
+        {(payload as ChartPayload[]).map((item) => {
           const key = `${nameKey || item.dataKey || "value"}`
           const itemConfig = getPayloadConfigFromPayload(config, item, key)
 

@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { 
-  Users, DollarSign, UserCheck, FileWarning, RefreshCw, TrendingUp,
+  Users, DollarSign, FileWarning, RefreshCw, TrendingUp,
   TrendingDown, ArrowRight, Activity, BarChart3, Zap, Crown, 
-  Eye, AlertTriangle, CheckCircle2, Heart
+  Eye, AlertTriangle, Heart
 } from 'lucide-react';
 import Link from 'next/link';
 import { adminService } from '@/services/admin.service';
 import { analyticsService, type RevenueAnalytics, type SignupAnalytics, type SubscriptionAnalytics } from '@/services/analytics.service';
-import type { DashboardStats, User, MatchRequest } from '@/types/api.types';
+import type { DashboardStats, User } from '@/types/api.types';
 import { formatDistanceToNow } from 'date-fns';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -24,7 +24,7 @@ function StatCard({
   title: string;
   value: string | number;
   subtitle: string;
-  icon: any;
+  icon: React.ElementType;
   trend?: number;
   colorClass: string;
   delay?: string;
@@ -54,12 +54,12 @@ function StatCard({
   );
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number | string }>; label?: string }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-[hsl(222_40%_9%)] border border-white/10 rounded-xl p-3">
         <p className="text-xs text-muted-foreground mb-1">{label}</p>
-        {payload.map((p: any, i: number) => (
+        {payload.map((p: { name: string; value: number | string }, i: number) => (
           <p key={i} className="text-sm font-semibold text-white">
             {p.name === 'revenue' ? `₹${Number(p.value).toLocaleString()}` : p.value}
           </p>
@@ -73,7 +73,6 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export default function AdminPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentUsers, setRecentUsers] = useState<User[]>([]);
-  const [recentMatches, setRecentMatches] = useState<MatchRequest[]>([]);
   const [revenueData, setRevenueData] = useState<RevenueAnalytics | null>(null);
   const [signupData, setSignupData] = useState<SignupAnalytics | null>(null);
   const [subData, setSubData] = useState<SubscriptionAnalytics | null>(null);
@@ -84,28 +83,29 @@ export default function AdminPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const [statsData, usersData, matchesData, revData, signData, subsData] = await Promise.all([
+      const [statsData, usersData, revData, signData, subsData] = await Promise.all([
         adminService.getDashboardStats(),
         adminService.getRecentUsers(5),
-        adminService.getRecentMatches(5),
         analyticsService.getRevenueAnalytics(6),
         analyticsService.getSignupAnalytics(5),
         analyticsService.getSubscriptionAnalytics(),
       ]);
       setStats(statsData);
       setRecentUsers(usersData);
-      setRecentMatches(matchesData);
       setRevenueData(revData);
       setSignupData(signData);
       setSubData(subsData);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load dashboard data');
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      setError(errorMsg.message || 'Failed to load dashboard data');
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData(); 
+  }, []);
 
   if (error) {
     return (
@@ -183,7 +183,7 @@ export default function AdminPage() {
           </p>
         </div>
         <button
-          onClick={fetchData}
+          onClick={() => window.location.reload()}
           disabled={isLoading}
           className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-sm font-medium transition-all disabled:opacity-50"
         >
@@ -204,8 +204,7 @@ export default function AdminPage() {
         {[
           { label: 'Total Profiles', value: stats?.totalProfiles ?? 0, icon: Users, color: 'text-purple-400' },
           { label: 'Total Matches', value: stats?.totalMatches ?? 0, icon: Activity, color: 'text-blue-400' },
-          { label: 'Total Messages', value: stats?.totalMessages ?? 0, icon: Zap, color: 'text-emerald-400' },
-          { label: 'Total Payments', value: stats?.totalPayments ?? 0, icon: CheckCircle2, color: 'text-orange-400' },
+          { label: 'Total Messages', value: stats?.totalMessages ?? 0, icon: Zap, color: 'text-emerald-400' }
         ].map((item, i) => (
           <div key={item.label} className={`admin-card p-4 animate-slide-up stagger-${i + 1}`} style={{ animationFillMode: 'both' }}>
             <div className="flex items-center gap-2.5">

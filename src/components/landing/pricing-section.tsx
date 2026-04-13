@@ -18,7 +18,7 @@ export function PricingSection() {
             try {
                 const data = await webPaymentService.getPublicPlans();
                 setPlans(data || []);
-            } catch (err) {
+            } catch {
                 console.error("Failed to load pricing plans");
             } finally {
                 setLoading(false);
@@ -27,7 +27,7 @@ export function PricingSection() {
         fetchPlans();
     }, []);
 
-    const parseFeatures = (features: any): string[] => {
+    const parseFeatures = (features: unknown): string[] => {
         if (!features) return [];
         if (Array.isArray(features)) return features;
         if (typeof features === 'string') {
@@ -126,7 +126,7 @@ export function PricingSection() {
                                     <div className="space-y-4 flex-1 mb-8">
                                         <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
                                             <Sparkles className="w-3 h-3 text-primary" />
-                                            What's Included
+                                            What&apos;s Included
                                         </p>
                                         <div className="space-y-3">
                                             {features.map((feature, i) => (

@@ -18,7 +18,7 @@ interface ProfileCardProps {
     education?: string;
     image?: string;
     isVerified?: boolean;
-    gender: 'male' | 'female';
+    gender: 'male' | 'female' | 'other';
     priority?: boolean;
     id: number | string;
 }
@@ -70,7 +70,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, isV
             <Card className="overflow-hidden border-white/5 bg-card/40 backdrop-blur-md rounded-[2rem] group h-full shadow-xl hover:shadow-primary/5 transition-all">
                 <div className="relative h-72 w-full overflow-hidden">
                     <Image
-                        src={image || (gender === 'female' ? "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80" : "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80")}
+                        src={image || (gender === 'female' ? "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80" : gender === 'male' ? "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80" : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80")}
                         alt={name}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

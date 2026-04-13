@@ -1,15 +1,18 @@
-import apiConfig, { ApiResponse } from '@/lib/api.config';
+import apiConfig from '@/lib/api.config';
 import apiService from '@/lib/api.service';
-import type { Report, ReportStatus } from '@/types/api.types';
+import type { Report, ReportStatus, PaginationData } from '@/types/api.types';
+import type { AxiosResponse } from 'axios';
 
 class ReportsService {
     // Helper to extract response data
-    private async handleResponse<T>(promise: Promise<any>): Promise<T> {
+    private async handleResponse<T>(promise: Promise<AxiosResponse<unknown>>): Promise<T> {
         try {
             const res = await promise;
-            return res.data?.data || res.data;
-        } catch (error: any) {
-            throw new Error(error.response?.data?.message || error.message || 'Request failed');
+            const data = res.data as { data?: T };
+            return (data?.data || res.data) as T;
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } }; message?: string };
+            throw new Error(err.response?.data?.message || err.message || 'Request failed');
         }
     }
 
@@ -18,12 +21,25 @@ class ReportsService {
         page = 1,
         limit = 10,
         status?: ReportStatus
-    ): Promise<{ reports: Report[]; pagination: any }> {
-        return this.handleResponse<{ reports: Report[]; pagination: any }>(
+    ): Promise<{ reports: Report[]; pagination: PaginationData }> {
+        const response = await this.handleResponse<{ 
+            reports: Report[]; 
+            pagination: { total: number; pages: number; currentPage: number; limit: number } 
+        }>(
             apiService.get(apiConfig.endpoints.admin.reports, { 
                 params: { page, limit, status } 
             })
         );
+
+        return {
+            reports: response.reports,
+            pagination: {
+                total: response.pagination.total,
+                totalPages: response.pagination.pages,
+                page: response.pagination.currentPage,
+                limit: response.pagination.limit
+            }
+        };
     }
 
     // Get report by ID

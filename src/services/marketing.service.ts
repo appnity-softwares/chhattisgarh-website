@@ -87,7 +87,7 @@ class MarketingService {
     /**
      * Create a new promo code
      */
-    async createPromoCode(data: any): Promise<PromoCode> {
+    async createPromoCode(data: Record<string, unknown>): Promise<PromoCode> {
         return this.fetchWithAuth<PromoCode>(apiConfig.endpoints.admin.promoCodes, {
             method: 'POST',
             body: JSON.stringify(data),

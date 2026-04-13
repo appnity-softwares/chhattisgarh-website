@@ -3,6 +3,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import apiService from "@/lib/api.service";
 import apiConfig from "@/lib/api.config";
+import { MatchRequest } from "@/types/api.types";
 
 export interface Profile {
     id: number;
@@ -19,7 +20,7 @@ export interface Profile {
     score?: number;
 }
 
-export function useInfiniteProfiles(params: any = {}) {
+export function useInfiniteProfiles(params: Record<string, unknown> = {}) {
     return useInfiniteQuery({
         queryKey: ["profiles", params.type || "discovery", params],
         queryFn: async ({ pageParam = 1 }) => {
@@ -45,11 +46,12 @@ export function useInfiniteProfiles(params: any = {}) {
             let profiles = rawData.profiles || [];
             
             if (rawData.matches) {
-                profiles = rawData.matches.map((m: any) => {
+                profiles = (rawData.matches as MatchRequest[]).map((m) => {
                     // For matches, the profile we want to show is usually the 'other' person.
                     // If we are looking at 'sent', we want 'receiver'
                     // If we are looking at 'received', we want 'sender'
                     const target = params.type === 'sent' ? m.receiver : m.sender;
+                    // @ts-expect-error - target might be null but we handle with empty object
                     const profileData = target?.profile || target || {};
                     
                     return {

@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { generateMatchSuggestions, MatchSuggestionsInput, MatchSuggestionsOutput } from '@/ai/flows/gen-ai-match-suggestions';
+import { generateMatchSuggestions, MatchSuggestionsOutput } from '@/ai/flows/gen-ai-match-suggestions';
 import { Loader2, Wand2 } from 'lucide-react';
 import { mockCurrentUser } from '@/lib/placeholder-data';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';

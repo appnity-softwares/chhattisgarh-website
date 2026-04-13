@@ -1,5 +1,5 @@
 import apiConfig, { getAuthHeaders, ApiResponse } from '@/lib/api.config';
-import type { Agent, AgentStatus } from '@/types/api.types';
+import type { Agent, AgentStatus, PaginationData } from '@/types/api.types';
 
 interface CreateAgentData {
     agentName: string;
@@ -53,8 +53,8 @@ class AgentsService {
     }
 
     // Get all agents
-    async getAgents(page = 1, limit = 10): Promise<{ agents: Agent[]; pagination: any }> {
-        return this.fetchWithAuth<{ agents: Agent[]; pagination: any }>(
+    async getAgents(page = 1, limit = 10): Promise<{ agents: Agent[]; pagination: PaginationData }> {
+        return this.fetchWithAuth<{ agents: Agent[]; pagination: PaginationData }>(
             `${apiConfig.endpoints.admin.agents}?page=${page}&limit=${limit}`
         );
     }
@@ -65,8 +65,8 @@ class AgentsService {
     }
 
     // Get users referred by agent
-    async getAgentUsers(agentId: string, page = 1, limit = 10): Promise<{ users: any[]; pagination: any }> {
-        return this.fetchWithAuth<{ users: any[]; pagination: any }>(
+    async getAgentUsers(agentId: string, page = 1, limit = 10): Promise<{ users: Record<string, unknown>[]; pagination: PaginationData }> {
+        return this.fetchWithAuth<{ users: Record<string, unknown>[]; pagination: PaginationData }>(
             `${apiConfig.endpoints.admin.agentUsers(agentId)}?page=${page}&limit=${limit}`
         );
     }

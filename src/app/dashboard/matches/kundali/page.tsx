@@ -3,10 +3,8 @@
 import { motion } from "framer-motion";
 import { 
     Zap, 
-    ShieldCheck, 
     Flame, 
     CheckCircle2, 
-    AlertCircle, 
     ArrowLeft,
     Info,
     Compass,
@@ -15,7 +13,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useState, useEffect } from "react";

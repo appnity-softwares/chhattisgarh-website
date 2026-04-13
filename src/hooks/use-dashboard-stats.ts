@@ -10,7 +10,7 @@ export interface DashboardStats {
     interestsReceived: number;
     unreadMessages: number;
     isLoading: boolean;
-    error: any;
+    error: unknown;
 }
 
 export function useDashboardStats(): DashboardStats {
@@ -29,7 +29,7 @@ export function useDashboardStats(): DashboardStats {
         queryKey: ["stats", "unread-messages"],
         queryFn: async () => {
             const res = await apiService.get(apiConfig.endpoints.messages.unreadCount);
-            return res.data.data.count || 0;
+            return res.data.data.unreadCount || 0;
         },
         staleTime: 30000,
     });
@@ -39,7 +39,8 @@ export function useDashboardStats(): DashboardStats {
         queryKey: ["stats", "new-matches"],
         queryFn: async () => {
             const res = await apiService.get(apiConfig.endpoints.profiles.recommendations, { params: { limit: 1 } });
-            return res.data.data.pagination.totalItems || 0;
+            const pagination = res.data.data.pagination || {};
+            return pagination.total || pagination.totalItems || res.data.data.profiles?.length || 0;
         },
         staleTime: 60000,
     });
@@ -53,7 +54,7 @@ export function useDashboardStats(): DashboardStats {
                 const res = await apiService.get(apiConfig.endpoints.views.visitors);
                 // Check both potential keys: 'profiles' (from app API) and 'visitors' (legacy/fallback)
                 return res.data.data.profiles?.length || res.data.data.visitors?.length || 0;
-            } catch (err) {
+            } catch {
                 return 0; // Fallback to 0 if endpoint issues
             }
         },

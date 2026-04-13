@@ -7,12 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { configService, SystemConfig } from '@/services/config.service';
+import { configService } from '@/services/config.service';
 import { getOfflineStatus } from '@/services/mock.data';
 import { 
     Loader2, Save, Palette, Settings, Globe, ShieldCheck, CheckCircle2, 
-    XCircle, Layout, MessageSquare, UserPlus, AlertTriangle, 
-    Database, Zap, Bell, CreditCard, Shield, Smartphone, RefreshCw
+    Layout, MessageSquare, UserPlus, AlertTriangle, 
+    Database, Zap, CreditCard, Shield, Smartphone
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
@@ -22,9 +22,9 @@ const hexToHsl = (hex: string): string => {
     hex = hex.replace(/^#/, '');
     if (hex.length === 3) hex = hex.split('').map(s => s + s).join('');
     
-    let r = parseInt(hex.substring(0, 2), 16) / 255;
-    let g = parseInt(hex.substring(2, 4), 16) / 255;
-    let b = parseInt(hex.substring(4, 6), 16) / 255;
+    const r = parseInt(hex.substring(0, 2), 16) / 255;
+    const g = parseInt(hex.substring(2, 4), 16) / 255;
+    const b = parseInt(hex.substring(4, 6), 16) / 255;
 
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
@@ -98,6 +98,7 @@ export default function SettingsPage() {
     useEffect(() => {
         setOfflineMode(getOfflineStatus());
         loadConfigs();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const toggleOfflineMode = (val: boolean) => {
@@ -126,7 +127,7 @@ export default function SettingsPage() {
             const featureConfig = data.find(c => c.key === 'app_features');
             if (featureConfig) setFeatures(prev => ({ ...prev, ...JSON.parse(featureConfig.value) }));
 
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Failed to load configs:', error);
             toast({
                 title: 'Note',
@@ -138,7 +139,7 @@ export default function SettingsPage() {
         }
     };
 
-    const handleSave = async (key: string, value: any, category: string) => {
+    const handleSave = async (key: string, value: string | Record<string, unknown>, category: string) => {
         try {
             setSaving(true);
             await configService.upsertConfig({
@@ -165,10 +166,12 @@ export default function SettingsPage() {
                             document.documentElement.style.setProperty('--sidebar-primary', hsl);
                             document.documentElement.style.setProperty('--ring', hsl);
                         }
-                    } catch (e) {}
+                    } catch {
+                        // Ignore hex parsing errors
+                    }
                 });
             }
-        } catch (error) {
+        } catch {
             toast({
                 title: 'Error',
                 description: `Failed to save ${key.replace('app_', '')}.`,

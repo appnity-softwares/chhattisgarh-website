@@ -1,14 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   MoreHorizontal, Search, RefreshCw, ChevronLeft, ChevronRight,
   Download, Trash2, Shield, Filter, X, Users, Ban, CheckCircle,
-  UserPlus, Eye, AlertTriangle, UserCheck
+  Eye, AlertTriangle, UserCheck
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
@@ -72,14 +69,18 @@ export default function AdminUsersPage() {
         total: data.pagination?.total || 0,
         totalPages: data.pagination?.totalPages || 0
       });
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to load users' });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to load users' });
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => {
+    fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleRoleChange = async (userId: number, newRole: UserRole) => {
     try {
@@ -91,9 +92,11 @@ export default function AdminUsersPage() {
         await adminService.updateUserRole(userId.toString(), newRole);
         toast({ title: 'Role Updated', description: 'User role changed successfully' });
       }
-      fetchUsers(pagination.page);
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to update role' });
+      // Trigger a reload
+      window.location.reload();
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to update role' });
     }
   };
 
@@ -103,9 +106,10 @@ export default function AdminUsersPage() {
       await adminService.deleteUser(userToDelete.id.toString());
       toast({ title: 'User Deleted', description: 'User has been permanently removed' });
       setUserToDelete(null);
-      fetchUsers(pagination.page);
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to delete user' });
+      window.location.reload();
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to delete user' });
     }
   };
 
@@ -115,9 +119,10 @@ export default function AdminUsersPage() {
     try {
       await adminService.banUser(user.id.toString(), reason);
       toast({ title: 'User Banned', description: 'Account has been restricted' });
-      fetchUsers(pagination.page);
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to ban user' });
+      window.location.reload();
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to ban user' });
     }
   };
 
@@ -126,9 +131,10 @@ export default function AdminUsersPage() {
     try {
       await adminService.unbanUser(user.id.toString());
       toast({ title: 'User Unbanned', description: 'Account access has been restored' });
-      fetchUsers(pagination.page);
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to unban user' });
+      window.location.reload();
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to unban user' });
     }
   };
 
@@ -142,35 +148,39 @@ export default function AdminUsersPage() {
 
   const toggleSelectUser = (userId: number) => {
     const next = new Set(selectedUsers);
-    next.has(userId) ? next.delete(userId) : next.add(userId);
+    if (next.has(userId)) {
+        next.delete(userId);
+    } else {
+        next.add(userId);
+    }
     setSelectedUsers(next);
   };
 
   const handleBulkDelete = async () => {
     setIsBulkProcessing(true);
-    let success = 0, failed = 0;
+    let success = 0, failedCount = 0;
     for (const id of selectedUsers) {
       try { await adminService.deleteUser(id.toString()); success++; }
-      catch { failed++; }
+      catch { failedCount++; }
     }
     setIsBulkProcessing(false);
     setBulkDeleteConfirm(false);
     setSelectedUsers(new Set());
-    toast({ title: 'Bulk Delete Complete', description: `${success} deleted${failed > 0 ? `, ${failed} failed` : ''}` });
-    fetchUsers(pagination.page);
+    toast({ title: 'Bulk Delete Complete', description: `${success} deleted${failedCount > 0 ? `, ${failedCount} failed` : ''}` });
+    window.location.reload();
   };
 
   const handleBulkRoleChange = async (newRole: UserRole) => {
     setIsBulkProcessing(true);
-    let success = 0, failed = 0;
+    let successCount = 0;
     for (const id of selectedUsers) {
-      try { await adminService.updateUserRole(id.toString(), newRole); success++; }
-      catch { failed++; }
+      try { await adminService.updateUserRole(id.toString(), newRole); successCount++; }
+      catch { /* handle error */ }
     }
     setIsBulkProcessing(false);
     setSelectedUsers(new Set());
-    toast({ title: 'Bulk Update Complete', description: `${success} updated to ${newRole}` });
-    fetchUsers(pagination.page);
+    toast({ title: 'Bulk Update Complete', description: `${successCount} updated to ${newRole}` });
+    window.location.reload();
   };
 
   const exportToCSV = () => {
@@ -226,8 +236,8 @@ export default function AdminUsersPage() {
             <Download className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Export</span>
           </button>
-          <button
-            onClick={() => fetchUsers(pagination.page)}
+            <button
+            onClick={() => window.location.reload()}
             disabled={isLoading}
             className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-sm font-medium transition-all disabled:opacity-40"
           >

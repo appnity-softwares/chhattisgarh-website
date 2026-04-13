@@ -18,10 +18,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useNotifications } from "@/hooks/use-notifications";
+import { useNotifications, Notification } from "@/hooks/use-notifications";
 import Link from "next/link";
+import { LucideIcon } from "lucide-react";
 
-const NOTIFICATION_ICONS: Record<string, any> = {
+const NOTIFICATION_ICONS: Record<string, LucideIcon> = {
     MATCH_REQUEST: Heart,
     MATCH_ACCEPTED: CheckCircle2,
     MATCH_REJECTED: Heart,
@@ -47,8 +48,8 @@ const NOTIFICATION_COLORS: Record<string, string> = {
     VERIFICATION: "text-green-500",
 };
 
-function getNotificationLink(notification: any): string | null {
-    const data = notification.data;
+function getNotificationLink(notification: Notification): string | null {
+    const data = notification.data as Record<string, unknown>;
     if (!data) return null;
     
     switch (notification.type) {
@@ -99,7 +100,7 @@ export default function NotificationsPage() {
         }
     };
 
-    const handleNotificationClick = (notification: any) => {
+    const handleNotificationClick = (notification: Notification) => {
         if (!notification.isRead) {
             markAsRead.mutate(notification.id);
         }
@@ -152,7 +153,7 @@ export default function NotificationsPage() {
             {/* Notification List */}
             {!isLoading && notifications.length > 0 && (
                 <div className="space-y-4">
-                    {notifications.map((notification: any, i: number) => {
+                    {notifications.map((notification: Notification, i: number) => {
                         const IconComponent = NOTIFICATION_ICONS[notification.type] || Bell;
                         const iconColor = NOTIFICATION_COLORS[notification.type] || "text-amber-500";
                         const link = getNotificationLink(notification);
@@ -225,7 +226,7 @@ export default function NotificationsPage() {
                     </div>
                     <div className="space-y-1">
                         <h3 className="font-black text-xl uppercase tracking-widest text-foreground">All Caught Up!</h3>
-                        <p className="text-muted-foreground font-medium">We'll notify you when someone shows interest in your profile.</p>
+                        <p className="text-muted-foreground font-medium">We&apos;ll notify you when someone shows interest in your profile.</p>
                     </div>
                 </div>
             )}

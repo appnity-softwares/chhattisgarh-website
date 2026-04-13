@@ -1,6 +1,5 @@
 import apiConfig, { getAuthHeaders, ApiResponse } from '@/lib/api.config';
-import type { AuthResponse, AdminLoginResponse } from '@/types/api.types';
-import { withMock } from './mock.data';
+import type { AdminLoginResponse } from '@/types/api.types';
 
 class AuthService {
     /**
@@ -43,9 +42,10 @@ class AuthService {
                 accessToken: data.data.accessToken,
                 refreshToken: data.data.refreshToken,
             };
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Token Refresh Error:', error);
-            throw new Error(error.message || 'Failed to refresh token');
+            const err = error as { message?: string };
+            throw new Error(err.message || 'Failed to refresh token');
         }
     }
 

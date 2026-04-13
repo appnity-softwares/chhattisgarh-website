@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { 
-    UserX, 
     UserCheck, 
     ShieldCheck, 
     ArrowLeft,
@@ -138,7 +137,7 @@ export default function BlockedUsersPage() {
                         </div>
                         <div className="space-y-1">
                             <h3 className="font-black text-xl uppercase tracking-widest opacity-30">All Clear!</h3>
-                            <p className="text-muted-foreground font-medium uppercase tracking-widest text-[10px]">You haven't blocked any users yet.</p>
+                            <p className="text-muted-foreground font-medium uppercase tracking-widest text-[10px]">You haven&apos;t blocked any users yet.</p>
                         </div>
                     </div>
                 )}

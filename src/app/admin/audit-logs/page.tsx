@@ -9,9 +9,18 @@ import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
+interface AuditLogEntry {
+    id: number;
+    timestamp: string;
+    admin: string;
+    action: string;
+    target: string;
+    details: string;
+}
+
 export default function AuditLogs() {
     const [loading, setLoading] = useState(true);
-    const [logs, setLogs] = useState<any[]>([]);
+    const [logs, setLogs] = useState<AuditLogEntry[]>([]);
     const [stats, setStats] = useState({ total: 0, uniqueAdmins: 0, todayActions: 0 });
     const [searchTerm, setSearchTerm] = useState('');
 

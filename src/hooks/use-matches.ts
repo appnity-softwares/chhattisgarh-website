@@ -23,17 +23,7 @@ export function useMatches(type: 'received' | 'sent' | 'accepted' = 'received') 
                     res = await interactionsService.getSentMatches(accessToken);
                     break;
                 case 'accepted':
-                    // Use the accepted endpoint
-                    const acceptedRes = await fetch(
-                        `${process.env.NEXT_PUBLIC_API_URL || 'https://api.chhattisgarhshadi.com/api/v1'}/matches/accepted`,
-                        {
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${accessToken}`,
-                            },
-                        }
-                    );
-                    res = await acceptedRes.json();
+                    res = await interactionsService.getAcceptedMatches(accessToken);
                     break;
             }
             if (!res.success) throw new Error(res.message || "Failed to fetch matches");
@@ -64,7 +54,7 @@ export function useMatches(type: 'received' | 'sent' | 'accepted' = 'received') 
                 description: "You can now chat with this person.",
             });
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
             toast({
                 title: "Error",
                 description: error.message || "Failed to accept match.",
@@ -87,7 +77,7 @@ export function useMatches(type: 'received' | 'sent' | 'accepted' = 'received') 
                 description: "This match has been declined.",
             });
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
             toast({
                 title: "Error",
                 description: error.message || "Failed to decline match.",

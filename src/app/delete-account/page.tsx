@@ -22,7 +22,7 @@ export default function DeleteAccountPage() {
               Delete Account Request
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              We're sorry to see you go. If you wish to delete your account and all associated data, 
+              We&apos;re sorry to see you go. If you wish to delete your account and all associated data, 
               please fill out the form below.
             </p>
           </div>

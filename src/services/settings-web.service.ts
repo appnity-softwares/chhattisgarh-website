@@ -9,7 +9,7 @@ export class SettingsWebService {
         return res.json();
     }
 
-    async updatePrivacySettings(data: any, token: string) {
+    async updatePrivacySettings(data: Record<string, unknown>, token: string) {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.settings.privacy}`, {
             method: 'PUT',
             headers: getAuthHeaders(token),
@@ -19,15 +19,15 @@ export class SettingsWebService {
     }
 
     // --- Photo Privacy Settings ---
-    async getPhotoPrivacy(token: string) {
-        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.settings.photoPrivacy}`, {
+    async getPhotoPrivacy(mediaId: number, token: string) {
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.settings.photoPrivacy(mediaId)}`, {
             headers: getAuthHeaders(token),
         });
         return res.json();
     }
 
-    async updatePhotoPrivacy(data: any, token: string) {
-        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.settings.photoPrivacy}`, {
+    async updatePhotoPrivacy(mediaId: number, data: Record<string, unknown>, token: string) {
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.settings.photoPrivacy(mediaId)}`, {
             method: 'PUT',
             headers: getAuthHeaders(token),
             body: JSON.stringify(data),
@@ -43,7 +43,7 @@ export class SettingsWebService {
         return res.json();
     }
 
-    async updateNotificationSettings(data: any, token: string) {
+    async updateNotificationSettings(data: Record<string, unknown>, token: string) {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.settings.notifications}`, {
             method: 'PUT',
             headers: getAuthHeaders(token),
@@ -84,7 +84,7 @@ export class SettingsWebService {
     }
 
     async deleteNotification(id: number, token: string) {
-        const res = await fetch(`${apiConfig.baseUrl}/notifications/${id}`, {
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.notifications.delete(id)}`, {
             method: 'DELETE',
             headers: getAuthHeaders(token),
         });
@@ -92,7 +92,7 @@ export class SettingsWebService {
     }
 
     async deleteAllNotifications(token: string) {
-        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.notifications.list}`, {
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.notifications.deleteAll}`, {
             method: 'DELETE',
             headers: getAuthHeaders(token),
         });

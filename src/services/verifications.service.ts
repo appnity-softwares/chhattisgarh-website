@@ -1,6 +1,7 @@
-import apiConfig, { ApiResponse } from '@/lib/api.config';
+import apiConfig from '@/lib/api.config';
 import apiService from '@/lib/api.service';
 import { withMock, mockData } from './mock.data';
+import type { AxiosResponse } from 'axios';
 
 export interface PendingVerification {
     id: number;
@@ -28,12 +29,14 @@ export interface VerificationStats {
 
 class VerificationsService {
     // Helper to extract response data
-    private async handleResponse<T>(promise: Promise<any>): Promise<T> {
+    private async handleResponse<T>(promise: Promise<AxiosResponse<unknown>>): Promise<T> {
         try {
             const res = await promise;
-            return res.data?.data || res.data;
-        } catch (error: any) {
-            throw new Error(error.response?.data?.message || error.message || 'Request failed');
+            const data = res.data as { data?: T };
+            return (data?.data || res.data) as T;
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } }; message?: string };
+            throw new Error(err.response?.data?.message || err.message || 'Request failed');
         }
     }
 

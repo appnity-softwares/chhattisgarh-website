@@ -4,14 +4,10 @@ import { motion } from "framer-motion";
 import { 
     Rocket, 
     Zap, 
-    Eye, 
-    TrendingUp, 
     Crown, 
     CheckCircle2, 
     Loader2,
-    Clock,
-    ShieldCheck,
-    Star
+    ShieldCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,6 +18,7 @@ import premiumWebService from "@/services/premium-web.service";
 import { useUserAuthStore } from "@/stores/user-auth-store";
 import { useToast } from "@/hooks/use-toast";
 import { loadScript } from "@/lib/script-loader";
+import { BoostPackage } from "@/types/api.types";
 
 const BOOST_ICONS = [Zap, Rocket, Crown];
 const BOOST_COLORS = ['from-amber-500 to-orange-600', 'from-primary to-rose-600', 'from-violet-500 to-purple-700'];
@@ -32,17 +29,17 @@ export default function BoostPage() {
     const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
 
     // Fetch boost packages
-    const { data: packages, isLoading: packagesLoading } = useQuery({
+    const { data: packages, isLoading: packagesLoading } = useQuery<BoostPackage[]>({
         queryKey: ["boost-packages"],
         queryFn: async () => {
             const res = await premiumWebService.getBoostPackages();
             const data = res.data;
-            return Array.isArray(data) ? data : (data?.packages || data?.boosts || []);
+            return (Array.isArray(data) ? data : (data?.packages || data?.boosts || [])) as BoostPackage[];
         },
     });
 
     // Fetch active boost
-    const { data: activeBoost, isLoading: boostLoading } = useQuery({
+    const { data: activeBoost } = useQuery({
         queryKey: ["active-boost"],
         queryFn: async () => {
             if (!accessToken) return null;
@@ -55,7 +52,7 @@ export default function BoostPage() {
     // Set default selected
     useEffect(() => {
         if (packages && packages.length > 0 && !selectedPackage) {
-            setSelectedPackage(packages[0].type || packages[0].id);
+            setTimeout(() => setSelectedPackage(packages[0].type || packages[0].id.toString()), 0);
         }
     }, [packages, selectedPackage]);
 
@@ -66,14 +63,20 @@ export default function BoostPage() {
             const res = await premiumWebService.initBoostPayment(boostType, accessToken);
             return res.data;
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
+            const err = error as Error;
             toast({
                 title: "Error",
-                description: error.message || "Failed to start boost purchase.",
+                description: err.message || "Failed to start boost purchase.",
                 variant: "destructive",
             });
         },
     });
+
+    const handlePaymentSuccess = () => {
+        toast({ title: "Boost Activated! 🚀", description: "Your profile is now boosted!" });
+        window.location.reload();
+    };
 
     const handleBoostPurchase = async () => {
         if (!selectedPackage) return;
@@ -100,13 +103,13 @@ export default function BoostPage() {
                     name: "Chhattisgarh Shaadi",
                     description: `Profile Boost`,
                     order_id: orderData.orderId,
-                    handler: async function (response: any) {
-                        toast({ title: "Boost Activated! 🚀", description: "Your profile is now boosted!" });
-                        window.location.reload();
+                    handler: function () {
+                        handlePaymentSuccess();
                     },
                     theme: { color: "#E01E5A" },
                 };
-                const paymentObject = new (window as any).Razorpay(options);
+                // @ts-expect-error - Razorpay is loaded via script
+                const paymentObject = new window.Razorpay(options);
                 paymentObject.open();
             }
         } catch (error) {
@@ -114,7 +117,7 @@ export default function BoostPage() {
         }
     };
 
-    const selectedPkg = packages?.find((p: any) => (p.type || p.id) === selectedPackage);
+    const selectedPkg = packages?.find((p: BoostPackage) => (p.type || p.id.toString()) === selectedPackage);
 
     return (
         <div className="space-y-12 pb-20">
@@ -166,9 +169,9 @@ export default function BoostPage() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {packages?.map((pkg: any, i: number) => {
+                    {packages?.map((pkg: BoostPackage, i: number) => {
                         const IconComp = BOOST_ICONS[i % 3];
-                        const pkgId = pkg.type || pkg.id;
+                        const pkgId = (pkg.type || pkg.id).toString();
                         return (
                             <motion.div
                                 key={pkgId}

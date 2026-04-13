@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { 
     MessageSquare, 
     Send, 
@@ -11,9 +11,8 @@ import {
     Image as ImageIcon,
     Smile,
     Search,
-    Clock,
-    CheckCheck,
     ArrowLeft,
+    CheckCheck,
     Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,8 +26,9 @@ import {
     DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { Trash2 } from "lucide-react";
-import { useChat, Message } from "@/hooks/use-chat";
+import { useChat } from "@/hooks/use-chat";
 import { useConversations } from "@/hooks/use-conversations";
+import { Badge } from "@/components/ui/badge";
 
 export default function ChatPage({ initialUserId }: { initialUserId?: number | null }) {
     const { data: conversations, isLoading: convsLoading } = useConversations();
@@ -37,11 +37,11 @@ export default function ChatPage({ initialUserId }: { initialUserId?: number | n
     // Auto-select first conversation if no initial ID or if ID changes
     useEffect(() => {
         if (initialUserId) {
-            setSelectedUserId(initialUserId);
+            setTimeout(() => setSelectedUserId(initialUserId), 0);
         } else if (conversations && conversations.length > 0 && !selectedUserId) {
-            setSelectedUserId(conversations[0].user.id);
+            setTimeout(() => setSelectedUserId(conversations[0].user.id), 0);
         }
-    }, [conversations, initialUserId]);
+    }, [conversations, initialUserId, selectedUserId]);
 
     const activeConv = conversations?.find(c => c.user.id === selectedUserId);
     const { messages, isTyping, isOnline, isLoading: chatLoading, sendMessage, sendTyping, deleteMessage, deleteConversation } = useChat(selectedUserId);
@@ -291,10 +291,4 @@ export default function ChatPage({ initialUserId }: { initialUserId?: number | n
     );
 }
 
-function Badge({ children, className }: { children: React.ReactNode, className?: string }) {
-    return (
-        <span className={`px-2 py-0.5 text-[10px] font-black uppercase rounded-lg border ${className}`}>
-            {children}
-        </span>
-    );
-}
+

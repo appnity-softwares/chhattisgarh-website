@@ -84,7 +84,7 @@ class ConfigService {
 
     async upsertConfig(data: Partial<SystemConfig>): Promise<SystemConfig> {
         // In mock mode, we just return the data passed in
-        return withMock({ id: Math.random(), ...data } as any, () =>
+        return withMock({ id: Math.random(), ...data } as unknown as SystemConfig, () =>
             this.fetchWithAuth<SystemConfig>('/config', {
                 method: 'POST',
                 body: JSON.stringify(data),

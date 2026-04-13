@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { 
-  Mail, Search, Trash2, Filter, 
+  Mail, Trash2, 
   RefreshCw, CheckCircle, Clock, 
   MoreVertical, Reply, Eye, 
   MessageSquare, User as UserIcon, Calendar,
-  ArrowRight, Phone, Info
+  Phone, Info
 } from 'lucide-react';
 import { AdminPageWrapper } from '../admin-page-wrapper';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -23,7 +23,7 @@ import {
 import { contactService } from '@/services/contact.service';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
-import { ContactMessageStatus, SuccessStoryStatus } from '@/types/api.types';
+import { ContactMessageStatus } from '@/types/api.types';
 import type { ContactMessage } from '@/types/api.types';
 
 export default function MessagesPage() {
@@ -40,11 +40,12 @@ export default function MessagesPage() {
             const status = filterStatus === 'ALL' ? undefined : filterStatus as ContactMessageStatus;
             const result = await contactService.getMessages(1, 100, status);
             // Result is actually mapping to 'data' in our controller response
-            setMessages(Array.isArray(result) ? result : (result as any).data || []);
-        } catch (error: any) {
+            setMessages(Array.isArray(result) ? result : (result as { data?: ContactMessage[] }).data || []);
+        } catch (error: unknown) {
+            const errorMsg = error as { message?: string };
             toast({
                 title: 'Error',
-                description: error.message || 'Failed to fetch contact messages',
+                description: errorMsg.message || 'Failed to fetch contact messages',
                 variant: 'destructive'
             });
         } finally {
@@ -54,6 +55,7 @@ export default function MessagesPage() {
 
     useEffect(() => {
         fetchMessages();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filterStatus]);
 
     const handleUpdateStatus = async (id: number, status: ContactMessageStatus) => {
@@ -68,10 +70,11 @@ export default function MessagesPage() {
             if (selectedMessage?.id === id) {
                 setSelectedMessage({ ...selectedMessage, status });
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const errorMsg = error as { message?: string };
             toast({
                 title: 'Error',
-                description: error.message || 'Failed to update status',
+                description: errorMsg.message || 'Failed to update status',
                 variant: 'destructive'
             });
         }
@@ -87,10 +90,11 @@ export default function MessagesPage() {
             });
             fetchMessages();
             if (selectedMessage?.id === id) setSelectedMessage(null);
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const errorMsg = error as { message?: string };
             toast({
                 title: 'Error',
-                description: error.message || 'Failed to delete message',
+                description: errorMsg.message || 'Failed to delete message',
                 variant: 'destructive'
             });
         }
@@ -243,7 +247,7 @@ export default function MessagesPage() {
                                         <Reply className="w-3 h-3" /> Message Content
                                     </div>
                                     <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-zinc-300 leading-relaxed font-light text-base italic shadow-inner">
-                                        "{selectedMessage.message}"
+                                        &ldquo;{selectedMessage.message}&rdquo;
                                     </div>
                                 </section>
 

@@ -11,7 +11,7 @@ export interface Notification {
     title?: string;
     message: string;
     isRead: boolean;
-    data?: any;
+    data?: unknown;
     createdAt: string;
     updatedAt?: string;
 }
@@ -60,20 +60,11 @@ export function useNotifications() {
     const markAllRead = useMutation({
         mutationFn: async () => {
             if (!accessToken) throw new Error("Unauthorized");
-            const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL || 'https://api.chhattisgarhshadi.com/api/v1'}/notifications/read-all`,
-                {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`,
-                    },
-                }
-            );
-            return res.json();
+            return settingsWebService.markAllNotificationsRead(accessToken);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
+            queryClient.invalidateQueries({ queryKey: ["notifications", "unread-count"] });
             toast({
                 title: "All Read",
                 description: "All notifications marked as read.",
@@ -84,20 +75,11 @@ export function useNotifications() {
     const deleteAll = useMutation({
         mutationFn: async () => {
             if (!accessToken) throw new Error("Unauthorized");
-            const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL || 'https://api.chhattisgarhshadi.com/api/v1'}/notifications`,
-                {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`,
-                    },
-                }
-            );
-            return res.json();
+            return settingsWebService.deleteAllNotifications(accessToken);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
+            queryClient.invalidateQueries({ queryKey: ["notifications", "unread-count"] });
             toast({
                 title: "Cleared",
                 description: "All notifications have been deleted.",

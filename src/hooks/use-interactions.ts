@@ -40,10 +40,62 @@ export function useInteractions() {
             queryClient.invalidateQueries({ queryKey: ["interactions"] });
             queryClient.invalidateQueries({ queryKey: ["matches"] });
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
+            const err = error as Error;
             toast({
                 title: "Error",
-                description: error.message || "Failed to send interest.",
+                description: err.message || "Failed to send interest.",
+                variant: "destructive",
+            });
+        }
+    });
+
+    const acceptInterest = useMutation({
+        mutationFn: async (matchId: number) => {
+            if (!accessToken) throw new Error("Unauthorized");
+            const res = await interactionsService.acceptMatch(matchId, accessToken);
+            if (!res.success) throw new Error(res.message || "Failed to accept interest");
+            return res.data;
+        },
+        onSuccess: () => {
+            toast({
+                title: "Interest Accepted",
+                description: "You can now chat and view contact details based on backend policy.",
+            });
+            queryClient.invalidateQueries({ queryKey: ["matches"] });
+            queryClient.invalidateQueries({ queryKey: ["relationship"] });
+            queryClient.invalidateQueries({ queryKey: ["profile-contact"] });
+        },
+        onError: (error: unknown) => {
+            const err = error as Error;
+            toast({
+                title: "Error",
+                description: err.message || "Failed to accept interest.",
+                variant: "destructive",
+            });
+        }
+    });
+
+    const rejectInterest = useMutation({
+        mutationFn: async (matchId: number) => {
+            if (!accessToken) throw new Error("Unauthorized");
+            const res = await interactionsService.rejectMatch(matchId, accessToken);
+            if (!res.success) throw new Error(res.message || "Failed to decline interest");
+            return res.data;
+        },
+        onSuccess: () => {
+            toast({
+                title: "Interest Declined",
+                description: "The request has been declined.",
+            });
+            queryClient.invalidateQueries({ queryKey: ["matches"] });
+            queryClient.invalidateQueries({ queryKey: ["relationship"] });
+        },
+        onError: (error: unknown) => {
+            const err = error as Error;
+            toast({
+                title: "Error",
+                description: err.message || "Failed to decline interest.",
                 variant: "destructive",
             });
         }
@@ -63,10 +115,11 @@ export function useInteractions() {
             });
             queryClient.invalidateQueries({ queryKey: ["interactions", "shortlists"] });
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
+            const err = error as Error;
             toast({
                 title: "Error",
-                description: error.message || "Failed to update shortlist.",
+                description: err.message || "Failed to update shortlist.",
                 variant: "destructive",
             });
         }
@@ -88,10 +141,11 @@ export function useInteractions() {
             queryClient.invalidateQueries({ queryKey: ["interactions"] });
             queryClient.invalidateQueries({ queryKey: ["matches"] });
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
+            const err = error as Error;
             toast({
                 title: "Error",
-                description: error.message || "Failed to block user.",
+                description: err.message || "Failed to block user.",
                 variant: "destructive",
             });
         }
@@ -112,10 +166,11 @@ export function useInteractions() {
             });
             queryClient.invalidateQueries({ queryKey: ["interactions", "blocked"] });
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
+            const err = error as Error;
             toast({
                 title: "Error",
-                description: error.message || "Failed to unblock user.",
+                description: err.message || "Failed to unblock user.",
                 variant: "destructive",
             });
         }
@@ -135,10 +190,11 @@ export function useInteractions() {
                 description: "Thank you. Our team will review this report within 24 hours.",
             });
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
+            const err = error as Error;
             toast({
                 title: "Error",
-                description: error.message || "Failed to submit report.",
+                description: err.message || "Failed to submit report.",
                 variant: "destructive",
             });
         }
@@ -146,6 +202,8 @@ export function useInteractions() {
 
     return {
         sendInterest,
+        acceptInterest,
+        rejectInterest,
         toggleShortlist,
         blockUser,
         unblockUser,

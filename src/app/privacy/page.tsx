@@ -148,7 +148,7 @@ export default function PrivacyPage() {
                                         ChhattisgarhShadi.Com पर बाल यौन शोषण और दुर्व्यवहार (Child Sexual Abuse and Exploitation - CSAE) सख्त वर्जित है। हमारा प्लेटफ़ॉर्म बच्चों की सुरक्षा सुनिश्चित करने के लिए प्रतिबद्ध है। यदि कोई उपयोगकर्ता इस नीति का उल्लंघन करते हुए पाया जाता है, तो उसका खाता तुरंत प्रभाव से बंद कर दिया जाएगा और हम संबंधित कानूनी जांच एजेंसियों (Law Enforcement) को इसकी सूचना देंगे।
                                     </p>
                                     <p>
-                                        यदि आपको कोई ऐसी गतिविधि या सामग्री दिखाई देती है जो बाल सुरक्षा के खिलाफ है, तो कृपया ऐप के भीतर 'Report' विकल्प का उपयोग करें या तुरंत हमारे बाल सुरक्षा संपर्क बिंदु (Child safety-specific point of contact) <a href="mailto:chhattisgarhshadi@gmail.com" className="text-primary hover:underline">chhattisgarhshadi@gmail.com</a> पर सूचित करें।
+                                        यदि आपको कोई ऐसी गतिविधि या सामग्री दिखाई देती है जो बाल सुरक्षा के खिलाफ है, तो कृपया ऐप के भीतर &apos;Report&apos; विकल्प का उपयोग करें या तुरंत हमारे बाल सुरक्षा संपर्क बिंदु (Child safety-specific point of contact) <a href="mailto:chhattisgarhshadi@gmail.com" className="text-primary hover:underline">chhattisgarhshadi@gmail.com</a> पर सूचित करें।
                                     </p>
                                 </CardContent>
                             </Card>

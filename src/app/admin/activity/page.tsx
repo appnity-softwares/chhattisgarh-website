@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { AdminPageWrapper } from "@/app/admin/admin-page-wrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -75,7 +75,7 @@ export default function AdminActivityPage() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-    const fetchActivityLogs = async (pageNum = 1) => {
+    const fetchActivityLogs = useCallback(async (pageNum = 1) => {
         setIsLoading(true);
         try {
             const params = new URLSearchParams({
@@ -98,19 +98,20 @@ export default function AdminActivityPage() {
             setLogs(data.logs || []);
             setPage(data.pagination?.page || 1);
             setTotalPages(data.pagination?.totalPages || 1);
-        } catch (err: any) {
-            console.error('Failed to fetch activity logs:', err);
+        } catch (err) {
+            const error = err as Error;
+            console.error('Failed to fetch activity logs:', error);
             toast({
                 variant: 'destructive',
                 title: 'Error',
-                description: err.message || 'Failed to load activity logs',
+                description: error.message || 'Failed to load activity logs',
             });
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [accessToken, actionFilter, toast]);
 
-    const fetchStats = async () => {
+    const fetchStats = useCallback(async () => {
         try {
             const response = await fetch(
                 `${apiConfig.baseUrl}${apiConfig.endpoints.admin.activityLogsStats}`,
@@ -124,16 +125,16 @@ export default function AdminActivityPage() {
         } catch (err) {
             console.error('Failed to fetch stats:', err);
         }
-    };
+    }, [accessToken]);
 
     useEffect(() => {
         fetchActivityLogs();
         fetchStats();
-    }, []);
+    }, [fetchActivityLogs, fetchStats]);
 
     useEffect(() => {
         fetchActivityLogs(1);
-    }, [actionFilter]);
+    }, [fetchActivityLogs]); // actionFilter is already in fetchActivityLogs dependencies via useCallback
 
     return (
         <AdminPageWrapper>

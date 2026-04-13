@@ -55,6 +55,14 @@ export enum VerificationStatus {
     RESUBMIT_REQUIRED = 'RESUBMIT_REQUIRED',
 }
 
+export enum PaymentStatus {
+    PENDING = 'PENDING',
+    COMPLETED = 'COMPLETED',
+    FAILED = 'FAILED',
+    REFUNDED = 'REFUNDED',
+    CANCELLED = 'CANCELLED',
+}
+
 // User Type
 export interface User {
     id: number;
@@ -74,8 +82,8 @@ export interface User {
         agentCode: string;
         agentName: string;
     };
-    subscriptions?: any[];
-    payments?: any[];
+    subscriptions?: UserSubscription[];
+    payments?: UserPayment[];
     reportsReceived?: Report[];
     activityLogs?: ActivityLog[];
 }
@@ -104,6 +112,33 @@ export interface Profile {
     isPublished: boolean;
     createdAt: string;
     updatedAt: string;
+}
+
+export interface UserSubscription {
+    id: number;
+    userId: number;
+    planId: number;
+    startDate: string;
+    endDate: string;
+    status: 'ACTIVE' | 'EXPIRED' | 'CANCELLED';
+    plan: {
+        name: string;
+        duration: number;
+        price: number;
+    };
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface UserPayment {
+    id: number;
+    userId: number;
+    subscriptionId?: number;
+    amount: number;
+    status: PaymentStatus;
+    transactionId: string;
+    paymentGateway: string;
+    createdAt: string;
 }
 
 // Report Type
@@ -168,6 +203,78 @@ export interface SubscriptionPlan {
     roleToAssign: UserRole;
 }
 
+export interface PaymentRecord {
+    id: number;
+    userId: number;
+    subscriptionId?: number | null;
+    amount: number | string;
+    currency: string;
+    transactionId: string;
+    paymentGateway: string;
+    paymentMethod?: string | null;
+    razorpayOrderId?: string | null;
+    razorpayPaymentId?: string | null;
+    status: PaymentStatus;
+    orderId?: string | null;
+    receiptUrl?: string | null;
+    failureReason?: string | null;
+    refundAmount?: number | string | null;
+    refundReason?: string | null;
+    paidAt?: string | null;
+    refundedAt?: string | null;
+    createdAt: string;
+    updatedAt: string;
+    user: {
+        id: number;
+        email?: string | null;
+        phone?: string | null;
+        profile?: {
+            firstName?: string | null;
+            lastName?: string | null;
+            profileId?: string | null;
+            city?: string | null;
+            state?: string | null;
+        } | null;
+    };
+    subscription?: {
+        id: number;
+        status: string;
+        startDate: string;
+        endDate: string;
+        plan?: {
+            id: number;
+            name: string;
+            slug?: string;
+            duration?: number;
+            price?: number | string;
+        } | null;
+    } | null;
+}
+
+export interface PaymentSummary {
+    totalPayments: number;
+    completedPayments: number;
+    pendingPayments: number;
+    failedPayments: number;
+    refundedPayments: number;
+    cancelledPayments: number;
+    completedRevenue: number;
+}
+
+export interface AdminPaymentsResponse {
+    payments: PaymentRecord[];
+    pagination: {
+        page: number;
+        totalPages: number;
+        totalItems?: number;
+        total: number;
+        itemsPerPage?: number;
+        hasNextPage?: boolean;
+        hasPrevPage?: boolean;
+    };
+    summary: PaymentSummary;
+}
+
 // Dashboard Stats Type
 export interface DashboardStats {
     totalUsers: number;
@@ -221,7 +328,7 @@ export interface ActivityLog {
     userId: number;
     action: string;
     description: string;
-    metadata?: any;
+    metadata?: Record<string, unknown>;
     ipAddress?: string;
     userAgent?: string;
     createdAt: string;
@@ -301,3 +408,38 @@ export interface ContactMessage {
     createdAt: string;
     updatedAt: string;
 }
+export interface ProfileView {
+    id: number;
+    viewerId: number;
+    viewedAt: string;
+    createdAt: string;
+    viewer?: Profile & { id: number; media?: { url: string }[] };
+}
+
+export interface ShortlistItem {
+    id: number;
+    userId: number;
+    shortlistedUserId: number;
+    createdAt: string;
+    shortlistedUser?: User & { profile?: Profile & { media?: { url: string }[] } };
+    profile?: Profile & { media?: { url: string }[] };
+    user?: User;
+}
+export interface BoostPackage {
+    id: string | number;
+    type: string;
+    name: string;
+    price: number;
+    duration: number;
+    durationHours?: number;
+    multiplier?: string | number;
+    features?: string[];
+}
+
+export interface PaginationData {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+}
+

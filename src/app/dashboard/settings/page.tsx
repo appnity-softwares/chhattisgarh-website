@@ -5,15 +5,12 @@ import {
     Shield, 
     BellRing, 
     UserCog, 
-    HelpCircle, 
     AlertTriangle,
-    CheckCircle2,
     ShieldCheck,
     Smartphone,
     Mail,
     Globe,
     ChevronRight,
-    Trash2,
     Lock,
     Loader2,
     MessageSquare
@@ -24,7 +21,6 @@ import apiConfig, { getAuthHeaders } from "@/lib/api.config";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { 
     Tabs, 
     TabsList, 
@@ -33,7 +29,6 @@ import {
 } from "@/components/ui/tabs";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import Link from "next/link";
 import { useSettings } from "@/hooks/use-settings";
 
 export default function SettingsPage() {
@@ -58,7 +53,7 @@ export default function SettingsPage() {
         
         setIsDeleting(true);
         try {
-            const res = await fetch(`${apiConfig.baseUrl}/users/me`, {
+            const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.users.me}`, {
                 method: 'DELETE',
                 headers: getAuthHeaders(accessToken || ''),
             });
@@ -74,10 +69,11 @@ export default function SettingsPage() {
             } else {
                 throw new Error(data.message || 'Failed to delete account');
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as { message?: string };
             toast({
                 title: "Error",
-                description: error.message || "Failed to delete account.",
+                description: err.message || "Failed to delete account.",
                 variant: "destructive",
             });
         } finally {

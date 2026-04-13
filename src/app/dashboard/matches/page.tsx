@@ -3,11 +3,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { 
-    Users, 
     CheckCircle2, 
     Send, 
     Heart, 
-    Search,
     Sparkles,
     Loader2,
     X,
@@ -15,16 +13,15 @@ import {
     Inbox
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ProfileCard } from "@/components/profile/profile-card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useMatches } from "@/hooks/use-matches";
 import Link from "next/link";
+import { MatchRequest } from "@/types/api.types";
 
 function MatchCard({ match, type, onAccept, onReject, isAccepting, isRejecting }: {
-    match: any;
+    match: MatchRequest;
     type: 'received' | 'sent' | 'accepted';
     onAccept?: (id: number) => void;
     onReject?: (id: number) => void;
@@ -36,9 +33,10 @@ function MatchCard({ match, type, onAccept, onReject, isAccepting, isRejecting }
     const profile = user?.profile || {};
     const userId = user?.id;
 
+    const [now] = useState(() => Date.now());
     const name = `${profile.firstName || 'User'} ${profile.lastName || ''}`.trim();
     const age = profile.age || (profile.dateOfBirth 
-        ? Math.floor((Date.now() - new Date(profile.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) 
+        ? Math.floor((now - new Date(profile.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) 
         : null);
 
     return (
@@ -66,7 +64,7 @@ function MatchCard({ match, type, onAccept, onReject, isAccepting, isRejecting }
                 age={age || 0}
                 city={profile.city || ''}
                 occupation={profile.occupation || ''}
-                gender={(profile.gender?.toLowerCase() as any) || 'female'}
+                gender={(profile.gender?.toLowerCase() as 'male' | 'female' | 'other') || 'female'}
                 isVerified={profile.isVerified}
                 image={profile.media?.[0]?.url || user?.profilePicture}
             />
@@ -157,7 +155,7 @@ function MatchTabContent({ type }: { type: 'received' | 'sent' | 'accepted' }) {
             animate={{ opacity: 1, y: 0 }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
         >
-            {matches.map((match: any) => (
+            {matches.map((match: MatchRequest) => (
                 <MatchCard 
                     key={match.id}
                     match={match}
@@ -173,9 +171,9 @@ function MatchTabContent({ type }: { type: 'received' | 'sent' | 'accepted' }) {
 }
 
 export default function MatchesPage() {
-    const [activeTab, setActiveTab] = useState("received");
+
     const { matches: receivedMatches } = useMatches('received');
-    const pendingCount = (receivedMatches || []).filter((m: any) => m.status === 'PENDING').length;
+    const pendingCount = (receivedMatches || []).filter((m: MatchRequest) => m.status === 'PENDING').length;
 
     return (
         <div className="space-y-8 pb-20">
@@ -188,7 +186,7 @@ export default function MatchesPage() {
             </div>
 
             {/* Match Tabs */}
-            <Tabs defaultValue="received" className="w-full" onValueChange={setActiveTab}>
+            <Tabs defaultValue="received" className="w-full">
                 <div className="flex items-center justify-between border-b border-white/5 pb-0 mb-8 overflow-x-auto no-scrollbar">
                     <TabsList className="bg-transparent border-none p-0 h-auto gap-8">
                         <TabsTrigger 

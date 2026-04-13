@@ -1,11 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AdminPageWrapper } from "@/app/admin/admin-page-wrapper";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   RefreshCw, CheckCircle, XCircle, RotateCcw, Eye, Clock,
-  ShieldCheck, ShieldX, FileImage, AlertTriangle
+  ShieldCheck, ShieldX, FileImage
 } from "lucide-react";
 import { verificationsService, PendingVerification, VerificationStats } from "@/services/verifications.service";
 import { useToast } from "@/hooks/use-toast";
@@ -15,7 +13,7 @@ import {
 import Image from 'next/image';
 
 function StatCard({ label, value, icon: Icon, colorClass, iconColor }: {
-  label: string; value: number; icon: any; colorClass: string; iconColor: string;
+  label: string; value: number; icon: React.ElementType; colorClass: string; iconColor: string;
 }) {
   return (
     <div className={`admin-card p-5 ${colorClass}`}>
@@ -42,23 +40,25 @@ export default function AdminVerificationsPage() {
   const [reason, setReason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const [pending, statsResult] = await Promise.all([
-        verificationsService.getPendingVerifications(1, 20),
-        verificationsService.getStats(),
-      ]);
-      setVerifications(pending.verifications || []);
-      setStats(statsResult);
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to load verifications' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const [pending, statsResult] = await Promise.all([
+          verificationsService.getPendingVerifications(1, 20),
+          verificationsService.getStats(),
+        ]);
+        setVerifications(pending.verifications || []);
+        setStats(statsResult);
+      } catch (err: unknown) {
+        const errorMsg = err as { message?: string };
+        toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to load verifications' });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [toast]);
 
   const handleAction = async () => {
     if (!selectedItem || !actionType) return;
@@ -82,9 +82,10 @@ export default function AdminVerificationsPage() {
       setSelectedItem(null);
       setActionType(null);
       setReason('');
-      fetchData();
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message });
+      window.location.reload();
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message });
     } finally {
       setIsProcessing(false);
     }
@@ -288,7 +289,7 @@ export default function AdminVerificationsPage() {
 
           {actionType === 'approve' && (
             <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-sm text-emerald-300">
-              ✓ This will mark the user's document as verified and grant verified status.
+              ✓ This will mark the user&apos;s document as verified and grant verified status.
             </div>
           )}
 

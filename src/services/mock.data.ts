@@ -2,7 +2,6 @@ import { DashboardStats, User, MatchRequest } from '@/types/api.types';
 import { RevenueAnalytics, SignupAnalytics, SubscriptionAnalytics } from './analytics.service';
 import { PendingVerification, VerificationStats } from './verifications.service';
 import { SubscriptionPlan } from '@/types/api.types';
-import { SystemConfig } from './config.service';
 
 /**
  * Mock Service implementation for Offline Mode
@@ -186,7 +185,7 @@ export const mockData = {
             enableNotifications: true,
             enforceAppUpdate: false
         }), category: 'features' }
-    ] as any[]
+    ] as unknown as Record<string, unknown>[]
 };
 
 // Check both process.env and localStorage for offline mode

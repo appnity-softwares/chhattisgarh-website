@@ -1,21 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AdminPageWrapper } from "@/app/admin/admin-page-wrapper";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  MoreHorizontal, Search, RefreshCw, Plus, ChevronLeft, ChevronRight,
-  Trash2, Briefcase, AlertTriangle, MapPin, Phone, Mail, Users, TrendingUp
-} from "lucide-react";
+import { Search, RefreshCw, Plus, ChevronLeft, ChevronRight, Trash2, AlertTriangle, MapPin, Users, Briefcase, MoreHorizontal } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { agentsService } from "@/services/agents.service";
 import type { Agent, AgentStatus } from "@/types/api.types";
-import { formatDistanceToNow } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
@@ -84,14 +76,18 @@ export default function AdminAgentsPage() {
       const data = await agentsService.getAgents(page, 10);
       setAgents(data.agents || []);
       setPagination(data.pagination || { page: 1, limit: 10, total: 0, totalPages: 0 });
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to load agents' });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to load agents' });
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => { fetchAgents(); }, []);
+  useEffect(() => { 
+    fetchAgents(); 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleCreateAgent = async () => {
     if (!formData.agentName) {
@@ -110,8 +106,9 @@ export default function AdminAgentsPage() {
       setShowCreateDialog(false);
       setFormData(initialFormData);
       fetchAgents();
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to create agent' });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to create agent' });
     } finally {
       setIsSaving(false);
     }
@@ -124,8 +121,9 @@ export default function AdminAgentsPage() {
       toast({ title: 'Agent Deleted', description: 'Agent has been removed' });
       setAgentToDelete(null);
       fetchAgents(pagination.page);
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to delete agent' });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to delete agent' });
     }
   };
 
@@ -134,8 +132,9 @@ export default function AdminAgentsPage() {
       await agentsService.updateAgent(agentId.toString(), { status });
       toast({ title: 'Status Updated', description: `Agent is now ${status.toLowerCase()}` });
       fetchAgents(pagination.page);
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to update status' });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to update status' });
     }
   };
 

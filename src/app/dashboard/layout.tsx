@@ -52,6 +52,7 @@ const secondaryLinks = [
 
 import { useProfile } from "@/hooks/use-profile";
 import { useUserAuthStore } from "@/stores/user-auth-store";
+import { useUserAccess } from "@/hooks/use-user-access";
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const pathname = usePathname();
@@ -60,9 +61,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { unreadMessages } = useDashboardStats();
     const { data: user } = useProfile();
+    const { data: access } = useUserAccess();
 
     const userName = user?.profile ? `${user.profile.firstName} ${user.profile.lastName}` : "User";
-    const userRole = user?.subscription?.planName ? `${user.subscription.planName} Member` : "Free Member";
+    const userRole = access?.planName ? `${access.planName} Member` : "Free Member";
     const userAvatar = user?.profile?.media?.[0]?.url || "";
 
     const daysLeft = user?.subscription?.endDate ?
@@ -141,13 +143,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <div className="p-4 border-t border-white/5">
                     <div className="bg-gradient-to-br from-rose-500/10 to-primary/10 border border-primary/20 rounded-3xl p-4 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-16 h-16 bg-primary/20 rounded-bl-full -mr-4 -mt-4 blur-xl group-hover:scale-150 transition-transform duration-700" />
-                        <h4 className="text-xs font-black text-white mb-0.5">{user?.subscription?.planName || "Get Premium"}</h4>
+                        <h4 className="text-xs font-black text-white mb-0.5">{access?.planName || "Get Premium"}</h4>
                         <p className="text-[9px] text-primary font-bold uppercase tracking-widest mb-2">
                             {user?.subscription ? `Expires in ${daysLeft} days` : "Unlock full features"}
                         </p>
                         <Link href="/dashboard/membership">
                             <Button size="sm" className="w-full bg-white/5 hover:bg-white/10 text-white border-white/10 text-[9px] font-black rounded-xl h-7">
-                                {user?.subscription ? "EXTEND PLAN" : "UPGRADE NOW"}
+                                {access?.isPremium ? "MANAGE PLAN" : "UPGRADE NOW"}
                             </Button>
                         </Link>
                     </div>

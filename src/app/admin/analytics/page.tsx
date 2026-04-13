@@ -51,12 +51,13 @@ export default function AdminAnalyticsPage() {
             setRevenueData(revenue);
             setSignupsData(signups);
             setSubscriptionData(subscriptions);
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Failed to fetch analytics:', err);
+            const errorMsg = err as { message?: string };
             toast({
                 variant: 'destructive',
                 title: 'Error',
-                description: err.message || 'Failed to load analytics',
+                description: errorMsg.message || 'Failed to load analytics',
             });
         } finally {
             setIsLoading(false);
@@ -65,6 +66,7 @@ export default function AdminAnalyticsPage() {
 
     useEffect(() => {
         fetchAnalytics();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handlePeriodChange = (value: string) => {

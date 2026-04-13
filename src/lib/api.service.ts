@@ -35,7 +35,9 @@ api.interceptors.request.use(
                         try {
                             const parsed = JSON.parse(adminStorage);
                             token = parsed.state?.accessToken;
-                        } catch (e) {}
+                        } catch {
+                            // ignore
+                        }
                     }
                 }
             } else {
@@ -56,15 +58,14 @@ api.interceptors.request.use(
                         try {
                             const parsed = JSON.parse(userStorage);
                             token = parsed.state?.accessToken;
-                        } catch (e) {}
+                        } catch {
+                            // ignore
+                        }
                     }
                 }
             }
 
-            // Fallback for everything else
-            if (!token) {
-                token = localStorage.getItem("token");
-            }
+            // Removed fallback to generic 'token' to prevent session contamination
         }
         
         if (token) {
@@ -86,6 +87,22 @@ api.interceptors.response.use(
     (error) => {
         if (error.response?.status === 401) {
             console.warn(`Unauthorized (401) at ${error.config?.url}. Token present: ${!!error.config?.headers?.Authorization}`);
+            
+            // Only handle if in browser
+            if (typeof window !== "undefined") {
+                // Determine if it's admin or user context
+                const isAdmin = window.location.pathname.startsWith('/admin');
+                const storageKey = isAdmin ? "admin-auth-storage" : "user-auth-storage";
+                const loginUrl = isAdmin ? "/admin-secure-login" : "/login";
+
+                // Clear the relevant storage
+                localStorage.removeItem(storageKey);
+
+                // Redirect to login if not already there
+                if (!window.location.pathname.includes("login")) {
+                    window.location.href = loginUrl;
+                }
+            }
         }
         return Promise.reject(error);
     }

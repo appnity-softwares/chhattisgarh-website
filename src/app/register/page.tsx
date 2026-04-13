@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
     Heart, 
     Smartphone, 
-    ArrowRight, 
     User,
     Calendar,
     ChevronRight,
@@ -35,6 +34,12 @@ import { useUserAuthStore } from "@/stores/user-auth-store";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import apiConfig, { getAuthHeaders } from "@/lib/api.config";
+
+declare global {
+    interface Window {
+        recaptchaVerifier?: RecaptchaVerifier;
+    }
+}
 
 export default function RegisterPage() {
     const { toast } = useToast();
@@ -75,8 +80,8 @@ export default function RegisterPage() {
 
     // Setup Recaptcha
     const setupRecaptcha = () => {
-        if (!(window as any).recaptchaVerifier) {
-            (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        if (!window.recaptchaVerifier) {
+            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
                 'size': 'invisible',
                 'callback': () => {}
             });
@@ -108,7 +113,8 @@ export default function RegisterPage() {
         setIsLoading(true);
         try {
             setupRecaptcha();
-            const appVerifier = (window as any).recaptchaVerifier;
+            const appVerifier = window.recaptchaVerifier;
+            if (!appVerifier) throw new Error("Recaptcha not initialized");
             const fullPhone = `+91${phone}`;
             
             const result = await signInWithPhoneNumber(auth, fullPhone, appVerifier);
@@ -120,16 +126,17 @@ export default function RegisterPage() {
                 title: "OTP Sent!",
                 description: `Verification code sent to +91 ${phone}`,
             });
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("OTP Error:", error);
+            const err = error as { message?: string };
             toast({
                 variant: "destructive",
                 title: "Error",
-                description: error.message || "Failed to send OTP. Please try again.",
+                description: err.message || "Failed to send OTP. Please try again.",
             });
-            if ((window as any).recaptchaVerifier) {
-                (window as any).recaptchaVerifier.clear();
-                delete (window as any).recaptchaVerifier;
+            if (window.recaptchaVerifier) {
+                window.recaptchaVerifier.clear();
+                delete window.recaptchaVerifier;
             }
         } finally {
             setIsLoading(false);
@@ -185,12 +192,13 @@ export default function RegisterPage() {
             // 5. Redirect to profile page to complete setup
             router.push("/dashboard/profile");
             
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Registration Error:", error);
+            const err = error as { message?: string };
             toast({
                 variant: "destructive",
                 title: "Registration Failed",
-                description: error.message || "Something went wrong. Please try again.",
+                description: err.message || "Something went wrong. Please try again.",
             });
         } finally {
             setIsLoading(false);
@@ -203,13 +211,15 @@ export default function RegisterPage() {
         setIsLoading(true);
         try {
             setupRecaptcha();
-            const appVerifier = (window as any).recaptchaVerifier;
+            const appVerifier = window.recaptchaVerifier;
+            if (!appVerifier) throw new Error("Recaptcha not initialized");
             const fullPhone = `+91${phone}`;
             const result = await signInWithPhoneNumber(auth, fullPhone, appVerifier);
             setConfirmationResult(result);
             toast({ title: "OTP Resent!", description: `New code sent to +91 ${phone}` });
-        } catch (error: any) {
-            toast({ variant: "destructive", title: "Error", description: error.message || "Failed to resend OTP." });
+        } catch (error: unknown) {
+            const err = error as { message?: string };
+            toast({ variant: "destructive", title: "Error", description: err.message || "Failed to resend OTP." });
         } finally {
             setIsLoading(false);
         }

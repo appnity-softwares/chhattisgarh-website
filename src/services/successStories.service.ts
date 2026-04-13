@@ -49,7 +49,7 @@ class SuccessStoriesService {
             if (params.status) query.append('status', params.status);
             url += `?${query.toString()}`;
         }
-        return this.fetchWithAuth<{ stories: SuccessStory[]; pagination: any }>(url);
+        return this.fetchWithAuth<{ stories: SuccessStory[]; pagination: { total: number; pages: number; currentPage: number; limit: number } }>(url);
     }
 
     /**
@@ -68,7 +68,7 @@ class SuccessStoriesService {
     /**
      * Create a new success story by admin
      */
-    async create(data: any): Promise<SuccessStory> {
+    async create(data: Record<string, unknown>): Promise<SuccessStory> {
         return this.fetchWithAuth<SuccessStory>(
             apiConfig.endpoints.admin.successStories,
             {

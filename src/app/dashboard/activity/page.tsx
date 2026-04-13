@@ -4,11 +4,8 @@ import { motion } from "framer-motion";
 import { 
     Eye, 
     TrendingUp, 
-    ArrowRight, 
-    Zap, 
     Rocket,
     Clock,
-    Search,
     ShieldCheck,
     Users
 } from "lucide-react";
@@ -19,15 +16,28 @@ import { ProfileCard } from "@/components/profile/profile-card";
 import { useState } from "react";
 import { useProfileVisitors } from "@/hooks/use-interactions";
 import { Loader2 } from "lucide-react";
+import { ProfileView } from "@/types/api.types";
+
+interface ProfileDisplay {
+    id: number;
+    firstName?: string;
+    lastName?: string;
+    age?: number;
+    city?: string;
+    occupation?: string;
+    gender?: string;
+    isVerified?: boolean;
+    media?: { url: string }[];
+}
 
 export default function ActivityPage() {
     const [filter, setFilter] = useState("all");
     const { data: visitorsData, isLoading } = useProfileVisitors();
     
     // We assume the data contains a list of profiles or interactions with viewer profiles
-    const visitors = visitorsData?.visitors || visitorsData || [];
+    const visitors = (visitorsData?.visitors || visitorsData || []) as ProfileView[];
     const totalViews = visitors.length;
-    const viewsToday = visitors.filter((v: any) => new Date(v.viewedAt || v.createdAt).toDateString() === new Date().toDateString()).length;
+    const viewsToday = visitors.filter((v: ProfileView) => new Date(v.viewedAt || v.createdAt).toDateString() === new Date().toDateString()).length;
 
     return (
         <div className="space-y-10 pb-20">
@@ -76,8 +86,8 @@ export default function ActivityPage() {
                                 <Eye className="w-8 h-8 text-muted-foreground opacity-30 mb-2" />
                                 <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">No recent visitors</span>
                             </div>
-                        ) : visitors.map((interaction: any, i: number) => {
-                            const profile = interaction.viewer || interaction.profile || interaction;
+                        ) : visitors.map((interaction: ProfileView, i: number) => {
+                            const profile = (interaction.viewer || (interaction as Record<string, unknown>).profile || interaction) as unknown as ProfileDisplay;
                             return (
                                 <motion.div 
                                     key={interaction.id || i}

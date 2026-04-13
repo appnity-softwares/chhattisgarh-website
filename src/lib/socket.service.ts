@@ -4,7 +4,7 @@ import apiConfig from "./api.config";
 class SocketService {
     private socket: Socket | null = null;
     private isConnecting: boolean = false;
-    private listeners: Map<string, Function[]> = new Map();
+    private listeners: Map<string, ((...args: unknown[]) => void)[]> = new Map();
 
     connect(token: string) {
         if (this.socket?.connected || this.isConnecting) return;
@@ -31,7 +31,7 @@ class SocketService {
             console.log("Socket Disconnected");
         });
 
-        this.socket.onAny((event: string, ...args: any[]) => {
+        this.socket.onAny((event: string, ...args: unknown[]) => {
             const eventListeners = this.listeners.get(event);
             if (eventListeners) {
                 eventListeners.forEach(listener => listener(...args));
@@ -47,7 +47,7 @@ class SocketService {
         }
     }
 
-    emit(event: string, data: any) {
+    emit(event: string, data: unknown) {
         if (this.socket?.connected) {
             this.socket.emit(event, data);
         } else {
@@ -55,14 +55,14 @@ class SocketService {
         }
     }
 
-    on(event: string, callback: Function) {
+    on(event: string, callback: (...args: unknown[]) => void) {
         if (!this.listeners.has(event)) {
             this.listeners.set(event, []);
         }
         this.listeners.get(event)?.push(callback);
     }
 
-    off(event: string, callback: Function) {
+    off(event: string, callback: (...args: unknown[]) => void) {
         const eventListeners = this.listeners.get(event);
         if (eventListeners) {
             const index = eventListeners.indexOf(callback);

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -49,7 +49,7 @@ export default function PromoCodes() {
             toast({ title: 'Success', description: 'Promo code created.' });
             setNewCode({ code: '', discount: 10, type: 'PERCENTAGE', expiresAt: '2026-12-31' });
             loadCodes();
-        } catch (error) {
+        } catch {
             toast({ title: 'Error', description: 'Failed to create code', variant: 'destructive' });
         } finally {
             setSaving(false);
@@ -62,7 +62,7 @@ export default function PromoCodes() {
             await marketingService.deletePromoCode(id);
             toast({ title: 'Success', description: 'Promo code deleted.' });
             loadCodes();
-        } catch (error) {
+        } catch {
             toast({ title: 'Error', description: 'Failed to delete code', variant: 'destructive' });
         }
     };
@@ -103,7 +103,7 @@ export default function PromoCodes() {
                             </div>
                             <div className="space-y-2">
                                 <Label>Type</Label>
-                                <Select value={newCode.type} onValueChange={(val: any) => setNewCode({...newCode, type: val})}>
+                                <Select value={newCode.type} onValueChange={(val: 'PERCENTAGE' | 'FLAT') => setNewCode({...newCode, type: val})}>
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>

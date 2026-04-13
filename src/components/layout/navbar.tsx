@@ -35,7 +35,7 @@ export function Navbar() {
         } else {
           setApkUrl("https://play.google.com/store/apps/details?id=com.cgshadi.official");
         }
-      } catch (err) {
+      } catch {
         console.error("Failed to load nav links");
         setApkUrl("https://play.google.com/store/apps/details?id=com.cgshadi.official");
       }

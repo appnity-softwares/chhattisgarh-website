@@ -37,10 +37,11 @@ export function useShortlist() {
                 description: "Profile removed from your shortlist.",
             });
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
+            const err = error as { message?: string };
             toast({
                 title: "Error",
-                description: error.message || "Failed to remove from shortlist.",
+                description: err.message || "Failed to remove from shortlist.",
                 variant: "destructive",
             });
         },

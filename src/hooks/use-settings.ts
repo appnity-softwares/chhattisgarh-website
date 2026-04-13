@@ -64,7 +64,7 @@ export function useSettings() {
     const updatePrivacy = useMutation({
         mutationFn: async (data: Partial<UserSettings['privacy']>) => {
             // Map simplified frontend fields to granular backend fields
-            const payload: any = {};
+            const payload: Record<string, unknown> = {};
             
             if (data.profileVisibility !== undefined) {
                 payload.profileVisibility = data.profileVisibility ? 'HIDDEN' : 'PUBLIC';
@@ -91,7 +91,7 @@ export function useSettings() {
 
     const updateNotifications = useMutation({
         mutationFn: async (data: Partial<UserSettings['notifications']>) => {
-            const payload: any = {};
+            const payload: Record<string, unknown> = {};
             
             if (data.push !== undefined) {
                 payload.matchRequestPush = data.push;

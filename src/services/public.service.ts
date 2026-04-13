@@ -41,7 +41,8 @@ class PublicService {
 
     // Get public success stories for landing page
     async getSuccessStories(): Promise<SuccessStory[]> {
-        return this.fetchPublic<SuccessStory[]>(apiConfig.endpoints.public.successStories);
+        const response = await this.fetchPublic<{ stories: SuccessStory[], pagination: Record<string, unknown> }>(apiConfig.endpoints.public.successStories);
+        return response.stories || [];
     }
 
     // Get public verification and community stats

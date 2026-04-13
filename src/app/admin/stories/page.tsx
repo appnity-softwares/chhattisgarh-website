@@ -15,12 +15,10 @@ import {
   Star, 
   Trash2, 
   Eye, 
-  Calendar,
   User,
   Quote,
   Loader2,
-  RefreshCw,
-  Search
+  RefreshCw
 } from "lucide-react";
 import Image from 'next/image';
 import {
@@ -55,25 +53,26 @@ export default function SuccessStoriesPage() {
     isFeatured: false
   });
 
-  const fetchStories = async () => {
-    setLoading(true);
-    try {
-      const statusParam = filter === 'ALL' ? undefined : filter as SuccessStoryStatus;
-      const data = await successStoriesService.getAll({ 
-        page: pagination.page, 
-        status: statusParam 
-      });
-      setStories(data.stories);
-      setPagination(prev => ({ ...prev, total: data.pagination.total }));
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to load stories' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchStories = async () => {
+      setLoading(true);
+      try {
+        const statusParam = filter === 'ALL' ? undefined : filter as SuccessStoryStatus;
+        const data = await successStoriesService.getAll({ 
+          page: pagination.page, 
+          status: statusParam 
+        });
+        setStories(data.stories);
+        setPagination(prev => ({ ...prev, total: data.pagination.total }));
+      } catch (err: unknown) {
+        const errorMsg = err as { message?: string };
+        toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to load stories' });
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchStories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, pagination.page]);
 
   const handleCreateStory = async (e: React.FormEvent) => {
@@ -96,9 +95,12 @@ export default function SuccessStoriesPage() {
             userId1: '', userId2: '', partnerName: '', title: '', 
             story: '', weddingDate: '', imageUrl: '', isFeatured: false
         });
-        fetchStories();
-    } catch (err: any) {
-        toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to create story' });
+        // We'll rely on the useEffect to refetch or we can manually trigger it if we keep it outside.
+        // Actually I moved fetchStories inside useEffect. I'll just reload the page or use a state trigger.
+        window.location.reload(); 
+    } catch (err: unknown) {
+        const errorMsg = err as { message?: string };
+        toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to create story' });
     } finally {
         setIsActionLoading(false);
     }
@@ -109,10 +111,11 @@ export default function SuccessStoriesPage() {
     try {
       await successStoriesService.update(id, { status });
       toast({ title: 'Success', description: `Story status updated to ${status}` });
-      fetchStories();
+      window.location.reload();
       if (viewDialog?.id === id) setViewDialog(null);
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to update story' });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to update story' });
     } finally {
       setIsActionLoading(false);
     }
@@ -122,9 +125,10 @@ export default function SuccessStoriesPage() {
     try {
       await successStoriesService.update(id, { isFeatured });
       toast({ title: 'Success', description: isFeatured ? 'Story featured!' : 'Story unfeatured' });
-      fetchStories();
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to update feature status' });
+      window.location.reload();
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to update feature status' });
     }
   };
 
@@ -133,9 +137,10 @@ export default function SuccessStoriesPage() {
     try {
       await successStoriesService.delete(id);
       toast({ title: 'Deleted', description: 'Story has been removed' });
-      fetchStories();
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to delete story' });
+      window.location.reload();
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to delete story' });
     }
   };
 
@@ -157,7 +162,7 @@ export default function SuccessStoriesPage() {
             <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl gap-2" size="sm" onClick={() => setCreateDialogOpen(true)}>
                 <Star className="w-4 h-4 fill-current" /> Add Story
             </Button>
-            <Button variant="outline" size="sm" onClick={fetchStories} disabled={loading} className="gap-2 rounded-xl">
+            <Button variant="outline" size="sm" onClick={() => window.location.reload()} disabled={loading} className="gap-2 rounded-xl">
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
             Refresh
             </Button>
@@ -166,7 +171,7 @@ export default function SuccessStoriesPage() {
     >
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-          <Tabs defaultValue="ALL" onValueChange={(v) => setFilter(v as any)} className="w-auto">
+          <Tabs defaultValue="ALL" onValueChange={(v) => setFilter(v as SuccessStoryStatus | 'ALL')} className="w-auto">
             <TabsList className="bg-white/5 border border-white/10 p-1">
               <TabsTrigger value="ALL">All</TabsTrigger>
               <TabsTrigger value="PENDING">Pending</TabsTrigger>
@@ -404,7 +409,7 @@ export default function SuccessStoriesPage() {
               <div className="space-y-2">
                 <p className="text-sm font-semibold text-zinc-400">The Story</p>
                 <div className="p-5 rounded-2xl bg-white/5 border border-white/10 italic text-zinc-300 leading-relaxed whitespace-pre-wrap">
-                  "{viewDialog.story}"
+                  &ldquo;{viewDialog.story}&rdquo;
                 </div>
               </div>
 

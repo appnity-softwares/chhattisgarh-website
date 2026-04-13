@@ -29,13 +29,13 @@ class WebPaymentService {
     }
 
     // Get payment details from token
-    async getPaymentDetails(token: string): Promise<any> {
-        return this.fetchPublic<any>(`${apiConfig.endpoints.webPayments.details}?token=${token}`);
+    async getPaymentDetails(token: string): Promise<unknown> {
+        return this.fetchPublic<unknown>(`${apiConfig.endpoints.webPayments.details}?token=${token}`);
     }
 
     // Get boost payment details from token
-    async getBoostDetails(token: string): Promise<any> {
-        return this.fetchPublic<any>(`${apiConfig.endpoints.webPayments.boostDetails}?token=${token}`);
+    async getBoostDetails(token: string): Promise<unknown> {
+        return this.fetchPublic<unknown>(`${apiConfig.endpoints.webPayments.boostDetails}?token=${token}`);
     }
 
     // Handle payment success
@@ -50,7 +50,7 @@ class WebPaymentService {
             ? apiConfig.endpoints.webPayments.boostSuccess 
             : apiConfig.endpoints.webPayments.success;
             
-        return this.fetchPublic<any>(endpoint, {
+        return this.fetchPublic<{ success: boolean; redirectUrl: string }>(endpoint, {
             method: 'POST',
             body: JSON.stringify(data),
         });
@@ -61,7 +61,7 @@ class WebPaymentService {
         orderId: string;
         reason: string;
     }): Promise<{ success: boolean; redirectUrl: string }> {
-        return this.fetchPublic<any>(apiConfig.endpoints.webPayments.failed, {
+        return this.fetchPublic<{ success: boolean; redirectUrl: string }>(apiConfig.endpoints.webPayments.failed, {
             method: 'POST',
             body: JSON.stringify(data),
         });

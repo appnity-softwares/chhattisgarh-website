@@ -63,10 +63,11 @@ export function ContactForm() {
             } else {
                 throw new Error(data.message || "Failed to send message");
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "Something went wrong. Please try again.";
             toast({
                 title: "Error",
-                description: error.message || "Something went wrong. Please try again.",
+                description: errorMessage,
                 variant: "destructive",
             });
         } finally {

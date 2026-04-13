@@ -26,38 +26,15 @@ class UserAuthService {
             }
 
             return data.data;
-        } catch (error: any) {
-            console.error('Phone Auth Error:', error);
-            throw new Error(error.message || 'Failed to authenticate with phone');
+        } catch (error: unknown) {
+            const err = error as { message?: string };
+            console.error('Phone Auth Error:', err);
+            throw new Error(err.message || 'Failed to authenticate with phone');
         }
     }
 
-    /**
-     * Exchange Google authorization code with backend for JWT tokens
-     * Note: Unlike admin auth, this does NOT check for admin role
-     */
-    async authenticateWithBackend(authorizationCode: string): Promise<AuthResponse> {
-        try {
-            const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.auth.google}`, {
-                method: 'POST',
-                headers: getAuthHeaders(),
-                body: JSON.stringify({
-                    authorizationCode,
-                    redirectUri: window.location.origin,
-                }),
-            });
-
-            const data: ApiResponse<AuthResponse> = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Authentication failed');
-            }
-
-            return data.data;
-        } catch (error: any) {
-            console.error('User Auth Error:', error);
-            throw new Error(error.message || 'Failed to authenticate');
-        }
+    async authenticateWithBackend(): Promise<AuthResponse> {
+        throw new Error('Google authorization-code login is not supported by the current backend contract.');
     }
 
     /**
@@ -81,9 +58,10 @@ class UserAuthService {
                 accessToken: data.data.accessToken,
                 refreshToken: data.data.refreshToken,
             };
-        } catch (error: any) {
-            console.error('Token Refresh Error:', error);
-            throw new Error(error.message || 'Failed to refresh token');
+        } catch (error: unknown) {
+            const err = error as { message?: string };
+            console.error('Token Refresh Error:', err);
+            throw new Error(err.message || 'Failed to refresh token');
         }
     }
 

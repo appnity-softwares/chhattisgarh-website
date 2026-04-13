@@ -1,23 +1,23 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
 import adminService from "@/services/admin.service";
-import { User, ActivityLog, Report } from "@/types/api.types";
+import { User, ActivityLog, Report, UserSubscription } from "@/types/api.types";
 import { AdminPageWrapper } from "@/app/admin/admin-page-wrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
     Calendar, Mail, Phone, MapPin,
-    Shield, Ban, Trash2, CheckCircle,
+    Shield, Ban,
     AlertTriangle, CreditCard, Activity,
-    User as UserIcon, Briefcase, GraduationCap
+    User as UserIcon
 } from "lucide-react";
 import{
     Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger
@@ -38,45 +38,44 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
 
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [plans, setPlans] = useState<any[]>([]);
-    const [isGrantingSub, setIsGrantingSub] = useState(false);
-    const [grantDialogOpen, setGrantDialogOpen] = useState(false);
+    const [plans, setPlans] = useState<Record<string, unknown>[]>([]);
     const [selectedPlanId, setSelectedPlanId] = useState<string>('');
     const [customDays, setCustomDays] = useState<string>('');
-
-    const fetchUser = async () => {
-        if (!userId) return;
-        setIsLoading(true);
-        try {
-            const data = await adminService.getUserById(userId);
-            setUser(data);
-        } catch (err: any) {
-            console.error('Failed to fetch user:', err);
-            toast({
-                variant: 'destructive',
-                title: 'Error',
-                description: err.message || 'Failed to load user details',
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const fetchPlans = async () => {
-        try {
-            // We'll add getPlans to adminService if not already there
-            // Based on earlier view, it exists in backend, let's assume it's in service.
-            const data = await (adminService as any).getPlans?.() || [];
-            setPlans(data);
-        } catch (err) {
-            console.error('Failed to fetch plans:', err);
-        }
-    };
+    const [grantDialogOpen, setGrantDialogOpen] = useState(false);
+    const [isGrantingSub, setIsGrantingSub] = useState(false);
 
     useEffect(() => {
+        const fetchUser = async () => {
+            if (!userId) return;
+            setIsLoading(true);
+            try {
+                const data = await adminService.getUserById(userId);
+                setUser(data);
+            } catch (err: unknown) {
+                console.error('Failed to fetch user:', err);
+                const errorMsg = err as { message?: string };
+                toast({
+                    variant: 'destructive',
+                    title: 'Error',
+                    description: errorMsg.message || 'Failed to load user details',
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        const fetchPlans = async () => {
+            try {
+                const data = await adminService.getPlans();
+                setPlans(data);
+            } catch (err) {
+                console.error('Failed to fetch plans:', err);
+            }
+        };
+
         fetchUser();
         fetchPlans();
-    }, [userId]);
+    }, [userId, toast]);
 
     const handleGrantSubscription = async (planId?: number, days?: number) => {
         const targetPlanId = planId || parseInt(selectedPlanId);
@@ -90,9 +89,10 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
             );
             toast({ title: 'Success', description: `Premium subscription granted successfully` });
             setGrantDialogOpen(false);
-            fetchUser();
-        } catch (err: any) {
-            toast({ variant: 'destructive', title: 'Error', description: err.message });
+            window.location.reload();
+        } catch (err: unknown) {
+            const errorMsg = err as { message?: string };
+            toast({ variant: 'destructive', title: 'Error', description: errorMsg.message });
         } finally {
             setIsGrantingSub(false);
         }
@@ -192,9 +192,9 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
                                                 <SelectValue placeholder="Choose a plan..." />
                                             </SelectTrigger>
                                             <SelectContent className="bg-card border-border">
-                                                {plans.map((plan: any) => (
-                                                    <SelectItem key={plan.id} value={plan.id.toString()}>
-                                                        {plan.name} - {plan.duration} Days
+                                                {plans.map((plan: Record<string, unknown>) => (
+                                                    <SelectItem key={plan.id as string} value={(plan.id as number).toString()}>
+                                                        {plan.name as string} - {plan.duration as number} Days
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
@@ -381,7 +381,7 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
                                 <CardContent>
                                     {user.subscriptions && user.subscriptions.length > 0 ? (
                                         <div className="space-y-4">
-                                            {user.subscriptions.map((sub: any) => (
+                                            {user.subscriptions.map((sub: UserSubscription) => (
                                                 <div key={sub.id} className="flex justify-between items-center p-3 bg-muted rounded-lg">
                                                     <div>
                                                         <p className="font-medium">{sub.plan.name}</p>

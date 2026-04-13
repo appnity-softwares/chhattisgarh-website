@@ -8,9 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ChevronLeft, Mail, Phone, MapPin, Calendar, Award, Users, DollarSign, Wallet } from "lucide-react";
+import { ChevronLeft, Phone, MapPin, Users } from "lucide-react";
 import { agentsService } from "@/services/agents.service";
 import type { Agent, User } from "@/types/api.types";
 import { format } from 'date-fns';
@@ -38,11 +36,12 @@ export default function AgentDetailsPage() {
                 ]);
                 setAgent(agentData);
                 setUsers(usersData.users || []);
-            } catch (err: any) {
+            } catch (err: unknown) {
+                const errorMsg = err as { message?: string };
                 toast({
                     variant: 'destructive',
                     title: 'Error',
-                    description: err.message || 'Failed to load agent details'
+                    description: errorMsg.message || 'Failed to load agent details'
                 });
             } finally {
                 setIsLoading(false);

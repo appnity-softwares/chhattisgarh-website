@@ -1,13 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Heart, Star, Quote, Plus, Loader2, Camera, User } from "lucide-react";
+import { Heart, Star, Quote, Loader2 } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { useSuccessStories, useCreateSuccessStory } from "@/hooks/use-success-stories";
+import type { SuccessStory } from "@/types/api.types";
 
 export default function SuccessStoriesPage() {
     const { data: stories, isLoading } = useSuccessStories();
@@ -51,7 +53,7 @@ export default function SuccessStoriesPage() {
                         <Heart className="w-10 h-10 text-primary fill-primary" />
                     </motion.div>
                     <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase text-foreground">Success <span className="text-primary italic">Stories</span></h1>
-                    <p className="text-xl md:text-2xl text-muted-foreground font-light max-w-2xl mx-auto italic">"Every heart has a story, find yours in Chhattisgarh."</p>
+                    <p className="text-xl md:text-2xl text-muted-foreground font-light max-w-2xl mx-auto italic">&quot;Every heart has a story, find yours in Chhattisgarh.&quot;</p>
                     
                     <Button 
                         onClick={() => setShowForm(!showForm)}
@@ -73,7 +75,7 @@ export default function SuccessStoriesPage() {
                                 </div>
                                 <form onSubmit={handleSubmit} className="space-y-6">
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Partner's Name</label>
+                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Partner&apos;s Name</label>
                                         <Input 
                                             value={formData.partnerName}
                                             onChange={(e) => setFormData({...formData, partnerName: e.target.value})}
@@ -119,7 +121,7 @@ export default function SuccessStoriesPage() {
                                 <div key={i} className="h-[500px] bg-white/5 rounded-[3rem] animate-pulse" />
                             ))
                         ) : stories?.length > 0 ? (
-                            stories.map((story: any, idx: number) => (
+                            stories.map((story: SuccessStory, idx: number) => (
                                 <motion.div 
                                     key={story.id}
                                     initial={{ opacity: 0, y: 20 }}
@@ -128,9 +130,11 @@ export default function SuccessStoriesPage() {
                                 >
                                     <Card className="group bg-card/40 backdrop-blur-md border-white/5 rounded-[3rem] overflow-hidden hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500">
                                         <div className="relative h-80 overflow-hidden">
-                                            <img 
+                                            <Image 
                                                 src={story.imageUrl || `https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800&q=80`} 
-                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                                                alt={story.partnerName || "Success Story"}
+                                                fill
+                                                className="object-cover transition-transform duration-700 group-hover:scale-110" 
                                             />
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                                             <div className="absolute bottom-6 left-8 right-8">
@@ -149,7 +153,7 @@ export default function SuccessStoriesPage() {
                                             <div className="relative">
                                                 <Quote className="absolute -top-2 -left-2 w-8 h-8 text-primary opacity-20" />
                                                 <p className="text-muted-foreground font-medium italic leading-relaxed line-clamp-4 pl-6">
-                                                    "{story.story}"
+                                                    &quot;{story.story}&quot;
                                                 </p>
                                             </div>
                                             <div className="pt-6 border-t border-white/5 flex items-center justify-between">

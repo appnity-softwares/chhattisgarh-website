@@ -7,20 +7,18 @@ import {
     Heart, 
     MessageSquare, 
     Zap, 
-    ChevronRight, 
     Filter,
     ArrowUpRight,
     Star,
     ShieldCheck,
-    Sparkles,
-    Loader2
+    Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProfileCard } from "@/components/profile/profile-card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
-import { useInfiniteProfiles } from "@/hooks/use-infinite-profiles";
+import { useInfiniteProfiles, Profile } from "@/hooks/use-infinite-profiles";
+import { LucideIcon } from "lucide-react";
 
 export default function DashboardPage() {
     const { 
@@ -53,7 +51,14 @@ export default function DashboardPage() {
     const newProfiles = newPages?.pages[0]?.profiles?.slice(0, 4) || [];
     const discoveryProfiles = discoveryPages?.pages[0]?.profiles?.slice(0, 8) || [];
 
-    const statsConfig = [
+    const statsConfig: Array<{
+        label: string;
+        value: number;
+        trend: string;
+        icon: LucideIcon;
+        color: string;
+        link: string;
+    }> = [
         { label: "Profile Views", value: profileViews, trend: "+12%", icon: Users, color: "text-blue-400", link: "/dashboard/activity" },
         { label: "New Matches", value: newMatches, trend: "Discover", icon: Sparkles, color: "text-primary", link: "/dashboard/matches" },
         { label: "Interests", value: interestsReceived, trend: "Pending", icon: Heart, color: "text-accent", link: "/dashboard/activity" },
@@ -134,7 +139,7 @@ export default function DashboardPage() {
                             <div key={i} className="min-w-[320px] h-96 bg-card/20 rounded-[3rem] animate-pulse" />
                         ))
                     ) : (
-                        featuredProfiles.map((profile: any, i: number) => (
+                        featuredProfiles.map((profile: Profile, i: number) => (
                             <div key={profile.id} className="min-w-[320px]">
                                 <ProfileCard 
                                     id={profile.id}
@@ -142,7 +147,7 @@ export default function DashboardPage() {
                                     age={profile.age}
                                     city={profile.city}
                                     occupation={profile.occupation}
-                                    gender={profile.gender?.toLowerCase() || 'male'}
+                                    gender={(profile.gender?.toLowerCase() || 'male') as "male" | "female" | "other"}
                                     isVerified={profile.isVerified}
                                     image={profile.media?.[0]?.url}
                                     priority={i < 2}
@@ -169,7 +174,7 @@ export default function DashboardPage() {
                                 <div key={i} className="h-96 bg-card/20 rounded-[3rem] animate-pulse" />
                             ))
                         ) : (
-                            newProfiles.map((profile: any, i: number) => (
+                            newProfiles.map((profile: Profile) => (
                                 <ProfileCard 
                                     key={profile.id}
                                     id={profile.id}
@@ -177,7 +182,7 @@ export default function DashboardPage() {
                                     age={profile.age}
                                     city={profile.city}
                                     occupation={profile.occupation}
-                                    gender={profile.gender?.toLowerCase() || 'male'}
+                                    gender={(profile.gender?.toLowerCase() || 'male') as "male" | "female" | "other"}
                                     isVerified={profile.isVerified}
                                     image={profile.media?.[0]?.url}
                                 />
@@ -199,7 +204,7 @@ export default function DashboardPage() {
                                     <div key={i} className="h-96 bg-card/20 rounded-[3rem] animate-pulse" />
                                 ))
                             ) : (
-                                discoveryProfiles.map((profile: any) => (
+                                discoveryProfiles.map((profile: Profile) => (
                                     <ProfileCard 
                                         key={profile.id}
                                         id={profile.id}
@@ -207,7 +212,7 @@ export default function DashboardPage() {
                                         age={profile.age}
                                         city={profile.city}
                                         occupation={profile.occupation}
-                                        gender={profile.gender?.toLowerCase() || 'male'}
+                                        gender={(profile.gender?.toLowerCase() || 'male') as "male" | "female" | "other"}
                                         isVerified={profile.isVerified}
                                         image={profile.media?.[0]?.url}
                                     />

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 import { 
     RefreshCw, 
     ShieldCheck, 
@@ -20,12 +20,20 @@ import Link from "next/link";
 
 function BoostCheckoutContent() {
     const searchParams = useSearchParams();
-    const router = useRouter();
     const token = searchParams.get("token");
 
     const [loading, setLoading] = useState(true);
     const [verifying, setVerifying] = useState(false);
-    const [details, setDetails] = useState<any>(null);
+    const [details, setDetails] = useState<{
+        razorpayKey: string;
+        amount: number;
+        currency: string;
+        orderId: string;
+        boost: { name: string; duration: number; description?: string };
+        boostType: string;
+        user: { id: number; name: string; email: string; phone: string };
+        deepLinkSuccess: string;
+    } | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
 
@@ -40,9 +48,10 @@ function BoostCheckoutContent() {
             try {
                 const data = await webPaymentService.getBoostDetails(token);
                 setDetails(data);
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error("Boost details error:", err);
-                setError(err.message || "Failed to load boost session.");
+                const errorMsg = err as { message?: string };
+                setError(errorMsg.message || "Failed to load boost session.");
             } finally {
                 setLoading(false);
             }
@@ -61,7 +70,7 @@ function BoostCheckoutContent() {
             name: "Chhattisgarh Shadi",
             description: `Profile Boost: ${details.boost.name}`,
             order_id: details.orderId,
-            handler: async (response: any) => {
+            handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
                 setVerifying(true);
                 try {
                     const result = await webPaymentService.handlePaymentSuccess({
@@ -78,8 +87,9 @@ function BoostCheckoutContent() {
                             window.location.href = result.redirectUrl;
                         }, 3000);
                     }
-                } catch (err: any) {
-                    setError(err.message || "Payment verification failed.");
+                } catch (err: unknown) {
+                    const errorMsg = err as { message?: string };
+                    setError(errorMsg.message || "Payment verification failed.");
                     setVerifying(false);
                 }
             },

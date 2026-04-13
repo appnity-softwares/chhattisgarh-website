@@ -61,7 +61,7 @@ export function DeleteAccountForm() {
         title: "Request Submitted",
         description: "Your account deletion request has been received and will be processed within 48 hours.",
       });
-    } catch (error) {
+    } catch {
       toast({
         variant: "destructive",
         title: "Error",
@@ -82,7 +82,7 @@ export function DeleteAccountForm() {
         <p className="text-muted-foreground">
           Thank you. We have received your request to delete your account. 
           Our team will verify the details and complete the deletion process within 48 hours.
-          You will receive a confirmation email once it's done.
+          You will receive a confirmation email once it&apos;s done.
         </p>
         <Button onClick={() => window.location.href = "/"} variant="outline" className="mt-4">
           Return to Home

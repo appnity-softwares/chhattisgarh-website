@@ -21,9 +21,10 @@ interface ProfileCardProps {
     gender: 'male' | 'female' | 'other';
     priority?: boolean;
     id: number | string;
+    isShortlisted?: boolean;
 }
 
-export function ProfileCard({ name, age, city, occupation, education, image, isVerified, gender, priority, id }: ProfileCardProps) {
+export function ProfileCard({ name, age, city, occupation, education, image, isVerified, gender, priority, id, isShortlisted }: ProfileCardProps) {
     const { toggleShortlist, blockUser, reportUser } = useInteractions();
     const targetId = typeof id === 'string' ? parseInt(id) : id;
     const [showMenu, setShowMenu] = useState(false);
@@ -131,11 +132,11 @@ export function ProfileCard({ name, age, city, occupation, education, image, isV
                                     {city}
                                 </div>
                             </div>
-                            <div 
-                                onClick={(e) => { e.preventDefault(); toggleShortlist.mutate(targetId); }}
-                                className="bg-white/10 backdrop-blur-md p-2 rounded-xl border border-white/20 hover:bg-primary/20 transition-all cursor-pointer"
+                             <div 
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleShortlist.mutate({ targetUserId: targetId, isCurrentlyShortlisted: !!isShortlisted }); }}
+                                className={`bg-white/10 backdrop-blur-md p-2 rounded-xl border border-white/20 transition-all cursor-pointer ${isShortlisted ? 'bg-primary/20 border-primary/40' : 'hover:bg-primary/10'}`}
                             >
-                                <Heart className={`w-5 h-5 text-primary ${toggleShortlist.isPending ? 'animate-pulse' : ''} transition-all`} />
+                                <Heart className={`w-5 h-5 ${isShortlisted ? 'text-primary fill-primary' : 'text-primary'} ${toggleShortlist.isPending ? 'animate-pulse' : ''} transition-all`} />
                             </div>
                         </div>
                     </div>

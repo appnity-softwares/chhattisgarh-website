@@ -194,6 +194,7 @@ export default function DashboardPage() {
                                                 gender={(profile.gender?.toLowerCase() || 'male') as any}
                                                 isVerified={profile.isVerified}
                                                 image={profile.media?.[0]?.url}
+                                                isShortlisted={profile.isShortlisted}
                                             />
                                         ))
                                     )}
@@ -228,6 +229,7 @@ export default function DashboardPage() {
                                                 gender={(profile.gender?.toLowerCase() || 'male') as any}
                                                 isVerified={profile.isVerified}
                                                 image={profile.media?.[0]?.url}
+                                                isShortlisted={profile.isShortlisted}
                                             />
                                         ))
                                     )}
@@ -262,6 +264,7 @@ export default function DashboardPage() {
                                                 gender={(profile.gender?.toLowerCase() || 'male') as any}
                                                 isVerified={profile.isVerified}
                                                 image={profile.media?.[0]?.url}
+                                                isShortlisted={profile.isShortlisted}
                                             />
                                         ))
                                     )}

@@ -17,7 +17,7 @@ export function useShortlist() {
             const res = await interactionsService.getShortlists(accessToken);
             if (!res.success) throw new Error(res.message || "Failed to fetch shortlist");
             
-            const data = res.data?.shortlists || res.data;
+            const data = res.data?.profiles || res.data;
             return Array.isArray(data) ? data : [];
         },
         enabled: !!accessToken,

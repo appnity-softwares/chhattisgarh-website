@@ -164,6 +164,7 @@ export default function ShortlistPage() {
                                 age={profile.age || 0} 
                                 city={profile.city || "Not Specified"}
                                 occupation={profile.occupation || "Not Specified"}
+                                isShortlisted={true}
                             />
                             {/* Remove from shortlist button */}
                             <button

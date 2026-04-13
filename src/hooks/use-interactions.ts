@@ -102,18 +102,26 @@ export function useInteractions() {
     });
 
     const toggleShortlist = useMutation({
-        mutationFn: async (targetUserId: number) => {
+        mutationFn: async ({ targetUserId, isCurrentlyShortlisted }: { targetUserId: number; isCurrentlyShortlisted: boolean }) => {
             if (!accessToken) throw new Error("Unauthorized");
-            const res = await interactionsService.addToShortlist(targetUserId, accessToken);
-            if (!res.success) throw new Error(res.message || "Failed to update shortlist");
-            return res.data;
+            if (isCurrentlyShortlisted) {
+                const res = await interactionsService.removeFromShortlist(targetUserId, accessToken);
+                if (!res.success) throw new Error(res.message || "Failed to remove from shortlist");
+                return { action: 'removed', targetUserId };
+            } else {
+                const res = await interactionsService.addToShortlist(targetUserId, accessToken);
+                if (!res.success) throw new Error(res.message || "Failed to add to shortlist");
+                return { action: 'added', targetUserId };
+            }
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
             toast({
-                title: "Shortlist Updated",
-                description: "Profile has been added to your shortlist.",
+                title: data.action === 'added' ? "Added to Shortlist" : "Removed from Shortlist",
+                description: data.action === 'added' ? "Profile has been added to your shortlist." : "Profile removed from your shortlist.",
             });
             queryClient.invalidateQueries({ queryKey: ["interactions", "shortlists"] });
+            queryClient.invalidateQueries({ queryKey: ["profiles", "search"] });
+            queryClient.invalidateQueries({ queryKey: ["profiles", "recommendations"] });
         },
         onError: (error: unknown) => {
             const err = error as Error;

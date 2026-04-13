@@ -18,6 +18,7 @@ export interface Profile {
     isVerified?: boolean;
     media?: Array<{ url: string }>;
     score?: number;
+    isShortlisted?: boolean;
 }
 
 export function useInfiniteProfiles(params: Record<string, unknown> = {}) {
@@ -51,8 +52,8 @@ export function useInfiniteProfiles(params: Record<string, unknown> = {}) {
                     // If we are looking at 'sent', we want 'receiver'
                     // If we are looking at 'received', we want 'sender'
                     const target = params.type === 'sent' ? m.receiver : m.sender;
-                    // @ts-expect-error - target might be null but we handle with empty object
-                    const profileData = target?.profile || target || {};
+                    // Normalize data: match endpoints return 'matches', search returns 'profiles'
+                    const profileData = (target?.profile || target || {}) as any;
                     
                     return {
                         ...profileData,

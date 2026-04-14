@@ -36,6 +36,8 @@ import { useChat } from "@/hooks/use-chat";
 import { useConversations } from "@/hooks/use-conversations";
 import { Badge } from "@/components/ui/badge";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useUserAccess } from "@/hooks/use-user-access";
+import { useInteractionStore } from "@/store/interaction-store";
 
 export default function ChatPage({ initialUserId: propUserId }: { initialUserId?: number | null }) {
     const searchParams = useSearchParams();
@@ -68,11 +70,35 @@ export default function ChatPage({ initialUserId: propUserId }: { initialUserId?
         }
     }, [urlUserId, selectedUserId]);
 
+    const { relationships, syncFromApi, sendInterest } = useInteractionStore();
     const activeConv = useMemo(() => conversations?.find(c => c.user.id === selectedUserId), [conversations, selectedUserId]);
+    
+    // Sync store with conversation data
+    useEffect(() => {
+        if (conversations) {
+            conversations.forEach(c => {
+                syncFromApi(c.user.id, { 
+                    status: 'accepted', // If they are in the chat list, usually matched
+                    isVerified: c.user.profile.isVerified,
+                    updatedAt: c.lastMessageAt
+                });
+            });
+        }
+    }, [conversations, syncFromApi]);
+
+    const { data: access } = useUserAccess();
+    const isPremium = access?.isPremium;
+
+    const state = selectedUserId ? relationships[selectedUserId] : null;
+    const isMatched = state?.type === "matched";
+    const hasAccess = isMatched || isPremium;
+    
     const { messages, isTyping, isOnline, isLoading: chatLoading, sendMessage, sendTyping, deleteMessage, deleteConversation } = useChat(selectedUserId);
     
     const [msgInput, setMsgInput] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    const suggestions = ["Hi 👋", "Tell me more about yourself", "What are your interests?", "I'd love to connect!"];
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -82,9 +108,10 @@ export default function ChatPage({ initialUserId: propUserId }: { initialUserId?
         scrollToBottom();
     }, [messages, isTyping]);
 
-    const handleSend = () => {
-        if (!msgInput.trim()) return;
-        sendMessage(msgInput);
+    const handleSend = (text?: string) => {
+        const message = text || msgInput;
+        if (!message.trim()) return;
+        sendMessage(message);
         setMsgInput("");
         sendTyping(false);
     };
@@ -187,6 +214,23 @@ export default function ChatPage({ initialUserId: propUserId }: { initialUserId?
                             <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest leading-loose italic opacity-60">Begin your secure and meaningful conversation with your prospective soulmate today.</p>
                         </div>
                     </div>
+                ) : !hasAccess ? (
+                    /* LOCKED STATE */
+                    <div className="h-full flex flex-col items-center justify-center text-center space-y-6 p-12 bg-black/20">
+                        <div className="p-8 bg-amber-500/10 rounded-full border border-amber-500/20">
+                            <ShieldCheck className="w-16 h-16 text-amber-500 opacity-50" />
+                        </div>
+                        <div className="space-y-4 max-w-md">
+                            <h3 className="text-2xl font-black uppercase tracking-tighter text-white">Conversation <span className="text-amber-500">Locked</span></h3>
+                            <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest leading-loose italic opacity-60">You can only chat with members who have accepted your interest.</p>
+                            <Button 
+                                onClick={() => sendInterest(selectedUserId!)}
+                                className="h-14 w-full rounded-2xl bg-amber-500 text-black hover:bg-amber-600 font-black text-xs uppercase tracking-widest shadow-xl shadow-amber-500/20"
+                            >
+                                Send Interest to Chat
+                            </Button>
+                        </div>
+                    </div>
                 ) : (
                     <>
                         {/* Chat Header */}
@@ -203,10 +247,17 @@ export default function ChatPage({ initialUserId: propUserId }: { initialUserId?
                                     <div className={`absolute bottom-0 right-0 h-4 w-4 rounded-full border-2 border-[#0d0d0d] shadow-lg ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-muted-foreground'}`} />
                                 </div>
                                 <div className="cursor-pointer" onClick={() => router.push(`/dashboard/profile/${selectedUserId}`)}>
-                                    <p className="font-black text-lg tracking-tight hover:text-primary transition-colors">{activeConv?.user.profile.firstName} {activeConv?.user.profile.lastName}</p>
+                                    <div className="flex items-center gap-2">
+                                        <p className="font-black text-lg tracking-tight hover:text-primary transition-colors text-white">{activeConv?.user.profile.firstName} {activeConv?.user.profile.lastName}</p>
+                                        {activeConv?.user.profile.isVerified && <ShieldCheck className="w-4 h-4 text-emerald-500" />}
+                                    </div>
                                     <div className="flex items-center gap-2 mt-1">
                                         <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
                                             {isTyping ? <span className="italic animate-pulse">is typing message...</span> : (isOnline ? 'Online Now' : 'Last seen recently')}
+                                        </p>
+                                        <span className="text-[8px] text-muted-foreground opacity-30">•</span>
+                                        <p className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em] flex items-center gap-1">
+                                            Matched on {state?.matchDate ? new Date(state.matchDate).toLocaleDateString() : 'SOMEDAY'} <Heart className="w-2.5 h-2.5 fill-primary text-primary" />
                                         </p>
                                     </div>
                                 </div>
@@ -270,10 +321,13 @@ export default function ChatPage({ initialUserId: propUserId }: { initialUserId?
                                 </div>
                             ) : messages.length === 0 ? (
                                 <div className="h-full flex flex-col items-center justify-center text-center space-y-6">
-                                    <div className="p-8 bg-white/5 rounded-full border border-dashed border-white/10">
-                                        <MessageSquare className="w-12 h-12 text-primary opacity-20" />
+                                    <div className="p-10 bg-white/5 rounded-[3rem] border border-dashed border-white/10 animate-pulse">
+                                        <MessageSquare className="w-16 h-16 text-primary opacity-20" />
                                     </div>
-                                    <p className="font-black uppercase tracking-[0.4em] text-[10px] italic text-muted-foreground opacity-40 truncate px-10">Start your journey with a friendly Hello</p>
+                                    <div className="space-y-2">
+                                        <h3 className="text-xl font-black uppercase tracking-tighter text-white">Start your <span className="text-primary italic">Conversation</span></h3>
+                                        <p className="font-black uppercase tracking-[0.4em] text-[10px] italic text-muted-foreground opacity-40 max-w-xs px-10">Matched with {activeConv?.user.profile.firstName}. Start with a friendly Hello!</p>
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="space-y-10">
@@ -348,6 +402,21 @@ export default function ChatPage({ initialUserId: propUserId }: { initialUserId?
                             )}
                             <div ref={messagesEndRef} className="h-4" />
                         </div>
+
+                        {/* Suggestions */}
+                        {messages.length === 0 && (
+                            <div className="px-10 py-4 flex flex-wrap gap-2 animate-in fade-in slide-in-from-bottom-2 duration-700">
+                                {suggestions.map((s, i) => (
+                                    <button 
+                                        key={i} 
+                                        onClick={() => handleSend(s)}
+                                        className="px-5 py-2.5 bg-white/5 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary/20 hover:border-primary/30 transition-all active:scale-95 shadow-xl"
+                                    >
+                                        {s}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
 
                         {/* Chat Input Area */}
                         <div className="p-6 lg:p-10 border-t border-white/5 bg-black/60 backdrop-blur-3xl z-20">

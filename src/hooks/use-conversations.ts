@@ -13,6 +13,7 @@ export interface Conversation {
         profile: {
             firstName: string;
             lastName: string;
+            isVerified?: boolean;
             media: Array<{ url: string }>;
         };
     };

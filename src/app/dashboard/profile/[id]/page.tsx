@@ -32,6 +32,7 @@ import { useMemo, useState, useEffect, useCallback } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useUserAuthStore } from "@/stores/user-auth-store";
 import { useUserAccess } from "@/hooks/use-user-access";
+import { useInteractionStore } from "@/store/interaction-store";
 
 export default function ProfileDetailPage() {
   const params = useParams();
@@ -41,26 +42,46 @@ export default function ProfileDetailPage() {
   const { user: currentUser } = useUserAuthStore();
   const { data: profile, isLoading, error } = useProfileDetails(profileUserId);
   const { data: access } = useUserAccess();
+  
   const { 
-    sendInterest, 
-    sendSuperInterest,
-    acceptInterest, 
-    rejectInterest, 
-    toggleShortlist 
-  } = useInteractions();
+      relationships, 
+      setRelationship, 
+      sendInterest, 
+      sendSuperInterest, 
+      acceptInterest, 
+      rejectInterest, 
+      toggleShortlist, 
+      syncFromApi 
+  } = useInteractionStore();
 
   const isOwnProfile = useMemo(() => {
     return currentUser?.id === profileUserId;
   }, [currentUser, profileUserId]);
 
-  const relationship = profile?.relationship;
-  // If user is premium, they might be able to chat even without a direct accepted status from the relationship hook
+  const isPremium = useMemo(() => access?.isPremium, [access]);
+
+  const state = relationships[profileUserId] || { type: "none", isShortlisted: profile?.isShortlisted, isSuper: false, lastActionBy: null };
+
   const canChat = useMemo(() => {
     if (isOwnProfile) return false;
-    if (relationship?.canChat) return true;
-    if (access?.isPremium && access?.canChat) return true;
-    return relationship?.status === "accepted";
-  }, [isOwnProfile, relationship, access]);
+    return state.type === "matched" || isPremium;
+  }, [isOwnProfile, state.type, isPremium]);
+
+  // Sync with store on mount/update
+  useEffect(() => {
+    if (profile?.relationship) {
+        syncFromApi(profileUserId, {
+            ...profile.relationship,
+            isShortlisted: profile.isShortlisted,
+            isMatched: profile.relationship.status === 'accepted'
+        });
+    } else if (profile) {
+        setRelationship(profileUserId, {
+            isShortlisted: profile.isShortlisted,
+            type: profile.isLiked ? "sent" : "none" // Basic fallback
+        });
+    }
+  }, [profileUserId, profile, syncFromApi, setRelationship]);
 
   // Carousel
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
@@ -116,13 +137,13 @@ export default function ProfileDetailPage() {
       } as ActionItem;
     }
 
-    switch (relationship?.status) {
+    switch (state.type) {
       case "received":
         return {
           label: "ACCEPT INTEREST",
-          action: () => { if (relationship?.matchId) acceptInterest.mutate(relationship.matchId); },
-          disabled: !relationship?.matchId,
-          pending: acceptInterest.isPending,
+          action: () => acceptInterest(profileUserId, profile?.relationship?.matchId || 0),
+          disabled: false,
+          pending: false,
           icon: Heart,
           variant: "primary" as const
         } as ActionItem;
@@ -135,26 +156,47 @@ export default function ProfileDetailPage() {
           icon: Clock,
           variant: "secondary" as const
         } as ActionItem;
-      case "accepted":
+      case "matched":
         return {
-          label: "START CHATTING",
+          label: "VIEW MESSAGES",
           action: () => router.push(`/dashboard/chat?userId=${profileUserId}`),
           disabled: false,
           pending: false,
           icon: MessageSquare,
           variant: "primary" as const
         } as ActionItem;
-      default:
+      case "rejected":
         return {
-          label: "SEND INTEREST",
-          action: () => sendInterest.mutate(profileUserId),
-          disabled: sendInterest.isPending,
-          pending: sendInterest.isPending,
+          label: "CONNECT AGAIN",
+          action: () => sendInterest(profileUserId),
+          disabled: false,
+          pending: false,
+          icon: Send,
+          variant: "primary" as const
+        } as ActionItem;
+      default:
+        // Premium can chat immediately
+        if (canChat) {
+            return {
+                label: "SEND MESSAGE 💬",
+                action: () => router.push(`/dashboard/chat?userId=${profileUserId}`),
+                disabled: false,
+                pending: false,
+                icon: MessageSquare,
+                variant: "primary" as const
+            } as ActionItem;
+        }
+
+        return {
+          label: "CONNECT ❤️",
+          action: () => sendInterest(profileUserId),
+          disabled: false,
+          pending: false,
           icon: Send,
           variant: "primary" as const
         } as ActionItem;
     }
-  }, [acceptInterest, isOwnProfile, profileUserId, relationship, router, sendInterest]);
+  }, [isOwnProfile, state.type, router, profileUserId, acceptInterest, profile, sendInterest]);
 
   if (isLoading) {
     return (
@@ -187,8 +229,8 @@ export default function ProfileDetailPage() {
             <Share2 className="w-4 h-4 text-muted-foreground" />
           </Button>
           {!isOwnProfile && (
-            <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/5 h-11 w-11 border border-white/5 transition-all active:scale-95" onClick={() => toggleShortlist.mutate({ targetUserId: profileUserId, isCurrentlyShortlisted: !!isShortlisted })}>
-              <Heart className={`w-4 h-4 ${isShortlisted ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+            <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/5 h-11 w-11 border border-white/5 transition-all active:scale-95" onClick={() => toggleShortlist(profileUserId)}>
+              <Heart className={`w-4 h-4 ${state.isShortlisted ? "fill-primary text-primary" : "text-muted-foreground"}`} />
             </Button>
           )}
         </div>
@@ -253,7 +295,7 @@ export default function ProfileDetailPage() {
              </div>
           </div>
 
-          {/* Action Hub */}
+          {/* Action Hub - Strictly Defined Behavior */}
           <div className="flex flex-col gap-4">
             {/* Main Primary Action */}
             <Button 
@@ -265,31 +307,45 @@ export default function ProfileDetailPage() {
             </Button>
             
             <div className="flex gap-4">
-              {/* Secondary Message Action */}
+              {/* Shortlist Action */}
               <Button 
-                onClick={() => router.push(`/dashboard/chat?userId=${profileUserId}`)} 
-                disabled={!canChat} 
-                className={`h-16 flex-1 rounded-2xl font-black text-xs uppercase tracking-widest gap-3 transition-all active:scale-95 ${canChat ? 'bg-white/5 border border-white/10 text-primary hover:bg-white/10' : 'bg-white/5 border border-white/5 text-muted-foreground opacity-30'}`}
+                onClick={() => toggleShortlist(profileUserId)} 
+                className={`h-16 flex-1 rounded-2xl font-black text-xs uppercase tracking-widest gap-3 transition-all active:scale-95 ${state.isShortlisted ? 'bg-primary/20 text-primary border-primary/30' : 'bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10'}`}
               >
-                <MessageSquare className="w-5 h-5" /> Message
+                <Heart className={`w-5 h-5 ${state.isShortlisted ? 'fill-current' : ''}`} />
+                {state.isShortlisted ? "Shortlisted" : "Shortlist"}
               </Button>
 
-              {/* Super Interest Action - Hidden if own profile or already connected */}
-              {!isOwnProfile && (!relationship || relationship.status === "none") && (
+              {/* Priority Upgrade for Sent state */}
+              {state.type === "sent" && !state.isSuper && (
                 <Button 
-                  onClick={() => sendSuperInterest.mutate(profileUserId)} 
-                  disabled={sendSuperInterest.isPending} 
+                  onClick={() => sendSuperInterest(profileUserId)} 
                   className="h-16 flex-1 rounded-2xl bg-amber-500 text-black hover:bg-amber-600 font-black text-xs uppercase tracking-widest gap-3 transition-all active:scale-95 shadow-xl shadow-amber-500/10"
                 >
-                  {sendSuperInterest.isPending ? <Loader2 className="animate-spin" /> : <Zap className="w-5 h-5 fill-current" />}
+                  <Zap className="w-5 h-5 fill-current" />
+                  Upgrade to Priority ⚡
+                </Button>
+              )}
+
+              {/* Secondary Priority Action for None state */}
+              {state.type === "none" && (
+                <Button 
+                  onClick={() => sendSuperInterest(profileUserId)} 
+                  className="h-16 flex-1 rounded-2xl bg-amber-500 text-black hover:bg-amber-600 font-black text-xs uppercase tracking-widest gap-3 transition-all active:scale-95 shadow-xl shadow-amber-500/10"
+                >
+                  <Zap className="w-5 h-5 fill-current" />
                   Priority
                 </Button>
               )}
 
-              {/* Reject/Skip */}
-              {!isOwnProfile && (
-                <Button variant="outline" className="h-16 w-16 rounded-2xl border-white/10 bg-white/5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-95" onClick={() => rejectInterest.mutate(profileUserId)}>
-                  <X className="w-6 h-6" />
+              {/* Reject/Skip for Received state */}
+              {state.type === "received" && (
+                <Button 
+                  variant="outline" 
+                  className="h-16 flex-1 rounded-2xl border-white/10 bg-white/5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-95" 
+                  onClick={() => rejectInterest(profileUserId, profile?.relationship?.matchId ?? undefined)}
+                >
+                  <X className="w-6 h-6 mr-2" /> Reject
                 </Button>
               )}
             </div>

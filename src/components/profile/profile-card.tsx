@@ -29,6 +29,8 @@ import { useInteractions } from "@/hooks/use-interactions";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { useRouter } from "next/navigation";
+import { useUserAccess } from "@/hooks/use-user-access";
+import { useInteractionStore } from "@/store/interaction-store";
 
 interface ProfileCardProps {
     name: string;
@@ -56,23 +58,65 @@ interface ProfileCardProps {
     };
 }
 
-export function ProfileCard({ name, age, city, occupation, education, image, media, isVerified, gender, priority, id, isShortlisted, statusBadge, isMatched, canChat, showInteractions, customActions, onActionSuccess, onRemove, relationship: propRelationship }: ProfileCardProps) {
-    const { toggleShortlist, sendInterest, sendSuperInterest, rejectProfile, blockUser, reportUser } = useInteractions();
+export function ProfileCard({ name, age, city, occupation, education, image, media, isVerified, gender, priority, id, isShortlisted, statusBadge, isMatched, canChat: propCanChat, showInteractions, customActions, onActionSuccess, onRemove, relationship: propRelationship }: ProfileCardProps) {
     const targetId = typeof id === 'string' ? parseInt(id) : id;
+    const { 
+        relationships, 
+        setRelationship, 
+        sendInterest, 
+        sendSuperInterest, 
+        acceptInterest, 
+        rejectInterest, 
+        toggleShortlist, 
+        blockUser,
+        syncFromApi 
+    } = useInteractionStore();
+    
+    // Sync with store on mount/update
+    useEffect(() => {
+        if (propRelationship) {
+            syncFromApi(targetId, {
+                ...propRelationship,
+                isShortlisted,
+                isMatched
+            });
+        } else {
+            setRelationship(targetId, {
+                isShortlisted,
+                type: isMatched ? "matched" : "none"
+            });
+        }
+    }, [targetId, propRelationship, isShortlisted, isMatched, syncFromApi, setRelationship]);
+
+    const state = relationships[targetId] || { type: "none", isShortlisted, isSuper: false, lastActionBy: null };
+
     const [showMenu, setShowMenu] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
     const [reportReason, setReportReason] = useState("");
     const [reportDescription, setReportDescription] = useState("");
-    const [isShortlistedInternal, setIsShortlistedInternal] = useState(isShortlisted);
     const menuRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
 
-    // Sync with prop if it changes from outside
-    useEffect(() => {
-        setIsShortlistedInternal(isShortlisted);
-    }, [isShortlisted]);
+    const { reportUser } = useInteractions();
+    const { data: access } = useUserAccess();
+    const isPremium = access?.isPremium;
 
-    // Carousel Setup
+    const handleReportSubmit = async () => {
+        if (!reportReason) return;
+        try {
+            await reportUser.mutateAsync({ 
+                userId: targetId, 
+                reason: reportReason as any, 
+                description: reportDescription 
+            });
+            setShowReportModal(false);
+            setReportReason("");
+            setReportDescription("");
+        } catch (error) {
+            console.error("Report failed:", error);
+        }
+    };
+
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, skipSnaps: false });
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
@@ -99,16 +143,11 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
         if (emblaApi) emblaApi.scrollNext();
     }, [emblaApi]);
 
-    // Close menu on outside click
-    useEffect(() => {
-        const handler = (e: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-                setShowMenu(false);
-            }
-        };
-        document.addEventListener('mousedown', handler);
-        return () => document.removeEventListener('mousedown', handler);
-    }, []);
+    const handleAction = async (e: React.MouseEvent, action: () => Promise<void>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        await action();
+    };
 
     const profileImages = useMemo(() => {
         if (media && media.length > 0) return media.map(m => m.url);
@@ -117,49 +156,6 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
             ? "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80"
             : "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80"];
     }, [media, image, gender]);
-
-    const handleToggleShortlist = (e: React.MouseEvent) => {
-        e.preventDefault(); e.stopPropagation();
-        
-        // Optimistic update
-        const previousState = isShortlistedInternal;
-        setIsShortlistedInternal(!previousState);
-        
-        toggleShortlist.mutate({ 
-            targetUserId: targetId, 
-            isCurrentlyShortlisted: !!previousState 
-        }, {
-            onError: (err) => {
-                // Rollback on failure
-                setIsShortlistedInternal(previousState);
-                console.error("Shortlist toggle failed:", err);
-            },
-            onSuccess: (data: any) => {
-                if (data && typeof data.isShortlisted === 'boolean') {
-                    setIsShortlistedInternal(data.isShortlisted);
-                }
-            }
-        });
-    };
-
-    const handleBlock = (e: React.MouseEvent) => {
-        e.preventDefault(); e.stopPropagation();
-        if (window.confirm(`Block ${name}? They won't be able to see your profile or message you.`)) {
-            blockUser.mutate(targetId, {
-                onSuccess: () => onActionSuccess?.(id, 'block')
-            });
-        }
-        setShowMenu(false);
-    };
-
-    const handleReportSubmit = (e: React.MouseEvent) => {
-        e.preventDefault(); e.stopPropagation();
-        if (!reportReason) return;
-        reportUser.mutate({ userId: targetId, reason: reportReason, description: reportDescription });
-        setShowReportModal(false);
-    };
-
-    const relationshipStatus = propRelationship?.status;
 
     return (
         <motion.div
@@ -170,7 +166,6 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
             onClick={() => router.push(`/dashboard/profile/${id}`)}
         >
             <Card className="h-full overflow-hidden bg-transparent border-none flex flex-col">
-                {/* Compact Image/Carousel Section */}
                 <div className="relative aspect-[4/5] overflow-hidden shrink-0">
                     <div className="h-full" ref={emblaRef}>
                         <div className="flex h-full">
@@ -178,7 +173,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                                 <div className="relative flex-[0_0_100%] min-w-0" key={index}>
                                     <Image
                                         src={src}
-                                        alt={`${name} - Photo ${index + 1}`}
+                                        alt={`${name}`}
                                         fill
                                         sizes="(max-width: 768px) 100vw, 300px"
                                         className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -190,45 +185,24 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                     
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
                     
-                    {/* Carousel Navigation */}
-                    {profileImages.length > 1 && (
-                        <>
-                            <div className="absolute inset-y-0 left-0 w-1/4 flex items-center justify-start pl-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                <button onClick={scrollPrev} className="bg-black/40 backdrop-blur-md p-1.5 rounded-full text-white hover:bg-primary transition-all">
-                                    <ChevronLeft className="w-4 h-4" />
-                                </button>
-                            </div>
-                            <div className="absolute inset-y-0 right-0 w-1/4 flex items-center justify-end pr-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                <button onClick={scrollNext} className="bg-black/40 backdrop-blur-md p-1.5 rounded-full text-white hover:bg-primary transition-all">
-                                    <ChevronRight className="w-4 h-4" />
-                                </button>
-                            </div>
-                            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1 z-20">
-                                {scrollSnaps.map((_, index) => (
-                                    <div 
-                                        key={index}
-                                        className={`h-1 rounded-full transition-all duration-300 ${index === selectedIndex ? 'w-4 bg-primary' : 'w-1 bg-white/30'}`}
-                                    />
-                                ))}
-                            </div>
-                        </>
-                    )}
-
-                    {/* Top Content Buttons */}
+                    {/* Interaction Buttons Overlay */}
                     <div className="absolute top-4 inset-x-4 flex justify-between items-start z-30">
                         <div className="flex flex-col gap-1.5">
                             {statusBadge}
                             <div className="flex flex-wrap gap-1.5">
                                 {isVerified && (
                                     <Badge className="bg-emerald-500/90 backdrop-blur-md text-white border-none py-1 px-2.5 rounded-full flex items-center gap-1.5 font-black text-[8px] uppercase tracking-widest shadow-xl">
-                                        <ShieldCheck className="w-3 h-3" />
-                                        Verified
+                                        <ShieldCheck className="w-3 h-3" /> Verified
                                     </Badge>
                                 )}
-                                {(priority || propRelationship?.status === 'super_interest') && (
-                                    <Badge className="bg-amber-500/90 backdrop-blur-md text-black border-none py-1 px-2.5 rounded-full font-black text-[8px] uppercase tracking-widest shadow-xl flex items-center gap-1.5">
-                                        <Crown className="w-3 h-3" />
-                                        Premium
+                                {state.type === 'matched' && (
+                                    <Badge className="bg-primary backdrop-blur-md text-white border-none py-1 px-2.5 rounded-full flex items-center gap-1.5 font-black text-[8px] uppercase tracking-widest shadow-xl animate-pulse">
+                                        <Heart className="w-3 h-3 fill-current" /> Matched
+                                    </Badge>
+                                )}
+                                {state.isSuper && (
+                                    <Badge className="bg-amber-500 backdrop-blur-md text-black border-none py-1 px-2.5 rounded-full flex items-center gap-1.5 font-black text-[8px] uppercase tracking-widest shadow-xl">
+                                        <Zap className="w-3 h-3 fill-current" /> Priority
                                     </Badge>
                                 )}
                             </div>
@@ -250,21 +224,15 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                                         <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowReportModal(true); setShowMenu(false); }} className="w-full flex items-center gap-2 px-4 py-3 text-[9px] font-black uppercase tracking-widest text-amber-500 hover:bg-white/5 transition-colors">
                                             <Flag className="w-3.5 h-3.5" /> Report
                                         </button>
-                                        <button onClick={handleBlock} className="w-full flex items-center gap-2 px-4 py-3 text-[9px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 transition-colors border-t border-white/5">
+                                        <button onClick={(e) => handleAction(e, () => blockUser(targetId))} className="w-full flex items-center gap-2 px-4 py-3 text-[9px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 transition-colors border-t border-white/5">
                                             <Ban className="w-3.5 h-3.5" /> Block
                                         </button>
-                                        {onRemove && (
-                                            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onRemove(id); }} className="w-full flex items-center gap-2 px-4 py-3 text-[9px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition-colors border-t border-white/5">
-                                                <Trash2 className="w-3.5 h-3.5" /> Remove
-                                            </button>
-                                        )}
                                     </motion.div>
                                 )}
                             </AnimatePresence>
                         </div>
                     </div>
 
-                    {/* Bottom Info Overlay */}
                     <div className="absolute bottom-3 left-4 right-4 text-white">
                         <h3 className="text-base font-black tracking-tight flex items-center gap-1.5 drop-shadow-lg">
                             {name}, {age}
@@ -276,75 +244,90 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                     </div>
                 </div>
 
-                {/* Interaction Section */}
                 <div className="p-4 space-y-4 flex-1 flex flex-col justify-between">
                     <div className="space-y-2">
                         <div className="flex items-center gap-2.5 text-[10px] text-muted-foreground font-black uppercase tracking-widest bg-white/[0.03] px-3 py-2.5 rounded-2xl truncate border border-white/5">
                             <Briefcase className="w-3.5 h-3.5 text-primary shrink-0 opacity-80" />
                             {occupation}
                         </div>
-                        {education && (
-                            <div className="flex items-center gap-2.5 text-[10px] text-muted-foreground font-black uppercase tracking-widest bg-white/[0.03] px-3 py-2.5 rounded-2xl truncate border border-white/5">
-                                <GraduationCap className="w-3.5 h-3.5 text-primary shrink-0 opacity-80" />
-                                {education}
-                            </div>
-                        )}
                     </div>
 
-                    {/* Prominent Interactions */}
+                    {/* ACTION HUB - Strictly Defined Behavior */}
                     <div className="flex gap-2.5 h-11">
                         <button 
-                            onClick={handleToggleShortlist}
-                            className={`aspect-square flex items-center justify-center rounded-2xl border transition-all active:scale-95 ${isShortlistedInternal ? 'bg-primary/20 text-primary border-primary/30' : 'bg-white/5 border-white/5 hover:border-primary/40 text-muted-foreground'}`}
-                            title={isShortlistedInternal ? "Remove from Shortlist" : "Add to Shortlist"}
+                            onClick={(e) => handleAction(e, () => toggleShortlist(targetId))}
+                            className={`aspect-square flex items-center justify-center rounded-2xl border transition-all active:scale-95 ${state.isShortlisted ? 'bg-primary/20 text-primary border-primary/30' : 'bg-white/5 border-white/5 hover:border-primary/40 text-muted-foreground'}`}
                         >
-                            <Heart className={`w-5 h-5 ${isShortlistedInternal ? 'fill-current' : ''}`} />
+                            <Heart className={`w-5 h-5 ${state.isShortlisted ? 'fill-current' : ''}`} />
                         </button>
 
-                        {(isMatched || relationshipStatus === 'accepted') ? (
+                        { (state.type === 'matched' || isPremium) ? (
                             <Link 
                                 href={`/dashboard/chat?userId=${targetId}`}
                                 onClick={(e) => e.stopPropagation()}
                                 className="flex-1 flex items-center justify-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl hover:bg-emerald-500/20 transition-all active:scale-95 font-black text-[10px] uppercase tracking-widest"
                             >
                                 <MessageSquare className="w-4 h-4" />
-                                <span>Chat</span>
+                                <span>{state.type === 'matched' ? 'Message' : 'Pre-Match Chat 💬'}</span>
                             </Link>
-                        ) : (
-                            <>
-                                {canChat && (
-                                    <Link 
-                                        href={`/dashboard/chat?userId=${targetId}`}
-                                        onClick={(e) => e.stopPropagation()}
-                                        className="aspect-square flex items-center justify-center rounded-2xl bg-white/5 border border-white/5 text-primary hover:bg-white/10 transition-all active:scale-95"
-                                        title="Send Message"
-                                    >
-                                        <MessageSquare className="w-4 h-4" />
-                                    </Link>
-                                )}
-                                
-                                {relationshipStatus === 'sent' ? (
-                                    <button disabled className="flex-1 bg-white/5 border border-white/5 text-muted-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest opacity-50 cursor-not-allowed">
-                                        Pending
-                                    </button>
-                                ) : (
-                                    <button 
-                                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); sendInterest.mutate(targetId, { onSuccess: () => onActionSuccess?.(id, 'interest') }); }}
-                                        className="flex-1 flex items-center justify-center gap-2 bg-primary text-white rounded-2xl hover:bg-primary/90 transition-all active:scale-95 font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/30"
-                                    >
-                                        {sendInterest.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                                        <span>Connect</span>
-                                    </button>
-                                )}
-                                
+                        ) : state.type === 'received' ? (
+                            <div className="flex-1 flex gap-2">
                                 <button 
-                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); sendSuperInterest.mutate(targetId, { onSuccess: () => onActionSuccess?.(id, 'super_interest') }); }}
-                                    className="aspect-square flex items-center justify-center rounded-2xl bg-amber-500 text-black hover:bg-amber-600 transition-all active:scale-95 shadow-lg shadow-amber-500/20"
+                                    onClick={(e) => handleAction(e, () => acceptInterest(targetId, propRelationship?.matchId || 0))}
+                                    className="flex-1 bg-emerald-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all active:scale-95"
+                                >
+                                    Accept
+                                </button>
+                                <button 
+                                    onClick={(e) => handleAction(e, () => rejectInterest(targetId, propRelationship?.matchId))}
+                                    className="px-4 bg-white/5 text-muted-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all"
+                                >
+                                    Skip
+                                </button>
+                            </div>
+                        ) : state.type === 'sent' ? (
+                            <div className="flex-1 flex gap-2">
+                                <button disabled className="flex-1 bg-white/10 text-muted-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-not-allowed">
+                                    Pending
+                                </button>
+                                {!state.isSuper && (
+                                    <button 
+                                        onClick={(e) => handleAction(e, () => sendSuperInterest(targetId))}
+                                        className="aspect-square flex items-center justify-center rounded-2xl bg-amber-500 text-black hover:bg-amber-600 transition-all"
+                                        title="Upgrade to Priority"
+                                    >
+                                        <Zap className="w-4 h-4 fill-current" />
+                                    </button>
+                                )}
+                            </div>
+                        ) : state.type === 'rejected' ? (
+                            <button 
+                                onClick={(e) => handleAction(e, () => sendInterest(targetId))}
+                                className="flex-1 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-primary/90 transition-all"
+                            >
+                                Connect Again
+                            </button>
+                        ) : state.type === 'blocked' ? (
+                            <button disabled className="flex-1 bg-red-500/10 text-red-500 border border-red-500/20 rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-not-allowed">
+                                User Blocked
+                            </button>
+                        ) : (
+                            <div className="flex-1 flex gap-2">
+                                <button 
+                                    onClick={(e) => handleAction(e, () => sendInterest(targetId))}
+                                    className="flex-1 flex items-center justify-center gap-2 bg-primary text-white rounded-2xl hover:bg-primary/90 transition-all active:scale-95 font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/30"
+                                >
+                                    <Send className="w-4 h-4" />
+                                    <span>Connect</span>
+                                </button>
+                                <button 
+                                    onClick={(e) => handleAction(e, () => sendSuperInterest(targetId))}
+                                    className="aspect-square flex items-center justify-center rounded-2xl bg-amber-500 text-black hover:bg-amber-600 transition-all"
                                     title="Priority Connection"
                                 >
-                                    {sendSuperInterest.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4 fill-current" />}
+                                    <Zap className="w-4 h-4 fill-current" />
                                 </button>
-                            </>
+                            </div>
                         )}
                         
                         <Button asChild className="h-full px-5 bg-white text-black font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-white/90 active:scale-95 shadow-xl">

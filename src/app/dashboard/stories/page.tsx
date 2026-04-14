@@ -87,7 +87,7 @@ export default function SuccessStoriesPage() {
                         <Heart className="w-8 h-8 text-white fill-current" />
                     </div>
                     <div className="space-y-2 max-w-2xl">
-                        <h1 className="text-4xl md:text-5xl font-black tracking-tight uppercase leading-tight">
+                        <h1 className="text-4xl md:text-6xl font-black tracking-tight uppercase leading-tight">
                             Real Stories, <span className="text-rose-400 italic">Real Love.</span> ❤️
                         </h1>
                         <p className="text-white/80 font-medium text-lg">Celebrate the beautiful unions found right here on Chhattisgarh Shadi.</p>

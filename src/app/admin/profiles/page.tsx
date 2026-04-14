@@ -29,7 +29,13 @@ export default function AdminProfilesPage() {
         try {
             const data = await adminService.getProfiles(page, 10);
             setProfiles(data.profiles || []);
-            setPagination(data.pagination || { page: 1, limit: 10, total: 0, totalPages: 0 });
+            const pag = (data as any).pagination;
+            setPagination({
+                page: Number(pag?.page) || 1,
+                limit: Number(pag?.limit) || 10,
+                total: Number(pag?.total) || 0,
+                totalPages: Number(pag?.totalPages) || 0
+            });
         } catch (err: unknown) {
             console.error('Failed to fetch profiles:', err);
             const errorMsg = err as { message?: string };
@@ -152,7 +158,10 @@ export default function AdminProfilesPage() {
                                                             <DropdownMenuLabel>Review Actions</DropdownMenuLabel>
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuItem onClick={() => router.push(`/admin/users/${profile.userId}`)} className="cursor-pointer">
-                                                                View Profile Details
+                                                                View User Details
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => router.push(`/admin/profiles/${profile.userId}/edit`)} className="cursor-pointer text-primary">
+                                                                Edit Profile Details
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem 
                                                                 onClick={async () => {

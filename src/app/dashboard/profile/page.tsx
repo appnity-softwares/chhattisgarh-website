@@ -187,8 +187,15 @@ export default function ProfilePage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
                 <div className="space-y-2">
-                    <h1 className="text-3xl md:text-4xl font-black tracking-tight uppercase text-foreground">Edit <span className="text-primary italic">Profile</span></h1>
-                    <p className="text-muted-foreground font-light text-lg">Keep your details updated to find better matches</p>
+                    <h1 className="text-3xl md:text-5xl font-black tracking-tight uppercase text-foreground">
+                        {(!userData?.profile || (completion?.percentage || 0) < 20) ? "Create" : "Edit"}{" "}
+                        <span className="text-primary italic">Profile</span>
+                    </h1>
+                    <p className="text-muted-foreground font-medium text-lg italic">
+                        {(!userData?.profile || (completion?.percentage || 0) < 20) 
+                            ? "Welcome! Let's build your identity to find your perfect match." 
+                            : "Keep your details updated to find better matches"}
+                    </p>
                 </div>
                 
                 <Button 
@@ -227,7 +234,7 @@ export default function ProfilePage() {
                                     <motion.div key="basic" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">First Name</Label>
+                                                <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">First Name</Label>
                                                 <Input 
                                                     value={formData.firstName || ""} 
                                                     onChange={(e) => setFormData({...formData, firstName: e.target.value})}

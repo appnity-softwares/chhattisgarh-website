@@ -17,7 +17,8 @@ import {
     Calendar, Mail, Phone, MapPin,
     Shield, Ban,
     AlertTriangle, CreditCard, Activity,
-    User as UserIcon
+    User as UserIcon,
+    Pencil
 } from "lucide-react";
 import{
     Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger
@@ -256,9 +257,20 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
                             {/* Personal Details */}
                             <Card className="md:col-span-2">
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <UserIcon className="h-5 w-5" /> Personal Information
-                                    </CardTitle>
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="flex items-center gap-2">
+                                            <UserIcon className="h-5 w-5" /> Personal Information
+                                        </CardTitle>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => router.push(`/admin/profiles/${userId}/edit`)}
+                                            className="h-8 border-primary/20 hover:bg-primary/10 text-primary-foreground font-bold"
+                                        >
+                                            <Pencil className="w-3 h-3 mr-2" />
+                                            {profile ? 'Edit Profile' : 'Create Profile'}
+                                        </Button>
+                                    </div>
                                 </CardHeader>
                                 <CardContent>
                                     {profile ? (

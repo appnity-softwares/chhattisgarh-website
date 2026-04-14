@@ -14,7 +14,8 @@ import {
     Star,
     ShieldCheck,
     Sparkles,
-    Search
+    Search,
+    User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,12 +23,15 @@ import { ProfileCard } from "@/components/profile/profile-card";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
 import { useInfiniteProfiles, Profile } from "@/hooks/use-infinite-profiles";
 import { useUserAccess } from "@/hooks/use-user-access";
+import { useProfile, useProfileCompletion } from "@/hooks/use-profile";
 import { LucideIcon } from "lucide-react";
 
 function DashboardContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const { data: access } = useUserAccess();
+    const { data: profile } = useProfile();
+    const { data: completion } = useProfileCompletion();
     
     // Read tab from URL, default to 'suggested'
     const activeTab = (searchParams.get("tab") as 'suggested' | 'new' | 'discover') || 'suggested';
@@ -60,7 +64,7 @@ function DashboardContent() {
 
     const featuredProfiles = featuredPages?.pages[0]?.profiles?.slice(0, 8) || [];
     const newProfiles = newPages?.pages[0]?.profiles?.slice(0, 8) || [];
-    const discoveryProfiles = discoveryPages?.pages.flatMap(p => p.profiles) || [];
+    const discoveryProfiles = discoveryPages?.pages.flatMap((p: any) => p.profiles) || [];
 
     const [hiddenIds, setHiddenIds] = useState<Set<number | string>>(new Set());
 
@@ -94,6 +98,39 @@ function DashboardContent() {
 
     return (
         <div className="space-y-6 pb-20">
+            {/* Profile Completion Alert for New Users */}
+            {(!profile?.profile || (completion?.percentage || 0) < 50) && (
+                <motion.div 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="p-6 rounded-[2rem] bg-amber-400 text-black shadow-2xl shadow-amber-400/20 relative overflow-hidden group"
+                >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-bl-full -mr-8 -mt-8 blur-2xl group-hover:scale-150 transition-all duration-1000" />
+                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div className="flex items-center gap-5">
+                            <div className="w-14 h-14 bg-black/10 rounded-2xl flex items-center justify-center shrink-0">
+                                <User className="w-7 h-7" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black uppercase tracking-tight">Complete Your Profile</h3>
+                                <p className="text-sm font-bold opacity-80 italic">Verified profiles are 10x more likely to find a match!</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4 w-full md:w-auto">
+                            <div className="flex-1 md:w-40 h-2 bg-black/10 rounded-full overflow-hidden">
+                                <div className="h-full bg-black transition-all duration-1000" style={{ width: `${completion?.percentage || 0}%` }} />
+                            </div>
+                            <span className="font-black text-sm">{completion?.percentage || 0}%</span>
+                            <Link href="/dashboard/profile">
+                                <Button className="bg-black text-white hover:bg-black/90 font-black rounded-xl px-8 h-12">
+                                    FINISH NOW
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
+                </motion.div>
+            )}
+
             {/* Compact Welcome Bar */}
             <motion.div 
                 initial={{ opacity: 0, y: 10 }}
@@ -139,7 +176,7 @@ function DashboardContent() {
                                             <stat.icon className="w-4 h-4" />
                                         </div>
                                         <div>
-                                            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">{stat.label}</p>
+                                        <p className="text-[11px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">{stat.label}</p>
                                             {statsLoading ? (
                                                 <div className="h-6 w-10 bg-white/5 rounded animate-pulse" />
                                             ) : (
@@ -179,7 +216,7 @@ function DashboardContent() {
                     ))}
                 </div>
                 
-                <div className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/60">
+                <div className="flex items-center gap-3 text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/60">
                     <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
                     Real-time Discovery
                 </div>
@@ -269,7 +306,7 @@ function DashboardContent() {
                     </Card>
 
                     <div className="bg-card/20 backdrop-blur-xl rounded-[1.5rem] p-5 border border-white/5">
-                        <h4 className="text-[9px] font-black uppercase tracking-[0.4em] text-primary/70 mb-5">Quick Stats</h4>
+                        <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-primary/70 mb-5">Quick Stats</h4>
                         <div className="space-y-4">
                             {[
                                 { icon: ShieldCheck, label: "Profile Status", value: "Verified", color: "text-green-500" },
@@ -281,7 +318,7 @@ function DashboardContent() {
                                         <item.icon className="w-3.5 h-3.5" />
                                     </div>
                                     <div>
-                                        <p className="text-[9px] font-bold text-muted-foreground uppercase leading-none mb-1">{item.label}</p>
+                                        <p className="text-[11px] font-bold text-muted-foreground uppercase leading-none mb-1">{item.label}</p>
                                         <p className="text-xs font-black text-white uppercase leading-none">{item.value}</p>
                                     </div>
                                 </div>

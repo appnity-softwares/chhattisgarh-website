@@ -72,6 +72,20 @@
   background: hsl(var(--primary) / 0.5);
 }
 
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--white) / 0.05);
+  border-radius: 10px;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.3);
+}
+
 /* ===== GLASSMORPHISM ===== */
 .glass-card {
   background: var(--glass-bg);

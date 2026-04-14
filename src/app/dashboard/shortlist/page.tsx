@@ -124,7 +124,7 @@ export default function ShortlistPage() {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
                 <div className="space-y-2">
-                    <h1 className="text-3xl md:text-5xl font-black tracking-tighter uppercase text-foreground">My <span className="text-primary italic">Shortlist</span></h1>
+                    <h1 className="text-3xl md:text-6xl font-black tracking-tighter uppercase text-foreground">My <span className="text-primary italic">Shortlist</span></h1>
                     <p className="text-muted-foreground font-light text-lg">
                         {isLoading ? 'Loading...' : `${profiles.length} profiles saved for later`}
                     </p>
@@ -213,11 +213,11 @@ export default function ShortlistPage() {
                             <div className="bg-primary/20 p-2 rounded-xl">
                                 <Heart className="w-5 h-5 text-primary fill-primary/30" />
                             </div>
-                            <h4 className="font-black text-xs uppercase tracking-widest text-foreground">Shortlist Stats</h4>
+                             <h4 className="font-black text-[11px] uppercase tracking-widest text-foreground">Shortlist Stats</h4>
                         </div>
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <p className="text-xs text-muted-foreground font-bold">Total Saved</p>
+                                 <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-wider">Total Saved</p>
                                 <p className="text-lg font-black text-foreground">{profiles.length}</p>
                             </div>
                             <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
@@ -227,7 +227,7 @@ export default function ShortlistPage() {
                                     className="h-full bg-primary" 
                                 />
                             </div>
-                            <p className="text-[10px] text-muted-foreground leading-tight italic">
+                             <p className="text-[11px] text-muted-foreground/80 leading-tight italic font-medium">
                                 Shortlisted profiles are 3x more likely to lead to a connection.
                             </p>
                         </div>

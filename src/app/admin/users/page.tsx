@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   MoreHorizontal, Search, RefreshCw, ChevronLeft, ChevronRight,
   Download, Trash2, Shield, Filter, X, Users, Ban, CheckCircle,
-  Eye, AlertTriangle, UserCheck, Upload, FileText, Calendar, CreditCard, Star
+  Eye, AlertTriangle, UserCheck, Upload, FileText, Calendar, CreditCard, Star, Pencil
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
@@ -464,6 +464,9 @@ export default function AdminUsersPage() {
                           <DropdownMenuSeparator className="bg-white/[0.06]" />
                           <DropdownMenuItem onClick={() => router.push(`/admin/users/${user.id}`)} className="gap-2 cursor-pointer">
                             <Eye className="w-3.5 h-3.5" /> View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => router.push(`/admin/profiles/${user.id}/edit`)} className="gap-2 cursor-pointer text-primary">
+                            <Pencil className="w-3.5 h-3.5" /> Manage Profile
                           </DropdownMenuItem>
                           <DropdownMenuSeparator className="bg-white/[0.06]" />
                           <DropdownMenuLabel className="text-xs text-muted-foreground">Change Role</DropdownMenuLabel>

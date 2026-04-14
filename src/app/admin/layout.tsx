@@ -153,7 +153,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <aside
         className={`
           hidden lg:flex flex-col flex-shrink-0
-          admin-sidebar transition-[width] duration-300 ease-in-out overflow-hidden
+          admin-sidebar transition-[width] duration-300 ease-in-out
           ${sidebarCollapsed ? 'w-16' : 'w-60'}
         `}
       >
@@ -288,7 +288,7 @@ function SidebarContent({
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-hidden py-4 px-3 space-y-1">
+      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1 custom-scrollbar">
         {navGroups.map((group) => (
           <div key={group.label} className="mb-3">
             {!sidebarCollapsed && (

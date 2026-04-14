@@ -102,8 +102,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     <Logo />
                 </div>
 
-                <nav className="flex-1 px-3 space-y-1 mt-1 overflow-y-auto custom-scrollbar no-scrollbar text-xs">
-                    <p className="px-3 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mb-2">Navigation</p>
+                <nav className="flex-1 px-3 space-y-1 mt-1 overflow-y-auto custom-scrollbar no-scrollbar text-sm">
+                    <p className="px-4 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mb-3 mt-4">Navigation</p>
                     {sidebarLinks.map((link) => {
                         const Icon = link.icon;
                         const active = pathname === link.href;
@@ -113,10 +113,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all group ${active ? 'bg-primary text-white shadow-xl shadow-primary/20' : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'}`}
+                                className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group ${active ? 'bg-primary text-white shadow-xl shadow-primary/20' : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'}`}
                             >
-                                <Icon className={`w-4 h-4 ${active ? 'text-white' : 'text-primary/70 group-hover:scale-110 transition-transform'}`} />
-                                <span className="font-bold tracking-tight">{link.label}</span>
+                                <Icon className={`w-5 h-5 ${active ? 'text-white' : 'text-primary/80 group-hover:scale-110 transition-transform font-bold'}`} />
+                                <span className="font-bold tracking-tight text-sm">{link.label}</span>
                                 {hasBadge && !active && (
                                     <span className="ml-auto bg-primary text-white text-[9px] font-black h-4 w-4 rounded-full flex items-center justify-center animate-pulse">
                                         {unreadMessages}
@@ -129,7 +129,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         );
                     })}
 
-                    <p className="px-3 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mt-6 mb-2">Personal</p>
+                    <p className="px-4 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mt-8 mb-3">Personal</p>
                     {secondaryLinks.map((link) => {
                         const Icon = link.icon;
                         const active = pathname === link.href;
@@ -137,10 +137,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all group ${active ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'}`}
+                                className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group ${active ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'}`}
                             >
-                                <Icon className={`w-4 h-4 ${active ? 'text-white' : 'text-muted-foreground group-hover:text-primary'}`} />
-                                <span className="font-bold tracking-tight">{link.label}</span>
+                                <Icon className={`w-5 h-5 ${active ? 'text-white' : 'text-muted-foreground group-hover:text-primary transition-transform group-hover:scale-110'}`} />
+                                <span className="font-bold tracking-tight text-sm">{link.label}</span>
                             </Link>
                         );
                     })}

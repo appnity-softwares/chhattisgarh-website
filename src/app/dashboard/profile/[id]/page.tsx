@@ -21,8 +21,13 @@ import {
   MessageSquare,
   X,
   Zap,
-  Crown
+  Crown,
+  Target,
+  Activity,
+  Users
 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { usePartnerPreference } from "@/hooks/use-partner-preference";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -42,6 +47,7 @@ export default function ProfileDetailPage() {
   const { user: currentUser } = useUserAuthStore();
   const { data: profile, isLoading, error } = useProfileDetails(profileUserId);
   const { data: access } = useUserAccess();
+  const { preference: myPref } = usePartnerPreference();
   
   const { 
       relationships, 
@@ -115,6 +121,41 @@ export default function ProfileDetailPage() {
       });
     }
   };
+
+  const matchScoreData = useMemo(() => {
+    if (!profile || !myPref) return null;
+    
+    // Logic for mock/calculated match score
+    const scores = {
+        age: 0,
+        community: 0,
+        location: 0,
+        overall: 0
+    };
+
+    // Age Match
+    if (myPref.ageFrom && myPref.ageTo && profile.age) {
+        if (profile.age >= myPref.ageFrom && profile.age <= myPref.ageTo) scores.age = 100;
+        else if (profile.age >= myPref.ageFrom - 2 && profile.age <= myPref.ageTo + 2) scores.age = 70;
+        else scores.age = 40;
+    } else scores.age = 80;
+
+    // Community Match
+    const myReligions = Array.isArray(myPref.religion) ? myPref.religion : [];
+    if (myReligions.length > 0 && profile.religion) {
+        if (myReligions.includes(profile.religion)) scores.community = 100;
+        else scores.community = 20;
+    } else scores.community = 90;
+
+    // Location Match
+    if (myPref.city && profile.city && myPref.city.toLowerCase() === profile.city.toLowerCase()) scores.location = 100;
+    else if (myPref.state && profile.state && myPref.state.toLowerCase() === profile.state.toLowerCase()) scores.location = 80;
+    else scores.location = 50;
+
+    scores.overall = Math.round((scores.age * 0.4) + (scores.community * 0.4) + (scores.location * 0.2));
+    
+    return scores;
+  }, [profile, myPref]);
 
   const actionConfig = useMemo(() => {
     interface ActionItem {
@@ -362,6 +403,66 @@ export default function ProfileDetailPage() {
                {profile.firstName} <span className="text-primary italic">{profile.lastName}</span>
              </h1>
           </div>
+
+          {/* Match Score Card */}
+          {matchScoreData && !isOwnProfile && (
+              <Card className="bg-gradient-to-br from-primary/10 via-background to-background border-primary/20 p-8 rounded-[3rem] shadow-3xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity">
+                      <Target className="w-40 h-40 text-primary rotate-12" />
+                  </div>
+                  
+                  <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
+                      {/* Circular Match Score Indicator */}
+                      <div className="relative flex flex-col items-center justify-center h-40 w-40 shrink-0">
+                          <svg className="w-full h-full transform -rotate-90">
+                              <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-white/5" />
+                              <circle 
+                                cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" 
+                                strokeDasharray={440}
+                                strokeDashoffset={440 - (440 * matchScoreData.overall) / 100}
+                                strokeLinecap="round"
+                                className="text-primary drop-shadow-[0_0_8px_rgba(var(--primary-rgb),0.5)] transition-all duration-1000 ease-out" 
+                              />
+                          </svg>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center">
+                              <span className="text-4xl font-black">{matchScoreData.overall}%</span>
+                              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Match</span>
+                          </div>
+                      </div>
+
+                      <div className="flex-1 space-y-6 w-full">
+                          <div className="space-y-1">
+                              <h4 className="text-xl font-black uppercase italic tracking-tight">Compatibility Score</h4>
+                              <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">Calculated based on your partner preferences</p>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                              <div className="space-y-2">
+                                  <div className="flex justify-between items-center px-1">
+                                      <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5"><Clock className="w-3 h-3 text-blue-400" /> Age</span>
+                                      <span className="text-[10px] font-bold">{matchScoreData.age}%</span>
+                                  </div>
+                                  <Progress value={matchScoreData.age} className="h-1.5 bg-white/5" indicatorClassName="bg-blue-400" />
+                              </div>
+                              <div className="space-y-2">
+                                  <div className="flex justify-between items-center px-1">
+                                      <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5"><Users className="w-3 h-3 text-rose-400" /> Community</span>
+                                      <span className="text-[10px] font-bold">{matchScoreData.community}%</span>
+                                  </div>
+                                  <Progress value={matchScoreData.community} className="h-1.5 bg-white/5" indicatorClassName="bg-rose-400" />
+                              </div>
+                              <div className="space-y-2">
+                                  <div className="flex justify-between items-center px-1">
+                                      <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5"><MapPin className="w-3 h-3 text-amber-400" /> Location</span>
+                                      <span className="text-[10px] font-bold">{matchScoreData.location}%</span>
+                                  </div>
+                                  <Progress value={matchScoreData.location} className="h-1.5 bg-white/5" indicatorClassName="bg-amber-400" />
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </Card>
+          )}
 
           <Tabs defaultValue="about" className="space-y-8">
             <TabsList className="bg-white/5 p-1.5 rounded-3xl border border-white/5 flex w-full">

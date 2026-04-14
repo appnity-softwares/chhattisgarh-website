@@ -17,10 +17,14 @@ import {
 import { 
     Loader2, Save, X, User as UserIcon, MapPin, 
     Heart, Briefcase, GraduationCap, Languages, 
-    Calendar, ShieldCheck, Trash2
+    Calendar, Eye, Trash2
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { validateProfile, calculateCompleteness, ValidationErrors, CompletenessResult } from "@/utils/profile-validation";
+import { cn } from "@/lib/utils";
+import { ProfileCompletenessTracker } from "@/components/profile/ProfileCompletenessTracker";
+import { ProfilePreviewDialog } from "@/components/profile/ProfilePreviewDialog";
 
 const MARITAL_STATUSES = [
     { value: 'NEVER_MARRIED', label: 'Never Married' },
@@ -54,6 +58,9 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
     const [isDeleting, setIsDeleting] = useState(false);
     const [user, setUser] = useState<User | null>(null);
     const [hasProfile, setHasProfile] = useState(false);
+    const [errors, setErrors] = useState<ValidationErrors>({});
+    const [completeness, setCompleteness] = useState<CompletenessResult>(calculateCompleteness({}));
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
     const [formData, setFormData] = useState({
         firstName: '',
@@ -118,12 +125,34 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
         fetchData();
     }, [userId, toast]);
 
+    useEffect(() => {
+        setCompleteness(calculateCompleteness(formData));
+    }, [formData]);
+
+    const isFormIncomplete = !formData.firstName || !formData.lastName || !formData.dateOfBirth || !formData.gender || !formData.religion || !formData.city || !formData.state || !formData.height;
+
     const handleSave = async () => {
-        if (!formData.firstName || !formData.lastName || !formData.dateOfBirth) {
-            toast({ variant: 'destructive', title: 'Validation Error', description: 'Name and Date of Birth are required' });
+        const validation = validateProfile(formData);
+        
+        if (!validation.isValid) {
+            setErrors(validation.errors);
+            toast({ 
+                variant: 'destructive', 
+                title: 'Validation Failed', 
+                description: 'Please fix the errors before saving.' 
+            });
+            
+            // Scroll to first error
+            const firstErrorField = Object.keys(validation.errors)[0];
+            const element = document.getElementsByName(firstErrorField)[0];
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                element.focus();
+            }
             return;
         }
 
+        setErrors({});
         setIsSaving(true);
         try {
             if (hasProfile) {
@@ -181,10 +210,24 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
+                        <Button 
+                            variant="outline" 
+                            onClick={() => setIsPreviewOpen(true)} 
+                            className="border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary font-bold"
+                        >
+                            <Eye className="w-4 h-4 mr-2" /> Preview
+                        </Button>
                         <Button variant="outline" onClick={() => router.back()} className="border-white/10 bg-white/5">
                            <X className="w-4 h-4 mr-2" /> Cancel
                         </Button>
-                        <Button onClick={handleSave} disabled={isSaving} className="bg-primary hover:bg-primary/90 text-white gap-2 font-bold px-8">
+                        <Button 
+                            onClick={handleSave} 
+                            disabled={isSaving || isFormIncomplete} 
+                            className={cn(
+                                "bg-primary hover:bg-primary/90 text-white gap-2 font-bold px-8 transition-all",
+                                isFormIncomplete && "opacity-50 cursor-not-allowed grayscale"
+                            )}
+                        >
                             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                             {hasProfile ? 'Update Profile' : 'Create Profile'}
                         </Button>
@@ -197,20 +240,29 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                         {/* Section 1: Identity */}
                         <Card className="bg-card/40 border-white/5 backdrop-blur-md">
                             <CardHeader>
-                                <CardTitle className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
-                                    <ShieldCheck className="w-4 h-4 text-emerald-400" /> Identity Info
-                                </CardTitle>
+                                <CardDescription className="text-xs flex items-center gap-2">
+                           <span className={cn(
+                               "px-2 py-0.5 rounded-full font-bold",
+                               completeness.total > 80 ? "bg-emerald-500/20 text-emerald-400" : 
+                               completeness.total > 50 ? "bg-amber-500/20 text-amber-400" : 
+                               "bg-rose-500/20 text-rose-400"
+                           )}>
+                               Profile Strength: {completeness.total}%
+                           </span>
+                        </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] uppercase font-bold text-muted-foreground">First Name</Label>
+                                        <Label className={cn("text-[10px] uppercase font-bold", errors.firstName ? "text-rose-400" : "text-muted-foreground")}>First Name *</Label>
                                         <Input 
+                                            name="firstName"
                                             value={formData.firstName}
                                             onChange={(e) => setFormData({...formData, firstName: e.target.value})}
-                                            className="bg-white/5 border-white/10"
+                                            className={cn("bg-white/5 border-white/10", errors.firstName && "border-rose-500/50 bg-rose-500/5")}
                                             placeholder="Aaradhya"
                                         />
+                                        {errors.firstName && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.firstName}</p>}
                                     </div>
                                     <div className="space-y-2">
                                         <Label className="text-[10px] uppercase font-bold text-muted-foreground">Middle Name</Label>
@@ -222,38 +274,43 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] uppercase font-bold text-muted-foreground">Last Name</Label>
+                                        <Label className={cn("text-[10px] uppercase font-bold", errors.lastName ? "text-rose-400" : "text-muted-foreground")}>Last Name *</Label>
                                         <Input 
+                                            name="lastName"
                                             value={formData.lastName}
                                             onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-                                            className="bg-white/5 border-white/10"
+                                            className={cn("bg-white/5 border-white/10", errors.lastName && "border-rose-500/50 bg-rose-500/5")}
                                             placeholder="Sharma"
                                         />
+                                        {errors.lastName && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.lastName}</p>}
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
-                                            <Calendar className="w-3 h-3" /> Date of Birth
+                                        <Label className={cn("text-[10px] uppercase font-bold flex items-center gap-1", errors.dateOfBirth ? "text-rose-400" : "text-muted-foreground")}>
+                                            <Calendar className="w-3 h-3" /> Date of Birth *
                                         </Label>
                                         <Input 
+                                            name="dateOfBirth"
                                             type="date"
                                             value={formData.dateOfBirth}
                                             onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})}
-                                            className="bg-white/5 border-white/10"
+                                            className={cn("bg-white/5 border-white/10", errors.dateOfBirth && "border-rose-500/50 bg-rose-500/5")}
                                         />
+                                        {errors.dateOfBirth && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.dateOfBirth}</p>}
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] uppercase font-bold text-muted-foreground">Gender</Label>
-                                        <Select value={formData.gender} onValueChange={(v) => setFormData({...formData, gender: v})}>
-                                            <SelectTrigger className="bg-white/5 border-white/10 h-10">
+                                        <Label className={cn("text-[10px] uppercase font-bold", errors.gender ? "text-rose-400" : "text-muted-foreground")}>Gender *</Label>
+                                        <Select name="gender" value={formData.gender} onValueChange={(v) => setFormData({...formData, gender: v})}>
+                                            <SelectTrigger className={cn("bg-white/5 border-white/10 h-10", errors.gender && "border-rose-500/50 bg-rose-500/5")}>
                                                 <SelectValue placeholder="Select Gender" />
                                             </SelectTrigger>
                                             <SelectContent className="bg-card border-border">
                                                 {GENDERS.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}
                                             </SelectContent>
                                         </Select>
+                                        {errors.gender && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.gender}</p>}
                                     </div>
                                 </div>
                             </CardContent>
@@ -280,15 +337,16 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                         </Select>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] uppercase font-bold text-muted-foreground">Religion</Label>
-                                        <Select value={formData.religion} onValueChange={(v) => setFormData({...formData, religion: v})}>
-                                            <SelectTrigger className="bg-white/5 border-white/10 h-10">
+                                        <Label className={cn("text-[10px] uppercase font-bold", errors.religion ? "text-rose-400" : "text-muted-foreground")}>Community / Religion *</Label>
+                                        <Select name="religion" value={formData.religion} onValueChange={(v) => setFormData({...formData, religion: v})}>
+                                            <SelectTrigger className={cn("bg-white/5 border-white/10 h-10", errors.religion && "border-rose-500/50 bg-rose-500/5")}>
                                                 <SelectValue placeholder="Select Religion" />
                                             </SelectTrigger>
                                             <SelectContent className="bg-card border-border">
                                                 {RELIGIONS.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
                                             </SelectContent>
                                         </Select>
+                                        {errors.religion && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.religion}</p>}
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -370,24 +428,43 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label className="text-[10px] uppercase font-bold text-muted-foreground">City</Label>
+                                    <Label className={cn("text-[10px] uppercase font-bold", errors.height ? "text-rose-400" : "text-muted-foreground")}>Height (cm) *</Label>
                                     <Input 
-                                        value={formData.city}
-                                        onChange={(e) => setFormData({...formData, city: e.target.value})}
-                                        className="bg-white/5 border-white/10"
-                                        placeholder="Raipur"
+                                        name="height"
+                                        value={formData.height}
+                                        onChange={(e) => setFormData({...formData, height: e.target.value})}
+                                        className={cn("bg-white/5 border-white/10", errors.height && "border-rose-500/50 bg-rose-500/5")}
+                                        placeholder="170"
                                     />
+                                    {errors.height && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.height}</p>}
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-[10px] uppercase font-bold text-muted-foreground">State</Label>
-                                    <Select value={formData.state} onValueChange={(v) => setFormData({...formData, state: v})}>
-                                        <SelectTrigger className="bg-white/5 border-white/10 h-10">
+                                    <Label className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
+                                        <MapPin className="w-4 h-4 text-amber-400" /> Location
+                                    </Label>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className={cn("text-[10px] uppercase font-bold", errors.city ? "text-rose-400" : "text-muted-foreground")}>City *</Label>
+                                    <Input 
+                                        name="city"
+                                        value={formData.city}
+                                        onChange={(e) => setFormData({...formData, city: e.target.value})}
+                                        className={cn("bg-white/5 border-white/10", errors.city && "border-rose-500/50 bg-rose-500/5")}
+                                        placeholder="Raipur"
+                                    />
+                                    {errors.city && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.city}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className={cn("text-[10px] uppercase font-bold", errors.state ? "text-rose-400" : "text-muted-foreground")}>State *</Label>
+                                    <Select name="state" value={formData.state} onValueChange={(v) => setFormData({...formData, state: v})}>
+                                        <SelectTrigger className={cn("bg-white/5 border-white/10 h-10", errors.state && "border-rose-500/50 bg-rose-500/5")}>
                                             <SelectValue placeholder="Select State" />
                                         </SelectTrigger>
                                         <SelectContent className="bg-card border-border">
                                             {STATES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
+                                    {errors.state && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.state}</p>}
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-[10px] uppercase font-bold text-muted-foreground">Country</Label>
@@ -446,6 +523,15 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                     </div>
                 </div>
             </div>
+
+            <ProfileCompletenessTracker data={completeness} />
+
+            <ProfilePreviewDialog 
+                isOpen={isPreviewOpen} 
+                onClose={() => setIsPreviewOpen(false)} 
+                data={formData}
+                completeness={completeness}
+            />
         </AdminPageWrapper>
     );
 }

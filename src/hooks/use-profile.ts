@@ -153,19 +153,18 @@ export function useProfile() {
   const query = useQuery({
     queryKey: ["me"],
     queryFn: async () => {
-      // Fetch user data first as it's the source of truth for the account
+      // Fetch user data first
       const userRes = await apiService.get(apiConfig.endpoints.users.me);
       const userData = userRes.data.data;
 
-      let profileData: any = { profile: {}, profileCompleteness: 0 };
+      let profileData: any = { profile: null, profileCompleteness: 0 };
       
       try {
-        // Try fetching profile, but don't fail the whole query if it hits a 400 (common if no profile exists)
+        // Option A: Call GET /profiles/me on load to check existence
         const profileRes = await apiService.get(apiConfig.endpoints.profiles.me);
         profileData = profileRes.data.data;
       } catch (err: any) {
-        console.warn("Could not fetch profile (me), might not exist yet:", err.response?.status);
-        // If it's something other than a 404 or 400, we might want to log it specifically
+        // If 404 or 400, profile doesn't exist yet
         if (err.response?.status !== 404 && err.response?.status !== 400) {
           throw err;
         }
@@ -180,43 +179,50 @@ export function useProfile() {
 
       return {
         ...userData,
-        profile: {
-          ...(userData.profile || {}),
-          ...(profileData.profile || {}),
-        },
-        profileCompleteness:
-          profileData.profileCompleteness ??
-          profileData.profile?.profileCompleteness ??
-          userData.profile?.profileCompleteness ??
-          0,
+        profile: profileData?.profile || null,
+        profileCompleteness: profileData?.profileCompleteness ?? 0,
         subscription: activeSubscription,
       } as UserProfile;
     },
     staleTime: 300000,
   });
 
-  const updateProfile = useMutation({
+  // Derived states
+  const profileExists = !!query.data?.profile?.id;
+  const isFirstSave = !profileExists;
+
+  const saveProfile = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
-      const res = await apiService.put(
-        apiConfig.endpoints.profiles.me,
-        normalizeProfilePayload(data)
-      );
-      return res.data.data;
+      const payload = normalizeProfilePayload(data);
+      
+      // Strategy: Intelligently switch based on existence
+      if (!profileExists) {
+        // CREATE: POST /profiles
+        const res = await apiService.post(apiConfig.endpoints.profiles.create, payload);
+        return res.data.data;
+      } else {
+        // UPDATE: PUT /profiles/me
+        const res = await apiService.put(apiConfig.endpoints.profiles.me, payload);
+        return res.data.data;
+      }
     },
     onSuccess: () => {
+      // Invalidate all related queries to force fresh data sync
       queryClient.invalidateQueries({ queryKey: ["me"] });
       queryClient.invalidateQueries({ queryKey: ["user-access"] });
       queryClient.invalidateQueries({ queryKey: ["profile-completion"] });
+      
       toast({
-        title: "Profile Updated",
-        description: "Your changes have been saved successfully.",
+        title: profileExists ? "Profile Updated" : "Profile Created! 🎉",
+        description: profileExists 
+          ? "Your changes have been saved successfully." 
+          : "Welcome aboard! Your profile is now live.",
       });
     },
-    onError: (error: unknown) => {
-      const err = error as { response?: { data?: { message?: string } } };
+    onError: (error: any) => {
       toast({
-        title: "Update Failed",
-        description: err.response?.data?.message || "Failed to update profile",
+        title: "Save Failed",
+        description: error.response?.data?.message || "Could not fulfill profile request.",
         variant: "destructive",
       });
     },
@@ -234,9 +240,8 @@ export function useProfile() {
       queryClient.invalidateQueries({ queryKey: ["profile-completion"] });
       toast({ title: "Photos uploaded successfully" });
     },
-    onError: (error: unknown) => {
-      const err = error as { message?: string };
-      toast({ title: "Upload Failed", description: err.message, variant: "destructive" });
+    onError: (error: any) => {
+      toast({ title: "Upload Failed", description: error.message, variant: "destructive" });
     },
   });
 
@@ -252,15 +257,16 @@ export function useProfile() {
       queryClient.invalidateQueries({ queryKey: ["profile-completion"] });
       toast({ title: "Photo deleted" });
     },
-    onError: (error: unknown) => {
-      const err = error as { message?: string };
-      toast({ title: "Delete Failed", description: err.message, variant: "destructive" });
+    onError: (error: any) => {
+      toast({ title: "Delete Failed", description: error.message, variant: "destructive" });
     },
   });
 
   return {
     ...query,
-    updateProfile,
+    profileExists,
+    isFirstSave,
+    saveProfile,
     uploadPhotos,
     deletePhoto,
   };

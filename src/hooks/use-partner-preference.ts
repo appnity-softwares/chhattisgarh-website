@@ -20,6 +20,9 @@ export interface PartnerPreference {
     occupation?: string[];
     diet?: string[];
     manglik?: boolean | null;
+    intercasteAllowed?: boolean;
+    casteMandatory?: boolean;
+    gothraMandatory?: boolean;
 }
 
 export function usePartnerPreference() {

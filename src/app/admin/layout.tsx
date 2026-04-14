@@ -182,7 +182,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Main Content */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         {/* Top Header */}
-        <header className="admin-header flex-shrink-0 h-14 flex items-center px-4 sm:px-6 gap-4 z-30">
+        <header className="admin-header flex-shrink-0 h-16 flex items-center px-4 sm:px-6 gap-4 z-30">
           {/* Mobile menu button */}
           <button
             className="lg:hidden p-1.5 rounded-lg text-muted-foreground hover:text-white hover:bg-white/10 transition-colors"

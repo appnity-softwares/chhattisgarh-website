@@ -267,7 +267,7 @@ export default function SearchPage() {
                                         {...profile}
                                         name={`${profile.firstName} ${profile.lastName}`} 
                                         id={profile.id}
-                                        image={profile.media?.[0]?.url} 
+                                        media={profile.media} 
                                         gender={profile.gender?.toLowerCase() as any}
                                         canChat={access?.isPremium}
                                         onActionSuccess={handleActionSuccess}

@@ -153,13 +153,24 @@ export function useProfile() {
   const query = useQuery({
     queryKey: ["me"],
     queryFn: async () => {
-      const [userRes, profileRes] = await Promise.all([
-        apiService.get(apiConfig.endpoints.users.me),
-        apiService.get(apiConfig.endpoints.profiles.me),
-      ]);
-
+      // Fetch user data first as it's the source of truth for the account
+      const userRes = await apiService.get(apiConfig.endpoints.users.me);
       const userData = userRes.data.data;
-      const profileData = profileRes.data.data;
+
+      let profileData: any = { profile: {}, profileCompleteness: 0 };
+      
+      try {
+        // Try fetching profile, but don't fail the whole query if it hits a 400 (common if no profile exists)
+        const profileRes = await apiService.get(apiConfig.endpoints.profiles.me);
+        profileData = profileRes.data.data;
+      } catch (err: any) {
+        console.warn("Could not fetch profile (me), might not exist yet:", err.response?.status);
+        // If it's something other than a 404 or 400, we might want to log it specifically
+        if (err.response?.status !== 404 && err.response?.status !== 400) {
+          throw err;
+        }
+      }
+
       const activeSubscription =
         (userData.subscriptions as Record<string, unknown>[])?.find(
           (subscription) =>

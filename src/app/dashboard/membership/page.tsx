@@ -14,6 +14,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Tag } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useMembership, Plan } from "@/hooks/use-membership";
 import { loadScript } from "@/lib/script-loader";
@@ -22,6 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function MembershipPage() {
     const { plans, plansLoading, initiatePayment, verifyPayment } = useMembership();
     const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
+    const [promoCode, setPromoCode] = useState("");
     const { toast } = useToast();
 
     // Set default selected plan
@@ -46,13 +49,16 @@ export default function MembershipPage() {
         }
 
         try {
-            const orderData = await initiatePayment.mutateAsync(selectedPlanId);
+            const orderData = await initiatePayment.mutateAsync({ 
+                planId: selectedPlanId, 
+                promoCode: promoCode.trim() || undefined 
+            });
             
             const options = {
                 key: orderData.razorpayKey,
                 amount: orderData.amount,
                 currency: orderData.currency,
-                name: "Chhattisgarh Shaadi",
+                name: "Chhattisgarh Shadi",
                 description: `Subscription: ${orderData.plan.name}`,
                 image: "/logo.png",
                 order_id: orderData.orderId,
@@ -77,7 +83,7 @@ export default function MembershipPage() {
                 },
             };
 
-            // @ts-expect-error - Razorpay is loaded via script
+            // @ts-ignore - Razorpay is loaded via script
             const paymentObject = new window.Razorpay(options);
             paymentObject.open();
 
@@ -216,26 +222,86 @@ export default function MembershipPage() {
                     </div>
                 </div>
 
-                <div className="w-full lg:w-auto flex items-center gap-6">
+                <div className="w-full lg:w-auto flex flex-col sm:flex-row items-center gap-6">
+                    {/* Promo Code Input */}
+                    <div className="relative w-full sm:w-[240px]">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group">
+                            <Tag className={`w-4 h-4 transition-colors ${promoCode ? 'text-primary' : ''}`} />
+                        </div>
+                        <Input 
+                            placeholder="Promo Code" 
+                            value={promoCode}
+                            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                            className="h-14 pl-11 bg-white/5 border-white/10 rounded-2xl focus:ring-primary focus:border-primary font-bold tracking-widest placeholder:font-normal placeholder:tracking-normal"
+                        />
+                        {promoCode && (
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                                <span className="text-[10px] font-black text-primary animate-pulse">APPLYING</span>
+                            </div>
+                        )}
+                    </div>
+
                     <div className="text-right hidden sm:block">
                         <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Selected: <span className="text-foreground">{activePlan?.name}</span></p>
                         <p className="text-3xl font-black text-foreground">₹{activePlan?.price || 0}</p>
                     </div>
-                    <Button 
-                        size="lg" 
-                        onClick={handlePayment}
-                        disabled={initiatePayment.isPending || verifyPayment.isPending}
-                        className="flex-1 lg:w-[280px] h-16 bg-primary hover:bg-primary/90 text-white font-black text-xl rounded-[1.5rem] shadow-2xl shadow-primary/30 group disabled:opacity-50"
-                    >
-                        {initiatePayment.isPending || verifyPayment.isPending ? (
-                            <Loader2 className="w-6 h-6 animate-spin" />
-                        ) : (
-                            <>
-                                PROCEED TO PAY
-                                <ChevronRight className="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" />
-                            </>
-                        )}
-                    </Button>
+                    <div className="flex flex-col gap-3 w-full sm:w-auto">
+                        <Button 
+                            size="lg" 
+                            onClick={handlePayment}
+                            disabled={initiatePayment.isPending || verifyPayment.isPending}
+                            className="w-full lg:w-[280px] h-16 bg-primary hover:bg-primary/90 text-white font-black text-xl rounded-[1.5rem] shadow-2xl shadow-primary/30 group disabled:opacity-50"
+                        >
+                            {initiatePayment.isPending || verifyPayment.isPending ? (
+                                <Loader2 className="w-6 h-6 animate-spin" />
+                            ) : (
+                                <>
+                                    PROCEED TO PAY
+                                    <ChevronRight className="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" />
+                                </>
+                            )}
+                        </Button>
+                        
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={async () => {
+                                if (!selectedPlanId) return;
+                                try {
+                                    // Use the existing initiatePayment logic or a direct service call if needed
+                                    // In this case, we'll assume there's a specific route for generating a shareable link
+                                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/web/payment/create-link`, {
+                                        method: 'POST',
+                                        headers: { 
+                                            'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                                        },
+                                        body: JSON.stringify({ 
+                                            planId: selectedPlanId,
+                                            promoCode: promoCode.trim() || undefined
+                                        }),
+                                    });
+                                    const data = await res.json();
+                                    if (data.success && data.data.paymentLink) {
+                                        await navigator.clipboard.writeText(data.data.paymentLink);
+                                        toast({
+                                            title: "Link Copied!",
+                                            description: "Payment link copied to clipboard. Share it via WhatsApp.",
+                                        });
+                                    }
+                                } catch (err) {
+                                    toast({
+                                        title: "Error",
+                                        description: "Failed to generate sharing link.",
+                                        variant: "destructive"
+                                    });
+                                }
+                            }}
+                            className="h-10 rounded-xl bg-green-500/10 hover:bg-green-500/20 text-green-500 text-[10px] font-black uppercase tracking-widest border border-green-500/20"
+                        >
+                            Share Payment Link
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>

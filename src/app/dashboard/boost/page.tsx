@@ -1,255 +1,283 @@
 "use client";
-
-import { motion } from "framer-motion";
+import { useBoostPackages, useActiveBoost, useBoostPayment } from "@/hooks/use-boost";
+import { loadScript } from "@/lib/script-loader";
+import { useToast } from "@/hooks/use-toast";
 import { 
-    Rocket, 
     Zap, 
-    Crown, 
+    TrendingUp, 
+    Users, 
+    ArrowUpRight, 
     CheckCircle2, 
-    Loader2,
-    ShieldCheck
+    ShieldCheck, 
+    Loader2 
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import premiumWebService from "@/services/premium-web.service";
-import { useUserAuthStore } from "@/stores/user-auth-store";
-import { useToast } from "@/hooks/use-toast";
-import { loadScript } from "@/lib/script-loader";
-import { BoostPackage } from "@/types/api.types";
-
-const BOOST_ICONS = [Zap, Rocket, Crown];
-const BOOST_COLORS = ['from-amber-500 to-orange-600', 'from-primary to-rose-600', 'from-violet-500 to-purple-700'];
+import { motion } from "framer-motion";
 
 export default function BoostPage() {
-    const { accessToken } = useUserAuthStore();
+    const { data: packages, isLoading: packsLoading } = useBoostPackages();
+    const { data: activeStatus, isLoading: activeLoading } = useActiveBoost();
+    const { initiateBoost, verifyBoost } = useBoostPayment();
     const { toast } = useToast();
-    const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
 
-    // Fetch boost packages
-    const { data: packages, isLoading: packagesLoading } = useQuery<BoostPackage[]>({
-        queryKey: ["boost-packages"],
-        queryFn: async () => {
-            const res = await premiumWebService.getBoostPackages();
-            const data = res.data;
-            return (Array.isArray(data) ? data : (data?.packages || data?.boosts || [])) as BoostPackage[];
-        },
-    });
+    const handleBoostPayment = async (boostType: string) => {
+        const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
 
-    // Fetch active boost
-    const { data: activeBoost } = useQuery({
-        queryKey: ["active-boost"],
-        queryFn: async () => {
-            if (!accessToken) return null;
-            const res = await premiumWebService.getActiveBoosts(accessToken);
-            return res.data;
-        },
-        enabled: !!accessToken,
-    });
-
-    // Set default selected
-    useEffect(() => {
-        if (packages && packages.length > 0 && !selectedPackage) {
-            setTimeout(() => setSelectedPackage(packages[0].type || packages[0].id.toString()), 0);
-        }
-    }, [packages, selectedPackage]);
-
-    // Initiate boost payment
-    const initiateBoost = useMutation({
-        mutationFn: async (boostType: string) => {
-            if (!accessToken) throw new Error("Please login first");
-            const res = await premiumWebService.initBoostPayment(boostType, accessToken);
-            return res.data;
-        },
-        onError: (error: unknown) => {
-            const err = error as Error;
+        if (!res) {
             toast({
-                title: "Error",
-                description: err.message || "Failed to start boost purchase.",
-                variant: "destructive",
+                title: "SDK Error",
+                description: "Razorpay SDK failed to load. Are you online?",
+                variant: "destructive"
             });
-        },
-    });
-
-    const handlePaymentSuccess = () => {
-        toast({ title: "Boost Activated! 🚀", description: "Your profile is now boosted!" });
-        window.location.reload();
-    };
-
-    const handleBoostPurchase = async () => {
-        if (!selectedPackage) return;
-
-        const loaded = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
-        if (!loaded) {
-            toast({ title: "Error", description: "Payment SDK failed to load.", variant: "destructive" });
             return;
         }
 
         try {
-            const orderData = await initiateBoost.mutateAsync(selectedPackage);
+            const orderData = await initiateBoost.mutateAsync(boostType);
             
-            if (orderData?.paymentUrl) {
-                window.open(orderData.paymentUrl, '_blank');
-                return;
-            }
-            
-            if (orderData?.orderId) {
-                const options = {
-                    key: orderData.razorpayKey,
-                    amount: orderData.amount,
-                    currency: orderData.currency || 'INR',
-                    name: "Chhattisgarh Shaadi",
-                    description: `Profile Boost`,
-                    order_id: orderData.orderId,
-                    handler: function () {
-                        handlePaymentSuccess();
-                    },
-                    theme: { color: "#E01E5A" },
-                };
-                // @ts-expect-error - Razorpay is loaded via script
-                const paymentObject = new window.Razorpay(options);
-                paymentObject.open();
-            }
-        } catch (error) {
-            console.error("Boost payment error:", error);
+            const options = {
+                key: orderData.razorpayKey,
+                amount: orderData.amount,
+                currency: orderData.currency,
+                name: "Chhattisgarh Shaadi",
+                description: `Boost: ${orderData.boostPackage?.name || boostType}`,
+                image: "/logo.png",
+                order_id: orderData.orderId,
+                handler: async function (response: any) {
+                    await verifyBoost.mutateAsync({
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature,
+                        boostType: boostType
+                    });
+                },
+                theme: {
+                    color: "#E01E5A",
+                },
+            };
+
+            // @ts-ignore
+            const paymentObject = new window.Razorpay(options);
+            paymentObject.open();
+
+        } catch (error: any) {
+            console.error("Boost payment failed:", error);
+            toast({
+                title: "Error",
+                description: error.message || "Failed to initiate boost payment",
+                variant: "destructive"
+            });
         }
     };
 
-    const selectedPkg = packages?.find((p: BoostPackage) => (p.type || p.id.toString()) === selectedPackage);
+    const displayPackages = packages || [
+        { id: 'BASIC', name: 'Express Boost', duration: '24 Hours', multiplier: '5x', price: 149, description: 'Perfect for a quick visibility spike during weekends.' },
+        { id: 'SUPER', name: 'Dominator', duration: '7 Days', multiplier: '12x', price: 599, recommended: true, description: 'Most popular choice for serious members. Priority search results.' },
+        { id: 'SPOTLIGHT', name: 'Elite Spotlight', duration: '30 Days', multiplier: '30x', price: 1999, description: 'Maximum exposure. Be the first profile everyone sees for a month.' }
+    ];
+
+    const hasActive = activeStatus?.hasActiveBoost;
 
     return (
-        <div className="space-y-12 pb-20">
+        <div className="max-w-5xl mx-auto space-y-10 pb-20">
             {/* Hero Section */}
-            <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-amber-500 to-orange-600 p-10 md:p-16 text-white text-center shadow-3xl shadow-amber-500/30"
-            >
-                <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-                    <motion.div 
-                        animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0] }}
-                        transition={{ duration: 20, repeat: Infinity }}
-                        className="absolute -top-32 -left-32 w-96 h-96 bg-white/10 rounded-full blur-[100px]" 
-                    />
-                </div>
-
-                <div className="relative z-10 flex flex-col items-center space-y-6">
-                    <motion.div 
-                        animate={{ y: [0, -10, 0] }}
-                        transition={{ duration: 3, repeat: Infinity }}
-                        className="w-24 h-24 bg-white/20 backdrop-blur-md rounded-[2rem] border border-white/30 flex items-center justify-center shadow-2xl"
-                    >
-                        <Rocket className="w-12 h-12 text-white fill-current" />
-                    </motion.div>
-                    
-                    <div className="space-y-2 max-w-2xl">
-                        <h1 className="text-4xl md:text-5xl font-black tracking-tight uppercase leading-tight">
-                            Boost Your <span className="italic">Visibility!</span> 🔥
+            <div className="relative rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-[#121212] to-black border border-white/5 p-8 lg:p-12">
+                <div className="absolute top-0 right-0 w-1/2 h-full bg-primary/5 blur-[120px] rounded-full -mr-20 -mt-20 animate-pulse pointer-events-none" />
+                
+                <div className="relative z-10 flex flex-col lg:flex-row items-center gap-12">
+                    <div className="flex-1 space-y-6">
+                        <Badge className="bg-primary/20 text-primary border-none px-4 py-1.5 rounded-full font-black text-[10px] uppercase tracking-[0.2em]">Visibility Engine 2.0</Badge>
+                        <h1 className="text-4xl lg:text-6xl font-black tracking-tighter uppercase leading-[0.9]">
+                            Get <span className="text-primary italic">Noticed</span> <br /> 
+                            By Your <span className="underline decoration-primary/30 underline-offset-8">Ideal Match</span>
                         </h1>
-                        <p className="text-white/80 font-medium text-lg md:text-xl">Get seen by 10x more potential matches in your area</p>
+                        <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed max-w-lg opacity-70">
+                            Our proprietary algorithm boosts your profile to the top of search results, 
+                            ensuring 5x - 30x more organic profiles visits and interest requests.
+                        </p>
+                        
+                        <div className="flex flex-wrap gap-4 pt-4">
+                            <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-2xl">
+                                <TrendingUp className="w-4 h-4 text-green-500" />
+                                <span className="text-[10px] font-black uppercase tracking-widest">3x Conversion</span>
+                            </div>
+                            <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-2xl">
+                                <Users className="w-4 h-4 text-blue-500" />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Global Reach</span>
+                            </div>
+                        </div>
                     </div>
 
-                    {activeBoost && (
-                        <div className="flex bg-white/15 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 items-center gap-4">
-                            <Zap className="w-5 h-5 text-yellow-300" />
-                            <span className="text-sm font-bold tracking-tight">Active Boost: Expires {new Date(activeBoost.expiresAt).toLocaleDateString()}</span>
-                        </div>
-                    )}
+                    <div className="w-full lg:w-72 aspect-[4/5] relative">
+                         <div className={`absolute inset-0 rounded-[2.5rem] rotate-6 border blur-sm transition-all duration-700 ${hasActive ? 'bg-green-500/20 border-green-500/30' : 'bg-primary/20 border-primary/30 rotate-6 group-hover:rotate-3'}`} />
+                         <div className="relative h-full bg-[#161616] border border-white/10 rounded-[2.5rem] p-6 flex flex-col justify-between overflow-hidden">
+                             <div className="flex justify-between items-start">
+                                 <div className={`p-2.5 rounded-2xl ${hasActive ? 'bg-green-500/10' : 'bg-white/10'}`}>
+                                     <Zap className={`w-6 h-6 ${hasActive ? 'text-green-500 fill-green-500/20' : 'text-primary fill-primary/20'}`} />
+                                 </div>
+                                 <Badge className={`${hasActive ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'} border-none font-bold text-[8px] uppercase tracking-widest px-2 py-0.5`}>
+                                     {hasActive ? 'Active Now' : 'Limited Reach'}
+                                 </Badge>
+                             </div>
+                             
+                             <div className="space-y-4">
+                                 <div className="space-y-1">
+                                     <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Algorithm Rank</p>
+                                     <h3 className="text-2xl font-black text-white">{hasActive ? '#1 Priority' : 'Top 40%'}</h3>
+                                 </div>
+                                 <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                                     <motion.div 
+                                        initial={{ width: 0 }}
+                                        animate={{ width: hasActive ? "100%" : "30%" }}
+                                        className={`h-full ${hasActive ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-primary shadow-[0_0_10px_rgba(224,30,90,0.5)]'}`} 
+                                     />
+                                 </div>
+                                 <p className={`text-[8px] font-black uppercase tracking-widest italic ${hasActive ? 'text-green-400' : 'text-primary'}`}>
+                                     {hasActive ? 'Promotion active until ' + new Date(activeStatus.activeBoost.expiresAt).toLocaleDateString() : 'Activate boost for instant growth'}
+                                 </p>
+                             </div>
+                         </div>
+                    </div>
                 </div>
-            </motion.div>
+            </div>
 
-            {/* Boost Packages */}
-            {packagesLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {[1, 2, 3].map(i => (
-                        <div key={i} className="h-[400px] bg-white/5 rounded-[2.5rem] animate-pulse" />
+            {/* Performance Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                    { label: 'Profile Discoverability', value: '+300%', color: 'text-primary' },
+                    { label: 'Chat Initiation Rate', value: '2.4x', color: 'text-blue-400' },
+                    { label: 'Search Priority', value: 'Rank #1', color: 'text-amber-400' },
+                ].map((stat, i) => (
+                    <Card key={i} className="bg-white/[0.02] border-white/5 rounded-[1.5rem] overflow-hidden group hover:border-white/10 transition-all">
+                        <CardContent className="p-6 flex items-center justify-between">
+                            <div className="space-y-1">
+                                <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">{stat.label}</p>
+                                <h4 className={`text-2xl font-black uppercase tracking-tighter ${stat.color}`}>{stat.value}</h4>
+                            </div>
+                            <div className="bg-white/5 p-3 rounded-xl group-hover:bg-white/10 transition-colors">
+                                <ArrowUpRight className="w-5 h-5 text-muted-foreground/40 group-hover:text-primary transition-colors" />
+                            </div>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+
+            {/* Pricing Section */}
+            <div className="space-y-8">
+                <div className="text-center space-y-2">
+                    <h2 className="text-2xl lg:text-3xl font-black tracking-tight uppercase">Select Your <span className="text-primary italic">Accelerator</span></h2>
+                    <p className="text-muted-foreground font-bold text-[10px] uppercase tracking-widest opacity-60">High Performance Visibility Packages</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+                    {displayPackages.map((option: any) => (
+                        <motion.div
+                            key={option.id}
+                            whileHover={{ y: -10 }}
+                            className={`relative bg-[#0f0f0f] border rounded-[2rem] p-8 flex flex-col gap-8 transition-all duration-500 overflow-hidden ${option.recommended ? 'border-primary shadow-2xl shadow-primary/10 scale-105 z-10' : 'border-white/5'}`}
+                        >
+                            {option.recommended && (
+                                <div className="absolute top-0 right-0 bg-primary text-white text-[9px] font-black px-6 py-2 rounded-bl-2xl uppercase tracking-widest">Recommended</div>
+                            )}
+                            
+                            <div className="space-y-4">
+                                <div className="space-y-1">
+                                    <h4 className="text-lg font-black text-white italic tracking-tight">{option.name}</h4>
+                                    <p className="text-[10px] font-medium text-muted-foreground opacity-70 italic leading-relaxed">{option.description || 'Boost your profile visibility immediately.'}</p>
+                                </div>
+                                
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-4xl font-black text-white tracking-tighter">₹{option.price}</span>
+                                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">/ {option.duration}</span>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-green-500/20 p-1 rounded-full"><CheckCircle2 className="w-3 h-3 text-green-500" /></div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-white/90">{option.multiplier || '10x'} Visibility</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-green-500/20 p-1 rounded-full"><CheckCircle2 className="w-3 h-3 text-green-500" /></div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-white/90">Search Rank #1</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-green-500/20 p-1 rounded-full"><CheckCircle2 className="w-3 h-3 text-green-500" /></div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-white/90">Premium Badge Entry</span>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <Button 
+                                    onClick={() => handleBoostPayment(option.id)}
+                                    disabled={initiateBoost.isPending || verifyBoost.isPending}
+                                    className={`w-full h-14 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition-all ${option.recommended ? 'bg-primary text-white hover:bg-primary shadow-primary/20' : 'bg-white/5 hover:bg-white/10 text-white border border-white/10'}`}
+                                >
+                                    {initiateBoost.isPending && initiateBoost.variables === option.id ? (
+                                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                    ) : 'ACTIVATE NOW'}
+                                </Button>
+                                
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={async () => {
+                                        try {
+                                            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/web/boost/create-link`, {
+                                                method: 'POST',
+                                                headers: { 
+                                                    'Content-Type': 'application/json',
+                                                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                                                },
+                                                body: JSON.stringify({ boostType: option.id }),
+                                            });
+                                            const data = await res.json();
+                                            if (data.success && data.data.paymentLink) {
+                                                await navigator.clipboard.writeText(data.data.paymentLink);
+                                                toast({
+                                                    title: "Boost Link Copied!",
+                                                    description: "Send this link to someone who can pay for your boost.",
+                                                });
+                                            }
+                                        } catch (err) {
+                                            toast({
+                                                title: "Error",
+                                                description: "Failed to generate boost link.",
+                                                variant: "destructive"
+                                            });
+                                        }
+                                    }}
+                                    className="h-8 rounded-xl bg-green-500/5 hover:bg-green-500/10 text-green-500 text-[8px] font-black uppercase tracking-widest border border-green-500/10"
+                                >
+                                    Share Link
+                                </Button>
+                            </div>
+                        </motion.div>
                     ))}
                 </div>
-            ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {packages?.map((pkg: BoostPackage, i: number) => {
-                        const IconComp = BOOST_ICONS[i % 3];
-                        const pkgId = (pkg.type || pkg.id).toString();
-                        return (
-                            <motion.div
-                                key={pkgId}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.1 }}
-                            >
-                                <Card 
-                                    onClick={() => setSelectedPackage(pkgId)}
-                                    className={`h-full relative cursor-pointer group transition-all duration-500 rounded-[2.5rem] border-white/5 overflow-hidden ${selectedPackage === pkgId ? 'bg-card/60 ring-2 ring-amber-500 shadow-2xl shadow-amber-500/10' : 'bg-card/30 hover:bg-card/40'}`}
-                                >
-                                    {i === 1 && (
-                                        <div className="absolute top-0 right-0 p-6">
-                                            <Badge className="bg-amber-500 text-white font-black px-4 py-1.5 rounded-full text-[10px] tracking-[0.2em] uppercase shadow-lg shadow-amber-500/20">Best Value</Badge>
-                                        </div>
-                                    )}
+            </div>
 
-                                    <CardContent className="p-10 flex flex-col h-full">
-                                        <div className="mb-8 space-y-3">
-                                            <div className={`w-16 h-16 bg-gradient-to-br ${BOOST_COLORS[i % 3]} rounded-2xl flex items-center justify-center`}>
-                                                <IconComp className="w-8 h-8 text-white" />
-                                            </div>
-                                            <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground group-hover:text-amber-500 transition-colors">{pkg.name || pkg.type}</h3>
-                                            <div className="flex items-baseline gap-2">
-                                                <span className="text-4xl font-black tracking-tighter text-foreground">₹{pkg.price}</span>
-                                                <span className="text-sm font-bold text-muted-foreground">/ {pkg.duration || pkg.durationHours || 24}h</span>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex-1 space-y-4 mb-10">
-                                            {(pkg.features || [
-                                                `${pkg.multiplier || '10'}x More Visibility`,
-                                                'Priority in search results',
-                                                `Active for ${pkg.duration || pkg.durationHours || 24} hours`,
-                                                'Featured profile badge',
-                                            ]).map((feature: string, idx: number) => (
-                                                <div key={idx} className="flex items-start gap-3">
-                                                    <div className="bg-amber-500/10 p-1 rounded-full mt-0.5">
-                                                        <CheckCircle2 className="w-4 h-4 text-amber-500" />
-                                                    </div>
-                                                    <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground/80 transition-colors leading-relaxed">{feature}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        <Button className={`w-full h-14 rounded-2xl font-black text-lg transition-all active:scale-95 ${selectedPackage === pkgId ? 'bg-amber-500 text-white shadow-xl shadow-amber-500/20' : 'bg-white/5 border border-white/10 text-foreground hover:bg-amber-500 hover:text-white'}`}>
-                                            {selectedPackage === pkgId ? 'SELECTED' : 'SELECT'}
-                                        </Button>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                        );
-                    })}
+            {/* Bottom Proof */}
+            <div className="bg-primary/5 rounded-[2rem] p-10 flex flex-col items-center text-center space-y-6">
+                <div className="flex -space-x-3">
+                    {[1,2,3,4,5].map(i => (
+                        <div key={i} className="w-10 h-10 rounded-full border-4 border-[#0a0a0a] bg-muted overflow-hidden">
+                            <img src={`https://i.pravatar.cc/100?u=${i}`} alt="user" className="w-full h-full object-cover" />
+                        </div>
+                    ))}
                 </div>
-            )}
-
-            {/* Purchase Button */}
-            <div className="flex flex-col items-center gap-6 pt-8 border-t border-white/5">
-                <div className="flex items-center gap-4 text-muted-foreground">
-                    <ShieldCheck className="w-5 h-5 text-green-500" />
-                    <span className="text-sm font-bold">Secured by Razorpay • Instant Activation</span>
+                <div className="max-w-xl space-y-2">
+                    <p className="text-xs font-black uppercase tracking-widest text-white italic">"My profile views jumped from 20 to 500 in just 2 days. I found my match within a week of boosting!"</p>
+                    <p className="text-[9px] font-bold uppercase tracking-tighter text-muted-foreground/60">— Surbhi V., Raipur</p>
                 </div>
-                <Button 
-                    size="lg" 
-                    onClick={handleBoostPurchase}
-                    disabled={!selectedPackage || initiateBoost.isPending}
-                    className="w-full max-w-md h-16 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-xl rounded-[1.5rem] shadow-2xl shadow-amber-500/30 group disabled:opacity-50"
-                >
-                    {initiateBoost.isPending ? (
-                        <Loader2 className="w-6 h-6 animate-spin" />
-                    ) : (
-                        <>
-                            BOOST NOW — ₹{selectedPkg?.price || 0}
-                            <Rocket className="w-6 h-6 ml-2 group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
-                        </>
-                    )}
-                </Button>
+                <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-primary" />
+                    <span className="text-[8px] font-black uppercase tracking-widest text-white/40">Secured with MatriShield™ Precision AI</span>
+                </div>
             </div>
         </div>
     );
 }
+

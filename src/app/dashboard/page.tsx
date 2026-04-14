@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { 
@@ -12,16 +13,25 @@ import {
     ArrowUpRight,
     Star,
     ShieldCheck,
-    Sparkles
+    Sparkles,
+    Search
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProfileCard } from "@/components/profile/profile-card";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
 import { useInfiniteProfiles, Profile } from "@/hooks/use-infinite-profiles";
+import { useUserAccess } from "@/hooks/use-user-access";
 import { LucideIcon } from "lucide-react";
 
-export default function DashboardPage() {
+function DashboardContent() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const { data: access } = useUserAccess();
+    
+    // Read tab from URL, default to 'suggested'
+    const activeTab = (searchParams.get("tab") as 'suggested' | 'new' | 'discover') || 'suggested';
+
     const { 
         profileViews, 
         newMatches, 
@@ -48,11 +58,20 @@ export default function DashboardPage() {
         isLoading: discoveryLoading 
     } = useInfiniteProfiles({ type: 'discovery' });
 
-    const featuredProfiles = featuredPages?.pages[0]?.profiles?.slice(0, 12) || [];
-    const newProfiles = newPages?.pages[0]?.profiles?.slice(0, 12) || [];
-    const discoveryProfiles = discoveryPages?.pages[0]?.profiles || [];
+    const featuredProfiles = featuredPages?.pages[0]?.profiles?.slice(0, 8) || [];
+    const newProfiles = newPages?.pages[0]?.profiles?.slice(0, 8) || [];
+    const discoveryProfiles = discoveryPages?.pages.flatMap(p => p.profiles) || [];
 
-    const [activeTab, setActiveTab] = useState<'suggested' | 'new' | 'discover'>('suggested');
+    const [hiddenIds, setHiddenIds] = useState<Set<number | string>>(new Set());
+
+    const handleActionSuccess = (id: number | string) => {
+        setHiddenIds((prev: Set<number | string>) => new Set(prev).add(id));
+    };
+
+    // Filter out profiles that have been interacted with in current session
+    const filteredFeatured = featuredProfiles.filter((p: Profile) => !hiddenIds.has(p.id));
+    const filteredNew = newProfiles.filter((p: Profile) => !hiddenIds.has(p.id));
+    const filteredDiscovery = discoveryProfiles.filter((p: Profile) => !hiddenIds.has(p.id));
 
     const tabs = [
         { id: 'suggested', label: 'Suggested', icon: Sparkles, color: 'text-primary' },
@@ -60,72 +79,75 @@ export default function DashboardPage() {
         { id: 'discover', label: 'Discover', icon: Users, color: 'text-blue-400' },
     ];
 
-    const statsConfig: Array<{
-        label: string;
-        value: number;
-        trend: string;
-        icon: LucideIcon;
-        color: string;
-        link: string;
-    }> = [
-        { label: "Profile Views", value: profileViews, trend: "+12%", icon: Users, color: "text-blue-400", link: "/dashboard/activity" },
-        { label: "New Matches", value: newMatches, trend: "Discover", icon: Sparkles, color: "text-primary", link: "/dashboard/matches" },
+    const statsConfig = [
+        { label: "Views", value: profileViews, trend: "+12%", icon: Users, color: "text-blue-400", link: "/dashboard/activity" },
+        { label: "Matches", value: newMatches, trend: "Discover", icon: Sparkles, color: "text-primary", link: "/dashboard/matches" },
         { label: "Interests", value: interestsReceived, trend: "Pending", icon: Heart, color: "text-accent", link: "/dashboard/activity" },
         { label: "Messages", value: unreadMessages, trend: "Unread", icon: MessageSquare, color: "text-chat", link: "/dashboard/chat" },
     ];
 
+    const setTab = (id: string) => {
+        const params = new URLSearchParams(searchParams);
+        params.set("tab", id);
+        router.push(`?${params.toString()}`, { scroll: false });
+    };
+
     return (
-        <div className="space-y-12 pb-20">
-            {/* Welcome Banner */}
+        <div className="space-y-6 pb-20">
+            {/* Compact Welcome Bar */}
             <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-primary/80 to-rose-600/80 p-8 md:p-12 text-white shadow-2xl shadow-primary/20"
+                className="relative overflow-hidden rounded-[1.5rem] bg-gradient-to-r from-primary/90 to-rose-600/90 p-6 text-white shadow-xl"
             >
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20" />
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="space-y-1">
-                        <h1 className="text-3xl md:text-5xl font-black tracking-tighter uppercase leading-none">Bolein <span className="text-white italic">Shubharambh!</span></h1>
-                        <p className="text-white/80 font-medium text-lg">Your perfect match is just one click away.</p>
-                        <div className="flex items-center gap-2 pt-4">
-                            <ShieldCheck className="w-4 h-4 text-white/90" />
-                            <span className="text-[10px] uppercase font-black tracking-[0.2em] opacity-80">Safety & Privacy Verified</span>
-                        </div>
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-2xl font-black tracking-tighter uppercase mb-1">Shubharambh!</h1>
+                        <p className="text-white/80 font-bold text-sm">Find your perfect match in Chhattisgarh.</p>
                     </div>
-                    <Button size="lg" className="bg-white text-primary hover:bg-white/90 font-black rounded-2xl h-16 px-10 shadow-2xl shadow-black/20 text-lg group">
-                        BOOST NOW
-                        <Zap className="w-5 h-5 ml-2 fill-current group-hover:scale-125 transition-transform" />
-                    </Button>
+                    <div className="flex gap-2">
+                        <Link href="/dashboard/search">
+                            <Button size="sm" className="bg-white/20 hover:bg-white/30 text-white font-black rounded-xl px-6 h-10 border border-white/20 backdrop-blur-md">
+                                <Search className="w-4 h-4 mr-2" />
+                                ADVANCED SEARCH
+                            </Button>
+                        </Link>
+                        <Link href="/dashboard/boost">
+                            <Button size="sm" className="bg-white text-primary hover:bg-white/90 font-black rounded-xl px-6 h-10 shadow-lg">
+                                <Zap className="w-4 h-4 mr-2 fill-current" />
+                                BOOST
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
             </motion.div>
 
-            {/* Stats Overview */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {/* Tight Stats Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 {statsConfig.map((stat, i) => (
                     <motion.div
                         key={i}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.1 }}
-                        className="flex"
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.05 }}
                     >
-                        <Link href={stat.link} className="w-full">
-                            <Card className="border-white/5 bg-card/30 backdrop-blur-xl rounded-[2rem] overflow-hidden group hover:border-primary/40 transition-all cursor-pointer h-full border-t border-l border-white/10">
-                                <CardContent className="p-6">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className={`p-4 rounded-2xl bg-white/5 ${stat.color} group-hover:bg-primary group-hover:text-white group-hover:scale-110 transition-all duration-500 shadow-inner`}>
-                                            <stat.icon className="w-6 h-6" />
+                        <Link href={stat.link}>
+                            <Card className="border-white/5 bg-card/30 backdrop-blur-lg rounded-[1.2rem] group hover:border-primary/40 transition-all border-t border-l border-white/10 overflow-hidden">
+                                <CardContent className="p-4 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`p-2.5 rounded-xl bg-white/5 ${stat.color} group-hover:bg-primary group-hover:text-white transition-all`}>
+                                            <stat.icon className="w-4 h-4" />
                                         </div>
-                                        <span className="text-[10px] font-black text-green-400 bg-green-400/10 px-3 py-1.5 rounded-full border border-green-400/20">{stat.trend}</span>
+                                        <div>
+                                            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">{stat.label}</p>
+                                            {statsLoading ? (
+                                                <div className="h-6 w-10 bg-white/5 rounded animate-pulse" />
+                                            ) : (
+                                                <p className="text-xl font-black text-foreground tracking-tighter leading-none">{stat.value}</p>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div>
-                                        {statsLoading ? (
-                                            <div className="h-10 w-16 bg-white/5 rounded-lg animate-pulse mb-2" />
-                                        ) : (
-                                            <p className="text-5xl font-black text-foreground mb-1 tracking-tighter">{stat.value}</p>
-                                        )}
-                                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">{stat.label}</p>
-                                    </div>
+                                    <span className="text-[8px] font-black text-green-400 bg-green-400/10 px-2 py-1 rounded-full border border-green-400/20">{stat.trend}</span>
                                 </CardContent>
                             </Card>
                         </Link>
@@ -133,189 +155,134 @@ export default function DashboardPage() {
                 ))}
             </div>
 
-            {/* Tabs Navigation */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2">
-                <div className="flex p-1.5 bg-card/20 backdrop-blur-3xl rounded-[2rem] border border-white/5 w-fit relative overflow-hidden">
+            {/* Smart Tabs Navigation */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2 border-b border-white/5">
+                <div className="flex p-1 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/5 w-fit">
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
-                            onClick={() => setActiveTab(tab.id as any)}
-                            className={`relative px-8 py-4 rounded-[1.5rem] text-sm font-black uppercase tracking-widest transition-all duration-500 z-10 flex items-center gap-3 ${
+                            onClick={() => setTab(tab.id)}
+                            className={`relative px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-2 ${
                                 activeTab === tab.id ? "text-white" : "text-muted-foreground hover:text-white"
                             }`}
                         >
                             {activeTab === tab.id && (
                                 <motion.div
-                                    layoutId="activeTab"
-                                    className="absolute inset-0 bg-primary shadow-2xl shadow-primary/20 rounded-[1.5rem]"
-                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                    layoutId="activeTabCompact"
+                                    className="absolute inset-0 bg-primary shadow-lg shadow-primary/20 rounded-xl"
+                                    transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
                                 />
                             )}
-                            <tab.icon className={`w-4 h-4 relative z-20 ${activeTab === tab.id ? "text-white" : tab.color}`} />
+                            <tab.icon className={`w-3.5 h-3.5 relative z-20 ${activeTab === tab.id ? "text-white" : tab.color}`} />
                             <span className="relative z-20">{tab.label}</span>
                         </button>
                     ))}
                 </div>
                 
-                <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mr-4">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    Live Activity
+                <div className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/60">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+                    Real-time Discovery
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
-                {/* Main Content Area */}
-                <div className="xl:col-span-2 min-h-[600px]">
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+                {/* Main Action Area */}
+                <div className="xl:col-span-3">
                     <AnimatePresence mode="wait">
-                        {activeTab === 'suggested' && (
-                            <motion.div
-                                key="suggested"
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 20 }}
-                                className="space-y-10"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className="w-2 h-10 bg-primary rounded-full" />
-                                    <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">Suggested <span className="text-primary italic">Matches</span></h3>
+                        <motion.div
+                            key={activeTab}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 10 }}
+                            transition={{ duration: 0.3 }}
+                            className="space-y-6"
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-1 h-6 bg-primary rounded-full" />
+                                    <h3 className="text-xl font-black tracking-tight uppercase">
+                                        {activeTab === 'suggested' && <>Suggested <span className="text-primary italic">Matches</span></>}
+                                        {activeTab === 'new' && <>New <span className="text-accent italic">Members</span></>}
+                                        {activeTab === 'discover' && <>Discover <span className="opacity-40">All</span></>}
+                                    </h3>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    {featuredLoading ? (
-                                        [1, 2, 4, 6].map(i => <div key={i} className="h-96 bg-card/10 rounded-[2.5rem] animate-pulse" />)
-                                    ) : (
-                                        featuredProfiles.map((profile: Profile) => (
-                                            <ProfileCard 
-                                                key={profile.id}
-                                                id={profile.id}
-                                                name={`${profile.firstName} ${profile.lastName}`}
-                                                age={profile.age}
-                                                city={profile.city}
-                                                occupation={profile.occupation}
-                                                gender={(profile.gender?.toLowerCase() || 'male') as any}
-                                                isVerified={profile.isVerified}
-                                                image={profile.media?.[0]?.url}
-                                                isShortlisted={profile.isShortlisted}
-                                            />
-                                        ))
-                                    )}
-                                </div>
-                            </motion.div>
-                        )}
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase bg-white/5 px-3 py-1.5 rounded-full border border-white/5 tracking-wider">
+                                    Showing Top Profiles
+                                </p>
+                            </div>
 
-                        {activeTab === 'new' && (
-                            <motion.div
-                                key="new"
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 20 }}
-                                className="space-y-10"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className="w-2 h-10 bg-accent rounded-full shadow-[0_0_20px_rgba(224,30,90,0.3)]" />
-                                    <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">New <span className="text-accent italic">Members</span></h3>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    {newLoading ? (
-                                        [1, 2, 4, 6].map(i => <div key={i} className="h-96 bg-card/10 rounded-[2.5rem] animate-pulse" />)
-                                    ) : (
-                                        newProfiles.map((profile: Profile) => (
-                                            <ProfileCard 
-                                                key={profile.id}
-                                                id={profile.id}
-                                                name={`${profile.firstName} ${profile.lastName}`}
-                                                age={profile.age}
-                                                city={profile.city}
-                                                occupation={profile.occupation}
-                                                gender={(profile.gender?.toLowerCase() || 'male') as any}
-                                                isVerified={profile.isVerified}
-                                                image={profile.media?.[0]?.url}
-                                                isShortlisted={profile.isShortlisted}
-                                            />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
+                                <AnimatePresence mode="popLayout">
+                                    {activeTab === 'suggested' && (
+                                        featuredLoading ? [1,2,3,4].map(i => <div key={i} className="aspect-[4/5] bg-card/10 rounded-[1.5rem] animate-pulse border border-white/5" />)
+                                        : filteredFeatured.map((p: Profile) => (
+                                            <motion.div key={p.id} layout exit={{ opacity: 0, scale: 0.9, y: 20 }} transition={{ duration: 0.4, ease: "easeInOut" }}>
+                                                <ProfileCard {...p} name={`${p.firstName} ${p.lastName}`} id={p.id} gender={p.gender?.toLowerCase() as any} image={p.media?.[0]?.url} canChat={access?.isPremium} onActionSuccess={handleActionSuccess} />
+                                            </motion.div>
                                         ))
                                     )}
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {activeTab === 'discover' && (
-                            <motion.div
-                                key="discover"
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 20 }}
-                                className="space-y-10"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className="w-2 h-10 bg-blue-500 rounded-full" />
-                                    <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">Discover <span className="opacity-40">All Users</span></h3>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    {discoveryLoading ? (
-                                        [1, 2, 4, 6].map(i => <div key={i} className="h-96 bg-card/10 rounded-[2.5rem] animate-pulse" />)
-                                    ) : (
-                                        discoveryProfiles.map((profile: Profile) => (
-                                            <ProfileCard 
-                                                key={profile.id}
-                                                id={profile.id}
-                                                name={`${profile.firstName} ${profile.lastName}`}
-                                                age={profile.age}
-                                                city={profile.city}
-                                                occupation={profile.occupation}
-                                                gender={(profile.gender?.toLowerCase() || 'male') as any}
-                                                isVerified={profile.isVerified}
-                                                image={profile.media?.[0]?.url}
-                                                isShortlisted={profile.isShortlisted}
-                                            />
+                                    {activeTab === 'new' && (
+                                        newLoading ? [1,2,3,4].map(i => <div key={i} className="aspect-[4/5] bg-card/10 rounded-[1.5rem] animate-pulse border border-white/5" />)
+                                        : filteredNew.map((p: Profile) => (
+                                            <motion.div key={p.id} layout exit={{ opacity: 0, scale: 0.9, y: 20 }} transition={{ duration: 0.4, ease: "easeInOut" }}>
+                                                <ProfileCard {...p} name={`${p.firstName} ${p.lastName}`} id={p.id} gender={p.gender?.toLowerCase() as any} image={p.media?.[0]?.url} canChat={access?.isPremium} onActionSuccess={handleActionSuccess} />
+                                            </motion.div>
                                         ))
                                     )}
-                                </div>
-                                <div className="flex justify-center pt-8">
-                                    <Link href="/dashboard/matches">
-                                        <Button size="lg" variant="outline" className="rounded-2xl h-14 px-10 border-white/10 bg-white/5 hover:bg-white/10 font-black tracking-widest uppercase">
-                                            Browse More Profiles
-                                        </Button>
-                                    </Link>
-                                </div>
-                            </motion.div>
-                        )}
+                                    {activeTab === 'discover' && (
+                                        discoveryLoading ? [1,2,3,4].map(i => <div key={i} className="aspect-[4/5] bg-card/10 rounded-[1.5rem] animate-pulse border border-white/5" />)
+                                        : filteredDiscovery.slice(0, 12).map((p: Profile) => (
+                                            <motion.div key={p.id} layout exit={{ opacity: 0, scale: 0.9, y: 20 }} transition={{ duration: 0.4, ease: "easeInOut" }}>
+                                                <ProfileCard {...p} name={`${p.firstName} ${p.lastName}`} id={p.id} gender={p.gender?.toLowerCase() as any} image={p.media?.[0]?.url} canChat={access?.isPremium} onActionSuccess={handleActionSuccess} />
+                                            </motion.div>
+                                        ))
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                            
+                            <div className="flex justify-center pt-4">
+                                <Link href="/dashboard/matches">
+                                    <Button variant="ghost" className="text-[10px] font-black uppercase tracking-[0.3em] text-primary hover:bg-primary/5 rounded-xl h-12 w-full max-w-xs border border-primary/10 transition-all">
+                                        Explore All {activeTab} Profiles
+                                    </Button>
+                                </Link>
+                            </div>
+                        </motion.div>
                     </AnimatePresence>
                 </div>
 
-                {/* Sidebar Widgets */}
-                <div className="space-y-8 sticky top-24 h-fit">
-                    {/* Search Pro Widget */}
-                    <Card className="relative border-none bg-gradient-to-b from-[#111] to-black rounded-[2.5rem] p-10 overflow-hidden group shadow-3xl">
-                        <div className="absolute top-0 right-0 p-6">
-                            <Star className="w-12 h-12 text-primary/10 group-hover:rotate-12 group-hover:scale-125 transition-all duration-700" />
+                {/* Dense Sidebar */}
+                <div className="space-y-4">
+                    <Card className="relative border-none bg-gradient-to-br from-[#111] to-black rounded-[1.5rem] p-6 overflow-hidden group shadow-2xl">
+                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <Star className="w-16 h-16 text-primary group-hover:rotate-12 transition-transform duration-700" />
                         </div>
-                        <div className="relative z-10 space-y-6">
-                            <div className="bg-primary/20 w-fit p-4 rounded-[1.5rem] border border-primary/20 shadow-inner">
-                                <Filter className="w-8 h-8 text-primary" />
-                            </div>
-                            <div>
-                                <h3 className="text-3xl font-black text-white leading-none tracking-tighter mb-4">Precision <br />Matching</h3>
-                                <p className="text-xs text-muted-foreground leading-relaxed font-medium opacity-80">Find your ideal partner based on 50+ detailed parameters including community, education, and lifestyle.</p>
-                            </div>
-                            <Button className="w-full bg-primary hover:bg-primary/90 text-white font-black rounded-2xl h-16 shadow-2xl shadow-primary/20 text-md">
-                                ADVANCED SEARCH
-                                <ArrowUpRight className="w-5 h-5 ml-2" />
+                        <div className="relative z-10 space-y-4">
+                            <h3 className="text-xl font-black text-white leading-tight uppercase tracking-tighter">Precision <br />Search</h3>
+                            <p className="text-[10px] text-muted-foreground font-bold tracking-wider leading-relaxed">Find your ideal match among 50+ detailed parameters.</p>
+                            <Button asChild className="w-full bg-primary hover:bg-primary/90 text-white font-black rounded-xl h-11 text-[11px] uppercase tracking-widest shadow-lg shadow-primary/20">
+                                <Link href="/dashboard/search">
+                                    USE FILTERS <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
+                                </Link>
                             </Button>
                         </div>
-                        <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     </Card>
 
-                    {/* Quick Stats/Activity Widget */}
-                    <div className="bg-card/20 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/5">
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-6">Recent Activity</h4>
-                        <div className="space-y-6">
-                            {[1, 2, 3].map(i => (
-                                <div key={i} className="flex items-center gap-4 opacity-70 hover:opacity-100 transition-opacity cursor-pointer group">
-                                    <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-primary/20 transition-all">
-                                        <Heart className="w-5 h-5 text-primary/60" />
+                    <div className="bg-card/20 backdrop-blur-xl rounded-[1.5rem] p-5 border border-white/5">
+                        <h4 className="text-[9px] font-black uppercase tracking-[0.4em] text-primary/70 mb-5">Quick Stats</h4>
+                        <div className="space-y-4">
+                            {[
+                                { icon: ShieldCheck, label: "Profile Status", value: "Verified", color: "text-green-500" },
+                                { icon: Zap, label: "Boost Credits", value: "12 Left", color: "text-amber-500" },
+                                { icon: Heart, label: "Favorited by", value: "24 Members", color: "text-rose-500" }
+                            ].map((item, idx) => (
+                                <div key={idx} className="flex items-center gap-3">
+                                    <div className={`p-2 rounded-lg bg-white/5 ${item.color}`}>
+                                        <item.icon className="w-3.5 h-3.5" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-bold text-white">Profile Interest</p>
-                                        <p className="text-[10px] text-muted-foreground">Received 2 hours ago</p>
+                                        <p className="text-[9px] font-bold text-muted-foreground uppercase leading-none mb-1">{item.label}</p>
+                                        <p className="text-xs font-black text-white uppercase leading-none">{item.value}</p>
                                     </div>
                                 </div>
                             ))}
@@ -324,5 +291,13 @@ export default function DashboardPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function DashboardPage() {
+    return (
+        <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><Zap className="w-10 h-10 animate-pulse text-primary" /></div>}>
+            <DashboardContent />
+        </Suspense>
     );
 }

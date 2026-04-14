@@ -7,7 +7,7 @@ import { ShieldAlert } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Delete Account | Chhattisgarh Shaadi",
-  description: "Request to delete your Chhattisgarh Shaadi account and associated data.",
+  description: "Request to delete your Chhattisgarh Shadi account and associated data.",
 };
 
 export default function DeleteAccountPage() {

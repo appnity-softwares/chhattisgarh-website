@@ -29,19 +29,24 @@ import { Trash2 } from "lucide-react";
 import { useChat } from "@/hooks/use-chat";
 import { useConversations } from "@/hooks/use-conversations";
 import { Badge } from "@/components/ui/badge";
+import { useSearchParams } from "next/navigation";
 
-export default function ChatPage({ initialUserId }: { initialUserId?: number | null }) {
+export default function ChatPage({ initialUserId: propUserId }: { initialUserId?: number | null }) {
+    const searchParams = useSearchParams();
+    const urlUserId = searchParams.get("userId");
+    const initialUserId = propUserId || (urlUserId ? parseInt(urlUserId) : null);
+
     const { data: conversations, isLoading: convsLoading } = useConversations();
     const [selectedUserId, setSelectedUserId] = useState<number | null>(initialUserId || null);
     
     // Auto-select first conversation if no initial ID or if ID changes
     useEffect(() => {
         if (initialUserId) {
-            setTimeout(() => setSelectedUserId(initialUserId), 0);
+            setSelectedUserId(initialUserId);
         } else if (conversations && conversations.length > 0 && !selectedUserId) {
-            setTimeout(() => setSelectedUserId(conversations[0].user.id), 0);
+            setSelectedUserId(conversations[0].user.id);
         }
-    }, [conversations, initialUserId, selectedUserId]);
+    }, [conversations, initialUserId]);
 
     const activeConv = conversations?.find(c => c.user.id === selectedUserId);
     const { messages, isTyping, isOnline, isLoading: chatLoading, sendMessage, sendTyping, deleteMessage, deleteConversation } = useChat(selectedUserId);

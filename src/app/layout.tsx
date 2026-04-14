@@ -11,7 +11,7 @@ const ptSans = PT_Sans({
 });
 
 const siteUrl = 'https://www.chhattisgarhshadi.com';
-const siteName = 'Chhattisgarh Shaadi';
+const siteName = 'Chhattisgarh Shadi';
 const siteDescription = 'छत्तीसगढ़ियों का अपना विवाह मंच - Find your perfect life partner from Chhattisgarh. Trusted matrimony platform connecting Chhattisgarhi families since 2024.';
 
 export const metadata: Metadata = {
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   description: siteDescription,
   keywords: [
     'Chhattisgarh matrimony',
-    'Chhattisgarhi shaadi',
+    'Chhattisgarhi shadi',
     'CG marriage',
     'Raipur matrimony',
     'Bilaspur matrimony',
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     'छत्तीसगढ़ी शादी',
     'Hindu matrimony Chhattisgarh',
     'Chhattisgarh bride groom',
-    'CG shaadi app',
+    'CG shadi app',
     'free matrimony Chhattisgarh',
   ],
   authors: [{ name: siteName }],

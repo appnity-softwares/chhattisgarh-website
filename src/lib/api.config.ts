@@ -199,6 +199,11 @@ export const apiConfig = {
       agentById: (id: string) => `/admin/agents/${id}`,
       agentUsers: (id: string) => `/admin/agents/${id}/users`,
       payments: '/admin/payments',
+      diagnostics: '/admin/diagnostics',
+      flushCache: '/admin/diagnostics/flush-cache',
+      faq: '/faq',
+      faqAdmin: '/faq/admin',
+      faqById: (id: string | number) => `/faq/${id}`,
     },
     public: {
       faq: '/faq',

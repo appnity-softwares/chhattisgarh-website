@@ -2,10 +2,13 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-    Search, 
+    Search as SearchIcon, 
     SlidersHorizontal, 
     Loader2,
-    ChevronDown
+    ChevronDown,
+    X,
+    Filter,
+    Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,8 +26,10 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { useState, useEffect } from "react";
 import { useInfiniteProfiles } from "@/hooks/use-infinite-profiles";
+import { useUserAccess } from "@/hooks/use-user-access";
 
 export default function SearchPage() {
+    const { data: access } = useUserAccess();
     const [searchQuery, setSearchQuery] = useState("");
     const [isSearching, setIsSearching] = useState(false);
     const [showFilters, setShowFilters] = useState(true);
@@ -45,7 +50,15 @@ export default function SearchPage() {
     });
 
     // Flatten pages into a single array
-    const profiles = data?.pages.flatMap(page => page.profiles) || [];
+    const allProfiles = data?.pages.flatMap(page => page.profiles) || [];
+
+    const [hiddenIds, setHiddenIds] = useState<Set<number | string>>(new Set());
+
+    const handleActionSuccess = (id: number | string) => {
+        setHiddenIds(prev => new Set(prev).add(id));
+    };
+
+    const profiles = allProfiles.filter(p => !hiddenIds.has(p.id));
 
     useEffect(() => {
         if (isSearching) {
@@ -55,141 +68,147 @@ export default function SearchPage() {
     }, [isSearching]);
 
     return (
-        <div className="space-y-8 pb-20">
-            {/* Header & Search Bar */}
-            <div className="flex flex-col gap-8">
-                <div className="space-y-2">
-                    <h1 className="text-3xl md:text-4xl font-black tracking-tight uppercase text-foreground">Find Your <span className="text-primary italic">Soulmate</span></h1>
-                    <p className="text-muted-foreground font-light text-lg">Search by Name, City, or ID with advanced filters</p>
-                </div>
-
-                <div className="flex items-center gap-4">
-                    <div className="relative flex-1 group">
-                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                        <Input 
-                            placeholder="Type Name, Profession or City..." 
-                            className="h-16 pl-14 pr-6 bg-card/40 backdrop-blur-xl border-white/5 rounded-2xl text-lg font-bold shadow-2xl shadow-primary/5 focus:ring-primary/20 transition-all"
-                            value={searchQuery}
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                setSearchQuery(val);
-                                if (val.length > 2) {
-                                    setIsSearching(true);
-                                } else {
-                                    setIsSearching(false);
-                                }
-                            }}
-                        />
-                        {isSearching && (
-                            <div className="absolute right-5 top-1/2 -translate-y-1/2">
-                                <Loader2 className="w-5 h-5 text-primary animate-spin" />
-                            </div>
-                        )}
+        <div className="space-y-6 pb-20 max-w-[1600px] mx-auto">
+            {/* Minimal Header */}
+            <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-xl font-black tracking-tighter uppercase text-foreground flex items-center gap-2">
+                             Soulmate <span className="text-primary italic">Cloud</span>
+                             <Badge className="bg-primary/10 text-primary border-none text-[9px] font-black uppercase tracking-widest px-2 h-5">Live Search</Badge>
+                        </h1>
+                        <p className="text-muted-foreground font-bold text-[10px] uppercase tracking-widest opacity-60">Search name, city or id with precision</p>
                     </div>
                     <Button 
                         onClick={() => setShowFilters(!showFilters)}
-                        variant="outline" 
-                        className={`h-16 px-8 rounded-2xl border-white/10 font-black text-sm uppercase tracking-widest gap-3 transition-all ${showFilters ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-card/40 backdrop-blur-xl hover:bg-white/5'}`}
+                        variant="ghost" 
+                        size="sm"
+                        className={`h-9 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] gap-2 border border-white/5 ${showFilters ? 'bg-primary/10 text-primary' : 'bg-white/5 text-muted-foreground'}`}
                     >
-                        <SlidersHorizontal className="w-5 h-5" />
-                        Filters
+                        <SlidersHorizontal className="w-3.5 h-3.5" />
+                        {showFilters ? 'Hide Filters' : 'Show Filters'}
                     </Button>
+                </div>
+
+                <div className="relative group">
+                    <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/50 group-focus-within:text-primary transition-all" />
+                    <Input 
+                        placeholder="Search by name, city or keyword..." 
+                        className="h-12 pl-12 pr-6 bg-white/5 border-white/5 rounded-xl text-sm font-bold focus:ring-primary/20 transition-all border-t border-l border-white/10"
+                        value={searchQuery}
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            setSearchQuery(val);
+                            if (val.length > 2) setIsSearching(true);
+                            else setIsSearching(false);
+                        }}
+                    />
+                    {isSearching && (
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                            <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                        </div>
+                    )}
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-                {/* Advanced Filters Sidebar */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 gap-6 items-start">
+                {/* Advanced Filters Sidebar - Compact version */}
                 <AnimatePresence>
                     {showFilters && (
                         <motion.div 
-                            initial={{ opacity: 0, x: -20, width: 0 }}
-                            animate={{ opacity: 1, x: 0, width: "auto" }}
-                            exit={{ opacity: 0, x: -20, width: 0 }}
-                            className="lg:col-span-3 space-y-6 overflow-hidden"
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -10 }}
+                            className="lg:col-span-1 space-y-4"
                         >
-                            <Card className="bg-card/40 backdrop-blur-3xl border-white/10 rounded-[2.5rem] shadow-3xl">
-                                <CardContent className="p-8 space-y-10">
-                                    {/* Age Range */}
-                                    <div className="space-y-6">
+                            <Card className="bg-[#0f0f0f] border-white/5 rounded-[1.5rem] shadow-xl border-t border-l border-white/10">
+                                <CardContent className="p-5 space-y-6">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Filter className="w-3 h-3 text-primary" />
+                                        <h4 className="text-[10px] font-black uppercase tracking-[.3em] text-white">Advanced Search</h4>
+                                    </div>
+
+                                    {/* Age Range Slider */}
+                                    <div className="space-y-4">
                                         <div className="flex justify-between items-center">
-                                            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Age Range</Label>
-                                            <Badge variant="secondary" className="bg-primary/10 text-primary font-bold">{ageRange[0]} - {ageRange[1]} Yrs</Badge>
+                                            <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Age range</Label>
+                                            <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-md">{ageRange[0]} - {ageRange[1]}</span>
                                         </div>
                                         <Slider 
-                                            defaultValue={[18, 30]} 
-                                            max={60} 
+                                            defaultValue={[18, 45]} 
+                                            max={65} 
                                             min={18} 
                                             step={1} 
                                             onValueChange={setAgeRange}
-                                            className="py-4"
+                                            className="py-2"
                                         />
                                     </div>
 
-                                    {/* Community Filters */}
-                                    <div className="space-y-6 border-t border-white/5 pt-8">
-                                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Religion & Community</Label>
-                                        <div className="space-y-4">
-                                            <Select defaultValue="any">
-                                                <SelectTrigger className="h-12 bg-white/5 border-white/10 rounded-xl font-bold">
-                                                    <SelectValue placeholder="Religion" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="any">All Religions</SelectItem>
-                                                    <SelectItem value="hindu">Hindu</SelectItem>
-                                                    <SelectItem value="muslim">Muslim</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <Select defaultValue="any">
-                                                <SelectTrigger className="h-12 bg-white/5 border-white/10 rounded-xl font-bold">
-                                                    <SelectValue placeholder="Caste" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="any">Open to All Castes</SelectItem>
-                                                    <SelectItem value="sahu">Sahu</SelectItem>
-                                                    <SelectItem value="verma">Verma</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
+                                    {/* Categorized Selects */}
+                                    <div className="space-y-2.5">
+                                        <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block mb-2">Demographics</Label>
+                                        <Select defaultValue="any">
+                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                                <SelectValue placeholder="Religion" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-[#111] border-white/10 text-xs">
+                                                <SelectItem value="any">Any Religion</SelectItem>
+                                                <SelectItem value="hindu">Hindu</SelectItem>
+                                                <SelectItem value="muslim">Muslim</SelectItem>
+                                                <SelectItem value="jain">Jain</SelectItem>
+                                                <SelectItem value="sikh">Sikh</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+
+                                        <Select defaultValue="any">
+                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                                <SelectValue placeholder="Community" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-[#111] border-white/10">
+                                                <SelectItem value="any">Open to All</SelectItem>
+                                                <SelectItem value="sahu">Sahu</SelectItem>
+                                                <SelectItem value="verma">Verma</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
 
-                                    {/* Career Filters */}
-                                    <div className="space-y-6 border-t border-white/5 pt-8">
-                                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Education & Career</Label>
-                                        <div className="space-y-4">
-                                            <Select defaultValue="any">
-                                                <SelectTrigger className="h-12 bg-white/5 border-white/10 rounded-xl font-bold">
-                                                    <SelectValue placeholder="Education" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="any">Any Level</SelectItem>
-                                                    <SelectItem value="masters">Masters</SelectItem>
-                                                    <SelectItem value="doctorate">Doctorate</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <Select defaultValue="any">
-                                                <SelectTrigger className="h-12 bg-white/5 border-white/10 rounded-xl font-bold">
-                                                    <SelectValue placeholder="Income" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="any">Any Income</SelectItem>
-                                                    <SelectItem value="8+">₹8L+ Per Annum</SelectItem>
-                                                    <SelectItem value="15+">₹15L+ Per Annum</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
+                                    <div className="space-y-2.5 pt-4 border-t border-white/5">
+                                        <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block mb-2">Lifestyle</Label>
+                                        <Select defaultValue="any">
+                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                                <SelectValue placeholder="Occupation" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-[#111] border-white/10">
+                                                <SelectItem value="any">Any Profession</SelectItem>
+                                                <SelectItem value="it">IT Professional</SelectItem>
+                                                <SelectItem value="doctor">Medical / Doctor</SelectItem>
+                                                <SelectItem value="business">Business</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <Select defaultValue="any">
+                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                                <SelectValue placeholder="Education" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-[#111] border-white/10">
+                                                <SelectItem value="any">Any Level</SelectItem>
+                                                <SelectItem value="masters">Post Graduate</SelectItem>
+                                                <SelectItem value="phd">PhD</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
 
-                                    <Button onClick={() => refetch()} className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-black text-sm uppercase tracking-widest rounded-xl shadow-xl shadow-primary/20">
-                                        APPLY FILTERS
-                                    </Button>
-                                    <button 
-                                        onClick={() => {
-                                            setAgeRange([18, 50]);
-                                            setSearchQuery("");
-                                        }}
-                                        className="w-full text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
-                                        Reset All
-                                    </button>
+                                    <div className="flex gap-2 pt-2">
+                                        <Button 
+                                            variant="ghost" 
+                                            onClick={() => { setAgeRange([18, 50]); setSearchQuery(""); }}
+                                            className="h-10 w-10 p-0 rounded-xl hover:bg-white/5 text-muted-foreground border border-white/5"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </Button>
+                                        <Button onClick={() => refetch()} className="flex-1 h-10 bg-primary hover:bg-primary/90 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20">
+                                            Apply
+                                        </Button>
+                                    </div>
                                 </CardContent>
                             </Card>
                         </motion.div>
@@ -197,83 +216,82 @@ export default function SearchPage() {
                 </AnimatePresence>
 
                 {/* Results Main Area */}
-                <div className={`${showFilters ? 'lg:col-span-9' : 'lg:col-span-12'} space-y-8`}>
-                    <div className="flex items-center justify-between px-2">
-                        <div className="flex items-center gap-4">
-                            <span className="text-sm font-black uppercase tracking-widest text-muted-foreground">
-                                {isLoading ? "Searching Profiles..." : `Found ${profiles.length} Profiles`}
+                <div className={`${showFilters ? 'lg:col-span-3 xl:col-span-4' : 'lg:col-span-4 xl:col-span-5'} space-y-6`}>
+                    <div className="flex items-center justify-between pb-2">
+                        <div className="flex items-center gap-3">
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                                {isLoading ? "Scanning Network..." : `${profiles.length} Matches Found`}
                             </span>
-                            <div className="w-px h-4 bg-white/10" />
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Active Now</span>
-                            </div>
                         </div>
 
-                        <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Sort By:</span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 hidden sm:block">Sort:</span>
                             <Select defaultValue="recent">
-                                <SelectTrigger className="w-32 h-9 bg-transparent border-white/5 text-[10px] font-black uppercase tracking-widest focus:ring-0">
+                                <SelectTrigger className="w-24 h-7 bg-transparent border-white/5 text-[9px] font-black uppercase tracking-widest focus:ring-0 rounded-lg">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="bg-card/90 backdrop-blur-xl border-white/10">
-                                    <SelectItem value="recent">Recently Joined</SelectItem>
-                                    <SelectItem value="active">Most Active</SelectItem>
-                                    <SelectItem value="distance">Nearest to Me</SelectItem>
+                                <SelectContent className="bg-[#111] border-white/10">
+                                    <SelectItem value="recent" className="text-[10px] font-bold">Newest</SelectItem>
+                                    <SelectItem value="active" className="text-[10px] font-bold">Active</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                     </div>
 
-                    <div className={`grid gap-8 ${showFilters ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'}`}>
-                        {isLoading ? (
-                            <div className="col-span-full py-20 flex justify-center items-center">
-                                <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                            </div>
-                        ) : profiles.length === 0 ? (
-                            <div className="col-span-full py-20 flex flex-col justify-center items-center text-muted-foreground">
-                                <Search className="w-12 h-12 mb-4 opacity-50" />
-                                <h3 className="text-xl font-bold">No Profiles Found</h3>
-                                <p>Try adjusting your search filters.</p>
-                            </div>
-                        ) : profiles.map((profile, i) => (
-                            <motion.div 
-                                key={profile.id} 
-                                initial={{ opacity: 0, y: 10 }} 
-                                animate={{ opacity: 1, y: 0 }} 
-                                transition={{ delay: i * 0.05 }}
-                            >
-                                <ProfileCard 
-                                    id={profile.id}
-                                    name={`${profile.firstName} ${profile.lastName}`} 
-                                    age={profile.age} 
-                                    city={profile.city} 
-                                    occupation={profile.occupation} 
-                                    education={profile.education} 
-                                    image={profile.media?.[0]?.url} 
-                                    isVerified={profile.isVerified} 
-                                    gender={profile.gender?.toLowerCase() as 'male'|'female' || 'female'} 
-                                />
-                            </motion.div>
-                        ))}
+                    <div className={`grid gap-4 ${showFilters ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'}`}>
+                        <AnimatePresence mode="popLayout">
+                            {isLoading ? (
+                                [1,2,3,4,5,6].map(i => <div key={i} className="aspect-[4/5] bg-white/5 rounded-[1.5rem] animate-pulse border border-white/5" />)
+                            ) : profiles.length === 0 ? (
+                                <motion.div 
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="col-span-full py-24 flex flex-col justify-center items-center text-muted-foreground"
+                                >
+                                    <div className="p-6 bg-white/5 rounded-full mb-4 border border-white/5">
+                                        <SearchIcon className="w-10 h-10 opacity-30" />
+                                    </div>
+                                    <h3 className="text-xl font-black text-white uppercase tracking-tighter">No profiles found</h3>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">Try adjusting your filters or location</p>
+                                </motion.div>
+                            ) : profiles.map((profile, i) => (
+                                <motion.div 
+                                    key={profile.id} 
+                                    layout
+                                    initial={{ opacity: 0, scale: 0.95 }} 
+                                    animate={{ opacity: 1, scale: 1 }} 
+                                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                                    transition={{ duration: 0.4, ease: "easeInOut" }}
+                                >
+                                    <ProfileCard 
+                                        {...profile}
+                                        name={`${profile.firstName} ${profile.lastName}`} 
+                                        id={profile.id}
+                                        image={profile.media?.[0]?.url} 
+                                        gender={profile.gender?.toLowerCase() as any}
+                                        canChat={access?.isPremium}
+                                        onActionSuccess={handleActionSuccess}
+                                    />
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
                     </div>
 
-                    {/* Pagination / Loaded more */}
+                    {/* Infinite Pagination */}
                     {hasNextPage && (
-                        <div className="flex flex-col items-center py-10 space-y-6">
-                            <div className="w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+                        <div className="flex flex-col items-center py-6 space-y-4">
                             <Button 
                                 variant="ghost" 
                                 onClick={() => fetchNextPage()}
                                 disabled={isFetchingNextPage}
-                                className="h-14 px-10 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 font-bold text-muted-foreground hover:text-foreground group"
+                                className="h-11 px-8 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase tracking-[0.3em] text-primary group transition-all w-full max-w-sm"
                             >
                                 {isFetchingNextPage ? (
-                                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
                                 ) : (
                                     <>
-                                        LOAD MORE PROFILES
-                                        <ChevronDown className="w-5 h-5 ml-2 group-hover:translate-y-1 transition-transform" />
+                                        Expand Catalog
+                                        <ChevronDown className="w-3.5 h-3.5 ml-2 group-hover:translate-y-1 transition-transform" />
                                     </>
                                 )}
                             </Button>
@@ -284,3 +302,4 @@ export default function SearchPage() {
         </div>
     );
 }
+

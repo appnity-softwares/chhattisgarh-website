@@ -308,7 +308,7 @@ export default function ThemeSettingsPage() {
               <div className="px-6 py-4 flex justify-between items-center z-40 relative">
                 <div className="flex flex-col">
                   <span className="text-[10px] uppercase font-bold tracking-widest" style={{ color: theme.textSecondary }}>CHHATTISGARH</span>
-                  <span className="text-xl font-black italic" style={{ color: theme.primaryColor }}>Shaadi</span>
+                  <span className="text-xl font-black italic" style={{ color: theme.primaryColor }}>Shadi</span>
                 </div>
                 <div className="w-10 h-10 rounded-2xl flex items-center justify-center border border-white/10 bg-white/5">
                    <div className="relative w-7 h-7">

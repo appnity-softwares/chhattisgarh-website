@@ -86,11 +86,35 @@ export function useMatches(type: 'received' | 'sent' | 'accepted' = 'received') 
         },
     });
 
+    const cancelMatch = useMutation({
+        mutationFn: async (matchId: number) => {
+            if (!accessToken) throw new Error("Unauthorized");
+            const res = await interactionsService.deleteMatch(matchId, accessToken);
+            if (!res.success) throw new Error(res.message || "Failed to cancel request");
+            return res.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["matches"] });
+            toast({
+                title: "Request Cancelled",
+                description: "Your interest request has been removed.",
+            });
+        },
+        onError: (error: Error) => {
+            toast({
+                title: "Error",
+                description: error.message || "Failed to cancel request.",
+                variant: "destructive",
+            });
+        },
+    });
+
     return {
         matches: matchesData || [],
         isLoading,
         refetch,
         acceptMatch,
         rejectMatch,
+        cancelMatch
     };
 }

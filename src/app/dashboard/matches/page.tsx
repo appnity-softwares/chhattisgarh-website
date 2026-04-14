@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
     CheckCircle2, 
     Send, 
@@ -20,17 +20,19 @@ import { useMatches } from "@/hooks/use-matches";
 import Link from "next/link";
 import { MatchRequest } from "@/types/api.types";
 
-function MatchCard({ match, type, onAccept, onReject, isAccepting, isRejecting }: {
+function MatchCard({ match, type, onAccept, onReject, onCancel, isAccepting, isRejecting, isCancelling }: {
     match: MatchRequest;
     type: 'received' | 'sent' | 'accepted';
     onAccept?: (id: number) => void;
     onReject?: (id: number) => void;
+    onCancel?: (id: number) => void;
     isAccepting?: boolean;
     isRejecting?: boolean;
+    isCancelling?: boolean;
 }) {
     // Extract profile from match data based on type
-    const user = type === 'received' ? match.sender : match.receiver;
-    const profile = user?.profile || {};
+    const user = (type === 'received' ? match.sender : match.receiver) as any;
+    const profile = (user?.profile || {}) as any;
     const userId = user?.id;
 
     const [now] = useState(() => Date.now());
@@ -39,78 +41,105 @@ function MatchCard({ match, type, onAccept, onReject, isAccepting, isRejecting }
         ? Math.floor((now - new Date(profile.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) 
         : null);
 
-    return (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="relative group"
-        >
-            {/* Status Badge */}
-            <div className="absolute top-4 left-4 z-20">
-                <Badge className={`font-black text-[8px] uppercase tracking-widest border px-3 py-1 backdrop-blur-md ${
-                    match.status === 'ACCEPTED' 
-                        ? 'bg-green-500/20 border-green-500/30 text-green-400'
-                        : match.status === 'PENDING' 
-                        ? 'bg-amber-400/20 border-amber-400/30 text-amber-400' 
-                        : 'bg-white/10 border-white/20 text-white'
-                }`}>
-                    {match.status === 'ACCEPTED' ? '✓ Matched' : match.status === 'PENDING' ? '⏳ Pending' : match.status}
-                </Badge>
-            </div>
+    const statusBadge = (
+        <Badge className={`font-black text-[8px] uppercase tracking-widest border px-3 py-1 shadow-lg ${
+            match.status === 'ACCEPTED' 
+                ? 'bg-green-500 text-white border-green-600'
+                : match.status === 'PENDING' 
+                ? 'bg-amber-400 text-black border-amber-500' 
+                : 'bg-white/10 border-white/20 text-white'
+        }`}>
+            {match.status === 'ACCEPTED' ? '✓ Matched' : match.status === 'PENDING' ? '⏳ Pending' : match.status}
+        </Badge>
+    );
 
+    const customActions = (
+        <div className="flex gap-2 w-full">
+            {type === 'received' && match.status === 'PENDING' && (
+                <>
+                    <Button
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onReject?.(match.id); }}
+                        disabled={isRejecting}
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 h-9 rounded-xl bg-black/60 border-white/10 text-red-400 hover:bg-red-500/20 font-black text-[9px] uppercase tracking-widest"
+                    >
+                        {isRejecting ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Decline'}
+                    </Button>
+                    <Button
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAccept?.(match.id); }}
+                        disabled={isAccepting}
+                        size="sm"
+                        className="flex-1 h-9 rounded-xl bg-primary/90 text-white hover:bg-primary font-black text-[9px] uppercase tracking-widest shadow-lg"
+                    >
+                        {isAccepting ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Accept'}
+                    </Button>
+                </>
+            )}
+
+            {type === 'sent' && (
+                <Button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); onCancel?.(match.id); }}
+                    disabled={isCancelling}
+                    size="sm"
+                    variant="outline"
+                    className="w-full h-9 rounded-xl bg-white/5 border-white/10 text-red-400 hover:bg-red-500/20 font-black text-[9px] uppercase tracking-widest"
+                >
+                    {isCancelling ? <Loader2 className="w-3 h-3 animate-spin" /> : (
+                        <><X className="w-3 h-3 mr-2" /> Cancel Request</>
+                    )}
+                </Button>
+            )}
+
+            {type === 'accepted' && (
+                <Link href={`/dashboard/chat?userId=${userId}`} className="w-full">
+                    <Button
+                        size="sm"
+                        className="w-full h-9 rounded-xl bg-green-500/90 text-white hover:bg-green-600 font-black text-[9px] uppercase tracking-widest shadow-lg"
+                    >
+                        <MessageSquare className="w-3 h-3 mr-1.5" /> Start Chat
+                    </Button>
+                </Link>
+            )}
+        </div>
+    );
+
+    return (
+        <MatchCardWrapper>
             <ProfileCard 
-                id={userId}
+                id={userId || ''}
                 name={name}
                 age={age || 0}
                 city={profile.city || ''}
                 occupation={profile.occupation || ''}
-                gender={(profile.gender?.toLowerCase() as 'male' | 'female' | 'other') || 'female'}
+                gender={(profile.gender?.toLowerCase() as any) || 'female'}
                 isVerified={profile.isVerified}
                 image={profile.media?.[0]?.url || user?.profilePicture}
+                statusBadge={statusBadge}
+                isMatched={match.status === 'ACCEPTED'}
+                canChat={(match as any).canChat || false}
+                customActions={customActions}
             />
+        </MatchCardWrapper>
+    );
+}
 
-            {/* Action Buttons for Received Matches */}
-            {type === 'received' && match.status === 'PENDING' && (
-                <div className="absolute bottom-4 left-4 right-4 z-20 flex gap-2">
-                    <Button
-                        onClick={(e) => { e.stopPropagation(); onReject?.(match.id); }}
-                        disabled={isRejecting}
-                        size="sm"
-                        variant="outline"
-                        className="flex-1 h-11 rounded-xl bg-black/50 backdrop-blur-md border-white/10 text-red-400 hover:bg-red-500/20 hover:border-red-500/30 font-black text-[10px] uppercase tracking-widest"
-                    >
-                        {isRejecting ? <Loader2 className="w-3 h-3 animate-spin" /> : <><X className="w-3 h-3 mr-1" /> Decline</>}
-                    </Button>
-                    <Button
-                        onClick={(e) => { e.stopPropagation(); onAccept?.(match.id); }}
-                        disabled={isAccepting}
-                        size="sm"
-                        className="flex-1 h-11 rounded-xl bg-primary/90 backdrop-blur-md border-primary/20 text-white hover:bg-primary font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20"
-                    >
-                        {isAccepting ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Heart className="w-3 h-3 mr-1 fill-current" /> Accept</>}
-                    </Button>
-                </div>
-            )}
-
-            {/* Chat Button for Accepted Matches */}
-            {type === 'accepted' && (
-                <div className="absolute bottom-4 left-4 right-4 z-20">
-                    <Link href={`/dashboard/chat`}>
-                        <Button
-                            size="sm"
-                            className="w-full h-11 rounded-xl bg-green-500/90 backdrop-blur-md text-white hover:bg-green-500 font-black text-[10px] uppercase tracking-widest shadow-lg shadow-green-500/20"
-                        >
-                            <MessageSquare className="w-3 h-3 mr-1" /> Start Chat
-                        </Button>
-                    </Link>
-                </div>
-            )}
+function MatchCardWrapper({ children }: { children: React.ReactNode }) {
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative h-full"
+        >
+            {children}
         </motion.div>
     );
 }
 
 function MatchTabContent({ type }: { type: 'received' | 'sent' | 'accepted' }) {
-    const { matches, isLoading, acceptMatch, rejectMatch } = useMatches(type);
+    const { matches, isLoading, acceptMatch, rejectMatch, cancelMatch } = useMatches(type);
+    const [hiddenIds, setHiddenIds] = useState<Set<number>>(new Set());
+    const displayMatches = (matches || []).filter((m: MatchRequest) => !hiddenIds.has(m.id));
 
     if (isLoading) {
         return (
@@ -122,7 +151,7 @@ function MatchTabContent({ type }: { type: 'received' | 'sent' | 'accepted' }) {
         );
     }
 
-    if (matches.length === 0) {
+    if (displayMatches.length === 0) {
         return (
             <div className="py-32 flex flex-col items-center text-center space-y-6">
                 <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center border border-white/10">
@@ -150,23 +179,31 @@ function MatchTabContent({ type }: { type: 'received' | 'sent' | 'accepted' }) {
     }
 
     return (
-        <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
-        >
-            {matches.map((match: MatchRequest) => (
-                <MatchCard 
-                    key={match.id}
-                    match={match}
-                    type={type}
-                    onAccept={(id) => acceptMatch.mutate(id)}
-                    onReject={(id) => rejectMatch.mutate(id)}
-                    isAccepting={acceptMatch.isPending}
-                    isRejecting={rejectMatch.isPending}
-                />
-            ))}
-        </motion.div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <AnimatePresence mode="popLayout">
+                {displayMatches.map((match: MatchRequest) => (
+                    <motion.div
+                        key={match.id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        transition={{ duration: 0.4, ease: "easeInOut" }}
+                    >
+                        <MatchCard 
+                            match={match}
+                            type={type}
+                            onAccept={(id) => acceptMatch.mutate(id, { onSuccess: () => setHiddenIds((prev: Set<number>) => new Set(prev).add(id)) })}
+                            onReject={(id) => rejectMatch.mutate(id, { onSuccess: () => setHiddenIds((prev: Set<number>) => new Set(prev).add(id)) })}
+                            onCancel={(id) => cancelMatch.mutate(id, { onSuccess: () => setHiddenIds((prev: Set<number>) => new Set(prev).add(id)) })}
+                            isAccepting={acceptMatch.isPending}
+                            isRejecting={rejectMatch.isPending}
+                            isCancelling={cancelMatch.isPending}
+                        />
+                    </motion.div>
+                ))}
+            </AnimatePresence>
+        </div>
     );
 }
 

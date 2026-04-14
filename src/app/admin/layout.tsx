@@ -46,7 +46,7 @@ const navGroups = [
       { href: '/admin/reports', label: 'Reports', icon: FileWarning },
       { href: '/admin/stories', label: 'Success Stories', icon: Heart },
       { href: '/admin/messages', label: 'Messages', icon: Mail },
-      { href: '/admin/faqs', label: 'FAQs', icon: HelpCircle },
+      { href: '/admin/faq', label: 'FAQs', icon: HelpCircle },
     ]
   },
   {
@@ -62,6 +62,7 @@ const navGroups = [
     label: 'System',
     items: [
       { href: '/admin/theme', label: 'App Theme', icon: Palette },
+      { href: '/admin/diagnostics', label: 'Diagnostics', icon: Activity },
       { href: '/admin/settings', label: 'Settings', icon: Settings },
     ]
   },
@@ -279,7 +280,7 @@ function SidebarContent({
         {!sidebarCollapsed && (
           <div className="min-w-0">
             <h2 className="text-sm font-bold text-white leading-tight truncate" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              CG Shaadi
+              CG Shadi
             </h2>
             <p className="text-[10px] text-rose-400 font-medium tracking-wider uppercase">Admin Console</p>
           </div>

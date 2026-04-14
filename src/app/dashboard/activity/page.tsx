@@ -34,10 +34,19 @@ export default function ActivityPage() {
     const [filter, setFilter] = useState("all");
     const { data: visitorsData, isLoading } = useProfileVisitors();
     
-    // We assume the data contains a list of profiles or interactions with viewer profiles
-    const visitors = (visitorsData?.visitors || visitorsData || []) as ProfileView[];
+    // The hook now guarantees an array
+    const visitors = (visitorsData || []) as ProfileView[];
     const totalViews = visitors.length;
-    const viewsToday = visitors.filter((v: ProfileView) => new Date(v.viewedAt || v.createdAt).toDateString() === new Date().toDateString()).length;
+    const viewsToday = visitors.filter((v: ProfileView) => {
+        const dateStr = v.viewedAt || v.createdAt;
+        if (!dateStr) return false;
+        try {
+            const date = new Date(dateStr);
+            return !isNaN(date.getTime()) && date.toDateString() === new Date().toDateString();
+        } catch {
+            return false;
+        }
+    }).length;
 
     return (
         <div className="space-y-10 pb-20">
@@ -87,7 +96,7 @@ export default function ActivityPage() {
                                 <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">No recent visitors</span>
                             </div>
                         ) : visitors.map((interaction: ProfileView, i: number) => {
-                            const profile = (interaction.viewer || (interaction as Record<string, unknown>).profile || interaction) as unknown as ProfileDisplay;
+                            const profile = (interaction.viewer || (interaction as any).profile || interaction) as any;
                             return (
                                 <motion.div 
                                     key={interaction.id || i}
@@ -104,11 +113,11 @@ export default function ActivityPage() {
                                     </div>
                                     <ProfileCard 
                                         id={profile.id}
-                                        name={`${profile.firstName} ${profile.lastName}`}
-                                        age={profile.age}
-                                        city={profile.city}
-                                        occupation={profile.occupation}
-                                        gender={profile.gender?.toLowerCase() || 'female'}
+                                        name={`${profile.firstName || ''} ${profile.lastName || ''}`}
+                                        age={profile.age || 0}
+                                        city={profile.city || ''}
+                                        occupation={profile.occupation || ''}
+                                        gender={(profile.gender?.toLowerCase() as any) || 'female'}
                                         isVerified={profile.isVerified}
                                         image={profile.media?.[0]?.url}
                                     />

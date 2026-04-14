@@ -6,10 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export const metadata: Metadata = {
     title: "Contact Us",
-    description: "Get in touch with Chhattisgarh Shaadi team. Contact us for support, queries, or feedback about our matrimony services.",
+    description: "Get in touch with Chhattisgarh Shadi team. Contact us for support, queries, or feedback about our matrimony services.",
     openGraph: {
-        title: "Contact Us | Chhattisgarh Shaadi",
-        description: "Get in touch with Chhattisgarh Shaadi team for support and queries.",
+        title: "Contact Us | Chhattisgarh Shadi",
+        description: "Get in touch with Chhattisgarh Shadi team for support and queries.",
     },
 };
 
@@ -28,7 +28,7 @@ export default function ContactPage() {
                         </h1>
                         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                             We&apos;d love to hear from you. Reach out to us for any queries,
-                            support, or feedback about Chhattisgarh Shaadi.
+                            support, or feedback about Chhattisgarh Shadi.
                         </p>
                     </div>
                 </section>
@@ -129,7 +129,7 @@ export default function ContactPage() {
                             Download Our App
                         </h2>
                         <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-                            For the best experience, download the Chhattisgarh Shaadi app
+                            For the best experience, download the Chhattisgarh Shadi app
                             and find your perfect match today.
                         </p>
                         <div className="flex flex-wrap justify-center gap-4">

@@ -16,7 +16,7 @@ class SocketService {
             reconnection: true,
             reconnectionAttempts: 5,
         });
-
+        
         this.socket.on("connect", () => {
             this.isConnecting = false;
             console.log("Socket Connected to:", apiConfig.socketUrl);

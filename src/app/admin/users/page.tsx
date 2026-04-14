@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   MoreHorizontal, Search, RefreshCw, ChevronLeft, ChevronRight,
   Download, Trash2, Shield, Filter, X, Users, Ban, CheckCircle,
-  Eye, AlertTriangle, UserCheck
+  Eye, AlertTriangle, UserCheck, Upload, FileText, Calendar, CreditCard, Star
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
@@ -57,17 +57,38 @@ export default function AdminUsersPage() {
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
+  const [isGrantSubOpen, setIsGrantSubOpen] = useState(false);
+  const [selectedUserForSub, setSelectedUserForSub] = useState<User | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [subData, setSubData] = useState({ planId: 2, customDays: 90 });
+
+  const filteredUsers = users.filter(user => {
+    const q = searchQuery.toLowerCase();
+    const search = !q || user.email?.toLowerCase().includes(q) ||
+      user.profile?.firstName?.toLowerCase().includes(q) ||
+      user.profile?.lastName?.toLowerCase().includes(q);
+    const role = roleFilter === 'all' || user.role === roleFilter;
+    const status = statusFilter === 'all' ||
+      (statusFilter === 'active' && user.isActive && !user.isBanned) ||
+      (statusFilter === 'inactive' && !user.isActive) ||
+      (statusFilter === 'banned' && user.isBanned);
+    return search && role && status;
+  });
+
   const fetchUsers = async (page = 1) => {
     setIsLoading(true);
     setSelectedUsers(new Set());
     try {
       const data = await adminService.getUsers(page, 10);
       setUsers(data.users || []);
+      const pag = data.pagination as any;
       setPagination({
-        page: data.pagination?.page || 1,
-        limit: data.pagination?.limit || 10,
-        total: data.pagination?.total || 0,
-        totalPages: data.pagination?.totalPages || 0
+        page: (pag?.page as number) || 1,
+        limit: (pag?.limit as number) || 10,
+        total: (pag?.total as number) || 0,
+        totalPages: (pag?.totalPages as number) || 0
       });
     } catch (err: unknown) {
       const errorMsg = err as { message?: string };
@@ -85,15 +106,13 @@ export default function AdminUsersPage() {
   const handleRoleChange = async (userId: number, newRole: UserRole) => {
     try {
       if (newRole === 'PREMIUM_USER') {
-        // For premium, use the grant subscription method which creates a subscription entry
-        await adminService.grantSubscription(userId.toString(), 2, 90);
-        toast({ title: 'Premium Granted', description: 'Premium Plan (90 Days) granted successfully' });
+        setSelectedUserForSub(users.find(u => u.id === userId) || null);
+        setIsGrantSubOpen(true);
       } else {
         await adminService.updateUserRole(userId.toString(), newRole);
         toast({ title: 'Role Updated', description: 'User role changed successfully' });
+        fetchUsers(pagination.page);
       }
-      // Trigger a reload
-      window.location.reload();
     } catch (err: unknown) {
       const errorMsg = err as { message?: string };
       toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to update role' });
@@ -183,6 +202,37 @@ export default function AdminUsersPage() {
     window.location.reload();
   };
 
+  const handleBulkUpload = async () => {
+    if (!selectedFile) return;
+    setIsUploading(true);
+    try {
+      const res = await adminService.bulkUploadUsers(selectedFile);
+      toast({ 
+        title: 'Upload Sequential', 
+        description: `Successfully uploaded ${res.success} users. ${res.failed} failed.` 
+      });
+      setIsBulkUploadOpen(false);
+      setSelectedFile(null);
+      fetchUsers();
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: 'Upload Failed', description: err.message });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleGrantSubscription = async () => {
+    if (!selectedUserForSub) return;
+    try {
+      await adminService.grantSubscription(selectedUserForSub.id.toString(), subData.planId, subData.customDays);
+      toast({ title: 'Subscription Granted', description: `Granted successfully for ${selectedUserForSub.email}` });
+      setIsGrantSubOpen(false);
+      fetchUsers(pagination.page);
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: 'Grant Failed', description: err.message });
+    }
+  };
+
   const exportToCSV = () => {
     const headers = ['ID', 'Email', 'Name', 'Role', 'Status', 'Joined'];
     const rows = filteredUsers.map(u => [
@@ -200,19 +250,6 @@ export default function AdminUsersPage() {
     toast({ title: 'Export Successful', description: `${filteredUsers.length} users exported` });
   };
 
-  const filteredUsers = users.filter(user => {
-    const q = searchQuery.toLowerCase();
-    const search = !q || user.email?.toLowerCase().includes(q) ||
-      user.profile?.firstName?.toLowerCase().includes(q) ||
-      user.profile?.lastName?.toLowerCase().includes(q);
-    const role = roleFilter === 'all' || user.role === roleFilter;
-    const status = statusFilter === 'all' ||
-      (statusFilter === 'active' && user.isActive && !user.isBanned) ||
-      (statusFilter === 'inactive' && !user.isActive) ||
-      (statusFilter === 'banned' && user.isBanned);
-    return search && role && status;
-  });
-
   const hasFilters = searchQuery !== '' || roleFilter !== 'all' || statusFilter !== 'all';
 
   return (
@@ -229,6 +266,13 @@ export default function AdminUsersPage() {
         </div>
         <div className="flex gap-2">
           <button
+            onClick={() => setIsBulkUploadOpen(true)}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium transition-all"
+          >
+            <Upload className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Bulk Upload</span>
+          </button>
+          <button
             onClick={exportToCSV}
             disabled={isLoading || filteredUsers.length === 0}
             className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-sm font-medium transition-all disabled:opacity-40"
@@ -237,7 +281,7 @@ export default function AdminUsersPage() {
             <span className="hidden sm:inline">Export</span>
           </button>
             <button
-            onClick={() => window.location.reload()}
+            onClick={() => fetchUsers(pagination.page)}
             disabled={isLoading}
             className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-sm font-medium transition-all disabled:opacity-40"
           >
@@ -510,6 +554,102 @@ export default function AdminUsersPage() {
             <AlertDialogCancel disabled={isBulkProcessing} className="bg-white/10 border-white/10 text-white hover:bg-white/15">Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleBulkDelete} disabled={isBulkProcessing} className="bg-red-600 hover:bg-red-700 text-white">
               {isBulkProcessing ? 'Deleting...' : `Delete ${selectedUsers.size} Users`}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      {/* Bulk Upload Modal */}
+      <AlertDialog open={isBulkUploadOpen} onOpenChange={setIsBulkUploadOpen}>
+        <AlertDialogContent className="bg-card border-border max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-white">
+              <Upload className="w-5 h-5 text-purple-400" /> Bulk User Upload
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Upload an Excel (.xlsx) or CSV file containing user data. 
+              The file should include email, phone, firstName, and lastName.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="border-2 border-dashed border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center gap-3 bg-white/[0.02] hover:bg-white/[0.04] transition-all cursor-pointer relative">
+              <input 
+                type="file" 
+                accept=".xlsx,.csv" 
+                onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              />
+              <div className="bg-white/5 p-3 rounded-full">
+                <FileText className="w-6 h-6 text-muted-foreground" />
+              </div>
+              <p className="text-xs font-medium text-white">
+                {selectedFile ? selectedFile.name : 'Click to select or drag and drop'}
+              </p>
+              <p className="text-[10px] text-muted-foreground">Max file size: 5MB</p>
+            </div>
+            <a href="/templates/bulk-user-template.xlsx" className="text-[10px] text-purple-400 hover:underline flex items-center justify-center gap-1">
+              <Download className="w-3 h-3" /> Download Template
+            </a>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-white/10 border-white/10 text-white hover:bg-white/15">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={(e) => { e.preventDefault(); handleBulkUpload(); }} 
+              disabled={!selectedFile || isUploading}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              {isUploading ? 'Uploading...' : 'Start Upload'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Grant Subscription Modal */}
+      <AlertDialog open={isGrantSubOpen} onOpenChange={setIsGrantSubOpen}>
+        <AlertDialogContent className="bg-card border-border max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-white">
+              <Star className="w-5 h-5 text-amber-400" /> Grant Premium Subscription
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Manually activate premium benefits for <strong className="text-white">{selectedUserForSub?.email}</strong>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-6 space-y-5">
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Select Plan</label>
+              <Select value={subData.planId.toString()} onValueChange={(v) => setSubData({ ...subData, planId: parseInt(v) })}>
+                <SelectTrigger className="h-12 bg-white/5 border-white/10 text-white rounded-xl">
+                  <SelectValue placeholder="Choose a plan" />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border">
+                  <SelectItem value="1">Basic Plan</SelectItem>
+                  <SelectItem value="2">Gold Plan</SelectItem>
+                  <SelectItem value="3">Diamond Plan</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Duration (Days)</label>
+              <div className="flex gap-2">
+                {[30, 90, 180, 365].map(days => (
+                  <button 
+                    key={days}
+                    onClick={() => setSubData({ ...subData, customDays: days })}
+                    className={`flex-1 py-2 rounded-lg text-[10px] font-bold uppercase transition-all border ${subData.customDays === days ? 'bg-amber-500/20 border-amber-500/40 text-amber-400' : 'bg-white/5 border-white/10 text-muted-foreground hover:text-white'}`}
+                  >
+                    {days} Days
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-white/10 border-white/10 text-white hover:bg-white/15">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={(e) => { e.preventDefault(); handleGrantSubscription(); }} 
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+            >
+              Confirm Membership
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

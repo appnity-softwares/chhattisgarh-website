@@ -45,7 +45,7 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
         <RefreshCw className="w-10 h-10 text-primary animate-spin mb-4" />
-        <p className="text-muted-foreground animate-pulse font-medium tracking-widest uppercase text-xs">Loading Chhattisgarh Shaadi...</p>
+        <p className="text-muted-foreground animate-pulse font-medium tracking-widest uppercase text-xs">Loading Chhattisgarh Shadi...</p>
       </div>
     );
   }

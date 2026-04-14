@@ -23,11 +23,14 @@ export class InteractionsService {
         return res.json();
     }
 
-    async sendMatchRequest(userId: number, token: string) {
+    async sendMatchRequest(userId: number, token: string, message?: string) {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.matches.send}`, {
             method: 'POST',
             headers: getAuthHeaders(token),
-            body: JSON.stringify({ receiverId: userId }),
+            body: JSON.stringify({ 
+                receiverId: userId,
+                message 
+            }),
         });
         return res.json();
     }
@@ -43,6 +46,14 @@ export class InteractionsService {
     async rejectMatch(matchId: number, token: string) {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.matches.reject(matchId)}`, {
             method: 'POST',
+            headers: getAuthHeaders(token),
+        });
+        return res.json();
+    }
+
+    async deleteMatch(matchId: number, token: string) {
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.matches.delete(matchId)}`, {
+            method: 'DELETE',
             headers: getAuthHeaders(token),
         });
         return res.json();
@@ -181,6 +192,23 @@ export class InteractionsService {
             method: 'POST',
             headers: getAuthHeaders(token),
             body: JSON.stringify({ profileId: userId }),
+        });
+        return res.json();
+    }
+
+    // --- Partner Preferences ---
+    async getPartnerPreference(token: string) {
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.profiles.preferences}`, {
+            headers: getAuthHeaders(token),
+        });
+        return res.json();
+    }
+
+    async updatePartnerPreference(data: any, token: string) {
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.profiles.preferences}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(token),
+            body: JSON.stringify(data),
         });
         return res.json();
     }

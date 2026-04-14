@@ -30,8 +30,8 @@ export function useMembership() {
     });
 
     const initiatePayment = useMutation({
-        mutationFn: async (planId: number) => {
-            const res = await apiService.post(apiConfig.endpoints.webPayments.initiateSession, { planId });
+        mutationFn: async ({ planId, promoCode }: { planId: number; promoCode?: string }) => {
+            const res = await apiService.post(apiConfig.endpoints.webPayments.initiateSession, { planId, promoCode });
             return res.data.data;
         },
         onError: (error: unknown) => {

@@ -33,8 +33,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Plus, Pencil, Trash2, HelpCircle } from 'lucide-react';
-import apiConfig, { getAuthHeaders } from '@/lib/api.config';
-import { useAuthStore } from '@/stores/auth-store';
+import { adminService } from '@/services/admin.service';
 
 // Types
 interface FAQ {
@@ -81,7 +80,6 @@ const emptyFaq = {
 
 export default function AdminFAQPage() {
     const { toast } = useToast();
-    const { accessToken } = useAuthStore();
     const [faqs, setFaqs] = useState<FAQ[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -92,15 +90,10 @@ export default function AdminFAQPage() {
 
     const fetchFAQs = async () => {
         try {
-            const res = await fetch(`${apiConfig.baseUrl}/faq/admin`, {
-                headers: getAuthHeaders(accessToken || undefined),
-            });
-            const data = await res.json();
-            if (data.success) {
-                setFaqs(data.data || []);
-            }
-        } catch {
-            toast({ title: 'Error', description: 'Failed to fetch FAQs', variant: 'destructive' });
+            const data = await adminService.getFaqsAdmin();
+            setFaqs(data || []);
+        } catch (err: any) {
+            toast({ title: 'Error', description: err.message || 'Failed to fetch FAQs', variant: 'destructive' });
         } finally {
             setLoading(false);
         }
@@ -119,22 +112,13 @@ export default function AdminFAQPage() {
 
         setSaving(true);
         try {
-            const res = await fetch(`${apiConfig.baseUrl}/faq`, {
-                method: 'POST',
-                headers: getAuthHeaders(accessToken || undefined),
-                body: JSON.stringify(formData),
-            });
-            const data = await res.json();
-            if (data.success) {
-                toast({ title: 'Success', description: 'FAQ created successfully' });
-                setDialogOpen(false);
-                setFormData(emptyFaq);
-                fetchFAQs();
-            } else {
-                toast({ title: 'Error', description: data.message, variant: 'destructive' });
-            }
-        } catch {
-            toast({ title: 'Error', description: 'Failed to create FAQ', variant: 'destructive' });
+            await adminService.createFaq(formData);
+            toast({ title: 'Success', description: 'FAQ created successfully' });
+            setDialogOpen(false);
+            setFormData(emptyFaq);
+            fetchFAQs();
+        } catch (err: any) {
+            toast({ title: 'Error', description: err.message || 'Failed to create FAQ', variant: 'destructive' });
         } finally {
             setSaving(false);
         }
@@ -144,23 +128,14 @@ export default function AdminFAQPage() {
         if (!editingFaq) return;
         setSaving(true);
         try {
-            const res = await fetch(`${apiConfig.baseUrl}/faq/${editingFaq.id}`, {
-                method: 'PUT',
-                headers: getAuthHeaders(accessToken || undefined),
-                body: JSON.stringify(formData),
-            });
-            const data = await res.json();
-            if (data.success) {
-                toast({ title: 'Success', description: 'FAQ updated successfully' });
-                setDialogOpen(false);
-                setEditingFaq(null);
-                setFormData(emptyFaq);
-                fetchFAQs();
-            } else {
-                toast({ title: 'Error', description: data.message, variant: 'destructive' });
-            }
-        } catch {
-            toast({ title: 'Error', description: 'Failed to update FAQ', variant: 'destructive' });
+            await adminService.updateFaq(editingFaq.id, formData);
+            toast({ title: 'Success', description: 'FAQ updated successfully' });
+            setDialogOpen(false);
+            setEditingFaq(null);
+            setFormData(emptyFaq);
+            fetchFAQs();
+        } catch (err: any) {
+            toast({ title: 'Error', description: err.message || 'Failed to update FAQ', variant: 'destructive' });
         } finally {
             setSaving(false);
         }
@@ -168,31 +143,21 @@ export default function AdminFAQPage() {
 
     const handleDelete = async (id: number) => {
         try {
-            const res = await fetch(`${apiConfig.baseUrl}/faq/${id}`, {
-                method: 'DELETE',
-                headers: getAuthHeaders(accessToken || undefined),
-            });
-            const data = await res.json();
-            if (data.success) {
-                toast({ title: 'Success', description: 'FAQ deleted' });
-                setDeleteConfirm(null);
-                fetchFAQs();
-            }
-        } catch {
-            toast({ title: 'Error', description: 'Failed to delete FAQ', variant: 'destructive' });
+            await adminService.deleteFaq(id);
+            toast({ title: 'Success', description: 'FAQ deleted' });
+            setDeleteConfirm(null);
+            fetchFAQs();
+        } catch (err: any) {
+            toast({ title: 'Error', description: err.message || 'Failed to delete FAQ', variant: 'destructive' });
         }
     };
 
     const handleToggleActive = async (faq: FAQ) => {
         try {
-            await fetch(`${apiConfig.baseUrl}/faq/${faq.id}`, {
-                method: 'PUT',
-                headers: getAuthHeaders(accessToken || undefined),
-                body: JSON.stringify({ isActive: !faq.isActive }),
-            });
+            await adminService.updateFaq(faq.id, { isActive: !faq.isActive });
             fetchFAQs();
-        } catch {
-            toast({ title: 'Error', description: 'Failed to toggle status', variant: 'destructive' });
+        } catch (err: any) {
+            toast({ title: 'Error', description: err.message || 'Failed to toggle status', variant: 'destructive' });
         }
     };
 
@@ -298,7 +263,7 @@ export default function AdminFAQPage() {
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <Badge className={`${CATEGORY_COLORS[faq.faqCategory] || 'bg-gray-100 text-gray-800'} text-xs`}>
+                                            <Badge className={`${CATEGORY_COLORS[faq.faqCategory] || 'bg-gray-100 text-gray-800'} text-xs`} variant="outline">
                                                 {faq.faqCategory}
                                             </Badge>
                                         </TableCell>
@@ -333,7 +298,7 @@ export default function AdminFAQPage() {
             </Card>
 
             {/* Create/Edit Dialog */}
-            <Dialog open={dialogOpen} onOpenChange={(open) => {
+            <Dialog open={dialogOpen} onOpenChange={(open: boolean) => {
                 setDialogOpen(open);
                 if (!open) { setEditingFaq(null); setFormData(emptyFaq); }
             }}>
@@ -350,7 +315,7 @@ export default function AdminFAQPage() {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Category</Label>
-                                <Select value={formData.faqCategory} onValueChange={v => setFormData(p => ({ ...p, faqCategory: v }))}>
+                                <Select value={formData.faqCategory} onValueChange={(v: string) => setFormData(p => ({ ...p, faqCategory: v }))}>
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
@@ -366,7 +331,7 @@ export default function AdminFAQPage() {
                                 <Input
                                     type="number"
                                     value={formData.order}
-                                    onChange={e => setFormData(p => ({ ...p, order: parseInt(e.target.value) || 0 }))}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData(p => ({ ...p, order: parseInt(e.target.value) || 0 }))}
                                 />
                             </div>
                         </div>
@@ -377,7 +342,7 @@ export default function AdminFAQPage() {
                             <Input
                                 placeholder="Enter the question..."
                                 value={formData.question}
-                                onChange={e => setFormData(p => ({ ...p, question: e.target.value }))}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData(p => ({ ...p, question: e.target.value }))}
                             />
                         </div>
 
@@ -387,7 +352,7 @@ export default function AdminFAQPage() {
                             <Input
                                 placeholder="हिंदी में प्रश्न लिखें..."
                                 value={formData.questionHi}
-                                onChange={e => setFormData(p => ({ ...p, questionHi: e.target.value }))}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData(p => ({ ...p, questionHi: e.target.value }))}
                             />
                         </div>
 
@@ -397,7 +362,7 @@ export default function AdminFAQPage() {
                             <Textarea
                                 placeholder="Enter the answer..."
                                 value={formData.answer}
-                                onChange={e => setFormData(p => ({ ...p, answer: e.target.value }))}
+                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData(p => ({ ...p, answer: e.target.value }))}
                                 rows={5}
                             />
                         </div>
@@ -408,7 +373,7 @@ export default function AdminFAQPage() {
                             <Textarea
                                 placeholder="हिंदी में उत्तर लिखें..."
                                 value={formData.answerHi}
-                                onChange={e => setFormData(p => ({ ...p, answerHi: e.target.value }))}
+                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData(p => ({ ...p, answerHi: e.target.value }))}
                                 rows={4}
                             />
                         </div>
@@ -417,7 +382,7 @@ export default function AdminFAQPage() {
                         <div className="flex items-center gap-3">
                             <Switch
                                 checked={formData.isActive}
-                                onCheckedChange={v => setFormData(p => ({ ...p, isActive: v }))}
+                                onCheckedChange={(v: boolean) => setFormData(p => ({ ...p, isActive: v }))}
                             />
                             <Label>Published (visible to users)</Label>
                         </div>

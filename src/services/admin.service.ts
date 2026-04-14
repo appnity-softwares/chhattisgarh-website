@@ -163,6 +163,40 @@ class AdminService {
     async getPlans(): Promise<Record<string, unknown>[]> {
         return this.handleResponse<Record<string, unknown>[]>(apiService.get(apiConfig.endpoints.admin.plans));
     }
+
+    // FAQs
+    async getFaqsAdmin(): Promise<any[]> {
+        return this.handleResponse<any[]>(apiService.get(apiConfig.endpoints.admin.faqAdmin));
+    }
+
+    async createFaq(data: any): Promise<any> {
+        return this.handleResponse<any>(apiService.post(apiConfig.endpoints.admin.faq, data));
+    }
+
+    async updateFaq(id: number | string, data: any): Promise<any> {
+        return this.handleResponse<any>(apiService.put(apiConfig.endpoints.admin.faqById(id), data));
+    }
+
+    async deleteFaq(id: number | string): Promise<void> {
+        return this.handleResponse<void>(apiService.delete(apiConfig.endpoints.admin.faqById(id)));
+    }
+
+    // Success Stories
+    async getSuccessStories(): Promise<any[]> {
+        return this.handleResponse<any[]>(apiService.get(apiConfig.endpoints.admin.successStories));
+    }
+
+    async createSuccessStory(data: any): Promise<any> {
+        return this.handleResponse<any>(apiService.post(apiConfig.endpoints.admin.successStories, data));
+    }
+
+    async updateSuccessStory(id: number | string, data: any): Promise<any> {
+        return this.handleResponse<any>(apiService.patch(`${apiConfig.baseUrl}/admin/success-stories/${id}`, data));
+    }
+
+    async deleteSuccessStory(id: number | string): Promise<void> {
+        return this.handleResponse<void>(apiService.delete(`${apiConfig.baseUrl}/admin/success-stories/${id}`));
+    }
 }
 
 export const adminService = new AdminService();

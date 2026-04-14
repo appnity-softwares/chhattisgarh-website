@@ -69,7 +69,7 @@ export default function SettingsPage() {
     
     // General App Info
     const [appInfo, setAppInfo] = useState({
-        name: 'Chhattisgarh Shaadi',
+        name: 'Chhattisgarh Shadi',
         slogan: "Chhattisgarh's #1 Matrimony App",
         description: 'Find your perfect life partner in Chhattisgarh.',
         supportEmail: 'chhattisgarhshadi@gmail.com',

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
     Heart, 
     Search,
@@ -105,11 +105,19 @@ export default function ShortlistPage() {
         );
     });
 
-    const handleRemove = (shortlistId: number) => {
+    const [hiddenIds, setHiddenIds] = useState<Set<number>>(new Set());
+
+    const handleRemove = (shortlistId: number, profileId: number) => {
         if (window.confirm("Remove this profile from your shortlist?")) {
-            removeFromShortlist.mutate(shortlistId);
+            removeFromShortlist.mutate(shortlistId, {
+                onSuccess: () => {
+                    setHiddenIds((prev: Set<number>) => new Set(prev).add(profileId));
+                }
+            });
         }
     };
+
+    const displayProfiles = filteredProfiles.filter(p => !hiddenIds.has(p.id));
 
     return (
         <div className="space-y-10 pb-20">
@@ -145,47 +153,31 @@ export default function ShortlistPage() {
             )}
 
             {/* Content Area */}
-            {!isLoading && filteredProfiles.length > 0 && (
-                <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
-                >
-                    {filteredProfiles.map((profile: ProfileSummary, index: number) => (
-                        <motion.div
-                            key={profile.shortlistId || profile.id}
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.05 }}
-                            className="relative group"
-                        >
-                            <ProfileCard 
-                                {...profile} 
-                                age={profile.age || 0} 
-                                city={profile.city || "Not Specified"}
-                                occupation={profile.occupation || "Not Specified"}
-                                isShortlisted={true}
-                            />
-                            {/* Remove from shortlist button */}
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    handleRemove(profile.shortlistId);
-                                }}
-                                disabled={removeFromShortlist.isPending}
-                                className="absolute top-4 right-4 z-20 bg-black/50 backdrop-blur-md border border-white/10 rounded-xl p-2.5 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-500/20 hover:border-red-500/30 active:scale-90"
-                                title="Remove from shortlist"
+            {!isLoading && displayProfiles.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <AnimatePresence mode="popLayout">
+                        {displayProfiles.map((profile: ProfileSummary, index: number) => (
+                            <motion.div
+                                key={profile.id}
+                                layout
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                                transition={{ duration: 0.4, ease: "easeInOut" }}
+                                className="relative group"
                             >
-                                {removeFromShortlist.isPending ? (
-                                    <Loader2 className="w-4 h-4 text-white animate-spin" />
-                                ) : (
-                                    <Trash2 className="w-4 h-4 text-red-400" />
-                                )}
-                            </button>
-                        </motion.div>
-                    ))}
-                </motion.div>
+                                <ProfileCard 
+                                    {...profile} 
+                                    age={profile.age || 0} 
+                                    city={profile.city || "Not Specified"}
+                                    occupation={profile.occupation || "Not Specified"}
+                                    isShortlisted={true}
+                                    onRemove={() => handleRemove(profile.shortlistId, profile.id)}
+                                />
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </div>
             )}
 
             {/* Empty State */}

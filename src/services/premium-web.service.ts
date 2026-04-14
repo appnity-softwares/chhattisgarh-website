@@ -44,13 +44,20 @@ export class PremiumWebService {
         return res.json();
     }
 
-    async initBoostPayment(boostType: string, token: string) {
-        // We will pass the user ID inside the backend controller since authenticate is likely used, 
-        // if not, user may need to pass id. Let's assume auth handles it correctly.
-        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.webPayments.boostCreateLink}`, {
+    async createBoostOrder(boostType: string, token: string) {
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.boosts.createOrder}`, {
             method: 'POST',
             headers: getAuthHeaders(token),
             body: JSON.stringify({ boostType }),
+        });
+        return res.json();
+    }
+
+    async verifyBoostPayment(data: Record<string, unknown>, token: string) {
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.boosts.verify}`, {
+            method: 'POST',
+            headers: getAuthHeaders(token),
+            body: JSON.stringify(data),
         });
         return res.json();
     }

@@ -177,16 +177,33 @@ export default function AdminUsersPage() {
 
   const handleBulkDelete = async () => {
     setIsBulkProcessing(true);
-    let success = 0, failedCount = 0;
-    for (const id of selectedUsers) {
-      try { await adminService.deleteUser(id.toString()); success++; }
-      catch { failedCount++; }
+    try {
+      await adminService.bulkModeration(Array.from(selectedUsers), 'users', 'delete');
+      toast({ title: 'Bulk Delete Complete', description: `Successfully deleted ${selectedUsers.size} users` });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to delete users' });
+    } finally {
+      setIsBulkProcessing(false);
+      setBulkDeleteConfirm(false);
+      setSelectedUsers(new Set());
+      window.location.reload();
     }
-    setIsBulkProcessing(false);
-    setBulkDeleteConfirm(false);
-    setSelectedUsers(new Set());
-    toast({ title: 'Bulk Delete Complete', description: `${success} deleted${failedCount > 0 ? `, ${failedCount} failed` : ''}` });
-    window.location.reload();
+  };
+
+  const handleBulkBan = async () => {
+    setIsBulkProcessing(true);
+    try {
+      await adminService.bulkModeration(Array.from(selectedUsers), 'users', 'ban');
+      toast({ title: 'Bulk Ban Complete', description: `Successfully banned ${selectedUsers.size} users` });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to ban users' });
+    } finally {
+      setIsBulkProcessing(false);
+      setSelectedUsers(new Set());
+      window.location.reload();
+    }
   };
 
   const handleBulkRoleChange = async (newRole: UserRole) => {
@@ -312,6 +329,8 @@ export default function AdminUsersPage() {
                     <DropdownMenuItem onClick={() => handleBulkRoleChange('USER' as UserRole)}>Set as User</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleBulkRoleChange('PREMIUM_USER' as UserRole)}>Set as Premium</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleBulkRoleChange('ADMIN' as UserRole)}>Set as Admin</DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-white/[0.06]" />
+                    <DropdownMenuItem onClick={handleBulkBan} className="text-amber-400 focus:text-amber-400 focus:bg-amber-500/10">Ban Selected</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
                 <button

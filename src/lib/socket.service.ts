@@ -5,20 +5,31 @@ class SocketService {
     private socket: Socket | null = null;
     private isConnecting: boolean = false;
     private listeners: Map<string, ((...args: unknown[]) => void)[]> = new Map();
+    private reconnectTimer: NodeJS.Timeout | null = null;
+    private reconnectAttempts: number = 0;
+    private maxReconnectAttempts: number = 10;
+    private baseReconnectDelay: number = 3000; // 3 seconds
+    private currentToken: string | null = null;
+    private visibilityHandler: (() => void) | null = null;
+    private isDestroyed: boolean = false;
 
     connect(token: string) {
-        if (this.socket?.connected || this.isConnecting) return;
+        if (this.isDestroyed || this.socket?.connected || this.isConnecting) return;
 
+        this.currentToken = token;
         this.isConnecting = true;
         this.socket = io(apiConfig.socketUrl, {
             auth: { token },
             transports: ["websocket"],
-            reconnection: true,
-            reconnectionAttempts: 5,
+            reconnection: false, // We handle reconnection manually
         });
-        
+
+        // Setup visibility change handler for app foreground/background
+        this.setupVisibilityHandler();
+
         this.socket.on("connect", () => {
             this.isConnecting = false;
+            this.reconnectAttempts = 0;
             console.log("Socket Connected to:", apiConfig.socketUrl);
         });
 
@@ -27,8 +38,28 @@ class SocketService {
             console.error("Socket Connection Error:", error);
         });
 
-        this.socket.on("disconnect", () => {
-            console.log("Socket Disconnected");
+        this.socket.on("disconnect", (reason) => {
+            console.log("Socket Disconnected. Reason:", reason);
+            // If not intentional disconnect, attempt manual reconnect with backoff
+            if (reason !== 'io client disconnect' && reason !== 'io server disconnect') {
+                this.attemptManualReconnect();
+            }
+        });
+
+        this.socket.on("reconnect", (attemptNumber) => {
+            console.log("Socket Reconnected after", attemptNumber, "attempts");
+        });
+
+        this.socket.on("reconnect_attempt", (attemptNumber) => {
+            console.log("Socket Reconnect attempt:", attemptNumber);
+        });
+
+        this.socket.on("reconnect_error", (error) => {
+            console.error("Socket Reconnect Error:", error);
+        });
+
+        this.socket.on("reconnect_failed", () => {
+            console.error("Socket Reconnect Failed after all attempts");
         });
 
         this.socket.onAny((event: string, ...args: unknown[]) => {
@@ -39,12 +70,74 @@ class SocketService {
         });
     }
 
+    private setupVisibilityHandler() {
+        // Remove existing handler if any
+        if (this.visibilityHandler) {
+            document.removeEventListener('visibilitychange', this.visibilityHandler);
+        }
+
+        this.visibilityHandler = () => {
+            if (!document.hidden && this.currentToken && !this.socket?.connected) {
+                // App came to foreground and socket is disconnected
+                console.log('App came to foreground, reconnecting socket...');
+                this.reconnectAttempts = 0; // Reset attempts for foreground reconnection
+                this.connect(this.currentToken);
+            }
+        };
+
+        document.addEventListener('visibilitychange', this.visibilityHandler);
+    }
+
+    private attemptManualReconnect() {
+        if (this.isDestroyed || this.reconnectAttempts >= this.maxReconnectAttempts) {
+            console.error("Max manual reconnect attempts reached");
+            return;
+        }
+
+        // Clear any existing timer
+        if (this.reconnectTimer) {
+            clearTimeout(this.reconnectTimer);
+        }
+
+        this.reconnectAttempts++;
+        // Exponential backoff: 3s, 6s, 12s, 24s, max 30s
+        const delay = Math.min(
+            this.baseReconnectDelay * Math.pow(2, this.reconnectAttempts - 1),
+            30000
+        );
+
+        console.log(`Manual reconnect attempt ${this.reconnectAttempts} in ${delay}ms`);
+
+        this.reconnectTimer = setTimeout(() => {
+            if (!this.socket?.connected && this.currentToken && !this.isDestroyed) {
+                this.connect(this.currentToken);
+            }
+        }, delay);
+    }
+
     disconnect() {
         this.isConnecting = false;
+        this.currentToken = null;
+        // Clear any pending reconnect timer
+        if (this.reconnectTimer) {
+            clearTimeout(this.reconnectTimer);
+            this.reconnectTimer = null;
+        }
+        // Remove visibility handler
+        if (this.visibilityHandler) {
+            document.removeEventListener('visibilitychange', this.visibilityHandler);
+            this.visibilityHandler = null;
+        }
         if (this.socket) {
             this.socket.disconnect();
             this.socket = null;
         }
+    }
+
+    destroy() {
+        this.isDestroyed = true;
+        this.disconnect();
+        this.listeners.clear();
     }
 
     emit(event: string, data: unknown) {

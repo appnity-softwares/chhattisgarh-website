@@ -20,18 +20,36 @@ export function LoginForm() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username || !password) {
+    
+    // Prevent duplicate submissions
+    if (isLoading) return;
+    
+    // Enhanced validation
+    const validationErrors = [];
+    if (!username.trim()) {
+      validationErrors.push('Username is required');
+    } else if (username.length < 3) {
+      validationErrors.push('Username must be at least 3 characters');
+    }
+    
+    if (!password) {
+      validationErrors.push('Password is required');
+    } else if (password.length < 6) {
+      validationErrors.push('Password must be at least 6 characters');
+    }
+    
+    if (validationErrors.length > 0) {
       toast({
         variant: 'destructive',
-        title: 'Missing credentials',
-        description: 'Please enter both username and password.',
+        title: 'Validation Error',
+        description: validationErrors.join(', '),
       });
       return;
     }
 
     setIsLoading(true);
     try {
-      const response = await authService.adminLogin(username, password);
+      const response = await authService.adminLogin(username.trim(), password);
       login(
         { 
           id: 0,

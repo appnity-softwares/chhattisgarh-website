@@ -48,6 +48,76 @@ export enum AgentStatus {
     TERMINATED = 'TERMINATED',
 }
 
+export enum ContactRequestStatus {
+    PENDING = 'PENDING',
+    APPROVED = 'APPROVED',
+    REJECTED = 'REJECTED',
+}
+
+export interface ContactRequest {
+    id: number;
+    senderId: number;
+    receiverId: number;
+    message: string;
+    status: ContactRequestStatus;
+    createdAt: string;
+    respondedAt?: string;
+    responseReason?: string;
+    sender?: {
+        id: number;
+        email: string;
+        role: string;
+        profile?: {
+            firstName: string;
+            lastName: string;
+        };
+    };
+    receiver?: {
+        id: number;
+        email: string;
+        role: string;
+        profile?: {
+            firstName: string;
+            lastName: string;
+        };
+    };
+}
+
+export enum PhotoRequestStatus {
+    PENDING = 'PENDING',
+    APPROVED = 'APPROVED',
+    REJECTED = 'REJECTED',
+}
+
+export interface PhotoRequest {
+    id: number;
+    requesterId: number;
+    requesteeId: number;
+    message: string;
+    status: PhotoRequestStatus;
+    createdAt: string;
+    respondedAt?: string;
+    responseReason?: string;
+    requester?: {
+        id: number;
+        email: string;
+        role: string;
+        profile?: {
+            firstName: string;
+            lastName: string;
+        };
+    };
+    requestee?: {
+        id: number;
+        email: string;
+        role: string;
+        profile?: {
+            firstName: string;
+            lastName: string;
+        };
+    };
+}
+
 export enum VerificationStatus {
     PENDING = 'PENDING',
     APPROVED = 'APPROVED',

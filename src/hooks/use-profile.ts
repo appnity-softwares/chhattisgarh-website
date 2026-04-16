@@ -229,9 +229,9 @@ export function useProfile() {
   });
 
   const uploadPhotos = useMutation({
-    mutationFn: async (files: File[]) => {
+    mutationFn: async ({ files, onProgress }: { files: File[]; onProgress?: (progress: number) => void }) => {
       if (!accessToken) throw new Error("Unauthorized");
-      const res = await profileWebService.uploadProfilePhotos(files, accessToken);
+      const res = await profileWebService.uploadProfilePhotos(files, accessToken, onProgress);
       if (!res.success) throw new Error(res.message || "Failed to upload photos");
       return res.data;
     },
@@ -241,7 +241,8 @@ export function useProfile() {
       toast({ title: "Photos uploaded successfully" });
     },
     onError: (error: any) => {
-      toast({ title: "Upload Failed", description: error.message, variant: "destructive" });
+      const errorMessage = error.message || "Failed to upload photos";
+      toast({ title: "Upload Failed", description: errorMessage, variant: "destructive" });
     },
   });
 

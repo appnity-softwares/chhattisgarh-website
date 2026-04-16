@@ -62,21 +62,95 @@ export class ProfileWebService {
         return res.json();
     }
 
-    // Photo upload (multipart/form-data)
-    async uploadProfilePhotos(files: File[], token: string) {
-        const formData = new FormData();
-        files.forEach((file) => {
-            formData.append('photos', file);
-        });
+    // Validate file before upload
+    private validateFile(file: File): { isValid: boolean; error?: string } {
+        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+        const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
-        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.profiles.photos}`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-            },
-            body: formData,
-        });
-        return res.json();
+        if (file.size > MAX_FILE_SIZE) {
+            return { isValid: false, error: 'File size must be less than 10MB' };
+        }
+
+        if (!ALLOWED_TYPES.includes(file.type)) {
+            return { isValid: false, error: 'Only JPEG, PNG, and WebP images are allowed' };
+        }
+
+        return { isValid: true };
+    }
+
+    // Photo upload with retry logic and progress tracking
+    async uploadProfilePhotos(files: File[], token: string, onProgress?: (progress: number) => void): Promise<any> {
+        const MAX_RETRIES = 3;
+        const RETRY_DELAY = 1000;
+
+        // Validate all files first
+        for (const file of files) {
+            const validation = this.validateFile(file);
+            if (!validation.isValid) {
+                throw new Error(validation.error);
+            }
+        }
+
+        let attempt = 0;
+        
+        while (attempt < MAX_RETRIES) {
+            try {
+                const formData = new FormData();
+                files.forEach((file) => {
+                    formData.append('photos', file);
+                });
+
+                // Create upload with progress tracking
+                const xhr = new XMLHttpRequest();
+                
+                return new Promise((resolve, reject) => {
+                    xhr.upload.addEventListener('progress', (event) => {
+                        if (event.lengthComputable && onProgress) {
+                            const progress = Math.round((event.loaded / event.total) * 100);
+                            onProgress(progress);
+                        }
+                    });
+
+                    xhr.addEventListener('load', () => {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            try {
+                                const response = JSON.parse(xhr.responseText);
+                                resolve(response);
+                            } catch (e) {
+                                reject(new Error('Invalid response from server'));
+                            }
+                        } else {
+                            reject(new Error(`Upload failed with status ${xhr.status}`));
+                        }
+                    });
+
+                    xhr.addEventListener('error', () => {
+                        reject(new Error('Network error during upload'));
+                    });
+
+                    xhr.addEventListener('timeout', () => {
+                        reject(new Error('Upload timed out'));
+                    });
+
+                    xhr.timeout = 60000; // 60 second timeout
+                    xhr.open('POST', `${apiConfig.baseUrl}${apiConfig.endpoints.profiles.photos}`);
+                    xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+                    xhr.send(formData);
+                });
+
+            } catch (error) {
+                attempt++;
+                
+                if (attempt >= MAX_RETRIES) {
+                    throw error;
+                }
+
+                // Wait before retrying
+                await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * attempt));
+            }
+        }
+
+        throw new Error('Upload failed after multiple attempts');
     }
 
     // Delete a specific photo

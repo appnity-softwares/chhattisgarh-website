@@ -19,7 +19,8 @@ import {
     Crown,
     HelpCircle,
     Star,
-    Zap
+    Zap,
+    UserPlus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -37,6 +38,7 @@ import { useDashboardStats } from "@/hooks/use-dashboard-stats";
 import { useProfile } from "@/hooks/use-profile";
 import { useUserAuthStore } from "@/stores/user-auth-store";
 import { useUserAccess } from "@/hooks/use-user-access";
+import { useContactRequests } from "@/hooks/use-contact-requests";
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
@@ -55,11 +57,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const userRole = access?.isPremium ? "Premium Member" : "Free Member";
     const userAvatar = (user?.profile as any)?.media?.[0]?.url || "";
 
+    const { pendingCount: pendingContactRequests } = useContactRequests();
+
     const sidebarLinks = [
         { href: "/dashboard", label: "Discovery", icon: Sparkles },
         { href: "/dashboard/matches", label: "My Matches", icon: Users },
         { href: "/dashboard/shortlist", label: "Shortlisted", icon: Heart },
         { href: "/dashboard/chat", label: "Messages", icon: MessageSquare, badge: "unreadMessages" },
+        { href: "/dashboard/contact-requests", label: "Contact Requests", icon: UserPlus, badge: pendingContactRequests > 0 ? "contactRequests" : undefined },
         { href: "/dashboard/membership", label: access?.isPremium ? "Premium Benefits" : "Upgrade Plan", icon: CreditCard },
         { href: "/dashboard/boost", label: "Boost Reach", icon: Zap },
     ];
@@ -114,7 +119,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     {sidebarLinks.map((link) => {
                         const Icon = link.icon;
                         const active = pathname === link.href;
-                        const hasBadge = link.badge === "unreadMessages" && unreadMessages > 0;
+                        const hasUnreadBadge = link.badge === "unreadMessages" && unreadMessages > 0;
+                        const hasContactBadge = link.badge === "contactRequests" && pendingContactRequests > 0;
+                        const hasBadge = hasUnreadBadge || hasContactBadge;
 
                         return (
                             <Link
@@ -126,7 +133,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                 <span className="font-bold tracking-tight text-[13px]">{link.label}</span>
                                 {hasBadge && !active && (
                                     <span className="ml-auto bg-primary text-white text-[9px] font-black h-5 w-5 rounded-full flex items-center justify-center animate-pulse">
-                                        {unreadMessages}
+                                        {link.badge === "unreadMessages" ? unreadMessages : pendingContactRequests}
                                     </span>
                                 )}
                                 {active && (

@@ -1,11 +1,17 @@
 import axios from "axios";
 import apiConfig from "./api.config";
 
+// Retry configuration
+const MAX_RETRIES = 2;
+const RETRY_DELAY = 1000;
+const RETRY_STATUS_CODES = [408, 429, 500, 502, 503, 504];
+
 const api = axios.create({
     baseURL: apiConfig.baseUrl,
     headers: {
         "Content-Type": "application/json",
     },
+    timeout: 15000, // 15 second timeout
 });
 
 // Request Interceptor for Auth Token
@@ -81,32 +87,95 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Response Interceptor for handling errors
+// Response Interceptor for handling errors with retry logic
 api.interceptors.response.use(
     (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            console.warn(`Unauthorized (401) at ${error.config?.url}. Token present: ${!!error.config?.headers?.Authorization}`);
+    async (error) => {
+        const originalRequest = error.config;
+        
+        // Don't retry if no original request or already retried
+        if (!originalRequest || originalRequest._retry) {
+            return handleErrorResponse(error);
+        }
+
+        // Check if we should retry
+        const shouldRetry = RETRY_STATUS_CODES.includes(error.response?.status) || 
+                           error.code === 'ECONNABORTED' || 
+                           error.code === 'NETWORK_ERROR';
+
+        if (shouldRetry && !originalRequest._retryCount) {
+            originalRequest._retry = true;
+            originalRequest._retryCount = 0;
+        }
+
+        if (shouldRetry && originalRequest._retryCount < MAX_RETRIES) {
+            originalRequest._retryCount++;
             
-            // Only handle if in browser
-            if (typeof window !== "undefined") {
-                // Determine if it's admin or user context
-                const isAdmin = window.location.pathname.startsWith('/admin');
-                const storageKey = isAdmin ? "admin-auth-storage" : "user-auth-storage";
-                const loginUrl = isAdmin ? "/admin-secure-login" : "/login";
-
-                // Clear the relevant storage
-                localStorage.removeItem(storageKey);
-
-                // Redirect to login if not already there
-                if (!window.location.pathname.includes("login")) {
-                    window.location.href = loginUrl;
-                }
+            // Wait before retrying with exponential backoff
+            await new Promise(resolve => 
+                setTimeout(resolve, RETRY_DELAY * Math.pow(2, originalRequest._retryCount - 1))
+            );
+            
+            try {
+                return await api(originalRequest);
+            } catch (retryError) {
+                return handleErrorResponse(retryError);
             }
         }
-        return Promise.reject(error);
+
+        return handleErrorResponse(error);
     }
 );
+
+// Handle different error responses
+function handleErrorResponse(error: any) {
+    if (error.response?.status === 401) {
+        // Handle unauthorized - clear storage and redirect
+        if (typeof window !== "undefined") {
+            const isAdmin = window.location.pathname.startsWith('/admin');
+            const storageKey = isAdmin ? "admin-auth-storage" : "user-auth-storage";
+            const loginUrl = isAdmin ? "/admin-secure-login" : "/login";
+
+            localStorage.removeItem(storageKey);
+
+            if (!window.location.pathname.includes("login")) {
+                window.location.href = loginUrl;
+            }
+        }
+        return Promise.reject(createUserFriendlyError('Session expired. Please login again.'));
+    }
+
+    if (error.response?.status === 403) {
+        return Promise.reject(createUserFriendlyError('Access denied. You don\'t have permission to perform this action.'));
+    }
+
+    if (error.response?.status === 429) {
+        return Promise.reject(createUserFriendlyError('Too many requests. Please try again later.'));
+    }
+
+    if (error.code === 'ECONNABORTED') {
+        return Promise.reject(createUserFriendlyError('Request timed out. Please check your connection and try again.'));
+    }
+
+    if (error.code === 'NETWORK_ERROR' || !navigator.onLine) {
+        return Promise.reject(createUserFriendlyError('Network error. Please check your internet connection.'));
+    }
+
+    // Generic server error
+    if (error.response?.status >= 500) {
+        return Promise.reject(createUserFriendlyError('Server error. Please try again later.'));
+    }
+
+    // Return original error for client errors (400, etc.)
+    return Promise.reject(error);
+}
+
+// Create user-friendly error objects
+function createUserFriendlyError(message: string) {
+    const error = new Error(message) as any;
+    error.isUserFriendly = true;
+    return error;
+}
 
 export const apiService = api;
 export default api;

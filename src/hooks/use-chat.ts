@@ -149,8 +149,10 @@ export function useChat(otherUserId: number | null) {
             if (!res.success) throw new Error(res.message || "Failed to delete message");
             return res.data;
         },
-        onSuccess: () => {
-            setMessages(prev => prev.filter(msg => msg.id !== deleteMessage.variables));
+        onSuccess: (_, messageId) => {
+            setMessages(prev => prev.filter(msg => msg.id !== messageId));
+            // Invalidate conversations list to update last message
+            queryClient.invalidateQueries({ queryKey: ["conversations"] });
             toast({ title: "Message deleted" });
         },
         onError: (err: unknown) => {

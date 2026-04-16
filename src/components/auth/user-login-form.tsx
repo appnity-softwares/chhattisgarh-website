@@ -288,13 +288,43 @@ export function UserLoginForm() {
                                                 Edit Phone
                                             </button>
 
-                                            <button 
+                                            <button
                                                 type="button"
-                                                disabled={!canResend}
-                                                onClick={() => {
+                                                disabled={!canResend || isLoading}
+                                                onClick={async () => {
+                                                    if (!canResend || isLoading) return;
                                                     setTimer(30);
                                                     setCanResend(false);
-                                                    // handleSendOTP logic here
+                                                    setIsLoading(true);
+                                                    try {
+                                                        // Re-setup recaptcha if needed
+                                                        if (!win.recaptchaVerifier) {
+                                                            setupRecaptcha();
+                                                        }
+                                                        const appVerifier = win.recaptchaVerifier;
+                                                        if (!appVerifier) throw new Error("Recaptcha not initialized");
+                                                        const fullPhone = `+91${phone}`;
+
+                                                        const result = await signInWithPhoneNumber(auth, fullPhone, appVerifier);
+                                                        setConfirmationResult(result);
+                                                        toast({
+                                                            title: "OTP Resent!",
+                                                            description: `New verification code sent to +91 ${phone}`,
+                                                        });
+                                                    } catch (error: unknown) {
+                                                        const err = error as Error;
+                                                        console.error("Resend OTP Error:", err);
+                                                        toast({
+                                                            variant: "destructive",
+                                                            title: "Failed to Resend",
+                                                            description: err.message || "Could not resend OTP. Please try again.",
+                                                        });
+                                                        // Reset timer on error so user can try again
+                                                        setCanResend(true);
+                                                        setTimer(0);
+                                                    } finally {
+                                                        setIsLoading(false);
+                                                    }
                                                 }}
                                                 className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest transition-colors ${canResend ? 'text-primary hover:text-primary/80' : 'text-muted-foreground opacity-50 cursor-not-allowed'}`}
                                             >

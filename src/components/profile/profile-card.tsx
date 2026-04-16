@@ -19,18 +19,27 @@ import {
     ChevronLeft, 
     ChevronRight, 
     Crown,
-    Star
+    Star,
+    UserPlus,
+    Phone,
+    Mail,
+    MessageCircle,
+    Camera
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInteractions } from "@/hooks/use-interactions";
+import { useContactRequests } from "@/hooks/use-contact-requests";
+import { usePhotoRequests } from "@/hooks/use-photo-requests";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { useRouter } from "next/navigation";
 import { useUserAccess } from "@/hooks/use-user-access";
 import { useInteractionStore } from "@/store/interaction-store";
+import { useToast } from "@/hooks/use-toast";
+import { ProfileQRCode } from "./qr-share";
 
 interface ProfileCardProps {
     name: string;
@@ -59,6 +68,11 @@ interface ProfileCardProps {
 }
 
 export function ProfileCard({ name, age, city, occupation, education, image, media, isVerified, gender, priority, id, isShortlisted, statusBadge, isMatched, canChat: propCanChat, showInteractions, customActions, onActionSuccess, onRemove, relationship: propRelationship }: ProfileCardProps) {
+    const { send: sendContact } = useContactRequests();
+    const { send: sendPhoto } = usePhotoRequests();
+    const { toast } = useToast();
+    const [showContactModal, setShowContactModal] = useState(false);
+    const [showPhotoModal, setShowPhotoModal] = useState(false);
     const targetId = typeof id === 'string' ? parseInt(id) : id;
     const { 
         relationships, 
@@ -221,9 +235,16 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                                         initial={{ opacity: 0, scale: 0.95, y: -5 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -5 }}
                                         className="absolute right-0 top-11 z-50 w-36 bg-[#111] border border-white/10 rounded-2xl shadow-3xl overflow-hidden"
                                     >
-                                        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowReportModal(true); setShowMenu(false); }} className="w-full flex items-center gap-2 px-4 py-3 text-[9px] font-black uppercase tracking-widest text-amber-500 hover:bg-white/5 transition-colors">
-                                            <Flag className="w-3.5 h-3.5" /> Report
-                                        </button>
+                                        <ProfileQRCode 
+                                            userId={id} 
+                                            userName={name}
+                                            profileUrl={`/dashboard/profile/${id}`}
+                                        />
+                                        <div className="border-t border-white/5">
+                                            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowReportModal(true); setShowMenu(false); }} className="w-full flex items-center gap-2 px-4 py-3 text-[9px] font-black uppercase tracking-widest text-amber-500 hover:bg-white/5 transition-colors">
+                                                <Flag className="w-3.5 h-3.5" /> Report
+                                            </button>
+                                        </div>
                                         <button onClick={(e) => handleAction(e, () => blockUser(targetId))} className="w-full flex items-center gap-2 px-4 py-3 text-[9px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 transition-colors border-t border-white/5">
                                             <Ban className="w-3.5 h-3.5" /> Block
                                         </button>
@@ -330,9 +351,38 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                             </div>
                         )}
                         
-                        <Button asChild className="h-full px-5 bg-white text-black font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-white/90 active:scale-95 shadow-xl">
-                            <Link href={`/dashboard/profile/${id}`}>View</Link>
-                        </Button>
+                        <div className="flex gap-2">
+                            {/* Photo Request Button - Always visible for non-matched profiles */}
+                            {state.type !== 'matched' && !isPremium && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowPhotoModal(true);
+                                    }}
+                                    className="flex-1 h-full px-3 bg-amber-500/10 border border-amber-500/20 text-amber-400 font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-amber-500/20 active:scale-95 flex items-center justify-center gap-2"
+                                    title="Request Photo Access"
+                                >
+                                    <Camera className="w-4 h-4" />
+                                    <span className="hidden sm:inline">Photo</span>
+                                </button>
+                            )}
+                            
+                            {(state.type === 'matched' || isPremium) && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowContactModal(true);
+                                    }}
+                                    className="flex-1 h-full px-4 bg-blue-500 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-blue-600 active:scale-95 shadow-xl flex items-center justify-center gap-2"
+                                >
+                                    <UserPlus className="w-4 h-4" />
+                                    Contact
+                                </button>
+                            )}
+                            <Button asChild className="flex-1 h-full px-5 bg-white text-black font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-white/90 active:scale-95 shadow-xl">
+                                <Link href={`/dashboard/profile/${id}`}>View</Link>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </Card>
@@ -355,6 +405,106 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                         <div className="flex gap-3">
                             <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={() => setShowReportModal(false)}>Cancel</Button>
                             <Button className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 bg-amber-500 text-black hover:bg-amber-600" onClick={handleReportSubmit} disabled={!reportReason}>Submit Report</Button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {/* Contact Request Modal */}
+            {showContactModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" onClick={() => setShowContactModal(false)}>
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-[#111] border border-white/10 rounded-2xl p-6 w-full max-w-sm space-y-6 shadow-4xl">
+                        <h2 className="text-base font-black text-white uppercase tracking-tighter">Request <span className="text-blue-500 font-italic">Contact</span></h2>
+                        
+                        <div className="space-y-4">
+                            <div className="space-y-4">
+                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2 block">What would you like to request?</label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    <button
+                                        onClick={() => sendContact.mutate({ profileId: targetId, requestType: 'PHONE' })}
+                                        disabled={sendContact.isPending}
+                                        className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all flex flex-col items-center gap-2"
+                                    >
+                                        <Phone className="w-5 h-5 text-primary" />
+                                        <span className="text-xs text-white font-black uppercase">Phone</span>
+                                    </button>
+                                    <button
+                                        onClick={() => sendContact.mutate({ profileId: targetId, requestType: 'EMAIL' })}
+                                        disabled={sendContact.isPending}
+                                        className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all flex flex-col items-center gap-2"
+                                    >
+                                        <Mail className="w-5 h-5 text-primary" />
+                                        <span className="text-xs text-white font-black uppercase">Email</span>
+                                    </button>
+                                    <button
+                                        onClick={() => sendContact.mutate({ profileId: targetId, requestType: 'WHATSAPP' })}
+                                        disabled={sendContact.isPending}
+                                        className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all flex flex-col items-center gap-2"
+                                    >
+                                        <MessageCircle className="w-5 h-5 text-primary" />
+                                        <span className="text-xs text-white font-black uppercase">WhatsApp</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2 block">Message (Optional)</label>
+                                <textarea 
+                                    placeholder="Hi, I'd like to connect with you..."
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs font-bold text-white min-h-[80px] outline-none focus:border-primary/50 transition-colors resize-none"
+                                />
+                            </div>
+                            
+                            <div className="flex gap-3">
+                                <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={() => setShowContactModal(false)}>Cancel</Button>
+                                <Button className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 bg-blue-500 text-white hover:bg-blue-600" onClick={() => setShowContactModal(false)}>Close</Button>
+                            </div>
+                        </div>
+                        
+                        <div className="flex gap-3">
+                            <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={() => setShowContactModal(false)}>Cancel</Button>
+                            <Button className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 bg-blue-500 text-white hover:bg-blue-600" onClick={() => setShowContactModal(false)}>Close</Button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {/* Photo Request Modal */}
+            {showPhotoModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" onClick={() => setShowPhotoModal(false)}>
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-[#111] border border-white/10 rounded-2xl p-6 w-full max-w-sm space-y-6 shadow-4xl">
+                        <h2 className="text-base font-black text-white uppercase tracking-tighter">Request <span className="text-amber-500 font-italic">Photo Access</span></h2>
+                        
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2 block">Message (Optional)</label>
+                                <textarea 
+                                    placeholder="Hi, I'd like to see your photos..."
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs font-bold text-white min-h-[80px] outline-none focus:border-primary/50 transition-colors resize-none"
+                                />
+                            </div>
+                        </div>
+                        
+                        <div className="flex gap-3">
+                            <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={() => setShowPhotoModal(false)}>Cancel</Button>
+                            <Button 
+                                className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 bg-amber-500 text-white hover:bg-amber-600" 
+                                onClick={() => {
+                                    sendPhoto.mutate({ 
+                                        photoId: 1, // Use first photo ID (backend will handle mapping)
+                                        message: "I'd like to see your photos"
+                                    });
+                                    setShowPhotoModal(false);
+                                }}
+                                disabled={sendPhoto.isPending}
+                            >
+                                {sendPhoto.isPending ? (
+                                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                ) : (
+                                    <Camera className="w-4 h-4 mr-2" />
+                                )}
+                                Send Request
+                            </Button>
                         </div>
                     </motion.div>
                 </div>

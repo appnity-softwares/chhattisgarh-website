@@ -23,6 +23,8 @@ export default function AdminProfilesPage() {
     const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 0 });
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedProfiles, setSelectedProfiles] = useState<Set<number>>(new Set());
+    const [isBulkProcessing, setIsBulkProcessing] = useState(false);
 
     const fetchProfiles = async (page = 1) => {
         setIsLoading(true);
@@ -56,9 +58,53 @@ export default function AdminProfilesPage() {
 
     const filteredProfiles = profiles.filter(profile =>
         profile.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        profile.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         profile.profileId?.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    const toggleSelectAll = () => {
+        if (selectedProfiles.size === filteredProfiles.length && filteredProfiles.length > 0) {
+            setSelectedProfiles(new Set());
+        } else {
+            setSelectedProfiles(new Set(filteredProfiles.map(p => p.id)));
+        }
+    };
+
+    const toggleSelectProfile = (id: number) => {
+        const next = new Set(selectedProfiles);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        setSelectedProfiles(next);
+    };
+
+    const handleBulkApprove = async () => {
+        setIsBulkProcessing(true);
+        try {
+            await adminService.bulkModeration(Array.from(selectedProfiles), 'profiles', 'approve');
+            toast({ title: 'Bulk Approve Complete', description: `Approved ${selectedProfiles.size} profiles` });
+            fetchProfiles(pagination.page);
+        } catch (err: unknown) {
+            const errorMsg = err as { message?: string };
+            toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to approve profiles' });
+        } finally {
+            setIsBulkProcessing(false);
+            setSelectedProfiles(new Set());
+        }
+    };
+
+    const handleBulkDelete = async () => {
+        setIsBulkProcessing(true);
+        try {
+            await adminService.bulkModeration(Array.from(selectedProfiles), 'profiles', 'delete');
+            toast({ title: 'Bulk Delete Complete', description: `Deleted ${selectedProfiles.size} profiles` });
+            fetchProfiles(pagination.page);
+        } catch (err: unknown) {
+            const errorMsg = err as { message?: string };
+            toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to delete profiles' });
+        } finally {
+            setIsBulkProcessing(false);
+            setSelectedProfiles(new Set());
+        }
+    };
 
     return (
         <AdminPageWrapper>
@@ -80,6 +126,19 @@ export default function AdminProfilesPage() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
+                    {selectedProfiles.size > 0 && (
+                        <div className="flex items-center gap-3 mt-4 p-3 rounded-lg bg-muted border">
+                            <span className="text-sm font-semibold">{selectedProfiles.size} selected</span>
+                            <div className="flex gap-2 ml-auto">
+                                <Button size="sm" onClick={handleBulkApprove} disabled={isBulkProcessing} className="bg-emerald-500 hover:bg-emerald-600">
+                                    Approve Selected
+                                </Button>
+                                <Button size="sm" variant="destructive" onClick={handleBulkDelete} disabled={isBulkProcessing}>
+                                    Delete Selected
+                                </Button>
+                            </div>
+                        </div>
+                    )}
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
@@ -93,6 +152,14 @@ export default function AdminProfilesPage() {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
+                                        <TableHead className="w-12">
+                                            <input 
+                                                type="checkbox" 
+                                                className="rounded border-gray-300"
+                                                checked={selectedProfiles.size === filteredProfiles.length && filteredProfiles.length > 0} 
+                                                onChange={toggleSelectAll} 
+                                            />
+                                        </TableHead>
                                         <TableHead>Profile</TableHead>
                                         <TableHead>Completeness</TableHead>
                                         <TableHead>Verification Status</TableHead>
@@ -110,7 +177,15 @@ export default function AdminProfilesPage() {
                                         </TableRow>
                                     ) : (
                                         filteredProfiles.map(profile => (
-                                            <TableRow key={profile.id}>
+                                            <TableRow key={profile.id} className={selectedProfiles.has(profile.id) ? "bg-muted/50" : ""}>
+                                                <TableCell>
+                                                    <input 
+                                                        type="checkbox" 
+                                                        className="rounded border-gray-300"
+                                                        checked={selectedProfiles.has(profile.id)} 
+                                                        onChange={() => toggleSelectProfile(profile.id)} 
+                                                    />
+                                                </TableCell>
                                                 <TableCell>
                                                     <div className="font-medium">
                                                         {profile.firstName || profile.lastName ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : 'Unknown User'}

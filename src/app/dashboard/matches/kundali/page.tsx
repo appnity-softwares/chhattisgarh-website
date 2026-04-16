@@ -16,6 +16,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { useAstrologyMatch, useAstrologyMetadata } from "@/hooks/use-astrology";
 
 const GUNA_DATA = [
     { name: "Varna", score: 1, max: 1, desc: "Work Compatibility" },
@@ -29,13 +31,25 @@ const GUNA_DATA = [
 ];
 
 export default function KundaliReportPage() {
-    const [score, setScore] = useState(0);
-    const targetScore = 25.5;
-
-    useEffect(() => {
-        const timer = setTimeout(() => setScore(targetScore), 500);
-        return () => clearTimeout(timer);
-    }, []);
+    const searchParams = useSearchParams();
+    const targetUserId = searchParams.get("userId");
+    const { data: kundaliMatch } = useAstrologyMatch(targetUserId || '');
+    const { nakshatras, rashis } = useAstrologyMetadata();
+    
+    // Use real API data or fallback to hardcoded values
+    const gunaData = kundaliMatch?.gunaMilan || [
+        { name: "Varna", score: 1, max: 1, desc: "Work Compatibility" },
+        { name: "Vashya", score: 2, max: 2, desc: "Dominance Compatibility" },
+        { name: "Tara", score: 1.5, max: 3, desc: "Destiny Compatibility" },
+        { name: "Yoni", score: 4, max: 4, desc: "Nature Compatibility" },
+        { name: "Graha", score: 3, max: 5, desc: "Mental Compatibility" },
+        { name: "Gana", score: 6, max: 6, desc: "Temperament" },
+        { name: "Bhakoot", score: 0, max: 7, desc: "Love Compatibility" },
+        { name: "Nadi", score: 8, max: 8, desc: "Health & Genes" },
+    ];
+    const score = kundaliMatch?.totalScore || 0;
+    const targetScore = kundaliMatch?.totalScore || 25.5;
+    const isManglikCompatible = kundaliMatch?.manglikDosha?.compatible || true;
 
     return (
         <div className="max-w-4xl mx-auto space-y-10 pb-20">
@@ -113,11 +127,25 @@ export default function KundaliReportPage() {
                             <h3 className="font-black text-lg uppercase tracking-widest">Manglik Dosha</h3>
                         </div>
                         <div className="flex items-center gap-6 p-6 bg-white/5 rounded-3xl border border-white/5">
-                            <CheckCircle2 className="w-10 h-10 text-green-500" />
-                            <div className="space-y-1">
-                                <h4 className="font-black text-sm uppercase tracking-widest text-green-500">Profiles are Compatible</h4>
-                                <p className="text-xs text-muted-foreground font-medium">Both profiles are Non-Manglik, ensuring a smooth path together.</p>
-                            </div>
+                            {isManglikCompatible ? (
+                                <>
+                                    <CheckCircle2 className="w-10 h-10 text-green-500" />
+                                    <div className="space-y-1">
+                                        <h4 className="font-black text-sm uppercase tracking-widest text-green-500">Profiles are Compatible</h4>
+                                        <p className="text-xs text-muted-foreground font-medium">Both profiles are Non-Manglik, ensuring a smooth path together.</p>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="w-10 h-10 bg-amber-500/20 rounded-2xl flex items-center justify-center">
+                                        <Flame className="w-6 h-6 text-amber-500" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <h4 className="font-black text-sm uppercase tracking-widest text-amber-500">Manglik Dosha Present</h4>
+                                        <p className="text-xs text-muted-foreground font-medium">One or both profiles have Manglik dosha - astrological remedies recommended.</p>
+                                    </div>
+                                </>
+                            )}
                         </div>
                         <div className="flex items-start gap-3 px-2">
                             <Info className="w-4 h-4 text-muted-foreground mt-0.5" />
@@ -137,8 +165,8 @@ export default function KundaliReportPage() {
                         </div>
                         <CardContent className="p-0">
                             <div className="grid grid-cols-1 md:grid-cols-2">
-                                {GUNA_DATA.map((guna, i) => (
-                                    <div key={i} className={`p-8 flex items-center justify-between group hover:bg-white/5 transition-colors border-white/5 ${i % 2 === 0 ? 'md:border-r' : ''} ${i < GUNA_DATA.length - 2 ? 'border-b' : ''}`}>
+                                {gunaData.map((guna: any, i: number) => (
+                                    <div key={i} className={`p-8 flex items-center justify-between group hover:bg-white/5 transition-colors border-white/5 ${i % 2 === 0 ? 'md:border-r' : ''} ${i < gunaData.length - 2 ? 'border-b' : ''}`}>
                                         <div className="space-y-1">
                                             <h4 className="font-black text-sm uppercase tracking-widest text-foreground group-hover:text-primary transition-colors">{guna.name}</h4>
                                             <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest">{guna.desc}</p>

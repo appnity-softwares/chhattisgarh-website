@@ -34,8 +34,19 @@ export default function SearchPage() {
     const [isSearching, setIsSearching] = useState(false);
     const [showFilters, setShowFilters] = useState(true);
     const [ageRange, setAgeRange] = useState([18, 50]);
+    
+    // Filter states
+    const [filters, setFilters] = useState({
+        religion: 'any',
+        community: 'any',
+        occupation: 'any',
+        education: 'any',
+        gender: 'any',
+        location: '',
+        maritalStatus: 'any'
+    });
 
-    // Use our hook
+    // Use our hook with all filters
     const { 
         data, 
         fetchNextPage, 
@@ -46,7 +57,14 @@ export default function SearchPage() {
     } = useInfiniteProfiles({
         search: searchQuery,
         minAge: ageRange[0],
-        maxAge: ageRange[1]
+        maxAge: ageRange[1],
+        religion: filters.religion !== 'any' ? filters.religion : undefined,
+        community: filters.community !== 'any' ? filters.community : undefined,
+        occupation: filters.occupation !== 'any' ? filters.occupation : undefined,
+        education: filters.education !== 'any' ? filters.education : undefined,
+        gender: filters.gender !== 'any' ? filters.gender : undefined,
+        location: filters.location || undefined,
+        maritalStatus: filters.maritalStatus !== 'any' ? filters.maritalStatus : undefined
     });
 
     // Flatten pages into a single array
@@ -56,6 +74,38 @@ export default function SearchPage() {
 
     const handleActionSuccess = (id: number | string) => {
         setHiddenIds(prev => new Set(prev).add(id));
+    };
+
+    const handleFilterChange = (key: string, value: string) => {
+        setFilters(prev => ({ ...prev, [key]: value }));
+        setIsSearching(true);
+        // Auto-refetch after filter change
+        setTimeout(() => {
+            refetch();
+        }, 300);
+    };
+
+    const handleAgeRangeChange = (range: number[]) => {
+        setAgeRange(range);
+        setIsSearching(true);
+        setTimeout(() => {
+            refetch();
+        }, 300);
+    };
+
+    const clearFilters = () => {
+        setFilters({
+            religion: 'any',
+            community: 'any',
+            occupation: 'any',
+            education: 'any',
+            gender: 'any',
+            location: '',
+            maritalStatus: 'any'
+        });
+        setAgeRange([18, 50]);
+        setSearchQuery('');
+        refetch();
     };
 
     const profiles = allProfiles.filter(p => !hiddenIds.has(p.id));
@@ -99,8 +149,13 @@ export default function SearchPage() {
                         onChange={(e) => {
                             const val = e.target.value;
                             setSearchQuery(val);
-                            if (val.length > 2) setIsSearching(true);
-                            else setIsSearching(false);
+                            if (val.length > 2) {
+                                setIsSearching(true);
+                                setTimeout(() => refetch(), 500);
+                            } else {
+                                setIsSearching(false);
+                                setTimeout(() => refetch(), 500);
+                            }
                         }}
                     />
                     {isSearching && (
@@ -135,11 +190,11 @@ export default function SearchPage() {
                                             <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-md">{ageRange[0]} - {ageRange[1]}</span>
                                         </div>
                                         <Slider 
-                                            defaultValue={[18, 45]} 
+                                            value={ageRange}
                                             max={65} 
                                             min={18} 
                                             step={1} 
-                                            onValueChange={setAgeRange}
+                                            onValueChange={handleAgeRangeChange}
                                             className="py-2"
                                         />
                                     </div>
@@ -147,7 +202,7 @@ export default function SearchPage() {
                                     {/* Categorized Selects */}
                                     <div className="space-y-2.5">
                                         <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block mb-2">Demographics</Label>
-                                        <Select defaultValue="any">
+                                        <Select value={filters.religion} onValueChange={(value) => handleFilterChange('religion', value)}>
                                             <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
                                                 <SelectValue placeholder="Religion" />
                                             </SelectTrigger>
@@ -157,10 +212,11 @@ export default function SearchPage() {
                                                 <SelectItem value="muslim">Muslim</SelectItem>
                                                 <SelectItem value="jain">Jain</SelectItem>
                                                 <SelectItem value="sikh">Sikh</SelectItem>
+                                                <SelectItem value="christian">Christian</SelectItem>
                                             </SelectContent>
                                         </Select>
 
-                                        <Select defaultValue="any">
+                                        <Select value={filters.community} onValueChange={(value) => handleFilterChange('community', value)}>
                                             <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
                                                 <SelectValue placeholder="Community" />
                                             </SelectTrigger>
@@ -168,13 +224,15 @@ export default function SearchPage() {
                                                 <SelectItem value="any">Open to All</SelectItem>
                                                 <SelectItem value="sahu">Sahu</SelectItem>
                                                 <SelectItem value="verma">Verma</SelectItem>
+                                                <SelectItem value="agarwal">Agarwal</SelectItem>
+                                                <SelectItem value="sharma">Sharma</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
 
                                     <div className="space-y-2.5 pt-4 border-t border-white/5">
                                         <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block mb-2">Lifestyle</Label>
-                                        <Select defaultValue="any">
+                                        <Select value={filters.occupation} onValueChange={(value) => handleFilterChange('occupation', value)}>
                                             <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
                                                 <SelectValue placeholder="Occupation" />
                                             </SelectTrigger>
@@ -183,30 +241,66 @@ export default function SearchPage() {
                                                 <SelectItem value="it">IT Professional</SelectItem>
                                                 <SelectItem value="doctor">Medical / Doctor</SelectItem>
                                                 <SelectItem value="business">Business</SelectItem>
+                                                <SelectItem value="engineer">Engineer</SelectItem>
+                                                <SelectItem value="teacher">Teacher</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        <Select defaultValue="any">
+                                        <Select value={filters.education} onValueChange={(value) => handleFilterChange('education', value)}>
                                             <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
                                                 <SelectValue placeholder="Education" />
                                             </SelectTrigger>
                                             <SelectContent className="bg-[#111] border-white/10">
                                                 <SelectItem value="any">Any Level</SelectItem>
+                                                <SelectItem value="bachelors">Graduate</SelectItem>
                                                 <SelectItem value="masters">Post Graduate</SelectItem>
                                                 <SelectItem value="phd">PhD</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
 
+                                    {/* Additional Filters */}
+                                    <div className="space-y-2.5 pt-4 border-t border-white/5">
+                                        <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block mb-2">Preferences</Label>
+                                        <Select value={filters.gender} onValueChange={(value) => handleFilterChange('gender', value)}>
+                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                                <SelectValue placeholder="Gender" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-[#111] border-white/10">
+                                                <SelectItem value="any">Any Gender</SelectItem>
+                                                <SelectItem value="male">Male</SelectItem>
+                                                <SelectItem value="female">Female</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <Select value={filters.maritalStatus} onValueChange={(value) => handleFilterChange('maritalStatus', value)}>
+                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                                <SelectValue placeholder="Marital Status" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-[#111] border-white/10">
+                                                <SelectItem value="any">Any Status</SelectItem>
+                                                <SelectItem value="never-married">Never Married</SelectItem>
+                                                <SelectItem value="divorced">Divorced</SelectItem>
+                                                <SelectItem value="widowed">Widowed</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <Input 
+                                            placeholder="Location/City..." 
+                                            className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs"
+                                            value={filters.location}
+                                            onChange={(e) => handleFilterChange('location', e.target.value)}
+                                        />
+                                    </div>
+
                                     <div className="flex gap-2 pt-2">
                                         <Button 
                                             variant="ghost" 
-                                            onClick={() => { setAgeRange([18, 50]); setSearchQuery(""); }}
+                                            onClick={clearFilters}
                                             className="h-10 w-10 p-0 rounded-xl hover:bg-white/5 text-muted-foreground border border-white/5"
+                                            title="Clear all filters"
                                         >
                                             <X className="w-4 h-4" />
                                         </Button>
                                         <Button onClick={() => refetch()} className="flex-1 h-10 bg-primary hover:bg-primary/90 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20">
-                                            Apply
+                                            Apply Filters
                                         </Button>
                                     </div>
                                 </CardContent>

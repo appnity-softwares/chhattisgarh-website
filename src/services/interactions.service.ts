@@ -117,6 +117,13 @@ export class InteractionsService {
         return res.json();
     }
 
+    async getSentContactRequests(token: string) {
+        const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.contactRequests.sent}`, {
+            headers: getAuthHeaders(token),
+        });
+        return res.json();
+    }
+
     async sendContactRequest(profileId: number, token: string, requestType: 'PHONE' | 'EMAIL' | 'WHATSAPP' = 'PHONE', message?: string) {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.contactRequests.send}`, {
             method: 'POST',

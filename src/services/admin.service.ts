@@ -8,10 +8,92 @@ import type {
     Profile,
     MatchRequest,
     AdminPaymentsResponse,
-    PaymentStatus
+    PaymentStatus,
+    ContactRequest,
+    PhotoRequest
 } from '@/types/api.types';
 
-class AdminService {
+export interface AdminServiceInterface {
+    // Dashboard Stats
+    getDashboardStats(): Promise<DashboardStats>;
+    
+    // Users
+    getUsers(page?: number, limit?: number): Promise<{ users: User[]; pagination: Record<string, unknown> }>;
+    getRecentUsers(limit?: number): Promise<User[]>;
+    getUserById(userId: string): Promise<User>;
+    updateUserRole(userId: string, role: string): Promise<User>;
+    deleteUser(userId: string): Promise<void>;
+    banUser(userId: string, reason: string): Promise<User>;
+    unbanUser(userId: string): Promise<User>;
+    bulkUploadUsers(file: File): Promise<{ success: number, failed: number, errors: { row: number; email: string; error: string }[] }>;
+    
+    // Profiles
+    getProfiles(page?: number, limit?: number): Promise<{ profiles: Profile[]; pagination: Record<string, unknown> }>;
+    verifyProfile(profileId: number, isVerified: boolean): Promise<Profile>;
+    updateProfileStatus(profileId: number, isPublished: boolean, statusReason?: string): Promise<Profile>;
+    
+    // Matches
+    getRecentMatches(limit?: number): Promise<MatchRequest[]>;
+    
+    // Payments
+    getPayments(params?: {
+        page?: number;
+        limit?: number;
+        status?: PaymentStatus | 'all';
+        search?: string;
+    }): Promise<AdminPaymentsResponse>;
+    
+    // Token Cleanup
+    cleanupExpiredTokens(): Promise<{ count: number }>;
+    
+    // Audit Logs
+    getAuditLogs(): Promise<Record<string, unknown>[]>;
+    getAuditLogsStats(): Promise<Record<string, unknown>>;
+    
+    // Grant Subscription
+    grantSubscription(userId: string, planId: number, customDays?: number): Promise<unknown>;
+    
+    // Admin Profile Management
+    createProfile(userId: string, data: Record<string, unknown>): Promise<Profile>;
+    updateProfile(userId: string, data: Record<string, unknown>): Promise<Profile>;
+    deleteProfile(userId: string): Promise<void>;
+    
+    // Contact Requests Management
+    getContactRequests(page?: number, limit?: number, status?: string, search?: string): Promise<{ requests: ContactRequest[]; pagination: { page: number; limit: number; total: number; totalPages: number } }>;
+    updateContactRequest(requestId: number, status: string, reason: string): Promise<ContactRequest>;
+    
+    // Photo Requests Management
+    getPhotoRequests(page?: number, limit?: number, status?: string, search?: string): Promise<{ requests: PhotoRequest[]; pagination: { page: number; limit: number; total: number; totalPages: number } }>;
+    updatePhotoRequest(requestId: number, status: string, reason: string): Promise<PhotoRequest>;
+    approvePhotoRequest(requestId: number): Promise<PhotoRequest>;
+    rejectPhotoRequest(requestId: number, reason: string): Promise<PhotoRequest>;
+    
+    // Chat Moderation
+    getAllConversations(page?: number, limit?: number, search?: string, flaggedOnly?: string): Promise<{ conversations: any[]; pagination: { page: number; limit: number; total: number; totalPages: number } }>;
+    getConversationById(conversationId: string): Promise<any>;
+    deleteConversation(conversationId: string): Promise<void>;
+    flagMessage(messageId: number, reason: string): Promise<any>;
+    
+    // Bulk Moderation
+    bulkModeration(ids: number[], type: string, action: string): Promise<any>;
+    
+    // FAQs
+    getFaqsAdmin(): Promise<any[]>;
+    createFaq(data: any): Promise<any>;
+    updateFaq(id: number | string, data: any): Promise<any>;
+    deleteFaq(id: number | string): Promise<void>;
+    
+    // Success Stories
+    getSuccessStories(): Promise<any[]>;
+    createSuccessStory(data: any): Promise<any>;
+    updateSuccessStory(id: number | string, data: any): Promise<any>;
+    deleteSuccessStory(id: number | string): Promise<void>;
+    
+    // Plans
+    getPlans(): Promise<Record<string, unknown>[]>;
+}
+
+export class AdminService implements AdminServiceInterface {
     // Helper to extract response data
     private async handleResponse<T>(promise: Promise<{ data: { data?: T } | T }>): Promise<T> {
         try {
@@ -148,6 +230,54 @@ class AdminService {
         );
     }
 
+    // NEW: Contact Requests Management
+    async getContactRequests(page = 1, limit = 10, status?: string, search?: string): Promise<{ requests: ContactRequest[]; pagination: { page: number; limit: number; total: number; totalPages: number } }> {
+        const queryParams = {
+            page, limit,
+            ...(status && status !== 'ALL' ? { status } : {}),
+            ...(search?.trim() ? { search: search.trim() } : {}),
+        };
+        return this.handleResponse<{ requests: ContactRequest[]; pagination: { page: number; limit: number; total: number; totalPages: number } }>(
+            apiService.get(apiConfig.endpoints.admin.contactRequests, { params: queryParams })
+        );
+    }
+
+    async updateContactRequest(requestId: number, status: string, reason: string): Promise<ContactRequest> {
+        return this.handleResponse<ContactRequest>(
+            apiService.put(apiConfig.endpoints.admin.contactRequest(requestId), { status, reason })
+        );
+    }
+
+    // Photo Requests Management
+    async getPhotoRequests(page = 1, limit = 10, status?: string, search?: string): Promise<{ requests: PhotoRequest[]; pagination: { page: number; limit: number; total: number; totalPages: number } }> {
+        const queryParams = {
+            page, limit,
+            ...(status && status !== 'ALL' ? { status } : {}),
+            ...(search?.trim() ? { search: search.trim() } : {}),
+        };
+        return this.handleResponse<{ requests: PhotoRequest[]; pagination: { page: number; limit: number; total: number; totalPages: number } }>(
+            apiService.get(apiConfig.endpoints.admin.photoRequests, { params: queryParams })
+        );
+    }
+
+    async updatePhotoRequest(requestId: number, status: string, reason: string): Promise<PhotoRequest> {
+        return this.handleResponse<PhotoRequest>(
+            apiService.put(apiConfig.endpoints.admin.photoRequest(requestId), { status, reason })
+        );
+    }
+
+    async approvePhotoRequest(requestId: number): Promise<PhotoRequest> {
+        return this.handleResponse<PhotoRequest>(
+            apiService.put(apiConfig.endpoints.admin.photoRequest(requestId), { status: 'APPROVED', reason: 'Approved by admin' })
+        );
+    }
+
+    async rejectPhotoRequest(requestId: number, reason: string): Promise<PhotoRequest> {
+        return this.handleResponse<PhotoRequest>(
+            apiService.put(apiConfig.endpoints.admin.photoRequest(requestId), { status: 'REJECTED', reason })
+        );
+    }
+
     async updateProfile(userId: string, data: Record<string, unknown>): Promise<Profile> {
         return this.handleResponse<Profile>(
             apiService.put(apiConfig.endpoints.admin.userProfile(userId), data)
@@ -157,6 +287,43 @@ class AdminService {
     async deleteProfile(userId: string): Promise<void> {
         return this.handleResponse<void>(
             apiService.delete(apiConfig.endpoints.admin.userProfile(userId))
+        );
+    }
+
+    // Chat Moderation
+    async getAllConversations(page = 1, limit = 10, search?: string, flaggedOnly?: string): Promise<{ conversations: any[]; pagination: { page: number; limit: number; total: number; totalPages: number } }> {
+        const queryParams = {
+            page, limit,
+            ...(search?.trim() ? { search: search.trim() } : {}),
+            ...(flaggedOnly ? { flaggedOnly } : {}),
+        };
+        return this.handleResponse<{ conversations: any[]; pagination: { page: number; limit: number; total: number; totalPages: number } }>(
+            apiService.get(apiConfig.endpoints.admin.chats, { params: queryParams })
+        );
+    }
+
+    async getConversationById(conversationId: string): Promise<any> {
+        return this.handleResponse<any>(
+            apiService.get(apiConfig.endpoints.admin.chat(conversationId))
+        );
+    }
+
+    async deleteConversation(conversationId: string): Promise<void> {
+        return this.handleResponse<void>(
+            apiService.delete(apiConfig.endpoints.admin.chat(conversationId))
+        );
+    }
+
+    async flagMessage(messageId: number, reason: string): Promise<any> {
+        return this.handleResponse<any>(
+            apiService.put(apiConfig.endpoints.admin.chatMessage(messageId), { reason })
+        );
+    }
+
+    // Bulk Moderation
+    async bulkModeration(ids: number[], type: string, action: string): Promise<any> {
+        return this.handleResponse<any>(
+            apiService.post(apiConfig.endpoints.admin.bulkModeration, { ids, type, action })
         );
     }
 

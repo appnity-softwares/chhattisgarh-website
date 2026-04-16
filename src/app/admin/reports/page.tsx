@@ -96,6 +96,36 @@ export default function AdminReportsPage() {
     fetchReports(pagination.page);
   };
 
+  const handleBulkDelete = async () => {
+    setIsBulkProcessing(true);
+    try {
+      await adminService.bulkModeration(Array.from(selectedReports), 'reports', 'delete');
+      toast({ title: 'Bulk Delete Complete', description: `Deleted ${selectedReports.size} reports` });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to delete reports' });
+    } finally {
+      setIsBulkProcessing(false);
+      setSelectedReports(new Set());
+      fetchReports(1);
+    }
+  };
+
+  const handleBulkApprove = async () => {
+    setIsBulkProcessing(true);
+    try {
+      await adminService.bulkModeration(Array.from(selectedReports), 'reports', 'approve');
+      toast({ title: 'Bulk Approve Complete', description: `Resolved ${selectedReports.size} reports` });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to approve reports' });
+    } finally {
+      setIsBulkProcessing(false);
+      setSelectedReports(new Set());
+      fetchReports(1);
+    }
+  };
+
   const handleBanUser = async (userId: number, reason: string, reportId: number) => {
     if (!confirm(`Ban this user?`)) return;
     try {
@@ -171,14 +201,14 @@ export default function AdminReportsPage() {
               <span className="text-sm font-semibold text-amber-300">{selectedReports.size} selected</span>
               <div className="h-4 w-px bg-white/10" />
               <div className="flex gap-2 flex-wrap">
-                <button disabled={isBulkProcessing} onClick={() => handleBulkStatusChange('RESOLVED' as ReportStatus)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 text-xs font-medium transition-colors disabled:opacity-50">
-                  <CheckCircle className="w-3 h-3" /> Resolve All
+                <button disabled={isBulkProcessing} onClick={handleBulkApprove} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 text-xs font-medium transition-colors disabled:opacity-50">
+                  <CheckCircle className="w-3 h-3" /> Approve All
                 </button>
                 <button disabled={isBulkProcessing} onClick={() => handleBulkStatusChange('DISMISSED' as ReportStatus)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-500/15 hover:bg-slate-500/25 text-slate-300 text-xs font-medium transition-colors disabled:opacity-50">
                   <XCircle className="w-3 h-3" /> Dismiss All
                 </button>
-                <button disabled={isBulkProcessing} onClick={() => handleBulkStatusChange('ESCALATED' as ReportStatus)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-400 text-xs font-medium transition-colors disabled:opacity-50">
-                  <AlertTriangle className="w-3 h-3" /> Escalate All
+                <button disabled={isBulkProcessing} onClick={handleBulkDelete} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-400 text-xs font-medium transition-colors disabled:opacity-50">
+                  <Ban className="w-3 h-3" /> Delete All
                 </button>
               </div>
               <button onClick={() => setSelectedReports(new Set())} className="ml-auto text-muted-foreground hover:text-white">
@@ -245,7 +275,11 @@ export default function AdminReportsPage() {
                       <Checkbox checked={selectedReports.has(report.id)} onCheckedChange={() => toggleSelectReport(report.id)} className="border-white/20" />
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className="text-sm text-white font-medium">{getUserName(report.reporter)}</span>
+                      {report.reporter?.id === report.reportedUser?.id ? (
+                        <span className="text-xs font-bold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">SYSTEM FLAG</span>
+                      ) : (
+                        <span className="text-sm text-white font-medium">{getUserName(report.reporter)}</span>
+                      )}
                     </td>
                     <td className="px-4 py-3.5">
                       <span className="text-sm text-white font-medium">{getUserName(report.reportedUser)}</span>

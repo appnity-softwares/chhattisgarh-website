@@ -238,7 +238,7 @@ export default function AdminPage() {
             {isLoading ? (
               <div className="h-full skeleton-pulse rounded-xl" />
             ) : (
-              <ResponsiveContainer width="100%" height="100%" minWidth={100} minHeight={240}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={100} minHeight={240} debounce={100}>
                 <AreaChart data={revenueData?.data || []} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
                   <defs>
                     <linearGradient id="revGradient" x1="0" y1="0" x2="0" y2="1">
@@ -267,7 +267,7 @@ export default function AdminPage() {
             {isLoading ? (
               <div className="h-full skeleton-pulse rounded-xl" />
             ) : (
-              <ResponsiveContainer width="100%" height="100%" minWidth={100} minHeight={240}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={100} minHeight={240} debounce={100}>
                 <BarChart data={signupData?.data || []} layout="vertical" margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(255,255,255,0.05)" />
                   <XAxis type="number" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -293,7 +293,7 @@ export default function AdminPage() {
             {isLoading ? (
               <div className="h-full skeleton-pulse rounded-xl" />
             ) : subData?.breakdown && subData.breakdown.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%" minWidth={100} minHeight={240}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={100} minHeight={240} debounce={100}>
                 <PieChart>
                   <Pie
                     data={subData.breakdown}

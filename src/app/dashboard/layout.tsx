@@ -20,7 +20,8 @@ import {
     HelpCircle,
     Star,
     Zap,
-    UserPlus
+    UserPlus,
+    Camera
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -39,6 +40,9 @@ import { useProfile } from "@/hooks/use-profile";
 import { useUserAuthStore } from "@/stores/user-auth-store";
 import { useUserAccess } from "@/hooks/use-user-access";
 import { useContactRequests } from "@/hooks/use-contact-requests";
+import { usePhotoRequests } from "@/hooks/use-photo-requests";
+import { Breadcrumbs } from "@/components/dashboard/breadcrumbs";
+import { usePushNotifications } from "@/hooks/use-push-notifications";
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
@@ -59,12 +63,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
     const { pendingCount: pendingContactRequests } = useContactRequests();
 
+    // Setup Push Notifications (Service Worker registration)
+    usePushNotifications();
+
     const sidebarLinks = [
         { href: "/dashboard", label: "Discovery", icon: Sparkles },
         { href: "/dashboard/matches", label: "My Matches", icon: Users },
         { href: "/dashboard/shortlist", label: "Shortlisted", icon: Heart },
         { href: "/dashboard/chat", label: "Messages", icon: MessageSquare, badge: "unreadMessages" },
         { href: "/dashboard/contact-requests", label: "Contact Requests", icon: UserPlus, badge: pendingContactRequests > 0 ? "contactRequests" : undefined },
+        { href: "/dashboard/photo-requests", label: "Photo Requests", icon: Camera, badge: "photoRequests" },
         { href: "/dashboard/membership", label: access?.isPremium ? "Premium Benefits" : "Upgrade Plan", icon: CreditCard },
         { href: "/dashboard/boost", label: "Boost Reach", icon: Zap },
     ];
@@ -121,7 +129,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         const active = pathname === link.href;
                         const hasUnreadBadge = link.badge === "unreadMessages" && unreadMessages > 0;
                         const hasContactBadge = link.badge === "contactRequests" && pendingContactRequests > 0;
-                        const hasBadge = hasUnreadBadge || hasContactBadge;
+                        const { pendingCount: pendingPhotoRequests } = usePhotoRequests();
+                        const hasPhotoBadge = link.badge === "photoRequests" && pendingPhotoRequests > 0;
+                        const hasBadge = hasUnreadBadge || hasContactBadge || hasPhotoBadge;
 
                         return (
                             <Link
@@ -133,7 +143,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                 <span className="font-bold tracking-tight text-[13px]">{link.label}</span>
                                 {hasBadge && !active && (
                                     <span className="ml-auto bg-primary text-white text-[9px] font-black h-5 w-5 rounded-full flex items-center justify-center animate-pulse">
-                                        {link.badge === "unreadMessages" ? unreadMessages : pendingContactRequests}
+                                        {link.badge === "unreadMessages" ? unreadMessages : 
+                                         link.badge === "contactRequests" ? pendingContactRequests : 
+                                         pendingPhotoRequests}
                                     </span>
                                 )}
                                 {active && (
@@ -265,6 +277,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 {/* Children Slot */}
                 <div className="flex-1 overflow-y-auto no-scrollbar lg:px-8 py-6">
                     <div className="max-w-7xl mx-auto">
+                        <Breadcrumbs />
                         {children}
                     </div>
                 </div>

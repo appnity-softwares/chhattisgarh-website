@@ -35,6 +35,7 @@ export const apiConfig = {
       photos: '/uploads/profile-photos',
       deletePhoto: (mediaId: number | string) => `/profiles/photos/${mediaId}`,
       completion: '/profile/completion',
+      verify: '/verification/submit',
     },
     relationship: {
       byUser: (userId: number | string) => `/relationship/${userId}`,

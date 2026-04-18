@@ -38,6 +38,7 @@ const BOOLEAN_PROFILE_FIELDS = new Set([
   "showShortlistedBy",
   "showNativeDistrict",
   "showNativeVillage",
+  "speaksChhattisgarhi",
 ]);
 
 const OPTIONAL_STRING_FIELDS = new Set([
@@ -80,6 +81,22 @@ const OPTIONAL_STRING_FIELDS = new Set([
   "companyName",
   "annualIncome",
   "workLocation",
+  "middleName",
+  "physicalDisability",
+  "smokingHabit",
+  "drinkingHabit",
+  "fatherName",
+  "fatherOccupation",
+  "fatherStatus",
+  "motherName",
+  "motherOccupation",
+  "motherStatus",
+  "familyType",
+  "familyValues",
+  "familyIncome",
+  "ancestralOrigin",
+  "birthTime",
+  "birthPlace",
 ]);
 
 const normalizeProfilePayload = (input: Record<string, unknown>) => {

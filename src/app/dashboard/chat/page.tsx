@@ -96,52 +96,10 @@ export default function ChatPage({ initialUserId: propUserId }: { initialUserId?
     const { messages, isTyping, isOnline, isLoading: chatLoading, sendMessage, sendTyping, deleteMessage, deleteConversation } = useChat(selectedUserId);
 
     const [msgInput, setMsgInput] = useState("");
-    const [isUploading, setIsUploading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const suggestions = ["Hi 👋", "Tell me more about yourself", "What are your interests?", "I'd love to connect!"];
 
-    const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file || !selectedUserId) return;
-
-        // Validate file type and size
-        if (!file.type.startsWith('image/')) {
-            alert('Please select an image file');
-            return;
-        }
-        if (file.size > 5 * 1024 * 1024) { // 5MB limit
-            alert('Image size should be less than 5MB');
-            return;
-        }
-
-        setIsUploading(true);
-        try {
-            // Convert to base64 for immediate preview
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64String = reader.result as string;
-                // Send as IMAGE type
-                sendMessage(base64String, "IMAGE");
-                setIsUploading(false);
-            };
-            reader.onerror = () => {
-                alert('Failed to read image file');
-                setIsUploading(false);
-            };
-            reader.readAsDataURL(file);
-        } catch (error) {
-            console.error('Image upload error:', error);
-            alert('Failed to upload image');
-            setIsUploading(false);
-        }
-
-        // Reset file input
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-    }, [selectedUserId, sendMessage]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -474,28 +432,6 @@ export default function ChatPage({ initialUserId: propUserId }: { initialUserId?
                                     value={msgInput}
                                     onChange={handleInputChange}
                                 />
-                                <div className="flex items-center gap-2 pr-2">
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        ref={fileInputRef}
-                                        onChange={handleImageUpload}
-                                    />
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        className="rounded-2xl h-12 w-12 text-muted-foreground hover:text-primary transition-all active:scale-95"
-                                        onClick={() => fileInputRef.current?.click()}
-                                        disabled={isUploading}
-                                    >
-                                        {isUploading ? (
-                                            <Loader2 className="w-6 h-6 animate-spin" />
-                                        ) : (
-                                            <ImageIcon className="w-6 h-6" />
-                                        )}
-                                    </Button>
                                     <Button 
                                         type="submit"
                                         className="h-12 w-14 rounded-2xl bg-primary hover:bg-primary/90 text-white shadow-2xl shadow-primary/20 transition-all active:scale-90 flex items-center justify-center p-0"
@@ -503,7 +439,6 @@ export default function ChatPage({ initialUserId: propUserId }: { initialUserId?
                                     >
                                         <Send className="h-5 w-5 fill-current" />
                                     </Button>
-                                </div>
                             </form>
                             <p className="text-center text-[9px] font-black uppercase tracking-[0.4em] text-muted-foreground/20 mt-6">Secure Gateway Active • Private Conversation</p>
                         </div>

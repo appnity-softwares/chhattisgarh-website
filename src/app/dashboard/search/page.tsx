@@ -43,8 +43,15 @@ export default function SearchPage() {
         education: 'any',
         gender: 'any',
         location: '',
-        maritalStatus: 'any'
+        maritalStatus: 'any',
+        category: 'any',
+        district: 'any',
+        manglik: 'any',
+        diet: 'any',
+        speaksChhattisgarhi: 'any'
     });
+
+    const [heightRange, setHeightRange] = useState([120, 210]);
 
     // Use our hook with all filters
     const { 
@@ -64,7 +71,14 @@ export default function SearchPage() {
         education: filters.education !== 'any' ? filters.education : undefined,
         gender: filters.gender !== 'any' ? filters.gender : undefined,
         location: filters.location || undefined,
-        maritalStatus: filters.maritalStatus !== 'any' ? filters.maritalStatus : undefined
+        maritalStatus: filters.maritalStatus !== 'any' ? filters.maritalStatus : undefined,
+        category: filters.category !== 'any' ? filters.category : undefined,
+        district: filters.district !== 'any' ? filters.district : undefined,
+        manglik: filters.manglik !== 'any' ? filters.manglik : undefined,
+        diet: filters.diet !== 'any' ? filters.diet : undefined,
+        speaksChhattisgarhi: filters.speaksChhattisgarhi === 'yes' ? true : filters.speaksChhattisgarhi === 'no' ? false : undefined,
+        minHeight: heightRange[0],
+        maxHeight: heightRange[1]
     });
 
     // Flatten pages into a single array
@@ -101,9 +115,15 @@ export default function SearchPage() {
             education: 'any',
             gender: 'any',
             location: '',
-            maritalStatus: 'any'
+            maritalStatus: 'any',
+            category: 'any',
+            district: 'any',
+            manglik: 'any',
+            diet: 'any',
+            speaksChhattisgarhi: 'any'
         });
         setAgeRange([18, 50]);
+        setHeightRange([120, 210]);
         setSearchQuery('');
         refetch();
     };
@@ -194,7 +214,23 @@ export default function SearchPage() {
                                             max={65} 
                                             min={18} 
                                             step={1} 
-                                            onValueChange={handleAgeRangeChange}
+                                            onValueChange={(val) => handleAgeRangeChange(val)}
+                                            className="py-2"
+                                        />
+                                    </div>
+
+                                    {/* Height Range Slider */}
+                                    <div className="space-y-4 pt-2">
+                                        <div className="flex justify-between items-center">
+                                            <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Height range (cm)</Label>
+                                            <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-md">{heightRange[0]} - {heightRange[1]}</span>
+                                        </div>
+                                        <Slider 
+                                            value={heightRange}
+                                            max={210} 
+                                            min={120} 
+                                            step={1} 
+                                            onValueChange={(val) => setHeightRange(val)}
                                             className="py-2"
                                         />
                                     </div>
@@ -228,6 +264,19 @@ export default function SearchPage() {
                                                 <SelectItem value="sharma">Sharma</SelectItem>
                                             </SelectContent>
                                         </Select>
+
+                                        <Select value={filters.category} onValueChange={(value) => handleFilterChange('category', value)}>
+                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                                <SelectValue placeholder="Category" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-[#111] border-white/10">
+                                                <SelectItem value="any">Any Category</SelectItem>
+                                                <SelectItem value="OBC">OBC</SelectItem>
+                                                <SelectItem value="GENERAL">General</SelectItem>
+                                                <SelectItem value="SC">SC</SelectItem>
+                                                <SelectItem value="ST">ST</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
 
                                     <div className="space-y-2.5 pt-4 border-t border-white/5">
@@ -256,6 +305,21 @@ export default function SearchPage() {
                                                 <SelectItem value="phd">PhD</SelectItem>
                                             </SelectContent>
                                         </Select>
+
+                                        <Select value={filters.district} onValueChange={(value) => handleFilterChange('district', value)}>
+                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                                <SelectValue placeholder="District" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-[#111] border-white/10">
+                                                <SelectItem value="any">Chhattisgarh (All)</SelectItem>
+                                                <SelectItem value="raipur">Raipur</SelectItem>
+                                                <SelectItem value="bilaspur">Bilaspur</SelectItem>
+                                                <SelectItem value="durg">Durg</SelectItem>
+                                                <SelectItem value="bhilai">Bhilai</SelectItem>
+                                                <SelectItem value="korba">Korba</SelectItem>
+                                                <SelectItem value="rajnandgaon">Rajnandgaon</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
 
                                     {/* Additional Filters */}
@@ -282,6 +346,61 @@ export default function SearchPage() {
                                                 <SelectItem value="widowed">Widowed</SelectItem>
                                             </SelectContent>
                                         </Select>
+
+                                        <Select value={filters.manglik} onValueChange={(value) => handleFilterChange('manglik', value)}>
+                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                                <SelectValue placeholder="Manglik" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-[#111] border-white/10">
+                                                <SelectItem value="any">Non-Specified</SelectItem>
+                                                <SelectItem value="yes">Manglik</SelectItem>
+                                                <SelectItem value="no">Non-Manglik</SelectItem>
+                                                <SelectItem value="partial">Anshik Manglik</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+
+                                        <Select value={filters.diet} onValueChange={(value) => handleFilterChange('diet', value)}>
+                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                                <SelectValue placeholder="Diet" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-[#111] border-white/10">
+                                                <SelectItem value="any">Any Diet</SelectItem>
+                                                <SelectItem value="vegetarian">Pure Veg</SelectItem>
+                                                <SelectItem value="non-vegetarian">Non-Veg</SelectItem>
+                                                <SelectItem value="eggetarian">Eggetarian</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+
+                                        <Select value={filters.speaksChhattisgarhi} onValueChange={(value) => handleFilterChange('speaksChhattisgarhi', value)}>
+                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                                <SelectValue placeholder="Language" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-[#111] border-white/10">
+                                                <SelectItem value="any">Any Language</SelectItem>
+                                                <SelectItem value="yes">Speaks Chhattisgarhi</SelectItem>
+                                                <SelectItem value="no">Only Hindi/Other</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+
+                                        {/* Occupation Filter */}
+                                        <Select 
+                                            value={filters.occupation || "all"} 
+                                            onValueChange={(val) => handleFilterChange('occupation', val === 'all' ? '' : val)}
+                                        >
+                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl text-xs font-bold focus:ring-primary/20">
+                                                <SelectValue placeholder="Occupation" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-[#111] border-white/10 max-h-[200px]">
+                                                <SelectItem value="all">All Occupations</SelectItem>
+                                                <SelectItem value="private">Private Sector</SelectItem>
+                                                <SelectItem value="government">Government/PSU</SelectItem>
+                                                <SelectItem value="business">Business/Self-Employed</SelectItem>
+                                                <SelectItem value="defense">Defense/Police</SelectItem>
+                                                <SelectItem value="medical">Medical/Healthcare</SelectItem>
+                                                <SelectItem value="education">Education/Teaching</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+
                                         <Input 
                                             placeholder="Location/City..." 
                                             className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs"

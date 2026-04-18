@@ -33,23 +33,35 @@ const GUNA_DATA = [
 export default function KundaliReportPage() {
     const searchParams = useSearchParams();
     const targetUserId = searchParams.get("userId");
-    const { data: kundaliMatch } = useAstrologyMatch(targetUserId || '');
+    const { data: kundaliMatch, isLoading } = useAstrologyMatch(targetUserId || '');
     const { nakshatras, rashis } = useAstrologyMetadata();
     
-    // Use real API data or fallback to hardcoded values
-    const gunaData = kundaliMatch?.gunaMilan || [
-        { name: "Varna", score: 1, max: 1, desc: "Work Compatibility" },
-        { name: "Vashya", score: 2, max: 2, desc: "Dominance Compatibility" },
-        { name: "Tara", score: 1.5, max: 3, desc: "Destiny Compatibility" },
-        { name: "Yoni", score: 4, max: 4, desc: "Nature Compatibility" },
-        { name: "Graha", score: 3, max: 5, desc: "Mental Compatibility" },
-        { name: "Gana", score: 6, max: 6, desc: "Temperament" },
-        { name: "Bhakoot", score: 0, max: 7, desc: "Love Compatibility" },
-        { name: "Nadi", score: 8, max: 8, desc: "Health & Genes" },
+    if (isLoading) {
+        return (
+            <div className="max-w-4xl mx-auto space-y-10 pb-20 animate-pulse">
+                <div className="h-64 bg-white/5 rounded-[3rem]" />
+                <div className="grid grid-cols-2 gap-8">
+                    <div className="h-64 bg-white/5 rounded-[2.5rem]" />
+                    <div className="h-64 bg-white/5 rounded-[2.5rem]" />
+                </div>
+                <div className="h-96 bg-white/5 rounded-[2.5rem]" />
+            </div>
+        );
+    }
+
+    const gunaData = kundaliMatch?.breakdown || [
+        { name: "Varna", score: 0, maxScore: 1, desc: "Work Compatibility" },
+        { name: "Vashya", score: 0, maxScore: 2, desc: "Dominance Compatibility" },
+        { name: "Tara", score: 0, maxScore: 3, desc: "Destiny Compatibility" },
+        { name: "Yoni", score: 0, maxScore: 4, desc: "Nature Compatibility" },
+        { name: "Graha", score: 0, maxScore: 5, desc: "Mental Compatibility" },
+        { name: "Gana", score: 0, maxScore: 6, desc: "Temperament" },
+        { name: "Bhakoot", score: 0, maxScore: 7, desc: "Love Compatibility" },
+        { name: "Nadi", score: 0, maxScore: 8, desc: "Health & Genes" },
     ];
-    const score = kundaliMatch?.totalScore || 0;
-    const targetScore = kundaliMatch?.totalScore || 25.5;
-    const isManglikCompatible = kundaliMatch?.manglikDosha?.compatible || true;
+    const score = kundaliMatch?.score || 0;
+    const isManglikCompatible = kundaliMatch?.manglikStatus?.compatible !== false;
+    const recommendation = kundaliMatch?.recommendation || "Matching scores not available";
 
     return (
         <div className="max-w-4xl mx-auto space-y-10 pb-20">
@@ -103,7 +115,7 @@ export default function KundaliReportPage() {
                                     fill="transparent"
                                     strokeDasharray={2 * Math.PI * 88}
                                     initial={{ strokeDashoffset: 2 * Math.PI * 88 }}
-                                    animate={{ strokeDashoffset: 2 * Math.PI * 88 * (1 - targetScore / 36) }}
+                                    animate={{ strokeDashoffset: 2 * Math.PI * 88 * (1 - score / 36) }}
                                     transition={{ duration: 1.5, ease: "easeOut" }}
                                     className="text-primary"
                                 />
@@ -114,8 +126,8 @@ export default function KundaliReportPage() {
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <h3 className="text-2xl font-black uppercase tracking-tight text-primary italic">Good Compatibility</h3>
-                            <p className="text-sm font-medium text-muted-foreground leading-relaxed max-w-xs uppercase tracking-widest">Recommended for a happy and stable marriage life.</p>
+                            <h3 className="text-2xl font-black uppercase tracking-tight text-primary italic">Match Result</h3>
+                            <p className="text-sm font-medium text-muted-foreground leading-relaxed max-w-xs uppercase tracking-widest">{recommendation}</p>
                         </div>
                     </Card>
 
@@ -132,7 +144,7 @@ export default function KundaliReportPage() {
                                     <CheckCircle2 className="w-10 h-10 text-green-500" />
                                     <div className="space-y-1">
                                         <h4 className="font-black text-sm uppercase tracking-widest text-green-500">Profiles are Compatible</h4>
-                                        <p className="text-xs text-muted-foreground font-medium">Both profiles are Non-Manglik, ensuring a smooth path together.</p>
+                                        <p className="text-xs text-muted-foreground font-medium">{kundaliMatch?.manglikStatus?.message || 'Both profiles are compatible, ensuring a smooth path together.'}</p>
                                     </div>
                                 </>
                             ) : (
@@ -142,7 +154,7 @@ export default function KundaliReportPage() {
                                     </div>
                                     <div className="space-y-1">
                                         <h4 className="font-black text-sm uppercase tracking-widest text-amber-500">Manglik Dosha Present</h4>
-                                        <p className="text-xs text-muted-foreground font-medium">One or both profiles have Manglik dosha - astrological remedies recommended.</p>
+                                        <p className="text-xs text-muted-foreground font-medium">{kundaliMatch?.manglikStatus?.message || 'One or both profiles have Manglik dosha - astrological remedies recommended.'}</p>
                                     </div>
                                 </>
                             )}
@@ -172,11 +184,11 @@ export default function KundaliReportPage() {
                                             <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest">{guna.desc}</p>
                                         </div>
                                         <div className="text-right space-y-2">
-                                            <span className="text-sm font-black text-foreground">{guna.score} <span className="text-[10px] text-muted-foreground">/ {guna.max}</span></span>
+                                            <span className="text-sm font-black text-foreground">{guna.score} <span className="text-[10px] text-muted-foreground">/ {guna.maxScore}</span></span>
                                             <div className="w-24 h-1.5 bg-white/5 rounded-full overflow-hidden">
                                                 <div 
-                                                    className={`h-full rounded-full ${guna.score === guna.max ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-amber-400'}`} 
-                                                    style={{ width: `${(guna.score / guna.max) * 100}%` }} 
+                                                    className={`h-full rounded-full ${guna.score === guna.maxScore ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-amber-400'}`} 
+                                                    style={{ width: `${(guna.score / guna.maxScore) * 100}%` }} 
                                                 />
                                             </div>
                                         </div>

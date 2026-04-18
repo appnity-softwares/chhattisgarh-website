@@ -16,9 +16,9 @@ import {
     Loader2,
     Shield,
     Lock,
+    Users,
     Eye,
-    EyeOff,
-    MoreVertical
+    Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -49,6 +49,8 @@ import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { usePhotoPrivacy } from "@/hooks/use-photo-privacy";
 import { useRef } from "react";
+import Link from "next/link";
+import { useToast } from "@/hooks/use-toast";
 
 const SECTIONS = [
     { id: "basic", label: "Basic Info", icon: User },
@@ -57,6 +59,8 @@ const SECTIONS = [
     { id: "location", label: "Location", icon: MapPin },
     { id: "about", label: "Bio", icon: Heart },
     { id: "photos", label: "Photos", icon: Camera },
+    { id: "family", label: "Family", icon: Users },
+    { id: "lifestyle", label: "Lifestyle", icon: Zap },
     { id: "preferences", label: "Preferences", icon: Star },
 ];
 
@@ -150,6 +154,29 @@ interface ProfileData {
     nakshatra?: string;
     rashi?: string;
     media?: ProfileMedia[];
+    middleName?: string;
+    weight?: string;
+    physicalDisability?: string;
+    diet?: string;
+    smokingHabit?: string;
+    drinkingHabit?: string;
+    speaksChhattisgarhi?: boolean;
+    fatherName?: string;
+    fatherOccupation?: string;
+    fatherStatus?: string;
+    motherName?: string;
+    motherOccupation?: string;
+    motherStatus?: string;
+    numberOfBrothers?: number;
+    numberOfSisters?: number;
+    brothersMarried?: number;
+    sistersMarried?: number;
+    familyType?: string;
+    familyValues?: string;
+    familyIncome?: string;
+    ancestralOrigin?: string;
+    birthTime?: string;
+    birthPlace?: string;
 }
 
 export default function ProfilePage() {
@@ -158,6 +185,7 @@ export default function ProfilePage() {
     const { preference: prefData, updatePreference, isLoading: isPrefLoading } = usePartnerPreference();
     const { data: completion } = useProfileCompletion();
     const { nakshatras, rashis } = useAstrologyMetadata();
+    const { toast } = useToast();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [activeSection, setActiveSection] = useState("basic");
     const [formData, setFormData] = useState<ProfileData>({});
@@ -250,7 +278,7 @@ export default function ProfilePage() {
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
         if (files.length > 0) {
-            uploadPhotos.mutate(files);
+            uploadPhotos.mutate({ files });
         }
     };
 
@@ -280,28 +308,49 @@ export default function ProfilePage() {
                     </div>
 
                     {/* Quick Progress Indicator */}
-                    <div className="flex items-center gap-3">
-                        <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
-                            <motion.div 
-                                initial={{ width: 0 }}
-                                animate={{ width: `${completion?.percentage || 0}%` }}
-                                className="h-full bg-primary"
-                            />
+                    <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-3">
+                            <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
+                                <motion.div 
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${completion?.percentage || 0}%` }}
+                                    className="h-full bg-primary"
+                                />
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+                                {completion?.percentage || 0}% Complete
+                            </span>
                         </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-primary">
-                            {completion?.percentage || 0}% Complete
-                        </span>
+                        {completion?.tips && completion.tips.length > 0 && (
+                            <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest italic">
+                                Tip: {completion.tips[0]}
+                            </p>
+                        )}
                     </div>
                 </div>
                 
-                <Button 
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    className="h-14 px-8 bg-primary hover:bg-primary/90 text-white font-black rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95 flex items-center gap-3 min-w-[180px]"
-                >
-                    {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                    {isSaving ? "SAVING..." : "SAVE CHANGES"}
-                </Button>
+                <div className="flex flex-wrap items-center gap-3 min-w-[180px]">
+                    {!userData?.profile?.isVerified && (
+                        <Link href="/dashboard/profile/verify">
+                            <Button 
+                                variant="outline"
+                                className="h-14 px-8 border-primary/20 hover:bg-primary/5 text-primary font-black rounded-2xl transition-all active:scale-95 flex items-center gap-3"
+                            >
+                                <Shield className="w-5 h-5" />
+                                VERIFY PROFILE
+                            </Button>
+                        </Link>
+                    )}
+                    
+                    <Button 
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        className="h-14 px-8 bg-primary hover:bg-primary/90 text-white font-black rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95 flex items-center gap-3"
+                    >
+                        {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                        {isSaving ? "SAVING..." : "SAVE CHANGES"}
+                    </Button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -340,6 +389,14 @@ export default function ProfilePage() {
                                                         if (errors.firstName) setErrors({...errors, firstName: ""});
                                                     }}
                                                     className={`h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold ${errors.firstName ? 'border-red-500/50 bg-red-500/5' : ''}`} 
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Middle Name</Label>
+                                                <Input 
+                                                    value={formData.middleName || ""} 
+                                                    onChange={(e) => setFormData({...formData, middleName: e.target.value})}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold" 
                                                 />
                                             </div>
                                             <div className="space-y-3">
@@ -400,6 +457,15 @@ export default function ProfilePage() {
                                                         if (errors.height) setErrors({...errors, height: ""});
                                                     }}
                                                     className={`h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.height ? 'border-red-500/50 bg-red-500/5' : ''}`} 
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Weight (kg)</Label>
+                                                <Input 
+                                                    type="number"
+                                                    value={formData.weight || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl transition-all" 
                                                 />
                                             </div>
                                             <div className="space-y-3">
@@ -540,6 +606,33 @@ export default function ProfilePage() {
                                                         ))}
                                                     </SelectContent>
                                                 </Select>
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Birth Place</Label>
+                                                <Input 
+                                                    value={formData.birthPlace || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, birthPlace: e.target.value })}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Birth Time</Label>
+                                                <Input 
+                                                    type="time"
+                                                    value={formData.birthTime || ""} 
+                                                    onChange={(e) => setFormData({ ...formData, birthTime: e.target.value })}
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                />
+                                            </div>
+                                            <div className="space-y-3 flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5">
+                                                <div className="space-y-0.5">
+                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Chhattisgarhi Fluency</Label>
+                                                    <p className="text-[8px] font-bold text-muted-foreground/40 uppercase">Do you speak Chhattisgarhi?</p>
+                                                </div>
+                                                <Switch 
+                                                    checked={formData.speaksChhattisgarhi ?? true} 
+                                                    onCheckedChange={(checked) => setFormData({ ...formData, speaksChhattisgarhi: checked })} 
+                                                />
                                             </div>
                                         </div>
                                     </motion.div>
@@ -821,6 +914,183 @@ export default function ProfilePage() {
                                         </div>
                                     </motion.div>
                                 )}
+
+                                {activeSection === "family" && (
+                                    <motion.div key="family" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-10">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            {/* Father's Info */}
+                                            <Card className="bg-white/5 border-white/5 rounded-[2rem] p-6 space-y-6">
+                                                <h3 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                                                    <User className="w-4 h-4" /> Father's Details
+                                                </h3>
+                                                <div className="space-y-4">
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Father's Name</Label>
+                                                        <Input value={formData.fatherName || ""} onChange={(e) => setFormData({...formData, fatherName: e.target.value})} className="h-12 bg-white/5 border-white/10 rounded-xl" />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Occupation</Label>
+                                                        <Input value={formData.fatherOccupation || ""} onChange={(e) => setFormData({...formData, fatherOccupation: e.target.value})} className="h-12 bg-white/5 border-white/10 rounded-xl" />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Current Status</Label>
+                                                        <Select value={formData.fatherStatus || ""} onValueChange={(val) => setFormData({...formData, fatherStatus: val})}>
+                                                            <SelectTrigger className="h-12 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select Status" /></SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="EMPLOYED">Employed</SelectItem>
+                                                                <SelectItem value="BUSINESS">Business</SelectItem>
+                                                                <SelectItem value="RETIRED">Retired</SelectItem>
+                                                                <SelectItem value="DECEASED">Deceased</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                </div>
+                                            </Card>
+
+                                            {/* Mother's Info */}
+                                            <Card className="bg-white/5 border-white/5 rounded-[2rem] p-6 space-y-6">
+                                                <h3 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                                                    <User className="w-4 h-4" /> Mother's Details
+                                                </h3>
+                                                <div className="space-y-4">
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Mother's Name</Label>
+                                                        <Input value={formData.motherName || ""} onChange={(e) => setFormData({...formData, motherName: e.target.value})} className="h-12 bg-white/5 border-white/10 rounded-xl" />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Occupation</Label>
+                                                        <Input value={formData.motherOccupation || ""} onChange={(e) => setFormData({...formData, motherOccupation: e.target.value})} className="h-12 bg-white/5 border-white/10 rounded-xl" />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Current Status</Label>
+                                                        <Select value={formData.motherStatus || ""} onValueChange={(val) => setFormData({...formData, motherStatus: val})}>
+                                                            <SelectTrigger className="h-12 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select Status" /></SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="HOMEMAKER">Homemaker</SelectItem>
+                                                                <SelectItem value="EMPLOYED">Employed</SelectItem>
+                                                                <SelectItem value="BUSINESS">Business</SelectItem>
+                                                                <SelectItem value="DECEASED">Deceased</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                </div>
+                                            </Card>
+
+                                            {/* Siblings */}
+                                            <Card className="bg-white/5 border-white/5 rounded-[2rem] p-6 space-y-6 md:col-span-2">
+                                                <h3 className="text-xs font-black uppercase tracking-widest text-primary">Siblings Information</h3>
+                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Brothers</Label>
+                                                        <Input type="number" value={formData.numberOfBrothers || 0} onChange={(e) => setFormData({...formData, numberOfBrothers: parseInt(e.target.value)})} className="h-12 bg-white/5 border-white/10 rounded-xl text-center" />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Married Bros</Label>
+                                                        <Input type="number" value={formData.brothersMarried || 0} onChange={(e) => setFormData({...formData, brothersMarried: parseInt(e.target.value)})} className="h-12 bg-white/5 border-white/10 rounded-xl text-center" />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Sisters</Label>
+                                                        <Input type="number" value={formData.numberOfSisters || 0} onChange={(e) => setFormData({...formData, numberOfSisters: parseInt(e.target.value)})} className="h-12 bg-white/5 border-white/10 rounded-xl text-center" />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Married Sisters</Label>
+                                                        <Input type="number" value={formData.sistersMarried || 0} onChange={(e) => setFormData({...formData, sistersMarried: parseInt(e.target.value)})} className="h-12 bg-white/5 border-white/10 rounded-xl text-center" />
+                                                    </div>
+                                                </div>
+                                            </Card>
+
+                                            {/* Family Values & Background */}
+                                            <Card className="bg-white/5 border-white/5 rounded-[2rem] p-6 space-y-6 md:col-span-2">
+                                                <h3 className="text-xs font-black uppercase tracking-widest text-primary">Family Values & Origin</h3>
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Family Type</Label>
+                                                        <Select value={formData.familyType || ""} onValueChange={(val) => setFormData({...formData, familyType: val})}>
+                                                            <SelectTrigger className="h-12 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="NUCLEAR">Nuclear</SelectItem>
+                                                                <SelectItem value="JOINT">Joint</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Family Values</Label>
+                                                        <Select value={formData.familyValues || ""} onValueChange={(val) => setFormData({...formData, familyValues: val})}>
+                                                            <SelectTrigger className="h-12 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="TRADITIONAL">Traditional</SelectItem>
+                                                                <SelectItem value="MODERATE">Moderate</SelectItem>
+                                                                <SelectItem value="LIBERAL">Liberal</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Ancestral Origin</Label>
+                                                        <Input value={formData.ancestralOrigin || ""} onChange={(e) => setFormData({...formData, ancestralOrigin: e.target.value})} placeholder="e.g. Bilaspur, CG" className="h-12 bg-white/5 border-white/10 rounded-xl" />
+                                                    </div>
+                                                </div>
+                                            </Card>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {activeSection === "lifestyle" && (
+                                    <motion.div key="lifestyle" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-10">
+                                        <Card className="bg-white/5 border-white/5 rounded-[2.5rem] p-10">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+                                                <div className="space-y-3">
+                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Dietary Habits</Label>
+                                                    <Select value={formData.diet || ""} onValueChange={(val) => setFormData({...formData, diet: val})}>
+                                                        <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select Diet" /></SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="VEGETARIAN">Vegetarian</SelectItem>
+                                                            <SelectItem value="NON_VEGETARIAN">Non-Vegetarian</SelectItem>
+                                                            <SelectItem value="EGGETARIAN">Eggetarian</SelectItem>
+                                                            <SelectItem value="JAIN">Jain</SelectItem>
+                                                            <SelectItem value="VEGAN">Vegan</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Smoking Habit</Label>
+                                                    <Select value={formData.smokingHabit || ""} onValueChange={(val) => setFormData({...formData, smokingHabit: val})}>
+                                                        <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="NEVER">Never</SelectItem>
+                                                            <SelectItem value="OCCASIONAL">Occasional</SelectItem>
+                                                            <SelectItem value="REGULAR">Regular</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Drinking Habit</Label>
+                                                    <Select value={formData.drinkingHabit || ""} onValueChange={(val) => setFormData({...formData, drinkingHabit: val})}>
+                                                        <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="NEVER">Never</SelectItem>
+                                                            <SelectItem value="OCCASIONAL">Occasional</SelectItem>
+                                                            <SelectItem value="REGULAR">Regular</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Physical Disability</Label>
+                                                    <Input value={formData.physicalDisability || ""} onChange={(e) => setFormData({...formData, physicalDisability: e.target.value})} placeholder="None / Specify if any" className="h-14 bg-white/5 border-white/10 rounded-xl" />
+                                                </div>
+                                            </div>
+                                        </Card>
+
+                                        <div className="bg-amber-400/5 border border-amber-400/20 p-8 rounded-[2rem] flex items-center gap-6">
+                                            <div className="w-16 h-16 bg-amber-400/10 rounded-[1.5rem] flex items-center justify-center shrink-0">
+                                                <Star className="w-8 h-8 text-amber-500 fill-current" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-sm uppercase tracking-widest text-amber-500">Why Lifestyle Matters?</h4>
+                                                <p className="text-xs text-muted-foreground font-medium mt-1 leading-relaxed">Honest lifestyle details help find partners with compatible daily routines, leading to 4x higher success in long-term relationships.</p>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
                                 {activeSection === "preferences" && (
                                     <motion.div key="preferences" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-10">
                                         <div className="space-y-8">
@@ -965,6 +1235,49 @@ export default function ProfilePage() {
                                                         checked={prefFormData.gothraMandatory || false}
                                                         onCheckedChange={(val) => setPrefFormData({ ...prefFormData, gothraMandatory: val })}
                                                     />
+                                                </div>
+
+                                                <div className="flex items-center justify-between p-6 bg-white/5 border border-white/10 rounded-2xl group hover:border-primary/30 transition-all">
+                                                    <div className="space-y-1">
+                                                        <Label className="text-sm font-black uppercase tracking-widest text-foreground">Must Speak Chhattisgarhi?</Label>
+                                                        <p className="text-[10px] text-muted-foreground font-medium">Only show me partners who are fluent in Chhattisgarhi.</p>
+                                                    </div>
+                                                    <Switch 
+                                                        checked={prefFormData.mustSpeakChhattisgarhi || false}
+                                                        onCheckedChange={(val) => setPrefFormData({ ...prefFormData, mustSpeakChhattisgarhi: val })}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Lifestyle Preferences */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+                                                <div className="space-y-3">
+                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Preferred Smoking Habit</Label>
+                                                    <Select 
+                                                        value={prefFormData.smoking || "any"} 
+                                                        onValueChange={(val) => setPrefFormData({ ...prefFormData, smoking: val === "any" ? null : val })}
+                                                    >
+                                                        <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="any">Does Not Matter</SelectItem>
+                                                            <SelectItem value="NEVER">Non-Smoker Only</SelectItem>
+                                                            <SelectItem value="OCCASIONAL">Occasional Allowed</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Preferred Drinking Habit</Label>
+                                                    <Select 
+                                                        value={prefFormData.drinking || "any"} 
+                                                        onValueChange={(val) => setPrefFormData({ ...prefFormData, drinking: val === "any" ? null : val })}
+                                                    >
+                                                        <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="any">Does Not Matter</SelectItem>
+                                                            <SelectItem value="NEVER">Non-Drinker Only</SelectItem>
+                                                            <SelectItem value="OCCASIONAL">Occasional Allowed</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
                                                 </div>
                                             </div>
                                         </div>

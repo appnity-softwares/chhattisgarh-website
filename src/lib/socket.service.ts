@@ -24,8 +24,9 @@ class SocketService {
             reconnection: false, // We handle reconnection manually
         });
 
-        // Setup visibility change handler for app foreground/background
+        // Setup visibility and network change handlers
         this.setupVisibilityHandler();
+        this.setupNetworkHandlers();
 
         this.socket.on("connect", () => {
             this.isConnecting = false;
@@ -86,6 +87,18 @@ class SocketService {
         };
 
         document.addEventListener('visibilitychange', this.visibilityHandler);
+    }
+
+    private setupNetworkHandlers() {
+        const handleOnline = () => {
+            if (this.currentToken && !this.socket?.connected) {
+                console.log('Network back online, reconnecting socket...');
+                this.reconnectAttempts = 0;
+                this.connect(this.currentToken);
+            }
+        };
+
+        window.addEventListener('online', handleOnline);
     }
 
     private attemptManualReconnect() {

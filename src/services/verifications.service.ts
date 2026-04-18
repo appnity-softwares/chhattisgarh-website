@@ -86,6 +86,17 @@ class VerificationsService {
     async requestResubmission(mediaId: string, reason: string): Promise<void> {
         await this.handleResponse(apiService.post(apiConfig.endpoints.admin.verificationResubmit(mediaId), { reason }));
     }
+
+    /**
+     * Submit a document for verification (User side)
+     */
+    async submitVerification(formData: FormData): Promise<void> {
+        await this.handleResponse(apiService.post(apiConfig.endpoints.profiles.verify, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        }));
+    }
 }
 
 export const verificationsService = new VerificationsService();

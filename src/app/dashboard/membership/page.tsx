@@ -53,6 +53,18 @@ export default function MembershipPage() {
                 planId: selectedPlanId, 
                 promoCode: promoCode.trim() || undefined 
             });
+
+            // If the transaction is free (100% discount), bypass Razorpay UI
+            if (orderData.isFree) {
+                toast({
+                    title: "Success! 👑",
+                    description: "Your premium subscription has been activated successfully via promo code.",
+                    variant: "default"
+                });
+                // Optional: Redirect or refresh state
+                window.location.reload(); 
+                return;
+            }
             
             const options = {
                 key: orderData.razorpayKey,

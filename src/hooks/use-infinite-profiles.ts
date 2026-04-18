@@ -19,6 +19,7 @@ export interface Profile {
     media?: Array<{ url: string }>;
     score?: number;
     isShortlisted?: boolean;
+    allowPhotoRequest?: boolean;
 }
 
 export function useInfiniteProfiles(params: Record<string, unknown> = {}) {

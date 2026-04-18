@@ -3,6 +3,7 @@
 import { useProfileDetails } from "@/hooks/use-profile-details";
 import { useInteractions } from "@/hooks/use-interactions";
 import { useParams, useRouter } from "next/navigation";
+import { usePhotoRequests } from "@/hooks/use-photo-requests";
 import { 
   Loader2, 
   MapPin, 
@@ -24,7 +25,9 @@ import {
   Crown,
   Target,
   Activity,
-  Users
+  Users,
+  Camera,
+  Lock
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { usePartnerPreference } from "@/hooks/use-partner-preference";
@@ -33,11 +36,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
-import { useMemo, useState, useEffect, useCallback } from "react";
+import React, { useMemo, useState, useEffect, useCallback, MouseEvent } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useUserAuthStore } from "@/stores/user-auth-store";
 import { useUserAccess } from "@/hooks/use-user-access";
 import { useInteractionStore } from "@/store/interaction-store";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function ProfileDetailPage() {
   const params = useParams();
@@ -48,12 +52,14 @@ export default function ProfileDetailPage() {
   const { data: profile, isLoading, error } = useProfileDetails(profileUserId);
   const { data: access } = useUserAccess();
   const { preference: myPref } = usePartnerPreference();
+  const { send: sendPhoto } = usePhotoRequests();
+  const isPhotoRequestPending = sendPhoto.isPending;
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
   
   const { 
       relationships, 
       setRelationship, 
       sendInterest, 
-      sendSuperInterest, 
       acceptInterest, 
       rejectInterest, 
       toggleShortlist, 
@@ -108,10 +114,16 @@ export default function ProfileDetailPage() {
 
   const profileImages = useMemo(() => {
     if (!profile || !profile.media || profile.media.length === 0) {
-      return ["https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80"];
+      return [{ url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80", isPrivate: false }];
     }
-    return profile.media.map(m => m.url);
+    return profile.media.map(m => ({
+      url: m.url,
+      isPrivate: (m as any).privacySettings?.isPrivate || false
+    }));
   }, [profile]);
+
+  const hasPrivatePhotos = useMemo(() => profileImages.some(img => img.isPrivate), [profileImages]);
+  const canSeePrivatePhotos = useMemo(() => isPremium || state.type === 'matched', [isPremium, state.type]);
 
   const handleShare = () => {
     if (navigator.share) {
@@ -284,11 +296,39 @@ export default function ProfileDetailPage() {
              {/* Image Carousel */}
              <div className="h-full" ref={emblaRef}>
                 <div className="flex h-full">
-                  {profileImages.map((src, idx) => (
-                    <div className="relative flex-[0_0_100%] min-w-0" key={idx}>
-                      <Image src={src} alt={profile.firstName} fill priority className="object-cover transition-transform duration-1000 group-hover:scale-105" />
-                    </div>
-                  ))}
+                   {profileImages.map((img, idx) => {
+                     const isLocked = img.isPrivate && !canSeePrivatePhotos;
+                     return (
+                       <div className="relative flex-[0_0_100%] min-w-0" key={idx}>
+                         <Image 
+                           src={img.url} 
+                           alt={profile.firstName} 
+                           fill 
+                           priority 
+                           className={`object-cover transition-transform duration-1000 group-hover:scale-105 ${isLocked ? 'blur-2xl opacity-50 scale-125' : ''}`} 
+                         />
+                         {isLocked && (
+                           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm z-10 transition-all group-hover:bg-black/20">
+                             <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mb-6 animate-pulse border border-primary/30">
+                               <Lock className="w-10 h-10 text-primary" />
+                             </div>
+                             <p className="text-white font-black text-xl uppercase tracking-tighter mb-2 drop-shadow-lg">Photos Locked</p>
+                             <p className="text-white/60 text-xs font-bold uppercase tracking-widest px-10 text-center drop-shadow-md">Requires Match or Premium access</p>
+                             
+                             {profile.allowPhotoRequest && (
+                               <Button 
+                                 onClick={() => setShowPhotoModal(true)}
+                                 className="mt-8 bg-primary text-white hover:bg-primary/90 font-black px-8 py-6 rounded-2xl shadow-2xl shadow-primary/40 active:scale-95 transition-all text-xs uppercase tracking-widest gap-3"
+                               >
+                                 <Camera className="w-5 h-5" />
+                                 Request Photo Access
+                               </Button>
+                             )}
+                           </div>
+                         )}
+                       </div>
+                     );
+                   })}
                 </div>
              </div>
 
@@ -357,27 +397,6 @@ export default function ProfileDetailPage() {
                 {state.isShortlisted ? "Shortlisted" : "Shortlist"}
               </Button>
 
-              {/* Priority Upgrade for Sent state */}
-              {state.type === "sent" && !state.isSuper && (
-                <Button 
-                  onClick={() => sendSuperInterest(profileUserId)} 
-                  className="h-16 flex-1 rounded-2xl bg-amber-500 text-black hover:bg-amber-600 font-black text-xs uppercase tracking-widest gap-3 transition-all active:scale-95 shadow-xl shadow-amber-500/10"
-                >
-                  <Zap className="w-5 h-5 fill-current" />
-                  Upgrade to Priority ⚡
-                </Button>
-              )}
-
-              {/* Secondary Priority Action for None state */}
-              {state.type === "none" && (
-                <Button 
-                  onClick={() => sendSuperInterest(profileUserId)} 
-                  className="h-16 flex-1 rounded-2xl bg-amber-500 text-black hover:bg-amber-600 font-black text-xs uppercase tracking-widest gap-3 transition-all active:scale-95 shadow-xl shadow-amber-500/10"
-                >
-                  <Zap className="w-5 h-5 fill-current" />
-                  Priority
-                </Button>
-              )}
 
               {/* Reject/Skip for Received state */}
               {state.type === "received" && (
@@ -555,6 +574,59 @@ export default function ProfileDetailPage() {
           </Tabs>
         </div>
       </div>
+
+      {/* Photo Request Modal */}
+      <AnimatePresence>
+        {showPhotoModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl" onClick={() => setShowPhotoModal(false)}>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              onClick={(e: MouseEvent) => e.stopPropagation()} 
+              className="bg-[#111] border border-white/10 rounded-[2.5rem] p-10 w-full max-w-md space-y-8 shadow-4xl relative overflow-hidden"
+            >
+               <div className="absolute top-0 right-0 p-10 opacity-5">
+                 <Camera className="w-40 h-40 text-primary rotate-12" />
+               </div>
+               
+               <div className="relative z-10 space-y-2">
+                 <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic">Photo <span className="text-primary">Request</span></h2>
+                 <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Connect with {profile.firstName} to see their photos</p>
+               </div>
+               
+               <div className="relative z-10 space-y-6">
+                   <div className="space-y-3">
+                     <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">Personal Message (Optional)</label>
+                     <textarea 
+                         placeholder="Hi, I'm interested in your profile and would love to see more photos..."
+                         className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm font-medium text-white min-h-[120px] outline-none focus:border-primary/50 transition-all resize-none shadow-inner"
+                         id="photo-request-msg"
+                     />
+                   </div>
+                   
+                   <div className="flex gap-4">
+                     <Button variant="ghost" className="flex-1 rounded-2xl text-[10px] font-black uppercase tracking-widest h-14 hover:bg-white/5" onClick={() => setShowPhotoModal(false)}>Nevermind</Button>
+                     <Button 
+                         className="flex-1 rounded-2xl text-[10px] font-black uppercase tracking-widest h-14 bg-primary text-white hover:bg-primary/90 shadow-xl shadow-primary/20" 
+                         onClick={() => {
+                             const msg = (document.getElementById('photo-request-msg') as HTMLTextAreaElement)?.value;
+                             sendPhoto.mutate({ 
+                                 photoId: profile.media?.[0]?.id || 1, 
+                                 message: msg || "I'd like to see your photos"
+                             });
+                             setShowPhotoModal(false);
+                         }}
+                         disabled={isPhotoRequestPending}
+                     >
+                       {isPhotoRequestPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-5 h-5 mr-2" /> SEND REQUEST</>}
+                     </Button>
+                   </div>
+               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

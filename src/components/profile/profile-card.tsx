@@ -65,9 +65,10 @@ interface ProfileCardProps {
         status: string;
         matchId?: number;
     };
+    allowPhotoRequest?: boolean;
 }
 
-export function ProfileCard({ name, age, city, occupation, education, image, media, isVerified, gender, priority, id, isShortlisted, statusBadge, isMatched, canChat: propCanChat, showInteractions, customActions, onActionSuccess, onRemove, relationship: propRelationship }: ProfileCardProps) {
+export function ProfileCard({ name, age, city, occupation, education, image, media, isVerified, gender, priority, id, isShortlisted, statusBadge, isMatched, canChat: propCanChat, showInteractions, customActions, onActionSuccess, onRemove, relationship: propRelationship, allowPhotoRequest }: ProfileCardProps) {
     const { send: sendContact } = useContactRequests();
     const { send: sendPhoto } = usePhotoRequests();
     const { toast } = useToast();
@@ -78,7 +79,6 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
         relationships, 
         setRelationship, 
         sendInterest, 
-        sendSuperInterest, 
         acceptInterest, 
         rejectInterest, 
         toggleShortlist, 
@@ -311,15 +311,6 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                                 <button disabled className="flex-1 bg-white/10 text-muted-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-not-allowed">
                                     Pending
                                 </button>
-                                {!state.isSuper && (
-                                    <button 
-                                        onClick={(e) => handleAction(e, () => sendSuperInterest(targetId))}
-                                        className="aspect-square flex items-center justify-center rounded-2xl bg-amber-500 text-black hover:bg-amber-600 transition-all"
-                                        title="Upgrade to Priority"
-                                    >
-                                        <Zap className="w-4 h-4 fill-current" />
-                                    </button>
-                                )}
                             </div>
                         ) : state.type === 'rejected' ? (
                             <button 
@@ -341,19 +332,12 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                                     <Send className="w-4 h-4" />
                                     <span>Connect</span>
                                 </button>
-                                <button 
-                                    onClick={(e) => handleAction(e, () => sendSuperInterest(targetId))}
-                                    className="aspect-square flex items-center justify-center rounded-2xl bg-amber-500 text-black hover:bg-amber-600 transition-all"
-                                    title="Priority Connection"
-                                >
-                                    <Zap className="w-4 h-4 fill-current" />
-                                </button>
                             </div>
                         )}
                         
                         <div className="flex gap-2">
-                            {/* Photo Request Button - Always visible for non-matched profiles */}
-                            {state.type !== 'matched' && !isPremium && (
+                            {/* Photo Request Button - Visible if privacy allows and not matched */}
+                            {state.type !== 'matched' && !isPremium && allowPhotoRequest && (
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();

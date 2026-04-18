@@ -81,6 +81,7 @@ export interface ProfileDetails {
         drinking?: string;
         bodyType?: string;
     };
+    allowPhotoRequest?: boolean;
 }
 
 export function useProfileDetails(profileId: string | number) {

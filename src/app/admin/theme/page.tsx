@@ -21,13 +21,15 @@ const DEFAULTS = {
   successColor: '#4CAF50',
   errorColor: '#F44336',
   gradientStart: '#E94057',
-  gradientEnd: '#8A2387'
+  gradientEnd: '#8A2387',
+  profileCardColor: '#FFFFFF',
+  profileCardTextColor: '#1A1A1A'
 };
 
 const PRESET_THEMES = [
   {
     name: 'Passion Red',
-    colors: { ...DEFAULTS, primaryColor: '#E94057', secondaryColor: '#FF99AC', backgroundColor: '#FFFFFF', surfaceColor: '#FFF5F6', textPrimary: '#1A1A1A', textSecondary: '#757575' }
+    colors: { ...DEFAULTS, primaryColor: '#E94057', secondaryColor: '#FF99AC', backgroundColor: '#FFFFFF', surfaceColor: '#FFF5F6', textPrimary: '#1A1A1A', textSecondary: '#757575', profileCardColor: '#FFFFFF', profileCardTextColor: '#1A1A1A' }
   },
   {
     name: 'Royal Purple',
@@ -231,7 +233,14 @@ export default function ThemeSettingsPage() {
                 {activeTab === 'surface' && (
                   <>
                     <ColorField keyId="backgroundColor" label="App Background" theme={theme} onChange={handleChange} desc="Base application background" />
-                    <ColorField keyId="surfaceColor" label="Card Surface" theme={theme} onChange={handleChange} desc="User cards & message bubbles" />
+                    <ColorField keyId="surfaceColor" label="Surface Elements" theme={theme} onChange={handleChange} desc="Bottom sheets & message bubbles" />
+                    <div className="pt-4 border-t border-white/5 mt-4">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-primary mb-4">Profile Card Style</h4>
+                      <ColorField keyId="profileCardColor" label="Card Background" theme={theme} onChange={handleChange} desc="The main card surface" />
+                      <div className="mt-4">
+                        <ColorField keyId="profileCardTextColor" label="Card Text Color" theme={theme} onChange={handleChange} desc="Text inside the profile card" />
+                      </div>
+                    </div>
                   </>
                 )}
                 {activeTab === 'text' && (
@@ -352,12 +361,12 @@ export default function ThemeSettingsPage() {
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="p-4 rounded-3xl flex flex-col gap-1 border border-white/5" style={{ backgroundColor: theme.surfaceColor }}>
-                        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: theme.textSecondary }}>Matches</span>
+                      <div className="p-4 rounded-3xl flex flex-col gap-1 border border-white/5" style={{ backgroundColor: theme.profileCardColor }}>
+                        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: theme.profileCardTextColor + 'CC' }}>Matches</span>
                         <span className="text-lg font-black" style={{ color: theme.primaryColor }}>85%</span>
                       </div>
-                      <div className="p-4 rounded-3xl flex flex-col gap-1 border border-white/5" style={{ backgroundColor: theme.surfaceColor }}>
-                        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: theme.textSecondary }}>Trust Score</span>
+                      <div className="p-4 rounded-3xl flex flex-col gap-1 border border-white/5" style={{ backgroundColor: theme.profileCardColor }}>
+                        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: theme.profileCardTextColor + 'CC' }}>Trust Score</span>
                         <span className="text-lg font-black" style={{ color: theme.successColor }}>High</span>
                       </div>
                     </div>

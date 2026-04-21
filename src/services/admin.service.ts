@@ -97,6 +97,10 @@ export interface AdminServiceInterface {
     
     // Plans
     getPlans(): Promise<Record<string, unknown>[]>;
+    
+    // Settings
+    getSettings(): Promise<any>;
+    updateRazorpaySettings(keyId: string, keySecret: string): Promise<any>;
 }
 
 export class AdminService implements AdminServiceInterface {
@@ -410,6 +414,15 @@ export class AdminService implements AdminServiceInterface {
 
     async deleteSuccessStory(id: number | string): Promise<void> {
         return this.handleResponse<void>(apiService.delete(`${apiConfig.baseUrl}/admin/success-stories/${id}`));
+    }
+
+    // Settings
+    async getSettings(): Promise<any> {
+        return this.handleResponse<any>(apiService.get('/admin/settings'));
+    }
+
+    async updateRazorpaySettings(keyId: string, keySecret: string): Promise<any> {
+        return this.handleResponse<any>(apiService.post('/admin/settings/razorpay', { keyId, keySecret }));
     }
 }
 

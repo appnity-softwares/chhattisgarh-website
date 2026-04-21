@@ -17,14 +17,16 @@ import {
 import { 
     Loader2, Save, X, User as UserIcon, MapPin, 
     Heart, Briefcase, GraduationCap, Languages, 
-    Calendar, Eye, Trash2
+    Calendar, Eye, Trash2, Upload
 } from "lucide-react";
+import { HEIGHT_OPTIONS } from "@/utils/height-utils";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { validateProfile, calculateCompleteness, ValidationErrors, CompletenessResult } from "@/utils/profile-validation";
 import { cn } from "@/lib/utils";
 import { ProfileCompletenessTracker } from "@/components/profile/ProfileCompletenessTracker";
 import { ProfilePreviewDialog } from "@/components/profile/ProfilePreviewDialog";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const MARITAL_STATUSES = [
     { value: 'NEVER_MARRIED', label: 'Never Married' },
@@ -56,6 +58,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isPhotoUploading, setIsPhotoUploading] = useState(false);
     const [user, setUser] = useState<User | null>(null);
     const [hasProfile, setHasProfile] = useState(false);
     const [errors, setErrors] = useState<ValidationErrors>({});
@@ -78,10 +81,18 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
         country: 'India',
         height: '',
         weight: '',
-        occupation: '',
         education: '',
         isVerified: false,
-        isPublished: true
+        isPublished: true,
+        // Added matching fields
+        annualIncome: '',
+        fatherOccupation: '',
+        familyIncome: '',
+        speaksChhattisgarhi: true,
+        nativeVillage: '',
+        category: '',
+        subCaste: '',
+        occupation: ''
     });
 
     useEffect(() => {
@@ -110,10 +121,17 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                         country: p.country || 'India',
                         height: (p as any).height || '',
                         weight: (p as any).weight || '',
-                        occupation: (p as any).occupation || '',
                         education: (p as any).education || '',
                         isVerified: p.isVerified || false,
-                        isPublished: p.isPublished || true
+                        isPublished: p.isPublished || true,
+                        annualIncome: p.annualIncome || '',
+                        fatherOccupation: p.fatherOccupation || '',
+                        familyIncome: p.familyIncome || '',
+                        speaksChhattisgarhi: p.speaksChhattisgarhi ?? true,
+                        nativeVillage: p.nativeVillage || '',
+                        category: p.category || '',
+                        subCaste: p.subCaste || '',
+                        occupation: (p as any).occupation || ''
                     });
                 }
             } catch (err: any) {
@@ -181,6 +199,24 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
             toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to delete profile' });
         } finally {
             setIsDeleting(false);
+        }
+    };
+
+    const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsPhotoUploading(true);
+        try {
+            const result = await adminService.uploadProfilePhoto(userId, file);
+            toast({ title: 'Success', description: 'Profile photo uploaded successfully' });
+            // Refresh local user data to show new photo
+            const userData = await adminService.getUserById(userId);
+            setUser(userData);
+        } catch (err: any) {
+            toast({ variant: 'destructive', title: 'Upload Failed', description: err.message });
+        } finally {
+            setIsPhotoUploading(false);
         }
     };
 
@@ -349,15 +385,23 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                         {errors.religion && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.religion}</p>}
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label className="text-[10px] uppercase font-bold text-muted-foreground">Caste / Sub-caste</Label>
-                                        <Input 
-                                            value={formData.caste}
-                                            onChange={(e) => setFormData({...formData, caste: e.target.value})}
-                                            className="bg-white/5 border-white/10"
-                                            placeholder="Sahu, Kurmi, etc."
-                                        />
+                                        <div className="flex gap-2">
+                                            <Input 
+                                                value={formData.caste}
+                                                onChange={(e) => setFormData({...formData, caste: e.target.value})}
+                                                className="bg-white/5 border-white/10"
+                                                placeholder="Caste"
+                                            />
+                                            <Input 
+                                                value={formData.subCaste}
+                                                onChange={(e) => setFormData({...formData, subCaste: e.target.value})}
+                                                className="bg-white/5 border-white/10"
+                                                placeholder="Sub-caste"
+                                            />
+                                        </div>
                                     </div>
                                     <div className="space-y-2">
                                         <Label className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
@@ -369,6 +413,24 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                             className="bg-white/5 border-white/10"
                                             placeholder="Chhattisgarhi, Hindi, etc."
                                         />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                     <div className="space-y-2">
+                                        <Label className="text-[10px] uppercase font-bold text-muted-foreground">Native Village</Label>
+                                        <Input 
+                                            value={formData.nativeVillage}
+                                            onChange={(e) => setFormData({...formData, nativeVillage: e.target.value})}
+                                            className="bg-white/5 border-white/10"
+                                            placeholder="Village Name"
+                                        />
+                                    </div>
+                                    <div className="flex items-center gap-3 pt-6 px-1">
+                                        <Switch 
+                                            checked={formData.speaksChhattisgarhi}
+                                            onCheckedChange={(v) => setFormData({...formData, speaksChhattisgarhi: v})}
+                                        />
+                                        <span className="text-[10px] font-bold text-white uppercase tracking-widest">Speaks Chhattisgarhi</span>
                                     </div>
                                 </div>
                             </CardContent>
@@ -387,7 +449,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                         <Label className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
                                             <GraduationCap className="w-3 h-3" /> Education
                                         </Label>
-                                        <Input 
+                                         <Input 
                                             value={formData.education}
                                             onChange={(e) => setFormData({...formData, education: e.target.value})}
                                             className="bg-white/5 border-white/10"
@@ -398,9 +460,40 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                         <Label className="text-[10px] uppercase font-bold text-muted-foreground">Occupation</Label>
                                         <Input 
                                             value={formData.occupation}
-                                            onChange={(e) => setFormData({...formData, occupation: e.target.value})}
+                                            onChange={(e) => setFormData({...formData, occupation: (e.target as any).value})}
                                             className="bg-white/5 border-white/10"
                                             placeholder="Software Developer"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] uppercase font-bold text-muted-foreground">Annual Income</Label>
+                                        <Input 
+                                            value={formData.annualIncome}
+                                            onChange={(e) => setFormData({...formData, annualIncome: e.target.value})}
+                                            className="bg-white/5 border-white/10"
+                                            placeholder="e.g. 5L - 8L"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] uppercase font-bold text-muted-foreground">Father's Occupation</Label>
+                                        <Input 
+                                            value={formData.fatherOccupation}
+                                            onChange={(e) => setFormData({...formData, fatherOccupation: e.target.value})}
+                                            className="bg-white/5 border-white/10"
+                                            placeholder="Business, Service, etc."
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] uppercase font-bold text-muted-foreground">Family Income</Label>
+                                        <Input 
+                                            value={formData.familyIncome}
+                                            onChange={(e) => setFormData({...formData, familyIncome: e.target.value})}
+                                            className="bg-white/5 border-white/10"
+                                            placeholder="Annual Family Income"
                                         />
                                     </div>
                                 </div>
@@ -419,6 +512,52 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
 
                     {/* Right Column: Sidebar Options */}
                     <div className="space-y-6">
+                        {/* Section 0: Profile Photo */}
+                        <Card className="bg-card/40 border-white/5 backdrop-blur-md overflow-hidden">
+                             <div className="aspect-square w-full relative group">
+                                {user?.profilePicture ? (
+                                    <img 
+                                        src={user.profilePicture} 
+                                        alt="Profile" 
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-white/5 flex flex-col items-center justify-center gap-3">
+                                        <UserIcon className="w-12 h-12 text-muted-foreground/30" />
+                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">No Photo</p>
+                                    </div>
+                                )}
+                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-6">
+                                    <div className="text-center">
+                                        <p className="text-white text-[11px] font-bold uppercase tracking-tight mb-3">Update Profile Photo</p>
+                                        <label className="cursor-pointer">
+                                            <div className={cn(
+                                                "bg-primary hover:bg-primary/90 text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-all active:scale-95",
+                                                isPhotoUploading && "opacity-50 pointer-events-none"
+                                            )}>
+                                                {isPhotoUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                                                {isPhotoUploading ? 'Uploading...' : 'Choose File'}
+                                            </div>
+                                            <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} />
+                                        </label>
+                                    </div>
+                                </div>
+                             </div>
+                             <div className="p-4 border-t border-white/5 flex items-center justify-between">
+                                <span className={cn(
+                                    "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full",
+                                    user?.profilePicture ? "bg-emerald-500/10 text-emerald-400" : "bg-rose-500/10 text-rose-400"
+                                )}>
+                                    {user?.profilePicture ? 'Current Avatar Set' : 'Missing Photo'}
+                                </span>
+                                {user?.profilePicture && (
+                                    <button className="text-rose-400 hover:text-rose-300 transition-colors">
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                )}
+                             </div>
+                        </Card>
+
                         {/* Section 4: Location */}
                         <Card className="bg-card/40 border-white/5 backdrop-blur-md">
                             <CardHeader>
@@ -428,14 +567,17 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label className={cn("text-[10px] uppercase font-bold", errors.height ? "text-rose-400" : "text-muted-foreground")}>Height (cm) *</Label>
-                                    <Input 
-                                        name="height"
-                                        value={formData.height}
-                                        onChange={(e) => setFormData({...formData, height: e.target.value})}
-                                        className={cn("bg-white/5 border-white/10", errors.height && "border-rose-500/50 bg-rose-500/5")}
-                                        placeholder="170"
-                                    />
+                                    <Label className={cn("text-[10px] uppercase font-bold", errors.height ? "text-rose-400" : "text-muted-foreground")}>Height *</Label>
+                                    <Select value={formData.height?.toString()} onValueChange={(v) => setFormData({...formData, height: v})}>
+                                        <SelectTrigger className={cn("bg-white/5 border-white/10 h-10", errors.height && "border-rose-500/50 bg-rose-500/5")}>
+                                            <SelectValue placeholder="Select Height" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-card border-border max-h-[300px]">
+                                            {HEIGHT_OPTIONS.map((opt) => (
+                                                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     {errors.height && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.height}</p>}
                                 </div>
                                 <div className="space-y-2">

@@ -182,6 +182,20 @@ export interface Profile {
     isPublished: boolean;
     createdAt: string;
     updatedAt: string;
+    // Physical & Professional
+    height?: number;
+    weight?: number;
+    occupation?: string;
+    education?: string;
+    annualIncome?: string;
+    highestEducation?: string;
+    // Background
+    fatherOccupation?: string;
+    familyIncome?: string;
+    speaksChhattisgarhi?: boolean;
+    nativeVillage?: string;
+    category?: string;
+    subCaste?: string;
 }
 
 export interface UserSubscription {

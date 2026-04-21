@@ -5,8 +5,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   MoreHorizontal, Search, RefreshCw, ChevronLeft, ChevronRight,
   Download, Trash2, Shield, Filter, X, Users, Ban, CheckCircle,
-  Eye, AlertTriangle, UserCheck, Upload, FileText, Calendar, CreditCard, Star, Pencil
+  Eye, AlertTriangle, UserCheck, Upload, FileText, UserPlus, CreditCard, Star, Pencil,
 } from "lucide-react";
+import { HEIGHT_OPTIONS } from "@/utils/height-utils";
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator
@@ -22,10 +23,32 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useRouter } from 'next/navigation';
-
 function StatusBadge({ user }: { user: User }) {
-  if (user.isBanned) return <span className="badge-banned text-[10px] font-semibold px-2 py-0.5 rounded-full">Banned</span>;
+  if (user.isBanned) {
+    return (
+      <TooltipProvider delayDuration={0}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="badge-banned text-[10px] font-semibold px-2 py-0.5 rounded-full cursor-help">
+              Banned
+            </span>
+          </TooltipTrigger>
+          <TooltipContent className="bg-red-950 border-red-500/30 text-red-200">
+            <p className="max-w-xs break-words">
+              <span className="font-bold">Ban Reason:</span> {user.banReason || 'No reason provided'}
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
   if (user.isActive) return <span className="badge-active text-[10px] font-semibold px-2 py-0.5 rounded-full">Active</span>;
   return <span className="badge-inactive text-[10px] font-semibold px-2 py-0.5 rounded-full">Inactive</span>;
 }
@@ -51,8 +74,11 @@ export default function AdminUsersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [userToPermanentlyDelete, setUserToPermanentlyDelete] = useState<User | null>(null);
+  const [banReason, setBanReason] = useState('Violation of community guidelines');
   const [selectedUsers, setSelectedUsers] = useState<Set<number>>(new Set());
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
+  const [bulkPermanentDeleteConfirm, setBulkPermanentDeleteConfirm] = useState(false);
   const [isBulkProcessing, setIsBulkProcessing] = useState(false);
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -63,6 +89,82 @@ export default function AdminUsersPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [subData, setSubData] = useState({ planId: 2, customDays: 90 });
+
+  const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [newUserData, setNewUserData] = useState({
+    phone: '',
+    countryCode: '+91',
+    email: '',
+    role: 'USER',
+    firstName: '',
+    lastName: '',
+    gender: 'MALE',
+    dateOfBirth: '',
+    maritalStatus: 'NEVER_MARRIED',
+    religion: 'HINDU',
+    motherTongue: 'CHHATTISGARHI',
+    category: '',
+    caste: '',
+    subCaste: '',
+    nativeVillage: '',
+    city: '',
+    state: 'Chhattisgarh',
+    speaksChhattisgarhi: true,
+    // New Fields
+    height: '',
+    highestEducation: '',
+    occupation: '',
+    annualIncome: '',
+    fatherOccupation: '',
+    familyIncome: '',
+    bio: '',
+  });
+
+  const handleCreateUser = async () => {
+    if (!newUserData.firstName || !newUserData.lastName || !newUserData.dateOfBirth || !newUserData.city) {
+      toast({ variant: 'destructive', title: 'Missing Information', description: 'Please fill all required fields.' });
+      return;
+    }
+    setIsCreatingUser(true);
+    try {
+      await adminService.createUserWithProfile(newUserData);
+      toast({ title: 'User Created', description: `Successfully created user and profile for ${newUserData.firstName}` });
+      setIsCreateUserOpen(false);
+      setNewUserData({
+        phone: '',
+        countryCode: '+91',
+        email: '',
+        role: 'USER',
+        firstName: '',
+        lastName: '',
+        gender: 'MALE',
+        dateOfBirth: '',
+        maritalStatus: 'NEVER_MARRIED',
+        religion: 'HINDU',
+        motherTongue: 'CHHATTISGARHI',
+        category: '',
+        caste: '',
+        subCaste: '',
+        nativeVillage: '',
+        city: '',
+        state: 'Chhattisgarh',
+        speaksChhattisgarhi: true,
+        height: '',
+        highestEducation: '',
+        occupation: '',
+        annualIncome: '',
+        fatherOccupation: '',
+        familyIncome: '',
+        bio: '',
+      });
+      fetchUsers(1);
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: 'Creation Failed', description: err.message });
+    } finally {
+      setIsCreatingUser(false);
+    }
+  };
 
   const filteredUsers = users.filter(user => {
     const q = searchQuery.toLowerCase();
@@ -121,24 +223,38 @@ export default function AdminUsersPage() {
 
   const handleDeleteUser = async () => {
     if (!userToDelete) return;
+    
     try {
-      await adminService.deleteUser(userToDelete.id.toString());
-      toast({ title: 'User Deleted', description: 'User has been permanently removed' });
+      await adminService.banUser(userToDelete.id.toString(), banReason);
+      toast({ title: 'User Restricted', description: 'User has been banned instead of deleted to preserve records' });
       setUserToDelete(null);
-      window.location.reload();
+      setBanReason('Violation of community guidelines');
+      fetchUsers(pagination.page);
     } catch (err: unknown) {
       const errorMsg = err as { message?: string };
-      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to delete user' });
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to restrict user' });
+    }
+  };
+
+  const handlePermanentDeleteUser = async () => {
+    if (!userToPermanentlyDelete) return;
+    
+    try {
+      await adminService.deleteUserAccount(userToPermanentlyDelete.id.toString());
+      toast({ title: 'User Permanently Removed', description: 'All associated data has been deleted.' });
+      setUserToPermanentlyDelete(null);
+      fetchUsers(pagination.page);
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to permanently delete user' });
     }
   };
 
   const handleBanUser = async (user: User) => {
-    const reason = prompt(`Ban reason for ${user.email || 'this user'}:`, 'Violation of community guidelines');
-    if (reason === null) return;
     try {
-      await adminService.banUser(user.id.toString(), reason);
+      await adminService.banUser(user.id.toString(), 'Violation of community guidelines');
       toast({ title: 'User Banned', description: 'Account has been restricted' });
-      window.location.reload();
+      fetchUsers(pagination.page);
     } catch (err: unknown) {
       const errorMsg = err as { message?: string };
       toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to ban user' });
@@ -146,11 +262,10 @@ export default function AdminUsersPage() {
   };
 
   const handleUnbanUser = async (user: User) => {
-    if (!confirm(`Unban ${user.email}?`)) return;
     try {
       await adminService.unbanUser(user.id.toString());
       toast({ title: 'User Unbanned', description: 'Account access has been restored' });
-      window.location.reload();
+      fetchUsers(pagination.page);
     } catch (err: unknown) {
       const errorMsg = err as { message?: string };
       toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to unban user' });
@@ -178,16 +293,48 @@ export default function AdminUsersPage() {
   const handleBulkDelete = async () => {
     setIsBulkProcessing(true);
     try {
-      await adminService.bulkModeration(Array.from(selectedUsers), 'users', 'delete');
-      toast({ title: 'Bulk Delete Complete', description: `Successfully deleted ${selectedUsers.size} users` });
+      await adminService.bulkBanUsers(Array.from(selectedUsers).map(id => id.toString()), banReason || 'Bulk soft-delete by admin');
+      toast({ title: 'Bulk restriction Complete', description: `Successfully banned ${selectedUsers.size} users` });
     } catch (err: unknown) {
       const errorMsg = err as { message?: string };
-      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to delete users' });
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to restrict users' });
     } finally {
       setIsBulkProcessing(false);
       setBulkDeleteConfirm(false);
+      setBanReason('Violation of community guidelines');
       setSelectedUsers(new Set());
-      window.location.reload();
+      fetchUsers(pagination.page);
+    }
+  };
+
+  const handleBulkUnban = async () => {
+    setIsBulkProcessing(true);
+    try {
+      await adminService.bulkUnbanUsers(Array.from(selectedUsers).map(id => id.toString()));
+      toast({ title: 'Bulk Unban Complete', description: `Successfully unbanned ${selectedUsers.size} users` });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to unban users' });
+    } finally {
+      setIsBulkProcessing(false);
+      setSelectedUsers(new Set());
+      fetchUsers(pagination.page);
+    }
+  };
+
+  const handleBulkPermanentDelete = async () => {
+    setIsBulkProcessing(true);
+    try {
+      await adminService.bulkDeleteUsers(Array.from(selectedUsers).map(id => id.toString()));
+      toast({ title: 'Bulk Permanent Deletion Complete', description: `Successfully removed ${selectedUsers.size} users and all their data.` });
+    } catch (err: unknown) {
+      const errorMsg = err as { message?: string };
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to permanently delete users' });
+    } finally {
+      setIsBulkProcessing(false);
+      setBulkPermanentDeleteConfirm(false);
+      setSelectedUsers(new Set());
+      fetchUsers(pagination.page);
     }
   };
 
@@ -290,6 +437,13 @@ export default function AdminUsersPage() {
             <span className="hidden sm:inline">Bulk Upload</span>
           </button>
           <button
+            onClick={() => setIsCreateUserOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-bold transition-all shadow-lg shadow-primary/20 active:scale-95"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Create Profile</span>
+          </button>
+          <button
             onClick={exportToCSV}
             disabled={isLoading || filteredUsers.length === 0}
             className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-sm font-medium transition-all disabled:opacity-40"
@@ -330,7 +484,9 @@ export default function AdminUsersPage() {
                     <DropdownMenuItem onClick={() => handleBulkRoleChange('PREMIUM_USER' as UserRole)}>Set as Premium</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleBulkRoleChange('ADMIN' as UserRole)}>Set as Admin</DropdownMenuItem>
                     <DropdownMenuSeparator className="bg-white/[0.06]" />
-                    <DropdownMenuItem onClick={handleBulkBan} className="text-amber-400 focus:text-amber-400 focus:bg-amber-500/10">Ban Selected</DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleBulkUnban} className="text-emerald-400 focus:text-emerald-400 focus:bg-emerald-500/10">Unban Selected</DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-white/[0.06]" />
+                    <DropdownMenuItem onClick={() => setBulkPermanentDeleteConfirm(true)} className="text-red-500 focus:text-red-500 focus:bg-red-500/10 font-bold">PERMANENT DELETE</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
                 <button
@@ -338,7 +494,7 @@ export default function AdminUsersPage() {
                   onClick={() => setBulkDeleteConfirm(true)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 text-xs font-medium transition-colors disabled:opacity-50"
                 >
-                  <Trash2 className="w-3 h-3" /> Delete Selected
+                  <Ban className="w-3 h-3" /> Soft-Delete Selected
                 </button>
               </div>
               <button onClick={() => setSelectedUsers(new Set())} className="ml-auto text-muted-foreground hover:text-white transition-colors">
@@ -501,8 +657,11 @@ export default function AdminUsersPage() {
                               <Ban className="w-3.5 h-3.5" /> Ban User
                             </DropdownMenuItem>
                           )}
-                          <DropdownMenuItem onClick={() => setUserToDelete(user)} className="text-red-400 focus:text-red-400 focus:bg-red-500/10 gap-2 cursor-pointer">
-                            <Trash2 className="w-3.5 h-3.5" /> Delete User
+                          <DropdownMenuItem onClick={() => setUserToDelete(user)} className="text-amber-400 focus:text-amber-400 focus:bg-amber-500/10 gap-2 cursor-pointer">
+                            <Ban className="w-3.5 h-3.5" /> Soft-Delete (Ban)
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setUserToPermanentlyDelete(user)} className="text-rose-500 focus:text-rose-500 focus:bg-rose-500/10 gap-2 cursor-pointer font-black">
+                            <Trash2 className="w-3.5 h-3.5" /> Permanent Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -548,15 +707,24 @@ export default function AdminUsersPage() {
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-white">
-              <AlertTriangle className="w-5 h-5 text-red-400" /> Delete User
+              <AlertTriangle className="w-5 h-5 text-red-400" /> Ban User
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete <strong className="text-white">{userToDelete?.email}</strong>. This action cannot be undone.
+              This will ban <strong className="text-white">{userToDelete?.email}</strong>. They will no longer be able to access their account.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          <div className="py-4 space-y-3">
+            <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Reason for Ban</label>
+            <textarea
+              value={banReason}
+              onChange={(e) => setBanReason(e.target.value)}
+              placeholder="e.g. FAKE_PROFILE, harassment, etc."
+              className="w-full h-24 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary/50 focus:outline-none transition-all resize-none"
+            />
+          </div>
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-white/10 border-white/10 text-white hover:bg-white/15">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteUser} className="bg-red-600 hover:bg-red-700 text-white">Delete User</AlertDialogAction>
+            <AlertDialogAction onClick={handleDeleteUser} className="bg-red-600 hover:bg-red-700 text-white">Ban User</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -566,20 +734,78 @@ export default function AdminUsersPage() {
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-white">
-              <AlertTriangle className="w-5 h-5 text-red-400" /> Delete {selectedUsers.size} Users?
+              <AlertTriangle className="w-5 h-5 text-red-400" /> Soft-Delete {selectedUsers.size} Users?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete all {selectedUsers.size} selected users. This action cannot be undone.
+              Deleting these users will restrict their access (Ban). Their profiles will no longer be visible to others.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          <div className="py-4 space-y-3">
+            <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Common Reason for Bulk Ban</label>
+            <textarea
+              value={banReason}
+              onChange={(e) => setBanReason(e.target.value)}
+              placeholder="e.g. cleanup, massive reports, etc."
+              className="w-full h-24 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary/50 focus:outline-none transition-all resize-none"
+            />
+          </div>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isBulkProcessing} className="bg-white/10 border-white/10 text-white hover:bg-white/15">Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleBulkDelete} disabled={isBulkProcessing} className="bg-red-600 hover:bg-red-700 text-white">
-              {isBulkProcessing ? 'Deleting...' : `Delete ${selectedUsers.size} Users`}
+              {isBulkProcessing ? 'Restricting...' : `Restrict Access for ${selectedUsers.size} Users`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Bulk Permanent Delete */}
+      <AlertDialog open={bulkPermanentDeleteConfirm} onOpenChange={setBulkPermanentDeleteConfirm}>
+        <AlertDialogContent className="bg-card border-border border-red-500/20">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-rose-500">
+              <AlertTriangle className="w-6 h-6 animate-pulse" /> PERMANENT BULK DELETE
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-rose-200/60 font-bold">
+              This action is IRREVERSIBLE. You are about to permanently delete {selectedUsers.size} users and ALL their associated profile data, messages, and matches from the database.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isBulkProcessing} className="bg-white/10 border-white/10 text-white hover:bg-white/15 border-none">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleBulkPermanentDelete} 
+              disabled={isBulkProcessing} 
+              className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/20"
+            >
+              {isBulkProcessing ? 'Deleting...' : `Yes, Delete ${selectedUsers.size} Users Permanently`}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Single Permanent Delete */}
+      <AlertDialog open={!!userToPermanentlyDelete} onOpenChange={() => setUserToPermanentlyDelete(null)}>
+        <AlertDialogContent className="bg-card border-border border-red-500/20">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-rose-500">
+              <AlertTriangle className="w-6 h-6 animate-pulse" /> Permanent Account Deletion
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-rose-200/60 font-bold">
+              You are about to permanently delete <strong className="text-white">{userToPermanentlyDelete?.email}</strong>. 
+              This will remove everything associated with this user from the production database forever.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-white/10 border-white/10 text-white hover:bg-white/15 border-none">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handlePermanentDeleteUser} 
+              className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/20"
+            >
+              Permanently Remove User
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Bulk Upload Modal */}
       <AlertDialog open={isBulkUploadOpen} onOpenChange={setIsBulkUploadOpen}>
         <AlertDialogContent className="bg-card border-border max-w-md">
@@ -672,6 +898,295 @@ export default function AdminUsersPage() {
               className="bg-amber-600 hover:bg-amber-700 text-white"
             >
               Confirm Membership
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Create User & Profile Modal */}
+      <AlertDialog open={isCreateUserOpen} onOpenChange={setIsCreateUserOpen}>
+        <AlertDialogContent className="bg-card border-border max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+          <AlertDialogHeader className="border-b border-white/5 pb-4">
+            <AlertDialogTitle className="flex items-center gap-2 text-white text-xl">
+              <UserPlus className="w-6 h-6 text-primary" /> Create User Profile
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Create a new user account and their basic profile details.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className="flex-1 overflow-y-auto py-6 px-1 space-y-8 no-scrollbar">
+            {/* Account Information */}
+            <div className="space-y-4">
+              <h3 className="text-xs font-black uppercase tracking-widest text-primary/80 border-l-2 border-primary pl-3">Account Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Phone Number *</label>
+                  <div className="flex gap-2">
+                    <input 
+                      value={newUserData.countryCode}
+                      onChange={(e) => setNewUserData({...newUserData, countryCode: e.target.value})}
+                      className="w-16 h-11 bg-white/5 border border-white/10 rounded-xl px-3 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
+                      placeholder="+91"
+                    />
+                    <input 
+                      value={newUserData.phone}
+                      onChange={(e) => setNewUserData({...newUserData, phone: e.target.value})}
+                      className="flex-1 h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
+                      placeholder="10 digit phone number"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Email Address (Optional)</label>
+                  <input 
+                    value={newUserData.email}
+                    onChange={(e) => setNewUserData({...newUserData, email: e.target.value})}
+                    className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
+                    placeholder="example@mail.com"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Basic Details */}
+            <div className="space-y-4">
+              <h3 className="text-xs font-black uppercase tracking-widest text-primary/80 border-l-2 border-primary pl-3">Basic Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">First Name *</label>
+                  <input 
+                    value={newUserData.firstName}
+                    onChange={(e) => setNewUserData({...newUserData, firstName: e.target.value})}
+                    className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
+                    placeholder="First Name"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Last Name *</label>
+                  <input 
+                    value={newUserData.lastName}
+                    onChange={(e) => setNewUserData({...newUserData, lastName: e.target.value})}
+                    className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
+                    placeholder="Last Name"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Gender *</label>
+                  <Select value={newUserData.gender} onValueChange={(v) => setNewUserData({...newUserData, gender: v})}>
+                    <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                      <SelectItem value="MALE">Male</SelectItem>
+                      <SelectItem value="FEMALE">Female</SelectItem>
+                      <SelectItem value="OTHER">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Date of Birth *</label>
+                  <input 
+                    type="date"
+                    value={newUserData.dateOfBirth}
+                    onChange={(e) => setNewUserData({...newUserData, dateOfBirth: e.target.value})}
+                    className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all [color-scheme:dark]"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Marital Status *</label>
+                  <Select value={newUserData.maritalStatus} onValueChange={(v) => setNewUserData({...newUserData, maritalStatus: v})}>
+                    <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                      <SelectItem value="NEVER_MARRIED">Never Married</SelectItem>
+                      <SelectItem value="DIVORCED">Divorced</SelectItem>
+                      <SelectItem value="WIDOWED">Widowed</SelectItem>
+                      <SelectItem value="AWAITING_DIVORCE">Awaiting Divorce</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Mother Tongue *</label>
+                  <Select value={newUserData.motherTongue} onValueChange={(v) => setNewUserData({...newUserData, motherTongue: v})}>
+                    <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border max-h-[300px]">
+                      <SelectItem value="CHHATTISGARHI">Chhattisgarhi</SelectItem>
+                      <SelectItem value="HINDI">Hindi</SelectItem>
+                      <SelectItem value="ENGLISH">English</SelectItem>
+                      <SelectItem value="MARATHI">Marathi</SelectItem>
+                      <SelectItem value="ODIA">Odia</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* Religious & Location Information */}
+            <div className="space-y-4">
+              <h3 className="text-xs font-black uppercase tracking-widest text-primary/80 border-l-2 border-primary pl-3">Religious & Location</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Religion *</label>
+                  <Select value={newUserData.religion} onValueChange={(v) => setNewUserData({...newUserData, religion: v})}>
+                    <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                      <SelectItem value="HINDU">Hindu</SelectItem>
+                      <SelectItem value="MUSLIM">Muslim</SelectItem>
+                      <SelectItem value="SIKH">Sikh</SelectItem>
+                      <SelectItem value="CHRISTIAN">Christian</SelectItem>
+                      <SelectItem value="JAIN">Jain</SelectItem>
+                      <SelectItem value="BUDDHIST">Buddhist</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Caste / Sub-Caste (Optional)</label>
+                  <input 
+                    value={newUserData.caste}
+                    onChange={(e) => setNewUserData({...newUserData, caste: e.target.value})}
+                    className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
+                    placeholder="e.g. Sahu, Verma..."
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Native Village (Optional)</label>
+                  <input 
+                    value={newUserData.nativeVillage}
+                    onChange={(e) => setNewUserData({...newUserData, nativeVillage: e.target.value})}
+                    className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
+                    placeholder="Village Name"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">City *</label>
+                  <input 
+                    value={newUserData.city}
+                    onChange={(e) => setNewUserData({...newUserData, city: e.target.value})}
+                    className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
+                    placeholder="Current City"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">State *</label>
+                  <input 
+                    value={newUserData.state}
+                    onChange={(e) => setNewUserData({...newUserData, state: e.target.value})}
+                    className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
+                    placeholder="State"
+                  />
+                </div>
+                <div className="flex items-center gap-3 pt-6 px-1">
+                   <Checkbox 
+                     checked={newUserData.speaksChhattisgarhi}
+                     onCheckedChange={(checked) => setNewUserData({...newUserData, speaksChhattisgarhi: !!checked})}
+                     className="border-white/20"
+                   />
+                   <span className="text-xs font-medium text-white">Speaks Chhattisgarhi</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Professional & Physical Information */}
+            <div className="space-y-4">
+              <h3 className="text-xs font-black uppercase tracking-widest text-primary/80 border-l-2 border-primary pl-3">Professional & Physical</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Highest Education</label>
+                  <input 
+                    value={newUserData.highestEducation}
+                    onChange={(e) => setNewUserData({...newUserData, highestEducation: e.target.value})}
+                    className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
+                    placeholder="e.g. B.Tech, MBA..."
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Occupation</label>
+                  <input 
+                    value={newUserData.occupation}
+                    onChange={(e) => setNewUserData({...newUserData, occupation: e.target.value})}
+                    className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
+                    placeholder="e.g. Software Engineer..."
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Annual Income</label>
+                  <Select value={newUserData.annualIncome} onValueChange={(v) => setNewUserData({...newUserData, annualIncome: v})}>
+                    <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl">
+                      <SelectValue placeholder="Select income range" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                        <SelectItem value="2L - 4L">2L - 4L</SelectItem>
+                        <SelectItem value="4L - 7L">4L - 7L</SelectItem>
+                        <SelectItem value="7L - 10L">7L - 10L</SelectItem>
+                        <SelectItem value="10L+">10L+</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Height *</label>
+                  <Select value={newUserData.height} onValueChange={(v) => setNewUserData({...newUserData, height: v})}>
+                    <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl">
+                      <SelectValue placeholder="Select Height" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border max-h-[300px]">
+                      {HEIGHT_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* Family & About */}
+            <div className="space-y-4">
+              <h3 className="text-xs font-black uppercase tracking-widest text-primary/80 border-l-2 border-primary pl-3">Family & About</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Father's Occupation</label>
+                  <input 
+                    value={newUserData.fatherOccupation}
+                    onChange={(e) => setNewUserData({...newUserData, fatherOccupation: e.target.value})}
+                    className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
+                    placeholder="e.g. retired, business..."
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Family Income</label>
+                  <input 
+                    value={newUserData.familyIncome}
+                    onChange={(e) => setNewUserData({...newUserData, familyIncome: e.target.value})}
+                    className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
+                    placeholder="Annual family income"
+                  />
+                </div>
+                <div className="space-y-1.5 md:col-span-2">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">About Profile (Bio)</label>
+                  <textarea 
+                    value={newUserData.bio}
+                    onChange={(e) => setNewUserData({...newUserData, bio: e.target.value})}
+                    className="w-full h-24 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary/50 focus:outline-none transition-all resize-none"
+                    placeholder="Short introduction about the person..."
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <AlertDialogFooter className="border-t border-white/5 pt-4">
+            <AlertDialogCancel className="bg-white/10 border-white/10 text-white hover:bg-white/15 h-11 px-6 rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={(e) => { e.preventDefault(); handleCreateUser(); }} 
+              disabled={isCreatingUser}
+              className="bg-primary hover:bg-primary/90 text-white h-11 px-8 rounded-xl font-bold shadow-lg shadow-primary/20 active:scale-95 transition-all"
+            >
+              {isCreatingUser ? 'Creating...' : 'Create Profile'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

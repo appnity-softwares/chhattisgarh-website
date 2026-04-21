@@ -72,19 +72,21 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
-  const { user, accessToken, refreshToken, logout, isAuthenticated } = useAuthStore();
+  const { user, accessToken, refreshToken, logout, isAuthenticated, hasHydrated } = useAuthStore();
   const [isChecking, setIsChecking] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
+    if (!hasHydrated) return;
+    
     if (!isAuthenticated) {
       router.push('/admin-secure-login');
     } else {
       // Use setTimeout to avoid synchronous setState warning
       setTimeout(() => setIsChecking(false), 0);
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, hasHydrated]);
 
   // Close mobile sidebar on route change
   useEffect(() => {

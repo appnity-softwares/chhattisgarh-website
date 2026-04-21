@@ -25,7 +25,13 @@ export interface AdminServiceInterface {
     deleteUser(userId: string): Promise<void>;
     banUser(userId: string, reason: string): Promise<User>;
     unbanUser(userId: string): Promise<User>;
+    bulkBanUsers(userIds: string[], reason?: string): Promise<any>;
+    bulkUnbanUsers(userIds: string[]): Promise<any>;
+    bulkDeleteUsers(userIds: string[]): Promise<any>;
+    deleteUserAccount(userId: string): Promise<any>;
     bulkUploadUsers(file: File): Promise<{ success: number, failed: number, errors: { row: number; email: string; error: string }[] }>;
+    createUserWithProfile(data: Record<string, unknown>): Promise<{ user: User; profile: Profile }>;
+    uploadProfilePhoto(userId: string, file: File): Promise<any>;
     
     // Profiles
     getProfiles(page?: number, limit?: number): Promise<{ profiles: Profile[]; pagination: Record<string, unknown> }>;
@@ -141,15 +147,56 @@ export class AdminService implements AdminServiceInterface {
     }
 
     async unbanUser(userId: string): Promise<User> {
-        return this.handleResponse<User>(apiService.post(apiConfig.endpoints.admin.userUnban(userId)));
+        return this.handleResponse<User>(
+            apiService.post(apiConfig.endpoints.admin.userUnban(userId))
+        );
     }
 
-    // ADDED: Bulk User Upload
+    async bulkBanUsers(userIds: string[], reason?: string): Promise<any> {
+        return this.handleResponse<any>(
+            apiService.post('/admin/users/bulk-ban', { userIds, reason })
+        );
+    }
+
+    async bulkUnbanUsers(userIds: string[]): Promise<any> {
+        return this.handleResponse<any>(
+            apiService.post('/admin/users/bulk-unban', { userIds })
+        );
+    }
+
+    async bulkDeleteUsers(userIds: string[]): Promise<any> {
+        return this.handleResponse<any>(
+            apiService.post('/admin/users/bulk-delete', { userIds })
+        );
+    }
+
+    async deleteUserAccount(userId: string): Promise<any> {
+        return this.handleResponse<any>(
+            apiService.delete(`/admin/users/${userId}`)
+        );
+    }
+
     async bulkUploadUsers(file: File): Promise<{ success: number, failed: number, errors: { row: number; email: string; error: string }[] }> {
         const formData = new FormData();
         formData.append('file', file);
         return this.handleResponse<{ success: number, failed: number, errors: { row: number; email: string; error: string }[] }>(
             apiService.post(apiConfig.endpoints.admin.userBulkUpload, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            })
+        );
+    }
+
+    async createUserWithProfile(data: Record<string, unknown>): Promise<{ user: User; profile: Profile }> {
+        return this.handleResponse<{ user: User; profile: Profile }>(
+            apiService.post(apiConfig.endpoints.admin.userCreateWithProfile, data)
+        );
+    }
+
+    async uploadProfilePhoto(userId: string, file: File): Promise<any> {
+        const formData = new FormData();
+        formData.append('photo', file);
+        return this.handleResponse<any>(
+            apiService.post(`/admin/users/${userId}/photo`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             })
         );

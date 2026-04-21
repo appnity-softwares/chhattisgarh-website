@@ -7,6 +7,7 @@ interface AuthState {
     accessToken: string | null;
     refreshToken: string | null;
     isAuthenticated: boolean;
+    hasHydrated: boolean;
     isLoading: boolean;
     error: string | null;
 }
@@ -20,6 +21,7 @@ interface AuthActions {
     logout: () => void;
     updateAccessToken: (accessToken: string) => void;
     clearError: () => void;
+    setHasHydrated: (state: boolean) => void;
 }
 
 type AuthStore = AuthState & AuthActions;
@@ -29,6 +31,7 @@ const initialState: AuthState = {
     accessToken: null,
     refreshToken: null,
     isAuthenticated: false,
+    hasHydrated: false,
     isLoading: false,
     error: null,
 };
@@ -70,10 +73,16 @@ export const useAuthStore = create<AuthStore>()(
 
             clearError: () =>
                 set({ error: null }),
+
+            setHasHydrated: (state) => 
+                set({ hasHydrated: state }),
         }),
         {
             name: 'admin-auth-storage',
             storage: createJSONStorage(() => localStorage),
+            onRehydrateStorage: () => (state) => {
+                state?.setHasHydrated(true);
+            },
             partialize: (state) => ({
                 user: state.user,
                 accessToken: state.accessToken,

@@ -5,7 +5,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
 import { useUserAuthStore } from '@/stores/user-auth-store';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { QueryProvider } from './query-provider';
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
@@ -17,11 +17,13 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
     const router = useRouter();
     const pathname = usePathname();
-    
     // Admin Store
     const admin = useAuthStore();
     // User Store
     const user = useUserAuthStore();
+    
+    // Check if BOTH stores have hydrated
+    const storesHydrated = admin.hasHydrated && user.hasHydrated;
 
     const isDashboardRoute = pathname?.startsWith('/dashboard');
     const isAdminRoute = pathname?.startsWith('/admin') && pathname !== '/admin-secure-login';
@@ -53,6 +55,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Protect routes
     useEffect(() => {
+        if (!storesHydrated) return;
+
         const isLoginRoute = pathname === '/admin-secure-login' || pathname === '/login';
 
         // 1. If trying to access dashboard but not authenticated as user

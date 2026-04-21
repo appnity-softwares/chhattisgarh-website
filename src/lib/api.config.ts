@@ -165,6 +165,7 @@ export const apiConfig = {
       recentUsers: '/admin/users/recent',
       userById: (id: string) => `/admin/users/${id}`,
       userRole: (id: string) => `/admin/users/${id}/role`,
+      userCreateWithProfile: '/admin/users/create-with-profile',
       profiles: '/admin/profiles',
       verificationsPending: '/admin/verifications/pending',
       verificationsStats: '/admin/verifications/stats',

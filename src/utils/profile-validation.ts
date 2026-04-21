@@ -41,9 +41,9 @@ export const validateProfile = (data: any): ValidationResult => {
   }
 
   if (data.annualIncome) {
-    const income = parseFloat(data.annualIncome);
-    if (isNaN(income)) {
-      errors.annualIncome = 'Annual income must be a number';
+    // Relaxed validation to allow ranges like "5L - 8L"
+    if (typeof data.annualIncome === 'string' && !data.annualIncome.trim()) {
+      errors.annualIncome = 'Annual income cannot be empty';
     }
   }
 

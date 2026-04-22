@@ -122,8 +122,25 @@ export default function AdminUsersPage() {
   });
 
   const handleCreateUser = async () => {
-    if (!newUserData.firstName || !newUserData.lastName || !newUserData.dateOfBirth || !newUserData.city) {
-      toast({ variant: 'destructive', title: 'Missing Information', description: 'Please fill all required fields.' });
+    // Check for the 6 "needed" fields identified by the admin
+    const requiredFields = {
+      phone: newUserData.phone,
+      firstName: newUserData.firstName,
+      gender: newUserData.gender,
+      dateOfBirth: newUserData.dateOfBirth,
+      city: newUserData.city
+    };
+
+    const missingFields = Object.entries(requiredFields)
+      .filter(([_, value]) => !value)
+      .map(([key]) => key);
+
+    if (missingFields.length > 0) {
+      toast({ 
+        variant: 'destructive', 
+        title: 'Missing Required Fields', 
+        description: `Please provide: ${missingFields.join(', ')}` 
+      });
       return;
     }
     setIsCreatingUser(true);
@@ -994,7 +1011,7 @@ export default function AdminUsersPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Marital Status *</label>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Marital Status</label>
                   <Select value={newUserData.maritalStatus} onValueChange={(v) => setNewUserData({...newUserData, maritalStatus: v})}>
                     <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl">
                       <SelectValue />
@@ -1008,7 +1025,7 @@ export default function AdminUsersPage() {
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Mother Tongue *</label>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Mother Tongue</label>
                   <Select value={newUserData.motherTongue} onValueChange={(v) => setNewUserData({...newUserData, motherTongue: v})}>
                     <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl">
                       <SelectValue />
@@ -1030,7 +1047,7 @@ export default function AdminUsersPage() {
               <h3 className="text-xs font-black uppercase tracking-widest text-primary/80 border-l-2 border-primary pl-3">Religious & Location</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Religion *</label>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Religion</label>
                   <Select value={newUserData.religion} onValueChange={(v) => setNewUserData({...newUserData, religion: v})}>
                     <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl">
                       <SelectValue />
@@ -1073,7 +1090,7 @@ export default function AdminUsersPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">State *</label>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">State</label>
                   <input 
                     value={newUserData.state}
                     onChange={(e) => setNewUserData({...newUserData, state: e.target.value})}

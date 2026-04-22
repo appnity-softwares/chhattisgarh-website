@@ -624,10 +624,14 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600/40 to-indigo-600/40 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
-                          <span className="text-xs font-semibold text-purple-300">
-                            {user.profile ? user.profile.firstName?.charAt(0)?.toUpperCase() : user.email?.charAt(0)?.toUpperCase() || 'U'}
-                          </span>
+                        <div className="w-8 h-8 rounded-full overflow-hidden border border-white/10 flex items-center justify-center flex-shrink-0 bg-white/5">
+                          {user.profilePicture ? (
+                            <img src={user.profilePicture} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-xs font-semibold text-purple-300">
+                              {user.profile ? user.profile.firstName?.charAt(0)?.toUpperCase() : user.email?.charAt(0)?.toUpperCase() || 'U'}
+                            </span>
+                          )}
                         </div>
                         <div className="min-w-0">
                           <button

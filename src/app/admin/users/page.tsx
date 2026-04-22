@@ -128,6 +128,7 @@ export default function AdminUsersPage() {
       firstName: newUserData.firstName,
       gender: newUserData.gender,
       dateOfBirth: newUserData.dateOfBirth,
+      caste: newUserData.caste,
       city: newUserData.city
     };
 

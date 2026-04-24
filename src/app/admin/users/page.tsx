@@ -66,6 +66,74 @@ function RoleBadge({ role }: { role: string }) {
   );
 }
 
+function MatchStatusBadge({ user }: { user: User }) {
+  const profile = user.profile;
+  if (!profile) {
+    return (
+      <span className="bg-slate-500/15 text-slate-400 border border-slate-500/25 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+        No Profile
+      </span>
+    );
+  }
+
+  const isMatchReady = 
+    user.isActive && 
+    !user.isBanned && 
+    profile.isPublished && 
+    profile.isVerified && 
+    (profile.profileCompleteness || 0) >= 70;
+
+  if (isMatchReady) {
+    return (
+      <span className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+        Listed
+      </span>
+    );
+  }
+
+  const reasons = [];
+  if (!user.isActive) reasons.push("Account Inactive");
+  if (user.isBanned) reasons.push("Account Banned");
+  if (!profile.isPublished) reasons.push("Not Published");
+  if (!profile.isVerified) reasons.push("Not Verified");
+  if ((profile.profileCompleteness || 0) < 70) reasons.push(`Incomplete (${profile.profileCompleteness || 0}%)`);
+
+  return (
+    <TooltipProvider delayDuration={0}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="bg-amber-500/15 text-amber-400 border border-amber-500/25 text-[10px] font-semibold px-2 py-0.5 rounded-full cursor-help">
+            Not Listed
+          </span>
+        </TooltipTrigger>
+        <TooltipContent className="bg-amber-950 border-amber-500/30 text-amber-200">
+          <div className="text-[11px] py-1">
+            <p className="font-bold mb-1 border-b border-white/10 pb-1">Listing Requirements:</p>
+            <ul className="space-y-1">
+              <li className="flex items-center gap-1.5">
+                {user.isActive && !user.isBanned ? <CheckCircle className="w-3 h-3 text-emerald-400" /> : <X className="w-3 h-3 text-rose-400" />}
+                <span>Active Account</span>
+              </li>
+              <li className="flex items-center gap-1.5">
+                {profile.isPublished ? <CheckCircle className="w-3 h-3 text-emerald-400" /> : <X className="w-3 h-3 text-rose-400" />}
+                <span>Profile Published</span>
+              </li>
+              <li className="flex items-center gap-1.5">
+                {profile.isVerified ? <CheckCircle className="w-3 h-3 text-emerald-400" /> : <X className="w-3 h-3 text-rose-400" />}
+                <span>Profile Verified</span>
+              </li>
+              <li className="flex items-center gap-1.5">
+                {(profile.profileCompleteness || 0) >= 70 ? <CheckCircle className="w-3 h-3 text-emerald-400" /> : <X className="w-3 h-3 text-rose-400" />}
+                <span>Completeness &ge; 70% ({profile.profileCompleteness || 0}%)</span>
+              </li>
+            </ul>
+          </div>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
 export default function AdminUsersPage() {
   const { toast } = useToast();
   const router = useRouter();
@@ -82,6 +150,7 @@ export default function AdminUsersPage() {
   const [isBulkProcessing, setIsBulkProcessing] = useState(false);
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [matchFilter, setMatchFilter] = useState<string>('all');
 
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
   const [isGrantSubOpen, setIsGrantSubOpen] = useState(false);
@@ -194,7 +263,11 @@ export default function AdminUsersPage() {
       (statusFilter === 'active' && user.isActive && !user.isBanned) ||
       (statusFilter === 'inactive' && !user.isActive) ||
       (statusFilter === 'banned' && user.isBanned);
-    return search && role && status;
+    const match = matchFilter === 'all' || (() => {
+      const isMatchReady = user.profile && user.isActive && !user.isBanned && user.profile.isPublished && user.profile.isVerified && (user.profile.profileCompleteness || 0) >= 70;
+      return (matchFilter === 'listed' && isMatchReady) || (matchFilter === 'not_listed' && !isMatchReady);
+    })();
+    return search && role && status && match;
   });
 
   const fetchUsers = async (page = 1) => {
@@ -416,13 +489,17 @@ export default function AdminUsersPage() {
   };
 
   const exportToCSV = () => {
-    const headers = ['ID', 'Email', 'Name', 'Role', 'Status', 'Joined'];
-    const rows = filteredUsers.map(u => [
-      u.id, u.email,
-      `${u.profile?.firstName || ''} ${u.profile?.lastName || ''}`.trim() || 'N/A',
-      u.role, u.isBanned ? 'Banned' : u.isActive ? 'Active' : 'Inactive',
-      new Date(u.createdAt).toLocaleDateString(),
-    ]);
+    const headers = ['ID', 'Email', 'Name', 'Role', 'Status', 'Match Listing', 'Joined'];
+    const rows = filteredUsers.map(u => {
+      const isMatchReady = u.profile && u.isActive && !u.isBanned && u.profile.isPublished && u.profile.isVerified && (u.profile.profileCompleteness || 0) >= 70;
+      return [
+        u.id, u.email,
+        `${u.profile?.firstName || ''} ${u.profile?.lastName || ''}`.trim() || 'N/A',
+        u.role, u.isBanned ? 'Banned' : u.isActive ? 'Active' : 'Inactive',
+        isMatchReady ? 'Listed' : 'Not Listed',
+        new Date(u.createdAt).toLocaleDateString(),
+      ];
+    });
     const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -432,7 +509,7 @@ export default function AdminUsersPage() {
     toast({ title: 'Export Successful', description: `${filteredUsers.length} users exported` });
   };
 
-  const hasFilters = searchQuery !== '' || roleFilter !== 'all' || statusFilter !== 'all';
+  const hasFilters = searchQuery !== '' || roleFilter !== 'all' || statusFilter !== 'all' || matchFilter !== 'all';
 
   return (
     <div className="space-y-5 notranslate">
@@ -556,8 +633,18 @@ export default function AdminUsersPage() {
                   <SelectItem value="banned">Banned</SelectItem>
                 </SelectContent>
               </Select>
+              <Select value={matchFilter} onValueChange={setMatchFilter}>
+                <SelectTrigger className="w-[125px] bg-white/[0.05] border-white/[0.08] text-white rounded-xl">
+                  <SelectValue placeholder="Match Status" />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border">
+                  <SelectItem value="all">All Match Status</SelectItem>
+                  <SelectItem value="listed">Listed</SelectItem>
+                  <SelectItem value="not_listed">Not Listed</SelectItem>
+                </SelectContent>
+              </Select>
               {hasFilters && (
-                <button onClick={() => { setSearchQuery(''); setRoleFilter('all'); setStatusFilter('all'); }} className="p-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-muted-foreground hover:text-white transition-colors">
+                <button onClick={() => { setSearchQuery(''); setRoleFilter('all'); setStatusFilter('all'); setMatchFilter('all'); }} className="p-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-muted-foreground hover:text-white transition-colors">
                   <X className="w-4 h-4" />
                 </button>
               )}
@@ -580,6 +667,7 @@ export default function AdminUsersPage() {
                 <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">User</th>
                 <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider hidden sm:table-cell">Role</th>
                 <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider hidden sm:table-cell">Status</th>
+                <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider hidden md:table-cell">Match Listing</th>
                 <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider hidden md:table-cell">Last Login</th>
                 <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
               </tr>
@@ -600,6 +688,8 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-4 py-3 hidden sm:table-cell"><div className="w-14 h-5 skeleton-pulse rounded-full" /></td>
                     <td className="px-4 py-3 hidden sm:table-cell"><div className="w-14 h-5 skeleton-pulse rounded-full" /></td>
+                    <td className="px-4 py-3 hidden sm:table-cell"><div className="w-14 h-5 skeleton-pulse rounded-full" /></td>
+                    <td className="px-4 py-3 hidden md:table-cell"><div className="w-14 h-5 skeleton-pulse rounded-full" /></td>
                     <td className="px-4 py-3 hidden md:table-cell"><div className="w-20 h-3.5 skeleton-pulse rounded" /></td>
                     <td className="px-4 py-3"><div className="w-8 h-8 skeleton-pulse rounded-lg ml-auto" /></td>
                   </tr>
@@ -646,6 +736,7 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-4 py-3.5 hidden sm:table-cell"><RoleBadge role={user.role} /></td>
                     <td className="px-4 py-3.5 hidden sm:table-cell"><StatusBadge user={user} /></td>
+                    <td className="px-4 py-3.5 hidden md:table-cell"><MatchStatusBadge user={user} /></td>
                     <td className="px-4 py-3.5 hidden md:table-cell text-xs text-muted-foreground">
                       {user.lastLoginAt ? formatDistanceToNow(new Date(user.lastLoginAt), { addSuffix: true }) : 'Never'}
                     </td>

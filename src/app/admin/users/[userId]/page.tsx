@@ -28,6 +28,7 @@ import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { displayValue, formatDateOfBirth, formatEnumLabel, formatProfileName } from "@/lib/display-format";
 
 export default function UserDetailPage({ params }: { params: Promise<{ userId: string }> }) {
     const { toast } = useToast();
@@ -130,6 +131,7 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
     }
 
     const { profile } = user;
+    const profileName = profile ? formatProfileName(profile) : 'Profile';
 
     return (
         <AdminPageWrapper>
@@ -140,12 +142,12 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
                         <Avatar className="h-20 w-20 border-2 border-border">
                             <AvatarImage src={user.profilePicture} />
                             <AvatarFallback className="text-xl">
-                                {profile?.firstName?.[0]}{profile?.lastName?.[0]}
+                                {profileName.charAt(0).toUpperCase()}
                             </AvatarFallback>
                         </Avatar>
                         <div>
                             <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                                {profile ? `${profile.firstName} ${profile.lastName}` : 'No Profile Name'}
+                                {profileName}
                                 <Badge variant={user.isActive ? 'default' : 'secondary'}>
                                     {user.isActive ? 'Active' : 'Inactive'}
                                 </Badge>
@@ -277,33 +279,33 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
                                             <div>
                                                 <p className="text-sm font-medium text-muted-foreground">Detailed Name</p>
-                                                <p>{profile.firstName} {profile.middleName} {profile.lastName}</p>
+                                                <p>{formatProfileName(profile)}</p>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-muted-foreground">Date of Birth</p>
-                                                <p>{new Date(profile.dateOfBirth).toLocaleDateString()} ({new Date().getFullYear() - new Date(profile.dateOfBirth).getFullYear()} years)</p>
+                                                <p>{formatDateOfBirth(profile.dateOfBirth)}</p>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-muted-foreground">Gender & Marital Status</p>
-                                                <p className="capitalize">{profile.gender.toLowerCase()} • {profile.maritalStatus.replace('_', ' ').toLowerCase()}</p>
+                                                <p>{formatEnumLabel(profile.gender)} • {formatEnumLabel(profile.maritalStatus)}</p>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-muted-foreground">Religion & Caste</p>
-                                                <p>{profile.religion} • {profile.caste || 'Not specified'}</p>
+                                                <p>{formatEnumLabel(profile.religion)} • {displayValue(profile.caste)}</p>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-muted-foreground">Mother Tongue</p>
-                                                <p>{profile.motherTongue}</p>
+                                                <p>{formatEnumLabel(profile.motherTongue)}</p>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-muted-foreground">Location</p>
                                                 <p className="flex items-center gap-1">
-                                                    <MapPin className="h-3 w-3" /> {profile.city}, {profile.state}, {profile.country}
+                                                    <MapPin className="h-3 w-3" /> {[profile.city, profile.state, profile.country].map((value) => displayValue(value, "")).filter(Boolean).join(", ") || "-"}
                                                 </p>
                                             </div>
                                             <div className="md:col-span-2">
                                                 <p className="text-sm font-medium text-muted-foreground">Bio</p>
-                                                <p className="text-sm mt-1">{profile.bio || 'No bio provided.'}</p>
+                                                <p className="text-sm mt-1">{displayValue(profile.bio)}</p>
                                             </div>
                                         </div>
                                     ) : (

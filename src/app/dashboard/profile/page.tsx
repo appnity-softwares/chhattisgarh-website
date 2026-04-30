@@ -1,14 +1,14 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-    User, 
-    Camera, 
-    Briefcase, 
-    MapPin, 
-    Star, 
-    Heart, 
-    CheckCircle2, 
+import {
+    User,
+    Camera,
+    Briefcase,
+    MapPin,
+    Star,
+    Heart,
+    CheckCircle2,
     Save,
     Plus,
     Trash2,
@@ -25,23 +25,23 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
 } from "@/components/ui/select";
 import { useState, useEffect } from "react";
 import { useProfile, useProfileCompletion } from "@/hooks/use-profile";
 import { usePartnerPreference } from "@/hooks/use-partner-preference";
 import { useAstrologyMetadata } from "@/hooks/use-astrology";
-import { 
-    DropdownMenu, 
-    DropdownMenuContent, 
-    DropdownMenuItem, 
-    DropdownMenuLabel, 
-    DropdownMenuSeparator, 
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
     DropdownMenuCheckboxItem
 } from "@/components/ui/dropdown-menu";
@@ -97,15 +97,6 @@ const MOTHER_TONGUE_OPTIONS = [
     "URDU",
     "OTHER",
 ] as const;
-const ANNUAL_INCOME_OPTIONS = [
-    "Below 3 LPA",
-    "3-5 LPA",
-    "5-8 LPA",
-    "8-12 LPA",
-    "12-20 LPA",
-    "20+ LPA",
-] as const;
-
 const enumLabel = (value: string) =>
     value
         .toLowerCase()
@@ -195,7 +186,7 @@ export default function ProfilePage() {
     // Profile validation rules
     const validateProfile = (data: ProfileData) => {
         const newErrors: Record<string, string> = {};
-        
+
         // Mandatory Fields
         if (!data.firstName?.trim()) newErrors.firstName = "First name is required";
         if (!data.dateOfBirth) newErrors.dateOfBirth = "Date of birth is required";
@@ -204,7 +195,7 @@ export default function ProfilePage() {
         if (!data.caste?.trim()) newErrors.caste = "Caste is required";
         if (!data.city?.trim()) newErrors.city = "City is required";
         if (!data.state?.trim()) newErrors.state = "State is required";
-        
+
         const heightVal = Number(data.height);
         if (!data.height) newErrors.height = "Height is required";
         else if (isNaN(heightVal) || heightVal < 100 || heightVal > 250) newErrors.height = "Please enter a valid height in cm (e.g. 170)";
@@ -255,7 +246,7 @@ export default function ProfilePage() {
                 // Focus first error
                 const firstErrorField = Object.keys(validation.errors)[0];
                 const targetSection = getSectionForError(firstErrorField);
-                
+
                 if (targetSection !== activeSection) {
                     setActiveSection(targetSection);
                 }
@@ -301,8 +292,8 @@ export default function ProfilePage() {
                             <span className="text-primary italic">Profile</span>
                         </h1>
                         <p className="text-muted-foreground font-medium text-lg italic">
-                            {(!userData?.profile || (completion?.percentage || 0) < 20) 
-                                ? "Welcome! Let's build your identity to find your perfect match." 
+                            {(!userData?.profile || (completion?.percentage || 0) < 20)
+                                ? "Welcome! Let's build your identity to find your perfect match."
                                 : "Keep your details updated to find better matches"}
                         </p>
                     </div>
@@ -311,7 +302,7 @@ export default function ProfilePage() {
                     <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-3">
                             <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
-                                <motion.div 
+                                <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${completion?.percentage || 0}%` }}
                                     className="h-full bg-primary"
@@ -328,11 +319,11 @@ export default function ProfilePage() {
                         )}
                     </div>
                 </div>
-                
+
                 <div className="flex flex-wrap items-center gap-3 min-w-[180px]">
                     {!userData?.profile?.isVerified && (
                         <Link href="/dashboard/profile/verify">
-                            <Button 
+                            <Button
                                 variant="outline"
                                 className="h-14 px-8 border-primary/20 hover:bg-primary/5 text-primary font-black rounded-2xl transition-all active:scale-95 flex items-center gap-3"
                             >
@@ -341,8 +332,8 @@ export default function ProfilePage() {
                             </Button>
                         </Link>
                     )}
-                    
-                    <Button 
+
+                    <Button
                         onClick={handleSave}
                         disabled={isSaving}
                         className="h-14 px-8 bg-primary hover:bg-primary/90 text-white font-black rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95 flex items-center gap-3"
@@ -382,29 +373,29 @@ export default function ProfilePage() {
                                                 <Label className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 transition-colors ${errors.firstName ? 'text-red-500' : 'text-muted-foreground'}`}>
                                                     First Name {errors.firstName && "— Required"}
                                                 </Label>
-                                                <Input 
-                                                    value={formData.firstName || ""} 
+                                                <Input
+                                                    value={formData.firstName || ""}
                                                     onChange={(e) => {
                                                         setFormData({...formData, firstName: e.target.value});
                                                         if (errors.firstName) setErrors({...errors, firstName: ""});
                                                     }}
-                                                    className={`h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold ${errors.firstName ? 'border-red-500/50 bg-red-500/5' : ''}`} 
+                                                    className={`h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold ${errors.firstName ? 'border-red-500/50 bg-red-500/5' : ''}`}
                                                 />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Middle Name</Label>
-                                                <Input 
-                                                    value={formData.middleName || ""} 
+                                                <Input
+                                                    value={formData.middleName || ""}
                                                     onChange={(e) => setFormData({...formData, middleName: e.target.value})}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold" 
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold"
                                                 />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Last Name</Label>
-                                                <Input 
-                                                    value={formData.lastName || ""} 
+                                                <Input
+                                                    value={formData.lastName || ""}
                                                     onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold" 
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold"
                                                 />
                                             </div>
                                             <div className="space-y-3">
@@ -413,14 +404,14 @@ export default function ProfilePage() {
                                                 </Label>
                                                 <div className="relative">
                                                     <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
-                                                    <Input 
+                                                    <Input
                                                         type="date"
                                                         value={dateOfBirthValue}
                                                         onChange={(e) => {
                                                             setFormData({ ...formData, dateOfBirth: e.target.value });
                                                             if (errors.dateOfBirth) setErrors({...errors, dateOfBirth: ""});
                                                         }}
-                                                        className={`pl-12 h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.dateOfBirth ? 'border-red-500/50 bg-red-500/5' : ''}`} 
+                                                        className={`pl-12 h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.dateOfBirth ? 'border-red-500/50 bg-red-500/5' : ''}`}
                                                     />
                                                 </div>
                                             </div>
@@ -428,8 +419,8 @@ export default function ProfilePage() {
                                                 <Label className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 transition-colors ${errors.gender ? 'text-red-500' : 'text-muted-foreground'}`}>
                                                     Gender {errors.gender && "— Required"}
                                                 </Label>
-                                                <Select 
-                                                    value={formData.gender || ""} 
+                                                <Select
+                                                    value={formData.gender || ""}
                                                     onValueChange={(value) => {
                                                         setFormData({ ...formData, gender: value as 'MALE' | 'FEMALE' });
                                                         if (errors.gender) setErrors({...errors, gender: ""});
@@ -448,24 +439,24 @@ export default function ProfilePage() {
                                                 <Label className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 transition-colors ${errors.height ? 'text-red-500' : 'text-muted-foreground'}`}>
                                                     Height (cm) {errors.height && `— ${errors.height}`}
                                                 </Label>
-                                                <Input 
+                                                <Input
                                                     type="number"
-                                                    value={formData.height || ""} 
+                                                    value={formData.height || ""}
                                                     placeholder="e.g. 170"
                                                     onChange={(e) => {
                                                         setFormData({ ...formData, height: e.target.value });
                                                         if (errors.height) setErrors({...errors, height: ""});
                                                     }}
-                                                    className={`h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.height ? 'border-red-500/50 bg-red-500/5' : ''}`} 
+                                                    className={`h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.height ? 'border-red-500/50 bg-red-500/5' : ''}`}
                                                 />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Weight (kg)</Label>
-                                                <Input 
+                                                <Input
                                                     type="number"
-                                                    value={formData.weight || ""} 
+                                                    value={formData.weight || ""}
                                                     onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl transition-all" 
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl transition-all"
                                                 />
                                             </div>
                                             <div className="space-y-3">
@@ -491,13 +482,13 @@ export default function ProfilePage() {
                                     <motion.div key="religion" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <div className="space-y-3">
-                                                <Label 
+                                                <Label
                                                     className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 transition-colors ${errors.religion ? 'text-red-500' : 'text-muted-foreground'}`}
                                                 >
                                                     Religion {errors.religion && "— Required"}
                                                 </Label>
-                                                <Select 
-                                                    value={(formData.religion as string) || ""} 
+                                                <Select
+                                                    value={(formData.religion as string) || ""}
                                                     onValueChange={(value) => {
                                                         setFormData({ ...formData, religion: value });
                                                         if (errors.religion) setErrors({...errors, religion: ""});
@@ -516,32 +507,32 @@ export default function ProfilePage() {
                                                 </Select>
                                             </div>
                                             <div className="space-y-3">
-                                                <Label 
+                                                <Label
                                                     className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 transition-colors ${errors.caste ? 'text-red-500' : 'text-muted-foreground'}`}
                                                 >
                                                     Caste {errors.caste && "— Required"}
                                                 </Label>
-                                                <Input 
-                                                    value={formData.caste || ""} 
+                                                <Input
+                                                    value={formData.caste || ""}
                                                     onChange={(e) => {
                                                         setFormData({ ...formData, caste: e.target.value });
                                                         if (errors.caste) setErrors({...errors, caste: ""});
                                                     }}
-                                                    className={`h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.caste ? 'border-red-500/50 bg-red-500/5 shadow-[0_0_10px_rgba(239,68,68,0.1)]' : ''}`} 
+                                                    className={`h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.caste ? 'border-red-500/50 bg-red-500/5 shadow-[0_0_10px_rgba(239,68,68,0.1)]' : ''}`}
                                                 />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Gothram</Label>
-                                                <Input 
-                                                    value={formData.gothram || ""} 
+                                                <Input
+                                                    value={formData.gothram || ""}
                                                     onChange={(e) => setFormData({ ...formData, gothram: e.target.value })}
-                                                    placeholder="Enter your Gothram" 
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                    placeholder="Enter your Gothram"
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Manglik Status</Label>
-                                                <Select 
+                                                <Select
                                                     value={typeof formData.manglik === "boolean" ? String(formData.manglik) : ""}
                                                     onValueChange={(value) => setFormData({ ...formData, manglik: value === "true" })}
                                                 >
@@ -571,10 +562,10 @@ export default function ProfilePage() {
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Sub Caste</Label>
-                                                <Input 
-                                                    value={formData.subCaste || ""} 
+                                                <Input
+                                                    value={formData.subCaste || ""}
                                                     onChange={(e) => setFormData({ ...formData, subCaste: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3">
@@ -609,19 +600,19 @@ export default function ProfilePage() {
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Birth Place</Label>
-                                                <Input 
-                                                    value={formData.birthPlace || ""} 
+                                                <Input
+                                                    value={formData.birthPlace || ""}
                                                     onChange={(e) => setFormData({ ...formData, birthPlace: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Birth Time</Label>
-                                                <Input 
+                                                <Input
                                                     type="time"
-                                                    value={formData.birthTime || ""} 
+                                                    value={formData.birthTime || ""}
                                                     onChange={(e) => setFormData({ ...formData, birthTime: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3 flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5">
@@ -629,9 +620,9 @@ export default function ProfilePage() {
                                                     <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Chhattisgarhi Fluency</Label>
                                                     <p className="text-[8px] font-bold text-muted-foreground/40 uppercase">Do you speak Chhattisgarhi?</p>
                                                 </div>
-                                                <Switch 
-                                                    checked={formData.speaksChhattisgarhi ?? true} 
-                                                    onCheckedChange={(checked) => setFormData({ ...formData, speaksChhattisgarhi: checked })} 
+                                                <Switch
+                                                    checked={formData.speaksChhattisgarhi ?? true}
+                                                    onCheckedChange={(checked) => setFormData({ ...formData, speaksChhattisgarhi: checked })}
                                                 />
                                             </div>
                                         </div>
@@ -643,49 +634,43 @@ export default function ProfilePage() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Highest Education</Label>
-                                                <Input 
-                                                    value={formData.highestEducation || ""} 
+                                                <Input
+                                                    value={formData.highestEducation || ""}
                                                     onChange={(e) => setFormData({ ...formData, highestEducation: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Occupation</Label>
-                                                <Input 
-                                                    value={formData.occupation || ""} 
+                                                <Input
+                                                    value={formData.occupation || ""}
                                                     onChange={(e) => setFormData({ ...formData, occupation: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Annual Income</Label>
-                                                <Select value={(formData.annualIncome as string) || ""} onValueChange={(value) => setFormData({ ...formData, annualIncome: value })}>
-                                                    <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
-                                                        <SelectValue placeholder="Select annual income" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {ANNUAL_INCOME_OPTIONS.map((option) => (
-                                                            <SelectItem key={option} value={option}>
-                                                                {option}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
+                                                <Input
+                                                    value={(formData.annualIncome as string) || ""}
+                                                    onChange={(e) => setFormData({ ...formData, annualIncome: e.target.value })}
+                                                    placeholder="e.g. 5 LPA, 8-10 LPA, ₹12,00,000 per year"
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
+                                                />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Designation</Label>
-                                                <Input 
-                                                    value={formData.designation || ""} 
+                                                <Input
+                                                    value={formData.designation || ""}
                                                     onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3 md:col-span-2">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Education Details</Label>
-                                                <Textarea 
-                                                    value={formData.educationDetails || ""} 
+                                                <Textarea
+                                                    value={formData.educationDetails || ""}
                                                     onChange={(e) => setFormData({ ...formData, educationDetails: e.target.value })}
-                                                    placeholder="Degree, specialization, institution, certifications..." 
+                                                    placeholder="Degree, specialization, institution, certifications..."
                                                     className="min-h-[120px] bg-white/5 border-white/10 rounded-2xl p-5 font-medium leading-relaxed"
                                                 />
                                             </div>
@@ -697,65 +682,65 @@ export default function ProfilePage() {
                                     <motion.div key="location" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <div className="space-y-3">
-                                                <Label 
+                                                <Label
                                                     className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 transition-colors ${errors.city ? 'text-red-500' : 'text-muted-foreground'}`}
                                                 >
                                                     City {errors.city && "— Required"}
                                                 </Label>
-                                                <Input 
-                                                    value={formData.city || ""} 
+                                                <Input
+                                                    value={formData.city || ""}
                                                     onChange={(e) => {
                                                         setFormData({ ...formData, city: e.target.value });
                                                         if (errors.city) setErrors({...errors, city: ""});
                                                     }}
-                                                    className={`h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.city ? 'border-red-500/50 bg-red-500/5' : ''}`} 
+                                                    className={`h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.city ? 'border-red-500/50 bg-red-500/5' : ''}`}
                                                 />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label 
+                                                <Label
                                                     className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 transition-colors ${errors.state ? 'text-red-500' : 'text-muted-foreground'}`}
                                                 >
                                                     State {errors.state && "— Required"}
                                                 </Label>
-                                                <Input 
-                                                    value={formData.state || ""} 
+                                                <Input
+                                                    value={formData.state || ""}
                                                     onChange={(e) => {
                                                         setFormData({ ...formData, state: e.target.value });
                                                         if (errors.state) setErrors({...errors, state: ""});
                                                     }}
-                                                    className={`h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.state ? 'border-red-500/50 bg-red-500/5' : ''}`} 
+                                                    className={`h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.state ? 'border-red-500/50 bg-red-500/5' : ''}`}
                                                 />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Country</Label>
-                                                <Input 
-                                                    value={formData.country || ""} 
+                                                <Input
+                                                    value={formData.country || ""}
                                                     onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Native Village</Label>
-                                                <Input 
-                                                    value={formData.nativeVillage || ""} 
+                                                <Input
+                                                    value={formData.nativeVillage || ""}
                                                     onChange={(e) => setFormData({ ...formData, nativeVillage: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Work Location</Label>
-                                                <Input 
-                                                    value={formData.workLocation || ""} 
+                                                <Input
+                                                    value={formData.workLocation || ""}
                                                     onChange={(e) => setFormData({ ...formData, workLocation: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Residency Status</Label>
-                                                <Input 
-                                                    value={formData.residencyStatus || ""} 
+                                                <Input
+                                                    value={formData.residencyStatus || ""}
                                                     onChange={(e) => setFormData({ ...formData, residencyStatus: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
                                                 />
                                             </div>
                                         </div>
@@ -766,8 +751,8 @@ export default function ProfilePage() {
                                     <motion.div key="about" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                                         <div className="space-y-4">
                                             <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Bio / About Me</Label>
-                                            <Textarea 
-                                                placeholder="Describe yourself, your interests and what you are looking for in a partner..." 
+                                            <Textarea
+                                                placeholder="Describe yourself, your interests and what you are looking for in a partner..."
                                                 className="min-h-[200px] bg-white/5 border-white/10 rounded-2xl p-6 text-lg font-medium leading-relaxed"
                                                 value={formData.bio || ""}
                                                 onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
@@ -777,32 +762,32 @@ export default function ProfilePage() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <div className="space-y-4">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Hobbies</Label>
-                                                <Input 
-                                                    value={formData.hobbies || ""} 
+                                                <Input
+                                                    value={formData.hobbies || ""}
                                                     onChange={(e) => setFormData({ ...formData, hobbies: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-4">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Interests</Label>
-                                                <Input 
-                                                    value={formData.interests || ""} 
+                                                <Input
+                                                    value={formData.interests || ""}
                                                     onChange={(e) => setFormData({ ...formData, interests: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl" 
+                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-4 md:col-span-2">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">About Family</Label>
-                                                <Textarea 
-                                                    value={formData.aboutFamily || ""} 
+                                                <Textarea
+                                                    value={formData.aboutFamily || ""}
                                                     onChange={(e) => setFormData({ ...formData, aboutFamily: e.target.value })}
                                                     className="min-h-[120px] bg-white/5 border-white/10 rounded-2xl p-5 font-medium leading-relaxed"
                                                 />
                                             </div>
                                             <div className="space-y-4 md:col-span-2">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Partner Expectations</Label>
-                                                <Textarea 
-                                                    value={formData.partnerExpectations || ""} 
+                                                <Textarea
+                                                    value={formData.partnerExpectations || ""}
                                                     onChange={(e) => setFormData({ ...formData, partnerExpectations: e.target.value })}
                                                     className="min-h-[120px] bg-white/5 border-white/10 rounded-2xl p-5 font-medium leading-relaxed"
                                                 />
@@ -818,7 +803,7 @@ export default function ProfilePage() {
                                             {media.map((item, idx) => (
                                                 <div key={item.id || idx} className="relative group aspect-square rounded-[1.5rem] overflow-hidden border-2 border-primary/20 bg-background/50">
                                                     <img src={item.url} alt={String(formData.firstName || 'Profile Photo')} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-                                                    
+
                                                     {/* Privacy Controls overlay */}
                                                     <div className="absolute top-2 left-2 flex gap-1">
                                                         <DropdownMenu>
@@ -842,7 +827,7 @@ export default function ProfilePage() {
                                                                     <Lock className="w-4 h-4 mr-2 text-amber-400" /> Private
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuSeparator className="bg-white/5" />
-                                                                <DropdownMenuCheckboxItem 
+                                                                <DropdownMenuCheckboxItem
                                                                     checked={item.privacySettings?.blurForNonPremium}
                                                                     onCheckedChange={(checked) => updatePrivacy.mutate({ mediaId: item.id, data: { blurForNonPremium: checked } })}
                                                                 >
@@ -852,13 +837,13 @@ export default function ProfilePage() {
                                                         </DropdownMenu>
                                                     </div>
 
-                                                    <button 
+                                                    <button
                                                         onClick={() => deletePhoto.mutate(item.id)}
                                                         className="absolute top-2 right-2 w-8 h-8 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 hover:bg-destructive transition-all"
                                                     >
                                                         {deletePhoto.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                                                     </button>
-                                                    
+
                                                     {/* Privacy Indicator */}
                                                     <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/40 backdrop-blur-md rounded-lg flex items-center gap-1.5 border border-white/5">
                                                         {item.privacySettings?.visibility === 'PRIVATE' ? <Lock className="w-2.5 h-2.5 text-amber-400" /> :
@@ -879,7 +864,7 @@ export default function ProfilePage() {
                                             ))}
 
                                             {/* Add Photo Slot */}
-                                            <button 
+                                            <button
                                                 onClick={() => fileInputRef.current?.click()}
                                                 disabled={uploadPhotos.isPending}
                                                 className="aspect-square rounded-[1.5rem] bg-white/5 border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-3 hover:bg-white/10 transition-all hover:border-primary/40 group overflow-hidden"
@@ -894,13 +879,13 @@ export default function ProfilePage() {
                                                         <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Add Photo</span>
                                                     </>
                                                 )}
-                                                <input 
-                                                    type="file" 
-                                                    ref={fileInputRef} 
-                                                    className="hidden" 
-                                                    accept="image/*" 
-                                                    multiple 
-                                                    onChange={handleFileChange} 
+                                                <input
+                                                    type="file"
+                                                    ref={fileInputRef}
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                    multiple
+                                                    onChange={handleFileChange}
                                                 />
                                             </button>
                                         </div>
@@ -1101,7 +1086,7 @@ export default function ProfilePage() {
                                                     <div className="flex items-center gap-4">
                                                         <div className="flex-1 space-y-2">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest text-center">Min Age</p>
-                                                            <Input 
+                                                            <Input
                                                                 type="number"
                                                                 value={prefFormData.minAge || ""}
                                                                 onChange={(e) => setPrefFormData({ ...prefFormData, minAge: e.target.value ? parseInt(e.target.value) : undefined })}
@@ -1111,7 +1096,7 @@ export default function ProfilePage() {
                                                         <div className="w-4 h-0.5 bg-white/10 mt-6" />
                                                         <div className="flex-1 space-y-2">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest text-center">Max Age</p>
-                                                            <Input 
+                                                            <Input
                                                                 type="number"
                                                                 value={prefFormData.maxAge || ""}
                                                                 onChange={(e) => setPrefFormData({ ...prefFormData, maxAge: e.target.value ? parseInt(e.target.value) : undefined })}
@@ -1126,7 +1111,7 @@ export default function ProfilePage() {
                                                     <div className="flex items-center gap-4">
                                                         <div className="flex-1 space-y-2">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest text-center">Min Height</p>
-                                                            <Input 
+                                                            <Input
                                                                 type="number"
                                                                 value={prefFormData.minHeight || ""}
                                                                 onChange={(e) => setPrefFormData({ ...prefFormData, minHeight: e.target.value ? parseInt(e.target.value) : undefined })}
@@ -1136,7 +1121,7 @@ export default function ProfilePage() {
                                                         <div className="w-4 h-0.5 bg-white/10 mt-6" />
                                                         <div className="flex-1 space-y-2">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest text-center">Max Height</p>
-                                                            <Input 
+                                                            <Input
                                                                 type="number"
                                                                 value={prefFormData.maxHeight || ""}
                                                                 onChange={(e) => setPrefFormData({ ...prefFormData, maxHeight: e.target.value ? parseInt(e.target.value) : undefined })}
@@ -1151,8 +1136,8 @@ export default function ProfilePage() {
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                 <div className="space-y-3">
                                                     <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Marital Status</Label>
-                                                    <Select 
-                                                        value={prefFormData.maritalStatus?.[0] || ""} 
+                                                    <Select
+                                                        value={prefFormData.maritalStatus?.[0] || ""}
                                                         onValueChange={(val) => setPrefFormData({ ...prefFormData, maritalStatus: [val] })}
                                                     >
                                                         <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
@@ -1167,8 +1152,8 @@ export default function ProfilePage() {
                                                 </div>
                                                 <div className="space-y-3">
                                                     <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Religion</Label>
-                                                    <Select 
-                                                        value={prefFormData.religion?.[0] || ""} 
+                                                    <Select
+                                                        value={prefFormData.religion?.[0] || ""}
                                                         onValueChange={(val) => setPrefFormData({ ...prefFormData, religion: [val] })}
                                                     >
                                                         <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
@@ -1185,12 +1170,12 @@ export default function ProfilePage() {
 
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Caste(s)</Label>
-                                                <Input 
-                                                    placeholder="Enter preferred castes (comma separated)" 
+                                                <Input
+                                                    placeholder="Enter preferred castes (comma separated)"
                                                     value={Array.isArray(prefFormData.caste) ? prefFormData.caste.join(", ") : ""}
-                                                    onChange={(e) => setPrefFormData({ 
-                                                        ...prefFormData, 
-                                                        caste: e.target.value.split(",").map(c => c.trim()).filter(Boolean) 
+                                                    onChange={(e) => setPrefFormData({
+                                                        ...prefFormData,
+                                                        caste: e.target.value.split(",").map(c => c.trim()).filter(Boolean)
                                                     })}
                                                     className="h-14 bg-white/5 border-white/10 rounded-xl"
                                                 />
@@ -1198,7 +1183,7 @@ export default function ProfilePage() {
 
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Manglik Status</Label>
-                                                <Select 
+                                                <Select
                                                     value={typeof prefFormData.manglik === "boolean" ? String(prefFormData.manglik) : "any"}
                                                     onValueChange={(val) => setPrefFormData({ ...prefFormData, manglik: val === "any" ? null : val === "true" })}
                                                 >
@@ -1220,7 +1205,7 @@ export default function ProfilePage() {
                                                         <Label className="text-sm font-black uppercase tracking-widest text-foreground">Open to Inter-caste?</Label>
                                                         <p className="text-[10px] text-muted-foreground font-medium">Show profiles from other castes if they match your criteria.</p>
                                                     </div>
-                                                    <Switch 
+                                                    <Switch
                                                         checked={prefFormData.intercasteAllowed || false}
                                                         onCheckedChange={(val) => setPrefFormData({ ...prefFormData, intercasteAllowed: val })}
                                                     />
@@ -1231,7 +1216,7 @@ export default function ProfilePage() {
                                                         <Label className="text-sm font-black uppercase tracking-widest text-foreground">Strict Gothra Filter?</Label>
                                                         <p className="text-[10px] text-muted-foreground font-medium">Automatically avoid profiles with the same Gothra as yours.</p>
                                                     </div>
-                                                    <Switch 
+                                                    <Switch
                                                         checked={prefFormData.gothraMandatory || false}
                                                         onCheckedChange={(val) => setPrefFormData({ ...prefFormData, gothraMandatory: val })}
                                                     />
@@ -1242,7 +1227,7 @@ export default function ProfilePage() {
                                                         <Label className="text-sm font-black uppercase tracking-widest text-foreground">Must Speak Chhattisgarhi?</Label>
                                                         <p className="text-[10px] text-muted-foreground font-medium">Only show me partners who are fluent in Chhattisgarhi.</p>
                                                     </div>
-                                                    <Switch 
+                                                    <Switch
                                                         checked={prefFormData.mustSpeakChhattisgarhi || false}
                                                         onCheckedChange={(val) => setPrefFormData({ ...prefFormData, mustSpeakChhattisgarhi: val })}
                                                     />
@@ -1253,8 +1238,8 @@ export default function ProfilePage() {
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
                                                 <div className="space-y-3">
                                                     <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Preferred Smoking Habit</Label>
-                                                    <Select 
-                                                        value={prefFormData.smoking || "any"} 
+                                                    <Select
+                                                        value={prefFormData.smoking || "any"}
                                                         onValueChange={(val) => setPrefFormData({ ...prefFormData, smoking: val === "any" ? null : val })}
                                                     >
                                                         <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
@@ -1267,8 +1252,8 @@ export default function ProfilePage() {
                                                 </div>
                                                 <div className="space-y-3">
                                                     <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Preferred Drinking Habit</Label>
-                                                    <Select 
-                                                        value={prefFormData.drinking || "any"} 
+                                                    <Select
+                                                        value={prefFormData.drinking || "any"}
                                                         onValueChange={(val) => setPrefFormData({ ...prefFormData, drinking: val === "any" ? null : val })}
                                                     >
                                                         <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
@@ -1289,7 +1274,7 @@ export default function ProfilePage() {
                                             <div>
                                                 <h4 className="font-black text-sm uppercase tracking-widest text-blue-500">Matching Algorithm</h4>
                                                 <p className="text-xs text-muted-foreground font-medium mt-1 leading-relaxed">
-                                                    Updating these preferences will instantly refresh your match recommendations. 
+                                                    Updating these preferences will instantly refresh your match recommendations.
                                                     We use these criteria to calculate compatibility scores for every profile you view.
                                                 </p>
                                             </div>
@@ -1310,10 +1295,10 @@ export default function ProfilePage() {
                                 <p className="font-black text-sm uppercase tracking-widest text-foreground">Profile Completeness: {completion?.percentage || 0}%</p>
                             </div>
                             <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                                <motion.div 
+                                <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${completion?.percentage || 0}%` }}
-                                    className="h-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)]" 
+                                    className="h-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)]"
                                 />
                             </div>
                             {completion?.missingFields?.length > 0 && (

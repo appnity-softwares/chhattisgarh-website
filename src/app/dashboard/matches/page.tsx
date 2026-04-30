@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { useMatches } from "@/hooks/use-matches";
 import Link from "next/link";
 import { MatchRequest } from "@/types/api.types";
+import { calculateAge, formatProfileName } from "@/lib/display-format";
 
 function MatchCard({ match, type, onAccept, onReject, onCancel, isAccepting, isRejecting, isCancelling }: {
     match: MatchRequest;
@@ -35,11 +36,8 @@ function MatchCard({ match, type, onAccept, onReject, onCancel, isAccepting, isR
     const profile = (user?.profile || {}) as any;
     const userId = user?.id;
 
-    const [now] = useState(() => Date.now());
-    const name = `${profile.firstName || 'User'} ${profile.lastName || ''}`.trim();
-    const age = profile.age || (profile.dateOfBirth 
-        ? Math.floor((now - new Date(profile.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) 
-        : null);
+    const name = formatProfileName({ ...profile, id: userId });
+    const age = profile.age || calculateAge(profile.dateOfBirth);
 
     const statusBadge = (
         <Badge className={`font-black text-[8px] uppercase tracking-widest border px-3 py-1 shadow-lg ${
@@ -110,9 +108,9 @@ function MatchCard({ match, type, onAccept, onReject, onCancel, isAccepting, isR
                 id={userId || ''}
                 name={name}
                 age={age || 0}
-                city={profile.city || ''}
-                occupation={profile.occupation || ''}
-                gender={(profile.gender?.toLowerCase() as any) || 'female'}
+                city={profile.city}
+                occupation={profile.occupation}
+                gender={profile.gender?.toLowerCase() as any}
                 isVerified={profile.isVerified}
                 image={profile.media?.[0]?.url || user?.profilePicture}
                 statusBadge={statusBadge}

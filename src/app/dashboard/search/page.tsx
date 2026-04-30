@@ -1,9 +1,9 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-    Search as SearchIcon, 
-    SlidersHorizontal, 
+import {
+    Search as SearchIcon,
+    SlidersHorizontal,
     Loader2,
     ChevronDown,
     X,
@@ -16,17 +16,18 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { ProfileCard } from "@/components/profile/profile-card";
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useState, useEffect } from "react";
 import { useInfiniteProfiles } from "@/hooks/use-infinite-profiles";
 import { useUserAccess } from "@/hooks/use-user-access";
+import { formatProfileName } from "@/lib/display-format";
 
 export default function SearchPage() {
     const { data: access } = useUserAccess();
@@ -34,7 +35,7 @@ export default function SearchPage() {
     const [isSearching, setIsSearching] = useState(false);
     const [showFilters, setShowFilters] = useState(true);
     const [ageRange, setAgeRange] = useState([18, 50]);
-    
+
     // Filter states
     const [filters, setFilters] = useState({
         religion: 'any',
@@ -54,11 +55,11 @@ export default function SearchPage() {
     const [heightRange, setHeightRange] = useState([120, 210]);
 
     // Use our hook with all filters
-    const { 
-        data, 
-        fetchNextPage, 
-        hasNextPage, 
-        isFetchingNextPage, 
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
         isLoading,
         refetch
     } = useInfiniteProfiles({
@@ -149,9 +150,9 @@ export default function SearchPage() {
                         </h1>
                         <p className="text-muted-foreground font-bold text-[10px] uppercase tracking-widest opacity-60">Search name, city or id with precision</p>
                     </div>
-                    <Button 
+                    <Button
                         onClick={() => setShowFilters(!showFilters)}
-                        variant="ghost" 
+                        variant="ghost"
                         size="sm"
                         className={`h-9 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] gap-2 border border-white/5 ${showFilters ? 'bg-primary/10 text-primary' : 'bg-white/5 text-muted-foreground'}`}
                     >
@@ -162,8 +163,8 @@ export default function SearchPage() {
 
                 <div className="relative group">
                     <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/50 group-focus-within:text-primary transition-all" />
-                    <Input 
-                        placeholder="Search by name, city or keyword..." 
+                    <Input
+                        placeholder="Search by name, city or keyword..."
                         className="h-12 pl-12 pr-6 bg-white/5 border-white/5 rounded-xl text-sm font-bold focus:ring-primary/20 transition-all border-t border-l border-white/10"
                         value={searchQuery}
                         onChange={(e) => {
@@ -190,7 +191,7 @@ export default function SearchPage() {
                 {/* Advanced Filters Sidebar - Compact version */}
                 <AnimatePresence>
                     {showFilters && (
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -10 }}
@@ -209,11 +210,11 @@ export default function SearchPage() {
                                             <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Age range</Label>
                                             <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-md">{ageRange[0]} - {ageRange[1]}</span>
                                         </div>
-                                        <Slider 
+                                        <Slider
                                             value={ageRange}
-                                            max={65} 
-                                            min={18} 
-                                            step={1} 
+                                            max={65}
+                                            min={18}
+                                            step={1}
                                             onValueChange={(val) => handleAgeRangeChange(val)}
                                             className="py-2"
                                         />
@@ -225,11 +226,11 @@ export default function SearchPage() {
                                             <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Height range (cm)</Label>
                                             <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-md">{heightRange[0]} - {heightRange[1]}</span>
                                         </div>
-                                        <Slider 
+                                        <Slider
                                             value={heightRange}
-                                            max={210} 
-                                            min={120} 
-                                            step={1} 
+                                            max={210}
+                                            min={120}
+                                            step={1}
                                             onValueChange={(val) => setHeightRange(val)}
                                             className="py-2"
                                         />
@@ -383,8 +384,8 @@ export default function SearchPage() {
                                         </Select>
 
                                         {/* Occupation Filter */}
-                                        <Select 
-                                            value={filters.occupation || "all"} 
+                                        <Select
+                                            value={filters.occupation || "all"}
                                             onValueChange={(val) => handleFilterChange('occupation', val === 'all' ? '' : val)}
                                         >
                                             <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl text-xs font-bold focus:ring-primary/20">
@@ -401,8 +402,8 @@ export default function SearchPage() {
                                             </SelectContent>
                                         </Select>
 
-                                        <Input 
-                                            placeholder="Location/City..." 
+                                        <Input
+                                            placeholder="Location/City..."
                                             className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs"
                                             value={filters.location}
                                             onChange={(e) => handleFilterChange('location', e.target.value)}
@@ -410,8 +411,8 @@ export default function SearchPage() {
                                     </div>
 
                                     <div className="flex gap-2 pt-2">
-                                        <Button 
-                                            variant="ghost" 
+                                        <Button
+                                            variant="ghost"
                                             onClick={clearFilters}
                                             className="h-10 w-10 p-0 rounded-xl hover:bg-white/5 text-muted-foreground border border-white/5"
                                             title="Clear all filters"
@@ -456,7 +457,7 @@ export default function SearchPage() {
                             {isLoading ? (
                                 [1,2,3,4,5,6].map(i => <div key={i} className="aspect-[4/5] bg-white/5 rounded-[1.5rem] animate-pulse border border-white/5" />)
                             ) : profiles.length === 0 ? (
-                                <motion.div 
+                                <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     className="col-span-full py-24 flex flex-col justify-center items-center text-muted-foreground"
@@ -468,19 +469,19 @@ export default function SearchPage() {
                                     <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">Try adjusting your filters or location</p>
                                 </motion.div>
                             ) : profiles.map((profile, i) => (
-                                <motion.div 
-                                    key={profile.id} 
+                                <motion.div
+                                    key={profile.id}
                                     layout
-                                    initial={{ opacity: 0, scale: 0.95 }} 
-                                    animate={{ opacity: 1, scale: 1 }} 
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.9, y: 20 }}
                                     transition={{ duration: 0.4, ease: "easeInOut" }}
                                 >
-                                    <ProfileCard 
+                                    <ProfileCard
                                         {...profile}
-                                        name={`${profile.firstName} ${profile.lastName}`} 
+                                        name={formatProfileName(profile)}
                                         id={profile.id}
-                                        media={profile.media} 
+                                        media={profile.media}
                                         gender={profile.gender?.toLowerCase() as any}
                                         canChat={access?.isPremium}
                                         onActionSuccess={handleActionSuccess}
@@ -493,8 +494,8 @@ export default function SearchPage() {
                     {/* Infinite Pagination */}
                     {hasNextPage && (
                         <div className="flex flex-col items-center py-6 space-y-4">
-                            <Button 
-                                variant="ghost" 
+                            <Button
+                                variant="ghost"
                                 onClick={() => fetchNextPage()}
                                 disabled={isFetchingNextPage}
                                 className="h-11 px-8 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase tracking-[0.3em] text-primary group transition-all w-full max-w-sm"
@@ -515,4 +516,3 @@ export default function SearchPage() {
         </div>
     );
 }
-

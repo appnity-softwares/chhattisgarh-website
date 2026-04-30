@@ -30,6 +30,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useRouter } from 'next/navigation';
+import { formatProfileName } from "@/lib/display-format";
 function StatusBadge({ user }: { user: User }) {
   if (user.isBanned) {
     return (
@@ -76,12 +77,10 @@ function MatchStatusBadge({ user }: { user: User }) {
     );
   }
 
-  const isMatchReady = 
-    user.isActive && 
-    !user.isBanned && 
-    profile.isPublished && 
-    profile.isVerified && 
-    (profile.profileCompleteness || 0) >= 70;
+  const isMatchReady =
+    user.isActive &&
+    !user.isBanned &&
+    profile.isPublished;
 
   if (isMatchReady) {
     return (
@@ -90,13 +89,6 @@ function MatchStatusBadge({ user }: { user: User }) {
       </span>
     );
   }
-
-  const reasons = [];
-  if (!user.isActive) reasons.push("Account Inactive");
-  if (user.isBanned) reasons.push("Account Banned");
-  if (!profile.isPublished) reasons.push("Not Published");
-  if (!profile.isVerified) reasons.push("Not Verified");
-  if ((profile.profileCompleteness || 0) < 70) reasons.push(`Incomplete (${profile.profileCompleteness || 0}%)`);
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -119,12 +111,8 @@ function MatchStatusBadge({ user }: { user: User }) {
                 <span>Profile Published</span>
               </li>
               <li className="flex items-center gap-1.5">
-                {profile.isVerified ? <CheckCircle className="w-3 h-3 text-emerald-400" /> : <X className="w-3 h-3 text-rose-400" />}
-                <span>Profile Verified</span>
-              </li>
-              <li className="flex items-center gap-1.5">
-                {(profile.profileCompleteness || 0) >= 70 ? <CheckCircle className="w-3 h-3 text-emerald-400" /> : <X className="w-3 h-3 text-rose-400" />}
-                <span>Completeness &ge; 70% ({profile.profileCompleteness || 0}%)</span>
+                <CheckCircle className="w-3 h-3 text-emerald-400" />
+                <span>Completion not required for browsing ({profile.profileCompleteness || 0}%)</span>
               </li>
             </ul>
           </div>
@@ -191,13 +179,12 @@ export default function AdminUsersPage() {
   });
 
   const handleCreateUser = async () => {
-    // Check for the 6 "needed" fields identified by the admin
+    // Keep this to fields required by the current database schema/admin login flow.
     const requiredFields = {
       phone: newUserData.phone,
       firstName: newUserData.firstName,
       gender: newUserData.gender,
       dateOfBirth: newUserData.dateOfBirth,
-      caste: newUserData.caste,
       city: newUserData.city
     };
 
@@ -206,10 +193,10 @@ export default function AdminUsersPage() {
       .map(([key]) => key);
 
     if (missingFields.length > 0) {
-      toast({ 
-        variant: 'destructive', 
-        title: 'Missing Required Fields', 
-        description: `Please provide: ${missingFields.join(', ')}` 
+      toast({
+        variant: 'destructive',
+        title: 'Missing Required Fields',
+        description: `Please provide: ${missingFields.join(', ')}`
       });
       return;
     }
@@ -264,7 +251,7 @@ export default function AdminUsersPage() {
       (statusFilter === 'inactive' && !user.isActive) ||
       (statusFilter === 'banned' && user.isBanned);
     const match = matchFilter === 'all' || (() => {
-      const isMatchReady = user.profile && user.isActive && !user.isBanned && user.profile.isPublished && user.profile.isVerified && (user.profile.profileCompleteness || 0) >= 70;
+      const isMatchReady = user.profile && user.isActive && !user.isBanned && user.profile.isPublished;
       return (matchFilter === 'listed' && isMatchReady) || (matchFilter === 'not_listed' && !isMatchReady);
     })();
     return search && role && status && match;
@@ -314,7 +301,7 @@ export default function AdminUsersPage() {
 
   const handleDeleteUser = async () => {
     if (!userToDelete) return;
-    
+
     try {
       await adminService.banUser(userToDelete.id.toString(), banReason);
       toast({ title: 'User Restricted', description: 'User has been banned instead of deleted to preserve records' });
@@ -329,7 +316,7 @@ export default function AdminUsersPage() {
 
   const handlePermanentDeleteUser = async () => {
     if (!userToPermanentlyDelete) return;
-    
+
     try {
       await adminService.deleteUserAccount(userToPermanentlyDelete.id.toString());
       toast({ title: 'User Permanently Removed', description: 'All associated data has been deleted.' });
@@ -462,9 +449,9 @@ export default function AdminUsersPage() {
     setIsUploading(true);
     try {
       const res = await adminService.bulkUploadUsers(selectedFile);
-      toast({ 
-        title: 'Upload Sequential', 
-        description: `Successfully uploaded ${res.success} users. ${res.failed} failed.` 
+      toast({
+        title: 'Upload Sequential',
+        description: `Successfully uploaded ${res.success} users. ${res.failed} failed.`
       });
       setIsBulkUploadOpen(false);
       setSelectedFile(null);
@@ -491,10 +478,10 @@ export default function AdminUsersPage() {
   const exportToCSV = () => {
     const headers = ['ID', 'Email', 'Name', 'Role', 'Status', 'Match Listing', 'Joined'];
     const rows = filteredUsers.map(u => {
-      const isMatchReady = u.profile && u.isActive && !u.isBanned && u.profile.isPublished && u.profile.isVerified && (u.profile.profileCompleteness || 0) >= 70;
+      const isMatchReady = u.profile && u.isActive && !u.isBanned && u.profile.isPublished;
       return [
         u.id, u.email,
-        `${u.profile?.firstName || ''} ${u.profile?.lastName || ''}`.trim() || 'N/A',
+        u.profile ? formatProfileName(u.profile) : 'Profile',
         u.role, u.isBanned ? 'Banned' : u.isActive ? 'Active' : 'Inactive',
         isMatchReady ? 'Listed' : 'Not Listed',
         new Date(u.createdAt).toLocaleDateString(),
@@ -728,7 +715,7 @@ export default function AdminUsersPage() {
                             onClick={() => router.push(`/admin/users/${user.id}`)}
                             className="text-sm font-medium text-white hover:text-purple-300 transition-colors text-left"
                           >
-                            {user.profile ? `${user.profile.firstName} ${user.profile.lastName}` : 'No profile'}
+                            {user.profile ? formatProfileName(user.profile) : 'Profile'}
                           </button>
                           <div className="text-xs text-muted-foreground truncate max-w-[200px]">{user.email}</div>
                         </div>
@@ -884,9 +871,9 @@ export default function AdminUsersPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isBulkProcessing} className="bg-white/10 border-white/10 text-white hover:bg-white/15 border-none">Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleBulkPermanentDelete} 
-              disabled={isBulkProcessing} 
+            <AlertDialogAction
+              onClick={handleBulkPermanentDelete}
+              disabled={isBulkProcessing}
               className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/20"
             >
               {isBulkProcessing ? 'Deleting...' : `Yes, Delete ${selectedUsers.size} Users Permanently`}
@@ -903,14 +890,14 @@ export default function AdminUsersPage() {
               <AlertTriangle className="w-6 h-6 animate-pulse" /> Permanent Account Deletion
             </AlertDialogTitle>
             <AlertDialogDescription className="text-rose-200/60 font-bold">
-              You are about to permanently delete <strong className="text-white">{userToPermanentlyDelete?.email}</strong>. 
+              You are about to permanently delete <strong className="text-white">{userToPermanentlyDelete?.email}</strong>.
               This will remove everything associated with this user from the production database forever.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-white/10 border-white/10 text-white hover:bg-white/15 border-none">Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handlePermanentDeleteUser} 
+            <AlertDialogAction
+              onClick={handlePermanentDeleteUser}
               className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/20"
             >
               Permanently Remove User
@@ -927,15 +914,15 @@ export default function AdminUsersPage() {
               <Upload className="w-5 h-5 text-purple-400" /> Bulk User Upload
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Upload an Excel (.xlsx) or CSV file containing user data. 
+              Upload an Excel (.xlsx) or CSV file containing user data.
               The file should include email, phone, firstName, and lastName.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="py-4 space-y-4">
             <div className="border-2 border-dashed border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center gap-3 bg-white/[0.02] hover:bg-white/[0.04] transition-all cursor-pointer relative">
-              <input 
-                type="file" 
-                accept=".xlsx,.csv" 
+              <input
+                type="file"
+                accept=".xlsx,.csv"
                 onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
                 className="absolute inset-0 opacity-0 cursor-pointer"
               />
@@ -953,8 +940,8 @@ export default function AdminUsersPage() {
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-white/10 border-white/10 text-white hover:bg-white/15">Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={(e) => { e.preventDefault(); handleBulkUpload(); }} 
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleBulkUpload(); }}
               disabled={!selectedFile || isUploading}
               className="bg-purple-600 hover:bg-purple-700 text-white"
             >
@@ -993,7 +980,7 @@ export default function AdminUsersPage() {
               <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Duration (Days)</label>
               <div className="flex gap-2">
                 {[30, 90, 180, 365].map(days => (
-                  <button 
+                  <button
                     key={days}
                     onClick={() => setSubData({ ...subData, customDays: days })}
                     className={`flex-1 py-2 rounded-lg text-[10px] font-bold uppercase transition-all border ${subData.customDays === days ? 'bg-amber-500/20 border-amber-500/40 text-amber-400' : 'bg-white/5 border-white/10 text-muted-foreground hover:text-white'}`}
@@ -1006,8 +993,8 @@ export default function AdminUsersPage() {
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-white/10 border-white/10 text-white hover:bg-white/15">Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={(e) => { e.preventDefault(); handleGrantSubscription(); }} 
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleGrantSubscription(); }}
               className="bg-amber-600 hover:bg-amber-700 text-white"
             >
               Confirm Membership
@@ -1027,7 +1014,7 @@ export default function AdminUsersPage() {
               Create a new user account and their basic profile details.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          
+
           <div className="flex-1 overflow-y-auto py-6 px-1 space-y-8 no-scrollbar">
             {/* Account Information */}
             <div className="space-y-4">
@@ -1036,13 +1023,13 @@ export default function AdminUsersPage() {
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Phone Number *</label>
                   <div className="flex gap-2">
-                    <input 
+                    <input
                       value={newUserData.countryCode}
                       onChange={(e) => setNewUserData({...newUserData, countryCode: e.target.value})}
                       className="w-16 h-11 bg-white/5 border border-white/10 rounded-xl px-3 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
                       placeholder="+91"
                     />
-                    <input 
+                    <input
                       value={newUserData.phone}
                       onChange={(e) => setNewUserData({...newUserData, phone: e.target.value})}
                       className="flex-1 h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
@@ -1052,7 +1039,7 @@ export default function AdminUsersPage() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Email Address (Optional)</label>
-                  <input 
+                  <input
                     value={newUserData.email}
                     onChange={(e) => setNewUserData({...newUserData, email: e.target.value})}
                     className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
@@ -1068,7 +1055,7 @@ export default function AdminUsersPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">First Name *</label>
-                  <input 
+                  <input
                     value={newUserData.firstName}
                     onChange={(e) => setNewUserData({...newUserData, firstName: e.target.value})}
                     className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
@@ -1076,8 +1063,8 @@ export default function AdminUsersPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Last Name *</label>
-                  <input 
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Last Name</label>
+                  <input
                     value={newUserData.lastName}
                     onChange={(e) => setNewUserData({...newUserData, lastName: e.target.value})}
                     className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
@@ -1099,7 +1086,7 @@ export default function AdminUsersPage() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Date of Birth *</label>
-                  <input 
+                  <input
                     type="date"
                     value={newUserData.dateOfBirth}
                     onChange={(e) => setNewUserData({...newUserData, dateOfBirth: e.target.value})}
@@ -1160,7 +1147,7 @@ export default function AdminUsersPage() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Caste / Sub-Caste (Optional)</label>
-                  <input 
+                  <input
                     value={newUserData.caste}
                     onChange={(e) => setNewUserData({...newUserData, caste: e.target.value})}
                     className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
@@ -1169,7 +1156,7 @@ export default function AdminUsersPage() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Native Village (Optional)</label>
-                  <input 
+                  <input
                     value={newUserData.nativeVillage}
                     onChange={(e) => setNewUserData({...newUserData, nativeVillage: e.target.value})}
                     className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
@@ -1178,7 +1165,7 @@ export default function AdminUsersPage() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">City *</label>
-                  <input 
+                  <input
                     value={newUserData.city}
                     onChange={(e) => setNewUserData({...newUserData, city: e.target.value})}
                     className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
@@ -1187,7 +1174,7 @@ export default function AdminUsersPage() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">State</label>
-                  <input 
+                  <input
                     value={newUserData.state}
                     onChange={(e) => setNewUserData({...newUserData, state: e.target.value})}
                     className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
@@ -1195,7 +1182,7 @@ export default function AdminUsersPage() {
                   />
                 </div>
                 <div className="flex items-center gap-3 pt-6 px-1">
-                   <Checkbox 
+                   <Checkbox
                      checked={newUserData.speaksChhattisgarhi}
                      onCheckedChange={(checked) => setNewUserData({...newUserData, speaksChhattisgarhi: !!checked})}
                      className="border-white/20"
@@ -1211,7 +1198,7 @@ export default function AdminUsersPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Highest Education</label>
-                  <input 
+                  <input
                     value={newUserData.highestEducation}
                     onChange={(e) => setNewUserData({...newUserData, highestEducation: e.target.value})}
                     className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
@@ -1220,7 +1207,7 @@ export default function AdminUsersPage() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Occupation</label>
-                  <input 
+                  <input
                     value={newUserData.occupation}
                     onChange={(e) => setNewUserData({...newUserData, occupation: e.target.value})}
                     className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
@@ -1229,20 +1216,15 @@ export default function AdminUsersPage() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Annual Income</label>
-                  <Select value={newUserData.annualIncome} onValueChange={(v) => setNewUserData({...newUserData, annualIncome: v})}>
-                    <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl">
-                      <SelectValue placeholder="Select income range" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-border">
-                        <SelectItem value="2L - 4L">2L - 4L</SelectItem>
-                        <SelectItem value="4L - 7L">4L - 7L</SelectItem>
-                        <SelectItem value="7L - 10L">7L - 10L</SelectItem>
-                        <SelectItem value="10L+">10L+</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <input
+                    value={newUserData.annualIncome}
+                    onChange={(e) => setNewUserData({...newUserData, annualIncome: e.target.value})}
+                    className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
+                    placeholder="e.g. 5 LPA, 8-10 LPA, ₹12,00,000 per year"
+                  />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Height *</label>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Height</label>
                   <Select value={newUserData.height} onValueChange={(v) => setNewUserData({...newUserData, height: v})}>
                     <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl">
                       <SelectValue placeholder="Select Height" />
@@ -1263,7 +1245,7 @@ export default function AdminUsersPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Father's Occupation</label>
-                  <input 
+                  <input
                     value={newUserData.fatherOccupation}
                     onChange={(e) => setNewUserData({...newUserData, fatherOccupation: e.target.value})}
                     className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
@@ -1272,7 +1254,7 @@ export default function AdminUsersPage() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Family Income</label>
-                  <input 
+                  <input
                     value={newUserData.familyIncome}
                     onChange={(e) => setNewUserData({...newUserData, familyIncome: e.target.value})}
                     className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm text-white focus:border-primary/50 focus:outline-none transition-all"
@@ -1281,7 +1263,7 @@ export default function AdminUsersPage() {
                 </div>
                 <div className="space-y-1.5 md:col-span-2">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">About Profile (Bio)</label>
-                  <textarea 
+                  <textarea
                     value={newUserData.bio}
                     onChange={(e) => setNewUserData({...newUserData, bio: e.target.value})}
                     className="w-full h-24 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary/50 focus:outline-none transition-all resize-none"
@@ -1294,8 +1276,8 @@ export default function AdminUsersPage() {
 
           <AlertDialogFooter className="border-t border-white/5 pt-4">
             <AlertDialogCancel className="bg-white/10 border-white/10 text-white hover:bg-white/15 h-11 px-6 rounded-xl">Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={(e) => { e.preventDefault(); handleCreateUser(); }} 
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleCreateUser(); }}
               disabled={isCreatingUser}
               className="bg-primary hover:bg-primary/90 text-white h-11 px-8 rounded-xl font-bold shadow-lg shadow-primary/20 active:scale-95 transition-all"
             >

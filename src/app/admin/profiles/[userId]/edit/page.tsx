@@ -147,7 +147,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
         setCompleteness(calculateCompleteness(formData));
     }, [formData]);
 
-    const isFormIncomplete = !formData.firstName || !formData.lastName || !formData.dateOfBirth || !formData.gender || !formData.religion || !formData.city || !formData.state || !formData.height;
+    const isFormIncomplete = !formData.firstName || !formData.dateOfBirth || !formData.gender || !formData.religion || !formData.city || !formData.state;
 
     const handleSave = async () => {
         const validation = validateProfile(formData);
@@ -310,7 +310,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className={cn("text-[10px] uppercase font-bold", errors.lastName ? "text-rose-400" : "text-muted-foreground")}>Last Name *</Label>
+                                        <Label className={cn("text-[10px] uppercase font-bold", errors.lastName ? "text-rose-400" : "text-muted-foreground")}>Last Name</Label>
                                         <Input 
                                             name="lastName"
                                             value={formData.lastName}
@@ -473,7 +473,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                             value={formData.annualIncome}
                                             onChange={(e) => setFormData({...formData, annualIncome: e.target.value})}
                                             className="bg-white/5 border-white/10"
-                                            placeholder="e.g. 5L - 8L"
+                                            placeholder="e.g. 5 LPA, 8-10 LPA, ₹12,00,000 per year"
                                         />
                                     </div>
                                 </div>
@@ -567,7 +567,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label className={cn("text-[10px] uppercase font-bold", errors.height ? "text-rose-400" : "text-muted-foreground")}>Height *</Label>
+                                    <Label className={cn("text-[10px] uppercase font-bold", errors.height ? "text-rose-400" : "text-muted-foreground")}>Height</Label>
                                     <Select value={formData.height?.toString()} onValueChange={(v) => setFormData({...formData, height: v})}>
                                         <SelectTrigger className={cn("bg-white/5 border-white/10 h-10", errors.height && "border-rose-500/50 bg-rose-500/5")}>
                                             <SelectValue placeholder="Select Height" />

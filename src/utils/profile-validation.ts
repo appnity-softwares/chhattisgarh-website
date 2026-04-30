@@ -12,13 +12,11 @@ export const validateProfile = (data: any): ValidationResult => {
 
   // Mandatory fields
   if (!data.firstName?.trim()) errors.firstName = 'First name is required';
-  if (!data.lastName?.trim()) errors.lastName = 'Last name is required';
   if (!data.dateOfBirth) errors.dateOfBirth = 'Date of birth is required';
   if (!data.gender) errors.gender = 'Gender is required';
   if (!data.religion) errors.religion = 'Community/Religion is required';
   if (!data.city?.trim()) errors.city = 'City is required';
   if (!data.state?.trim()) errors.state = 'State is required';
-  if (!data.height) errors.height = 'Height is required';
 
   // Format validations
   if (data.dateOfBirth) {

@@ -10,6 +10,7 @@ import { Search, RefreshCw, SlidersHorizontal, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { useInfiniteProfiles } from "@/hooks/use-infinite-profiles";
+import { formatProfileName } from "@/lib/display-format";
 
 export default function BrowsePage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -115,7 +116,7 @@ export default function BrowsePage() {
                   >
                     <ProfileCard 
                       id={profile.id}
-                      name={`${profile.firstName} ${profile.lastName}`}
+                      name={formatProfileName(profile)}
                       age={profile.age}
                       city={profile.city}
                       occupation={profile.occupation}

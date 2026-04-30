@@ -15,6 +15,7 @@ import type { Profile } from "@/types/api.types";
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
+import { displayValue, formatProfileName } from "@/lib/display-format";
 
 export default function AdminProfilesPage() {
     const { toast } = useToast();
@@ -153,11 +154,11 @@ export default function AdminProfilesPage() {
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead className="w-12">
-                                            <input 
-                                                type="checkbox" 
+                                            <input
+                                                type="checkbox"
                                                 className="rounded border-gray-300"
-                                                checked={selectedProfiles.size === filteredProfiles.length && filteredProfiles.length > 0} 
-                                                onChange={toggleSelectAll} 
+                                                checked={selectedProfiles.size === filteredProfiles.length && filteredProfiles.length > 0}
+                                                onChange={toggleSelectAll}
                                             />
                                         </TableHead>
                                         <TableHead>Profile</TableHead>
@@ -179,19 +180,19 @@ export default function AdminProfilesPage() {
                                         filteredProfiles.map(profile => (
                                             <TableRow key={profile.id} className={selectedProfiles.has(profile.id) ? "bg-muted/50" : ""}>
                                                 <TableCell>
-                                                    <input 
-                                                        type="checkbox" 
+                                                    <input
+                                                        type="checkbox"
                                                         className="rounded border-gray-300"
-                                                        checked={selectedProfiles.has(profile.id)} 
-                                                        onChange={() => toggleSelectProfile(profile.id)} 
+                                                        checked={selectedProfiles.has(profile.id)}
+                                                        onChange={() => toggleSelectProfile(profile.id)}
                                                     />
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="font-medium">
-                                                        {profile.firstName || profile.lastName ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : 'Unknown User'}
+                                                        {formatProfileName(profile)}
                                                     </div>
                                                     <div className="text-sm text-muted-foreground break-all">
-                                                        {profile.profileId || 'No ID'}
+                                                        {displayValue(profile.profileId)}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>
@@ -217,7 +218,7 @@ export default function AdminProfilesPage() {
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="hidden md:table-cell text-muted-foreground">
-                                                    {profile.city}, {profile.state}
+                                                    {[profile.city, profile.state].map(value => displayValue(value, '')).filter(Boolean).join(', ') || '-'}
                                                 </TableCell>
                                                 <TableCell className="hidden lg:table-cell text-muted-foreground">
                                                     {formatDistanceToNow(new Date(profile.createdAt), { addSuffix: true })}
@@ -238,11 +239,11 @@ export default function AdminProfilesPage() {
                                                             <DropdownMenuItem onClick={() => router.push(`/admin/profiles/${profile.userId}/edit`)} className="cursor-pointer text-primary">
                                                                 Edit Profile Details
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem 
+                                                            <DropdownMenuItem
                                                                 onClick={async () => {
                                                                     try {
                                                                         await adminService.verifyProfile(profile.id, true);
-                                                                        toast({ title: 'Profile Verified', description: `${profile.firstName}'s profile is now verified.` });
+                                                                        toast({ title: 'Profile Verified', description: `${formatProfileName(profile)} profile is now verified.` });
                                                                         fetchProfiles(pagination.page);
                                                                     } catch (err: unknown) {
                                                                         const errorMsg = err as { message?: string };
@@ -253,7 +254,7 @@ export default function AdminProfilesPage() {
                                                             >
                                                                 Approve
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem 
+                                                            <DropdownMenuItem
                                                                 onClick={async () => {
                                                                     try {
                                                                         await adminService.updateProfileStatus(profile.id, false, 'Incomplete data');

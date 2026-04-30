@@ -3,11 +3,12 @@
 import React from 'react';
 import { 
   User, MapPin, Calendar, Heart, Briefcase, GraduationCap, 
-  Languages, Eye, AlertCircle, CheckCircle2, X 
+  Languages, Eye, AlertCircle, CheckCircle2, X, Activity
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { CompletenessResult } from "@/utils/profile-validation";
+import { calculateAge, displayValue, formatDateOfBirth, formatProfileName } from "@/lib/display-format";
 
 interface ProfilePreviewDialogProps {
   isOpen: boolean;
@@ -18,16 +19,6 @@ interface ProfilePreviewDialogProps {
 
 export const ProfilePreviewDialog: React.FC<ProfilePreviewDialogProps> = ({ isOpen, onClose, data, completeness }) => {
   if (!isOpen) return null;
-
-  const calculateAge = (dob: string) => {
-    if (!dob) return '';
-    const birthDate = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
-    return age;
-  };
 
   const InfoItem = ({ icon: Icon, label, value, isMissing }: { icon: any, label: string, value: string | number | undefined, isMissing?: boolean }) => (
     <div className={cn(
@@ -40,7 +31,7 @@ export const ProfilePreviewDialog: React.FC<ProfilePreviewDialogProps> = ({ isOp
       <div>
         <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
         <p className={cn("text-sm font-semibold", isMissing ? "text-rose-400 font-bold italic" : "text-white")}>
-          {isMissing ? "Missing Information" : value || "Not Specified"}
+          {isMissing ? "-" : displayValue(value)}
         </p>
       </div>
     </div>
@@ -77,13 +68,13 @@ export const ProfilePreviewDialog: React.FC<ProfilePreviewDialogProps> = ({ isOp
             <div className="absolute bottom-8 left-8 z-20 space-y-2">
                <div className="flex items-center gap-3">
                   <h2 className="text-4xl font-black text-white tracking-tight">
-                    {data.firstName} {data.lastName}, {calculateAge(data.dateOfBirth)}
+                    {formatProfileName(data)}{calculateAge(data.dateOfBirth) ? `, ${calculateAge(data.dateOfBirth)}` : ''}
                   </h2>
                   {data.isVerified && <CheckCircle2 className="w-6 h-6 text-primary fill-primary/20" />}
                </div>
                <div className="flex items-center gap-4">
                   <div className="flex items-center gap-1.5 text-muted-foreground font-bold uppercase text-xs">
-                    <MapPin className="w-4 h-4 text-emerald-400" /> {data.city}, {data.state}
+                    <MapPin className="w-4 h-4 text-emerald-400" /> {[data.city, data.state].map((value) => displayValue(value, "")).filter(Boolean).join(", ") || "-"}
                   </div>
                   <Badge className="bg-primary/20 text-primary border-primary/30 font-black uppercase text-[10px] tracking-tighter">
                     {data.maritalStatus?.replace('_', ' ')}
@@ -121,7 +112,7 @@ export const ProfilePreviewDialog: React.FC<ProfilePreviewDialogProps> = ({ isOp
                      <h3 className="text-lg font-black uppercase tracking-tight">Personal Information</h3>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                     <InfoItem icon={Calendar} label="Date of Birth" value={data.dateOfBirth} isMissing={!data.dateOfBirth} />
+                     <InfoItem icon={Calendar} label="Date of Birth" value={formatDateOfBirth(data.dateOfBirth)} isMissing={!data.dateOfBirth} />
                      <InfoItem icon={User} label="Religion / Community" value={data.religion} isMissing={!data.religion} />
                      <InfoItem icon={GraduationCap} label="Caste" value={data.caste} isMissing={!data.caste} />
                      <InfoItem icon={Languages} label="Mother Tongue" value={data.motherTongue} isMissing={!data.motherTongue} />

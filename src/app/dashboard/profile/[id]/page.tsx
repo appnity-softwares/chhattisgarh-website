@@ -4,19 +4,19 @@ import { useProfileDetails } from "@/hooks/use-profile-details";
 import { useInteractions } from "@/hooks/use-interactions";
 import { useParams, useRouter } from "next/navigation";
 import { usePhotoRequests } from "@/hooks/use-photo-requests";
-import { 
-  Loader2, 
-  MapPin, 
-  Briefcase, 
-  GraduationCap, 
-  Heart, 
-  ShieldCheck, 
-  Share2, 
-  ChevronLeft, 
-  ChevronRight, 
-  User, 
-  Clock, 
-  Star, 
+import {
+  Loader2,
+  MapPin,
+  Briefcase,
+  GraduationCap,
+  Heart,
+  ShieldCheck,
+  Share2,
+  ChevronLeft,
+  ChevronRight,
+  User,
+  Clock,
+  Star,
   Info,
   Send,
   MessageSquare,
@@ -42,6 +42,7 @@ import { useUserAuthStore } from "@/stores/user-auth-store";
 import { useUserAccess } from "@/hooks/use-user-access";
 import { useInteractionStore } from "@/store/interaction-store";
 import { motion, AnimatePresence } from "framer-motion";
+import { displayValue, formatDateOfBirth, formatEnumLabel, formatProfileName } from "@/lib/display-format";
 
 export default function ProfileDetailPage() {
   const params = useParams();
@@ -55,15 +56,15 @@ export default function ProfileDetailPage() {
   const { send: sendPhoto } = usePhotoRequests();
   const isPhotoRequestPending = sendPhoto.isPending;
   const [showPhotoModal, setShowPhotoModal] = useState(false);
-  
-  const { 
-      relationships, 
-      setRelationship, 
-      sendInterest, 
-      acceptInterest, 
-      rejectInterest, 
-      toggleShortlist, 
-      syncFromApi 
+
+  const {
+      relationships,
+      setRelationship,
+      sendInterest,
+      acceptInterest,
+      rejectInterest,
+      toggleShortlist,
+      syncFromApi
   } = useInteractionStore();
 
   const isOwnProfile = useMemo(() => {
@@ -118,7 +119,7 @@ export default function ProfileDetailPage() {
     }
     return profile.media.map(m => ({
       url: m.url,
-      isPrivate: (m as any).privacySettings?.isPrivate || false
+      isPrivate: (m as any).isPrivate || (m as any).privacySettings?.isPrivate || false
     }));
   }, [profile]);
 
@@ -136,7 +137,7 @@ export default function ProfileDetailPage() {
 
   const matchScoreData = useMemo(() => {
     if (!profile || !myPref) return null;
-    
+
     // Logic for mock/calculated match score
     const scores = {
         age: 0,
@@ -165,7 +166,7 @@ export default function ProfileDetailPage() {
     else scores.location = 50;
 
     scores.overall = Math.round((scores.age * 0.4) + (scores.community * 0.4) + (scores.location * 0.2));
-    
+
     return scores;
   }, [profile, myPref]);
 
@@ -269,6 +270,8 @@ export default function ProfileDetailPage() {
   }
 
   const isShortlisted = profile?.isShortlisted;
+  const profileName = formatProfileName(profile);
+  const locationText = [profile.city, profile.state].map((value) => displayValue(value, "")).filter(Boolean).join(", ") || "-";
 
   return (
     <div className="max-w-7xl mx-auto pb-20 space-y-8 animate-fade-in">
@@ -300,12 +303,12 @@ export default function ProfileDetailPage() {
                      const isLocked = img.isPrivate && !canSeePrivatePhotos;
                      return (
                        <div className="relative flex-[0_0_100%] min-w-0" key={idx}>
-                         <Image 
-                           src={img.url} 
-                           alt={profile.firstName} 
-                           fill 
-                           priority 
-                           className={`object-cover transition-transform duration-1000 group-hover:scale-105 ${isLocked ? 'blur-2xl opacity-50 scale-125' : ''}`} 
+                         <Image
+                           src={img.url}
+                           alt={profileName}
+                           fill
+                           priority
+                           className={`object-cover transition-transform duration-1000 group-hover:scale-105 ${isLocked ? 'blur-2xl opacity-50 scale-125' : ''}`}
                          />
                          {isLocked && (
                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm z-10 transition-all group-hover:bg-black/20">
@@ -314,9 +317,9 @@ export default function ProfileDetailPage() {
                              </div>
                              <p className="text-white font-black text-xl uppercase tracking-tighter mb-2 drop-shadow-lg">Photos Locked</p>
                              <p className="text-white/60 text-xs font-bold uppercase tracking-widest px-10 text-center drop-shadow-md">Requires Match or Premium access</p>
-                             
+
                              {profile.allowPhotoRequest && (
-                               <Button 
+                               <Button
                                  onClick={() => setShowPhotoModal(true)}
                                  className="mt-8 bg-primary text-white hover:bg-primary/90 font-black px-8 py-6 rounded-2xl shadow-2xl shadow-primary/40 active:scale-95 transition-all text-xs uppercase tracking-widest gap-3"
                                >
@@ -333,7 +336,7 @@ export default function ProfileDetailPage() {
              </div>
 
              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
-             
+
              {/* Carousel Nav */}
              {profileImages.length > 1 && (
                <>
@@ -367,11 +370,11 @@ export default function ProfileDetailPage() {
              {/* Bottom Info Overlay */}
              <div className="absolute bottom-10 left-10 right-10 text-white space-y-2">
                 <h2 className="text-4xl font-black uppercase tracking-tighter drop-shadow-2xl">
-                  {profile.firstName}, {profile.age}
+                  {profileName}{profile.age ? `, ${profile.age}` : ""}
                 </h2>
                 <div className="flex items-center gap-2 text-xs font-bold text-white/80 tracking-widest uppercase">
                   <MapPin className="w-4 h-4 text-primary" />
-                  {profile.city}, {profile.state}
+                  {locationText}
                 </div>
              </div>
           </div>
@@ -379,18 +382,18 @@ export default function ProfileDetailPage() {
           {/* Action Hub - Strictly Defined Behavior */}
           <div className="flex flex-col gap-4">
             {/* Main Primary Action */}
-            <Button 
-                onClick={actionConfig.action} 
-                disabled={actionConfig.disabled || actionConfig.pending} 
+            <Button
+                onClick={actionConfig.action}
+                disabled={actionConfig.disabled || actionConfig.pending}
                 className={`h-20 w-full rounded-[2rem] font-black text-xl uppercase tracking-widest transition-all active:scale-95 shadow-2xl ${actionConfig.variant === 'primary' ? 'bg-primary text-white hover:bg-primary/90 shadow-primary/20' : 'bg-white/10 text-muted-foreground border border-white/5'}`}
             >
               {actionConfig.pending ? <Loader2 className="animate-spin w-6 h-6" /> : <><actionConfig.icon className="w-7 h-7 mr-4" /> {actionConfig.label}</>}
             </Button>
-            
+
             <div className="flex gap-4">
               {/* Shortlist Action */}
-              <Button 
-                onClick={() => toggleShortlist(profileUserId)} 
+              <Button
+                onClick={() => toggleShortlist(profileUserId)}
                 className={`h-16 flex-1 rounded-2xl font-black text-xs uppercase tracking-widest gap-3 transition-all active:scale-95 ${state.isShortlisted ? 'bg-primary/20 text-primary border-primary/30' : 'bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10'}`}
               >
                 <Heart className={`w-5 h-5 ${state.isShortlisted ? 'fill-current' : ''}`} />
@@ -400,9 +403,9 @@ export default function ProfileDetailPage() {
 
               {/* Reject/Skip for Received state */}
               {state.type === "received" && (
-                <Button 
-                  variant="outline" 
-                  className="h-16 flex-1 rounded-2xl border-white/10 bg-white/5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-95" 
+                <Button
+                  variant="outline"
+                  className="h-16 flex-1 rounded-2xl border-white/10 bg-white/5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-95"
                   onClick={() => rejectInterest(profileUserId, profile?.relationship?.matchId ?? undefined)}
                 >
                   <X className="w-6 h-6 mr-2" /> Reject
@@ -419,7 +422,7 @@ export default function ProfileDetailPage() {
                <div className="h-0.5 w-12 bg-primary rounded-full shadow-lg shadow-primary/50" /> Profile Discovery
              </div>
              <h1 className="text-6xl font-black tracking-tighter uppercase leading-none">
-               {profile.firstName} <span className="text-primary italic">{profile.lastName}</span>
+	               {displayValue(profile.firstName, "Profile")} <span className="text-primary italic">{displayValue(profile.lastName, "")}</span>
              </h1>
           </div>
 
@@ -429,18 +432,18 @@ export default function ProfileDetailPage() {
                   <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity">
                       <Target className="w-40 h-40 text-primary rotate-12" />
                   </div>
-                  
+
                   <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
                       {/* Circular Match Score Indicator */}
                       <div className="relative flex flex-col items-center justify-center h-40 w-40 shrink-0">
                           <svg className="w-full h-full transform -rotate-90">
                               <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-white/5" />
-                              <circle 
-                                cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" 
+                              <circle
+                                cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent"
                                 strokeDasharray={440}
                                 strokeDashoffset={440 - (440 * matchScoreData.overall) / 100}
                                 strokeLinecap="round"
-                                className="text-primary drop-shadow-[0_0_8px_rgba(var(--primary-rgb),0.5)] transition-all duration-1000 ease-out" 
+                                className="text-primary drop-shadow-[0_0_8px_rgba(var(--primary-rgb),0.5)] transition-all duration-1000 ease-out"
                               />
                           </svg>
                           <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -505,11 +508,11 @@ export default function ProfileDetailPage() {
               <div className="grid grid-cols-2 gap-4">
                 <Card className="bg-white/5 border-white/10 p-6 rounded-3xl space-y-2">
                   <p className="text-[10px] font-black uppercase tracking-widest text-primary">Gender</p>
-                  <p className="text-sm font-bold uppercase">{profile.gender}</p>
+	                  <p className="text-sm font-bold uppercase">{formatEnumLabel(profile.gender)}</p>
                 </Card>
                 <Card className="bg-white/5 border-white/10 p-6 rounded-3xl space-y-2">
                   <p className="text-[10px] font-black uppercase tracking-widest text-primary">Relationship</p>
-                  <p className="text-sm font-bold uppercase">{profile.maritalStatus || "Not Specified"}</p>
+	                  <p className="text-sm font-bold uppercase">{formatEnumLabel(profile.maritalStatus)}</p>
                 </Card>
               </div>
             </TabsContent>
@@ -517,7 +520,7 @@ export default function ProfileDetailPage() {
             <TabsContent value="details" className="space-y-6">
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <DetailSection icon={Heart} title="Birth Details">
-                   <DetailItem label="Date of Birth" value={profile.dob ? new Date(profile.dob).toLocaleDateString() : "-"} />
+	                   <DetailItem label="Date of Birth" value={formatDateOfBirth(profile.dob)} />
                    <DetailItem label="Time" value={profile.horoscope?.birthTime || "-"} />
                    <DetailItem label="Place" value={profile.horoscope?.birthPlace || "-"} />
                    <DetailItem label="Manglik" value={profile.horoscope?.manglik ? "Yes" : "No"} />
@@ -553,7 +556,7 @@ export default function ProfileDetailPage() {
                    <DetailItem label="Specialization" value={profile.specialization || "-"} />
                    <DetailItem label="University" value={profile.college || "-"} />
                  </DetailSection>
-                 
+
                  <DetailSection icon={Info} title="Physical Stats">
                    <DetailItem label="Height" value={profile.height ? `${profile.height} cm` : "-"} />
                    <DetailItem label="Weight" value={profile.weight ? `${profile.weight} kg` : "-"} />
@@ -579,40 +582,40 @@ export default function ProfileDetailPage() {
       <AnimatePresence>
         {showPhotoModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl" onClick={() => setShowPhotoModal(false)}>
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }} 
-              animate={{ opacity: 1, scale: 1, y: 0 }} 
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              onClick={(e: MouseEvent) => e.stopPropagation()} 
+              onClick={(e: MouseEvent) => e.stopPropagation()}
               className="bg-[#111] border border-white/10 rounded-[2.5rem] p-10 w-full max-w-md space-y-8 shadow-4xl relative overflow-hidden"
             >
                <div className="absolute top-0 right-0 p-10 opacity-5">
                  <Camera className="w-40 h-40 text-primary rotate-12" />
                </div>
-               
+
                <div className="relative z-10 space-y-2">
                  <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic">Photo <span className="text-primary">Request</span></h2>
                  <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Connect with {profile.firstName} to see their photos</p>
                </div>
-               
+
                <div className="relative z-10 space-y-6">
                    <div className="space-y-3">
                      <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">Personal Message (Optional)</label>
-                     <textarea 
+                     <textarea
                          placeholder="Hi, I'm interested in your profile and would love to see more photos..."
                          className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm font-medium text-white min-h-[120px] outline-none focus:border-primary/50 transition-all resize-none shadow-inner"
                          id="photo-request-msg"
                      />
                    </div>
-                   
+
                    <div className="flex gap-4">
                      <Button variant="ghost" className="flex-1 rounded-2xl text-[10px] font-black uppercase tracking-widest h-14 hover:bg-white/5" onClick={() => setShowPhotoModal(false)}>Nevermind</Button>
-                     <Button 
-                         className="flex-1 rounded-2xl text-[10px] font-black uppercase tracking-widest h-14 bg-primary text-white hover:bg-primary/90 shadow-xl shadow-primary/20" 
+                     <Button
+                         className="flex-1 rounded-2xl text-[10px] font-black uppercase tracking-widest h-14 bg-primary text-white hover:bg-primary/90 shadow-xl shadow-primary/20"
                          onClick={() => {
                              const msg = (document.getElementById('photo-request-msg') as HTMLTextAreaElement)?.value;
-                             sendPhoto.mutate({ 
-                                 photoId: profile.media?.[0]?.id || 1, 
+                             sendPhoto.mutate({
+                                 photoId: profile.media?.[0]?.id || 1,
                                  message: msg || "I'd like to see your photos"
                              });
                              setShowPhotoModal(false);
@@ -647,11 +650,11 @@ function DetailSection({ icon: Icon, title, children }: { icon: any, title: stri
   );
 }
 
-function DetailItem({ label, value }: { label: string, value: string }) {
+function DetailItem({ label, value }: { label: string, value: unknown }) {
   return (
     <div className="flex justify-between items-center group font-medium">
       <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{label}</span>
-      <span className="text-[13px] text-foreground font-bold tracking-tight">{value}</span>
+      <span className="text-[13px] text-foreground font-bold tracking-tight">{displayValue(value)}</span>
     </div>
   );
 }

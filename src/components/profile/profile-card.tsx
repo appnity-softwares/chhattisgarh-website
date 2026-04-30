@@ -2,22 +2,22 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { 
-    MapPin, 
-    Briefcase, 
-    GraduationCap, 
-    ShieldCheck, 
-    Heart, 
-    MoreVertical, 
-    Ban, 
-    Flag, 
-    Loader2, 
-    Zap, 
-    Send, 
-    MessageSquare, 
-    Trash2, 
-    ChevronLeft, 
-    ChevronRight, 
+import {
+    MapPin,
+    Briefcase,
+    GraduationCap,
+    ShieldCheck,
+    Heart,
+    MoreVertical,
+    Ban,
+    Flag,
+    Loader2,
+    Zap,
+    Send,
+    MessageSquare,
+    Trash2,
+    ChevronLeft,
+    ChevronRight,
     Crown,
     Star,
     UserPlus,
@@ -40,17 +40,18 @@ import { useUserAccess } from "@/hooks/use-user-access";
 import { useInteractionStore } from "@/store/interaction-store";
 import { useToast } from "@/hooks/use-toast";
 import { ProfileQRCode } from "./qr-share";
+import { displayValue } from "@/lib/display-format";
 
 interface ProfileCardProps {
     name: string;
-    age: number;
-    city: string;
-    occupation: string;
+    age?: number | null;
+    city?: string | null;
+    occupation?: string | null;
     education?: string;
     image?: string;
     media?: { url: string; isProfile?: boolean }[];
     isVerified?: boolean;
-    gender: 'male' | 'female' | 'other';
+    gender?: 'male' | 'female' | 'other';
     priority?: boolean;
     id: number | string;
     isShortlisted?: boolean;
@@ -75,17 +76,17 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
     const [showContactModal, setShowContactModal] = useState(false);
     const [showPhotoModal, setShowPhotoModal] = useState(false);
     const targetId = typeof id === 'string' ? parseInt(id) : id;
-    const { 
-        relationships, 
-        setRelationship, 
-        sendInterest, 
-        acceptInterest, 
-        rejectInterest, 
-        toggleShortlist, 
+    const {
+        relationships,
+        setRelationship,
+        sendInterest,
+        acceptInterest,
+        rejectInterest,
+        toggleShortlist,
         blockUser,
-        syncFromApi 
+        syncFromApi
     } = useInteractionStore();
-    
+
     // Sync with store on mount/update
     useEffect(() => {
         if (propRelationship) {
@@ -114,14 +115,19 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
     const { reportUser } = useInteractions();
     const { data: access } = useUserAccess();
     const isPremium = access?.isPremium;
+    const safeName = displayValue(name, "Profile");
+    const safeAge = typeof age === "number" && age > 0 ? String(age) : "";
+    const safeCity = displayValue(city);
+    const safeOccupation = displayValue(occupation);
+    const safeGender = gender === "male" || gender === "female" ? gender : "other";
 
     const handleReportSubmit = async () => {
         if (!reportReason) return;
         try {
-            await reportUser.mutateAsync({ 
-                userId: targetId, 
-                reason: reportReason as any, 
-                description: reportDescription 
+            await reportUser.mutateAsync({
+                userId: targetId,
+                reason: reportReason as any,
+                description: reportDescription
             });
             setShowReportModal(false);
             setReportReason("");
@@ -166,10 +172,10 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
     const profileImages = useMemo(() => {
         if (media && media.length > 0) return media.map(m => m.url);
         if (image) return [image];
-        return [gender === 'female' 
+        return [safeGender === 'female'
             ? "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80"
             : "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80"];
-    }, [media, image, gender]);
+    }, [media, image, safeGender]);
 
     return (
         <motion.div
@@ -187,7 +193,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                                 <div className="relative flex-[0_0_100%] min-w-0" key={index}>
                                     <Image
                                         src={src}
-                                        alt={`${name}`}
+                                        alt={safeName}
                                         fill
                                         sizes="(max-width: 768px) 100vw, 300px"
                                         className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -196,9 +202,9 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                             ))}
                         </div>
                     </div>
-                    
+
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
-                    
+
                     {/* Interaction Buttons Overlay */}
                     <div className="absolute top-4 inset-x-4 flex justify-between items-start z-30">
                         <div className="flex flex-col gap-1.5">
@@ -221,9 +227,9 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                                 )}
                             </div>
                         </div>
-                        
+
                         <div className="relative" ref={menuRef}>
-                            <button 
+                            <button
                                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowMenu(!showMenu); }}
                                 className="bg-black/40 backdrop-blur-md border border-white/10 w-9 h-9 rounded-full text-white/70 hover:text-white transition-all shadow-xl flex items-center justify-center"
                             >
@@ -231,13 +237,13 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                             </button>
                             <AnimatePresence>
                                 {showMenu && (
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ opacity: 0, scale: 0.95, y: -5 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -5 }}
                                         className="absolute right-0 top-11 z-50 w-36 bg-[#111] border border-white/10 rounded-2xl shadow-3xl overflow-hidden"
                                     >
-                                        <ProfileQRCode 
-                                            userId={id} 
-                                            userName={name}
+                                        <ProfileQRCode
+                                            userId={id}
+                                            userName={safeName}
                                             profileUrl={`/dashboard/profile/${id}`}
                                         />
                                         <div className="border-t border-white/5">
@@ -256,11 +262,11 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
 
                     <div className="absolute bottom-3 left-4 right-4 text-white">
                         <h3 className="text-base font-black tracking-tight flex items-center gap-1.5 drop-shadow-lg">
-                            {name}, {age}
+                            {safeName}{safeAge ? `, ${safeAge}` : ""}
                         </h3>
                         <div className="flex items-center gap-1 text-[9px] text-white/80 font-black uppercase tracking-widest">
                             <MapPin className="w-3 h-3 text-primary opacity-90" />
-                            {city}
+                            {safeCity}
                         </div>
                     </div>
                 </div>
@@ -269,13 +275,13 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                     <div className="space-y-2">
                         <div className="flex items-center gap-2.5 text-[10px] text-muted-foreground font-black uppercase tracking-widest bg-white/[0.03] px-3 py-2.5 rounded-2xl truncate border border-white/5">
                             <Briefcase className="w-3.5 h-3.5 text-primary shrink-0 opacity-80" />
-                            {occupation}
+                            {safeOccupation}
                         </div>
                     </div>
 
                     {/* ACTION HUB - Strictly Defined Behavior */}
                     <div className="flex gap-2.5 h-11">
-                        <button 
+                        <button
                             onClick={(e) => handleAction(e, () => toggleShortlist(targetId))}
                             className={`aspect-square flex items-center justify-center rounded-2xl border transition-all active:scale-95 ${state.isShortlisted ? 'bg-primary/20 text-primary border-primary/30' : 'bg-white/5 border-white/5 hover:border-primary/40 text-muted-foreground'}`}
                         >
@@ -283,7 +289,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                         </button>
 
                         { (state.type === 'matched' || isPremium) ? (
-                            <Link 
+                            <Link
                                 href={`/dashboard/chat?userId=${targetId}`}
                                 onClick={(e) => e.stopPropagation()}
                                 className="flex-1 flex items-center justify-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl hover:bg-emerald-500/20 transition-all active:scale-95 font-black text-[10px] uppercase tracking-widest"
@@ -293,13 +299,13 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                             </Link>
                         ) : state.type === 'received' ? (
                             <div className="flex-1 flex gap-2">
-                                <button 
+                                <button
                                     onClick={(e) => handleAction(e, () => acceptInterest(targetId, propRelationship?.matchId || 0))}
                                     className="flex-1 bg-emerald-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all active:scale-95"
                                 >
                                     Accept
                                 </button>
-                                <button 
+                                <button
                                     onClick={(e) => handleAction(e, () => rejectInterest(targetId, propRelationship?.matchId))}
                                     className="px-4 bg-white/5 text-muted-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all"
                                 >
@@ -313,7 +319,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                                 </button>
                             </div>
                         ) : state.type === 'rejected' ? (
-                            <button 
+                            <button
                                 onClick={(e) => handleAction(e, () => sendInterest(targetId))}
                                 className="flex-1 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-primary/90 transition-all"
                             >
@@ -325,7 +331,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                             </button>
                         ) : (
                             <div className="flex-1 flex gap-2">
-                                <button 
+                                <button
                                     onClick={(e) => handleAction(e, () => sendInterest(targetId))}
                                     className="flex-1 flex items-center justify-center gap-2 bg-primary text-white rounded-2xl hover:bg-primary/90 transition-all active:scale-95 font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/30"
                                 >
@@ -334,7 +340,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                                 </button>
                             </div>
                         )}
-                        
+
                         <div className="flex gap-2">
                             {/* Photo Request Button - Visible if privacy allows and not matched */}
                             {state.type !== 'matched' && !isPremium && allowPhotoRequest && (
@@ -350,7 +356,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                                     <span className="hidden sm:inline">Photo</span>
                                 </button>
                             )}
-                            
+
                             {(state.type === 'matched' || isPremium) && (
                                 <button
                                     onClick={(e) => {
@@ -399,7 +405,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" onClick={() => setShowContactModal(false)}>
                     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-[#111] border border-white/10 rounded-2xl p-6 w-full max-w-sm space-y-6 shadow-4xl">
                         <h2 className="text-base font-black text-white uppercase tracking-tighter">Request <span className="text-blue-500 font-italic">Contact</span></h2>
-                        
+
                         <div className="space-y-4">
                             <div className="space-y-4">
                                 <label className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2 block">What would you like to request?</label>
@@ -430,21 +436,21 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                                     </button>
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <label className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2 block">Message (Optional)</label>
-                                <textarea 
+                                <textarea
                                     placeholder="Hi, I'd like to connect with you..."
                                     className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs font-bold text-white min-h-[80px] outline-none focus:border-primary/50 transition-colors resize-none"
                                 />
                             </div>
-                            
+
                             <div className="flex gap-3">
                                 <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={() => setShowContactModal(false)}>Cancel</Button>
                                 <Button className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 bg-blue-500 text-white hover:bg-blue-600" onClick={() => setShowContactModal(false)}>Close</Button>
                             </div>
                         </div>
-                        
+
                         <div className="flex gap-3">
                             <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={() => setShowContactModal(false)}>Cancel</Button>
                             <Button className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 bg-blue-500 text-white hover:bg-blue-600" onClick={() => setShowContactModal(false)}>Close</Button>
@@ -458,23 +464,23 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" onClick={() => setShowPhotoModal(false)}>
                     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-[#111] border border-white/10 rounded-2xl p-6 w-full max-w-sm space-y-6 shadow-4xl">
                         <h2 className="text-base font-black text-white uppercase tracking-tighter">Request <span className="text-amber-500 font-italic">Photo Access</span></h2>
-                        
+
                         <div className="space-y-4">
                             <div>
                                 <label className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2 block">Message (Optional)</label>
-                                <textarea 
+                                <textarea
                                     placeholder="Hi, I'd like to see your photos..."
                                     className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs font-bold text-white min-h-[80px] outline-none focus:border-primary/50 transition-colors resize-none"
                                 />
                             </div>
                         </div>
-                        
+
                         <div className="flex gap-3">
                             <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={() => setShowPhotoModal(false)}>Cancel</Button>
-                            <Button 
-                                className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 bg-amber-500 text-white hover:bg-amber-600" 
+                            <Button
+                                className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 bg-amber-500 text-white hover:bg-amber-600"
                                 onClick={() => {
-                                    sendPhoto.mutate({ 
+                                    sendPhoto.mutate({
                                         photoId: 1, // Use first photo ID (backend will handle mapping)
                                         message: "I'd like to see your photos"
                                     });

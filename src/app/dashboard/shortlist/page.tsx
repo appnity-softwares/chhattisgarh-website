@@ -13,6 +13,7 @@ import { ProfileCard } from "@/components/profile/profile-card";
 import { useState, useMemo } from "react";
 import { useShortlist } from "@/hooks/use-shortlist";
 import Link from "next/link";
+import { calculateAge, formatProfileName } from "@/lib/display-format";
 
 interface ShortlistItem {
     id: number;
@@ -61,7 +62,7 @@ interface ProfileSummary {
     city?: string;
     occupation?: string;
     education?: string;
-    gender: 'male' | 'female' | 'other';
+    gender?: 'male' | 'female' | 'other';
     isVerified?: boolean;
     image?: string;
 }
@@ -69,8 +70,6 @@ interface ProfileSummary {
 export default function ShortlistPage() {
     const { shortlist, isLoading, removeFromShortlist } = useShortlist();
     const [searchQuery, setSearchQuery] = useState("");
-    const [now] = useState(() => Date.now());
-
     // Extract profile from shortlist item (backend returns the shortlisted user with profile)
     const profiles = useMemo((): ProfileSummary[] => {
         return (shortlist || []).map((item: ShortlistItem) => {
@@ -80,19 +79,19 @@ export default function ShortlistPage() {
             return {
                 shortlistId: item.id,
                 id: Number(user.id || profile.userId || item.id),
-                name: `${profile.firstName || ''} ${profile.lastName || ''}`.trim(),
+                name: formatProfileName(profile),
                 firstName: profile.firstName || '',
                 lastName: profile.lastName || '',
-                age: profile.age || (profile.dateOfBirth ? Math.floor((now - new Date(profile.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : 0),
+                age: profile.age || calculateAge(profile.dateOfBirth) || undefined,
                 city: profile.city,
                 occupation: profile.occupation,
                 education: profile.education,
-                gender: (profile.gender?.toLowerCase() as 'male' | 'female' | 'other') || 'female',
+                gender: profile.gender?.toLowerCase() as 'male' | 'female' | 'other' | undefined,
                 isVerified: profile.isVerified || user.isPhoneVerified,
                 image: profile.media?.[0]?.url || user.profilePicture,
             };
         });
-    }, [shortlist, now]);
+    }, [shortlist]);
 
     // Filter by search
     const filteredProfiles = profiles.filter((p) => {

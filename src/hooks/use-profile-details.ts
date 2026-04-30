@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import apiService from "@/lib/api.service";
 import apiConfig from "@/lib/api.config";
 import { RelationshipInfo } from "@/services/relationship.service";
+import { calculateAge } from "@/lib/display-format";
 
 export interface ProfileDetails {
     id: number;
@@ -51,7 +52,7 @@ export interface ProfileDetails {
     rashi?: string;
     membership?: 'FREE' | 'PREMIUM';
     isVerified?: boolean;
-    media: Array<{ id: number; url: string; contentType: string; isProfile: boolean }>;
+    media: Array<{ id: number; url: string; contentType: string; isProfile: boolean; isPrivate?: boolean; isVisible?: boolean }>;
     profileCompleteness: number;
     isLiked?: boolean;
     isShortlisted?: boolean;
@@ -101,15 +102,7 @@ export function useProfileDetails(profileId: string | number) {
                 console.error("Failed to fetch relationship status");
             }
 
-            const derivedAge = profile.dateOfBirth
-                ? Math.max(
-                    0,
-                    Math.floor(
-                        (Date.now() - new Date(profile.dateOfBirth).getTime()) /
-                        (365.25 * 24 * 60 * 60 * 1000)
-                    )
-                )
-                : 0;
+            const derivedAge = calculateAge(profile.dateOfBirth) || 0;
 
             return {
                 ...profile,
@@ -119,7 +112,7 @@ export function useProfileDetails(profileId: string | number) {
                 income: profile.annualIncome || profile.income,
                 relationship: relationship || profile.relationship,
                 education: Array.isArray(profile.education) ? profile.education[0] : profile.education,
-                media: (profile.media || []).map((media: { id: number; url: string; contentType: string; isProfile?: boolean; isProfilePicture?: boolean; isDefault?: boolean }) => ({
+                media: (profile.media || []).map((media: { id: number; url: string; contentType: string; isProfile?: boolean; isProfilePicture?: boolean; isDefault?: boolean; isPrivate?: boolean; isVisible?: boolean }) => ({
                     ...media,
                     isProfile: media.isProfile || media.isProfilePicture || media.isDefault,
                 })),

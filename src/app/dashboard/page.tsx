@@ -25,6 +25,7 @@ import { useInfiniteProfiles, Profile } from "@/hooks/use-infinite-profiles";
 import { useUserAccess } from "@/hooks/use-user-access";
 import { useProfile, useProfileCompletion } from "@/hooks/use-profile";
 import { LucideIcon } from "lucide-react";
+import { formatProfileName } from "@/lib/display-format";
 
 function DashboardContent() {
     const searchParams = useSearchParams();
@@ -254,7 +255,7 @@ function DashboardContent() {
                                         featuredLoading ? [1,2,3,4].map(i => <div key={i} className="aspect-[4/5] bg-card/10 rounded-[1.5rem] animate-pulse border border-white/5" />)
                                         : filteredFeatured.map((p: Profile) => (
                                             <motion.div key={p.id} layout exit={{ opacity: 0, scale: 0.9, y: 20 }} transition={{ duration: 0.4, ease: "easeInOut" }}>
-                                                <ProfileCard {...p} name={`${p.firstName} ${p.lastName}`} id={p.id} gender={p.gender?.toLowerCase() as any} media={p.media} canChat={access?.isPremium} onActionSuccess={handleActionSuccess} />
+                                                <ProfileCard {...p} name={formatProfileName(p)} id={p.id} gender={p.gender?.toLowerCase() as any} media={p.media} canChat={access?.isPremium} onActionSuccess={handleActionSuccess} />
                                             </motion.div>
                                         ))
                                     )}
@@ -262,7 +263,7 @@ function DashboardContent() {
                                         newLoading ? [1,2,3,4].map(i => <div key={i} className="aspect-[4/5] bg-card/10 rounded-[1.5rem] animate-pulse border border-white/5" />)
                                         : filteredNew.map((p: Profile) => (
                                             <motion.div key={p.id} layout exit={{ opacity: 0, scale: 0.9, y: 20 }} transition={{ duration: 0.4, ease: "easeInOut" }}>
-                                                <ProfileCard {...p} name={`${p.firstName} ${p.lastName}`} id={p.id} gender={p.gender?.toLowerCase() as any} media={p.media} canChat={access?.isPremium} onActionSuccess={handleActionSuccess} />
+                                                <ProfileCard {...p} name={formatProfileName(p)} id={p.id} gender={p.gender?.toLowerCase() as any} media={p.media} canChat={access?.isPremium} onActionSuccess={handleActionSuccess} />
                                             </motion.div>
                                         ))
                                     )}
@@ -270,7 +271,7 @@ function DashboardContent() {
                                         discoveryLoading ? [1,2,3,4].map(i => <div key={i} className="aspect-[4/5] bg-card/10 rounded-[1.5rem] animate-pulse border border-white/5" />)
                                         : filteredDiscovery.slice(0, 12).map((p: Profile) => (
                                             <motion.div key={p.id} layout exit={{ opacity: 0, scale: 0.9, y: 20 }} transition={{ duration: 0.4, ease: "easeInOut" }}>
-                                                <ProfileCard {...p} name={`${p.firstName} ${p.lastName}`} id={p.id} gender={p.gender?.toLowerCase() as any} media={p.media} canChat={access?.isPremium} onActionSuccess={handleActionSuccess} />
+                                                <ProfileCard {...p} name={formatProfileName(p)} id={p.id} gender={p.gender?.toLowerCase() as any} media={p.media} canChat={access?.isPremium} onActionSuccess={handleActionSuccess} />
                                             </motion.div>
                                         ))
                                     )}

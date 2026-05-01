@@ -12,7 +12,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { adminService } from "@/services/admin.service";
-import type { User, UserRole } from "@/types/api.types";
+import type { User, UserRole, PaginationData } from "@/types/api.types";
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -229,8 +229,9 @@ export default function AdminUsersPage() {
         bio: '',
       });
       fetchUsers(1);
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Creation Failed', description: err?.message || 'Something went wrong' });
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Creation failed';
+      toast({ variant: 'destructive', title: 'Creation Failed', description: errorMsg });
     } finally {
       setIsCreatingUser(false);
     }
@@ -259,15 +260,16 @@ export default function AdminUsersPage() {
     try {
       const data = await adminService.getUsers(page, 10);
       setUsers(data.users || []);
-      const pag = data.pagination as any;
+      const pag = data.pagination as unknown as PaginationData;
       setPagination({
         page: pag?.page || 1,
         limit: pag?.limit || 10,
         total: pag?.total || 0,
         totalPages: pag?.totalPages || 0
       });
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err?.message || 'Failed to load users' });
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to load users';
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg });
     } finally {
       setIsLoading(false);
     }
@@ -451,8 +453,9 @@ export default function AdminUsersPage() {
       setIsBulkUploadOpen(false);
       setSelectedFile(null);
       fetchUsers();
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Upload Failed', description: err?.message || 'Upload failed' });
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Upload failed';
+      toast({ variant: 'destructive', title: 'Upload Failed', description: errorMsg });
     } finally {
       setIsUploading(false);
     }
@@ -465,8 +468,9 @@ export default function AdminUsersPage() {
       toast({ title: 'Subscription Granted', description: `Granted successfully for ${selectedUserForSub.email}` });
       setIsGrantSubOpen(false);
       fetchUsers(pagination.page);
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Grant Failed', description: err?.message || 'Grant failed' });
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Grant failed';
+      toast({ variant: 'destructive', title: 'Grant Failed', description: errorMsg });
     }
   };
 

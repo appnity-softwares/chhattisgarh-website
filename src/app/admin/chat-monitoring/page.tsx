@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { adminService } from '@/services/admin.service';
+import { PaginationData } from '@/types/api.types';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -87,9 +88,10 @@ export default function AdminChatMonitoringPage() {
     try {
       const data = await adminService.getAllConversations(page, 10, searchQuery, flaggedOnly ? 'true' : undefined);
       setConversations((data.conversations as Conversation[]) || []);
-      setPagination((data.pagination as any) || { page: 1, limit: 10, total: 0, totalPages: 0 });
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err?.message || 'Failed to load conversations' });
+      setPagination((data.pagination as PaginationData) || { page: 1, limit: 10, total: 0, totalPages: 0 });
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to load conversations';
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg });
     } finally {
       setIsLoading(false);
     }
@@ -98,11 +100,12 @@ export default function AdminChatMonitoringPage() {
   const fetchConversation = async (conversationId: number) => {
     setIsLoading(true);
     try {
-      const conversation = await adminService.getConversationById(conversationId.toString()) as any;
-      setSelectedConversation(conversation as Conversation);
-      setMessages(conversation.messages || []);
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err?.message || 'Failed to load conversation' });
+      const response = await adminService.getConversationById(conversationId.toString()) as { messages?: Message[] };
+      setSelectedConversation(response as unknown as Conversation);
+      setMessages(response.messages || []);
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to load conversation';
+      toast({ variant: 'destructive', title: 'Error', description: errorMsg });
     } finally {
       setIsLoading(false);
     }

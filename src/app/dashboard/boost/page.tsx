@@ -45,7 +45,7 @@ export default function BoostPage() {
                 description: `Boost: ${orderData.boostPackage?.name || boostType}`,
                 image: "/logo.png",
                 order_id: orderData.orderId,
-                handler: async function (response: unknown) {
+                handler: async function (response: any) {
                     await verifyBoost.mutateAsync({
                         razorpay_order_id: response.razorpay_order_id,
                         razorpay_payment_id: response.razorpay_payment_id,
@@ -58,11 +58,10 @@ export default function BoostPage() {
                 },
             };
 
-            // @ts-expect-error - Legacy third-party typing is incomplete
-            const paymentObject = new window.Razorpay(options);
+            const paymentObject = new (window as any).Razorpay(options);
             paymentObject.open();
 
-        } catch (error: unknown) {
+        } catch (error: any) {
             console.error("Boost payment failed:", error);
             toast({
                 title: "Error",
@@ -146,18 +145,18 @@ export default function BoostPage() {
             {/* Performance Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
-                    { label: 'Profile Discoverability', value: '+300%', color: 'text-primary' },
-                    { label: 'Chat Initiation Rate', value: '2.4x', color: 'text-primary' },
-                    { label: 'Search Priority', value: 'Rank #1', color: 'text-primaryDark' },
+                    { label: 'Profile Discoverability', value: '+300%', color: 'text-primary', bgColor: 'bg-primary/10' },
+                    { label: 'Chat Initiation Rate', value: '2.4x', color: 'text-success', bgColor: 'bg-success/10' },
+                    { label: 'Search Priority', value: 'Rank #1', color: 'text-primaryDark', bgColor: 'bg-gold/20' },
                 ].map((stat, i) => (
-                    <Card key={i} className="bg-background border-border rounded-[1.5rem] overflow-hidden group hover:border-border transition-all">
-                        <CardContent className="p-6 flex items-center justify-between">
+                    <Card key={i} className={`border-none rounded-[2rem] overflow-hidden group transition-all shadow-sm ${stat.bgColor}`}>
+                        <CardContent className="p-8 flex items-center justify-between">
                             <div className="space-y-1">
-                                <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">{stat.label}</p>
-                                <h4 className={`text-2xl font-bold uppercase tracking-tighter ${stat.color}`}>{stat.value}</h4>
+                                <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">{stat.label}</p>
+                                <h4 className={`text-3xl font-bold uppercase tracking-tighter ${stat.color}`}>{stat.value}</h4>
                             </div>
-                            <div className="bg-background p-3 rounded-xl group-hover:bg-background transition-colors">
-                                <ArrowUpRight className="w-5 h-5 text-muted-foreground/40 group-hover:text-primary transition-colors" />
+                            <div className="bg-background/50 backdrop-blur-sm p-3 rounded-2xl transition-colors">
+                                <ArrowUpRight className={`w-5 h-5 ${stat.color}`} />
                             </div>
                         </CardContent>
                     </Card>
@@ -172,57 +171,56 @@ export default function BoostPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-                    {displayPackages.map((option: unknown) => (
+                    {displayPackages.map((option: any) => (
                         <motion.div
                             key={option.id}
                             whileHover={{ y: -10 }}
-                            className={`relative bg-surface border rounded-[2rem] p-8 flex flex-col gap-8 transition-all duration-500 overflow-hidden ${option.recommended ? 'border-primary shadow-2xl shadow-primary/10 scale-105 z-10' : 'border-border'}`}
+                            className={`relative bg-surface border rounded-[2rem] p-8 flex flex-col gap-8 transition-all duration-500 overflow-hidden shadow-sm ${option.recommended ? 'border-primary/30 ring-1 ring-primary/20 scale-105 z-10' : 'border-border'}`}
                         >
                             {option.recommended && (
-                                <div className="absolute top-0 right-0 bg-primary text-white text-[9px] font-bold px-6 py-2 rounded-bl-2xl uppercase tracking-widest">Recommended</div>
+                                <div className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-6 py-2.5 rounded-bl-2xl uppercase tracking-widest shadow-xl">Best Value</div>
                             )}
                             
                             <div className="space-y-4">
                                 <div className="space-y-1">
-                                    <h4 className="text-lg font-bold text-foreground font-medium tracking-tight">{option.name}</h4>
-                                    <p className="text-[10px] font-medium text-muted-foreground opacity-70 font-medium leading-relaxed">{option.description || 'Boost your profile visibility immediately.'}</p>
+                                    <h4 className="text-xl font-bold text-foreground tracking-tight uppercase">{option.name}</h4>
+                                    <p className="text-[10px] font-bold text-muted-foreground opacity-60 uppercase tracking-widest leading-relaxed">{option.description || 'Boost your profile visibility immediately.'}</p>
                                 </div>
                                 
                                 <div className="flex items-baseline gap-1">
                                     <span className="text-4xl font-bold text-foreground tracking-tighter">₹{option.price}</span>
-                                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">/ {option.duration}</span>
+                                    <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-2">/ {option.duration}</span>
                                 </div>
                             </div>
 
-                            <div className="space-y-4">
+                            <div className="space-y-5">
                                 <div className="flex items-center gap-3">
-                                    <div className="bg-success/10 p-1 rounded-full"><CheckCircle2 className="w-3 h-3 text-success" /></div>
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/90">{option.multiplier || '10x'} Visibility</span>
+                                    <div className="bg-primary/10 p-2 rounded-full"><CheckCircle2 className="w-3.5 h-3.5 text-primary" /></div>
+                                    <span className="text-[11px] font-bold uppercase tracking-widest text-foreground/80">{option.multiplier || '10x'} Visibility</span>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <div className="bg-success/10 p-1 rounded-full"><CheckCircle2 className="w-3 h-3 text-success" /></div>
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/90">Search Rank #1</span>
+                                    <div className="bg-primary/10 p-2 rounded-full"><CheckCircle2 className="w-3.5 h-3.5 text-primary" /></div>
+                                    <span className="text-[11px] font-bold uppercase tracking-widest text-foreground/80">Search Rank #1</span>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <div className="bg-success/10 p-1 rounded-full"><CheckCircle2 className="w-3 h-3 text-success" /></div>
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/90">Premium Badge Entry</span>
+                                    <div className="bg-primary/10 p-2 rounded-full"><CheckCircle2 className="w-3.5 h-3.5 text-primary" /></div>
+                                    <span className="text-[11px] font-bold uppercase tracking-widest text-foreground/80">Premium Badge Entry</span>
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-3 mt-auto">
                                 <Button 
                                     onClick={() => handleBoostPayment(option.id)}
                                     disabled={initiateBoost.isPending || verifyBoost.isPending}
-                                    className={`w-full h-14 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-xl transition-all ${option.recommended ? 'bg-primary text-white hover:bg-primary shadow-primary/20' : 'bg-background hover:bg-background text-white border border-border'}`}
+                                    className={`w-full h-16 rounded-[1.5rem] font-bold text-[11px] uppercase tracking-widest transition-all active:scale-95 shadow-xl ${option.recommended ? 'bg-primary text-white hover:bg-primary/90 shadow-primary/20' : 'bg-background text-foreground border border-border hover:bg-surface'}`}
                                 >
                                     {initiateBoost.isPending && initiateBoost.variables === option.id ? (
-                                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                        <Loader2 className="w-5 h-5 animate-spin" />
                                     ) : 'ACTIVATE NOW'}
                                 </Button>
                                 
                                 <Button
                                     variant="ghost"
-                                    size="sm"
                                     onClick={async () => {
                                         try {
                                             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/web/boost/create-link`, {
@@ -249,7 +247,7 @@ export default function BoostPage() {
                                             });
                                         }
                                     }}
-                                    className="h-8 rounded-xl bg-success/10 hover:bg-success/10 text-success text-[8px] font-bold uppercase tracking-widest border border-success/25"
+                                    className="h-12 rounded-[1.25rem] bg-foreground/5 hover:bg-foreground/10 text-foreground text-[10px] font-bold uppercase tracking-[0.2em]"
                                 >
                                     Share Link
                                 </Button>

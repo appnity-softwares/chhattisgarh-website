@@ -86,11 +86,10 @@ export default function AdminChatMonitoringPage() {
     setIsLoading(true);
     try {
       const data = await adminService.getAllConversations(page, 10, searchQuery, flaggedOnly ? 'true' : undefined);
-      setConversations(data.conversations || []);
-      setPagination(data.pagination || { page: 1, limit: 10, total: 0, totalPages: 0 } as { page: number; limit: number; total: number; totalPages: number });
-    } catch (err: unknown) {
-      const errorMsg = err as { message?: string };
-      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to load conversations' });
+      setConversations((data.conversations as Conversation[]) || []);
+      setPagination((data.pagination as any) || { page: 1, limit: 10, total: 0, totalPages: 0 });
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: 'Error', description: err?.message || 'Failed to load conversations' });
     } finally {
       setIsLoading(false);
     }
@@ -99,12 +98,11 @@ export default function AdminChatMonitoringPage() {
   const fetchConversation = async (conversationId: number) => {
     setIsLoading(true);
     try {
-      const conversation = await adminService.getConversationById(conversationId.toString());
-      setSelectedConversation(conversation);
+      const conversation = await adminService.getConversationById(conversationId.toString()) as any;
+      setSelectedConversation(conversation as Conversation);
       setMessages(conversation.messages || []);
-    } catch (err: unknown) {
-      const errorMsg = err as { message?: string };
-      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to load conversation' });
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: 'Error', description: err?.message || 'Failed to load conversation' });
     } finally {
       setIsLoading(false);
     }
@@ -176,7 +174,7 @@ export default function AdminChatMonitoringPage() {
                   <Checkbox
                     id="flagged-only"
                     checked={flaggedOnly}
-                    onCheckedChange={setFlaggedOnly}
+                    onCheckedChange={(checked) => setFlaggedOnly(checked === true)}
                   />
                   <label htmlFor="flagged-only" className="text-sm font-medium">
                     Flagged Only
@@ -304,7 +302,7 @@ export default function AdminChatMonitoringPage() {
                               <DropdownMenuSeparator />
                               {conversation.participant1 && (
                                 <DropdownMenuItem
-                                  onClick={() => handleFlagMessage(conversation.participant1.id, 'Flagged for review')}
+                                  onClick={() => handleFlagMessage(conversation.participant1!.id, 'Flagged for review')}
                                   className="text-amber-600"
                                 >
                                   <Flag className="w-4 h-4 mr-2" />
@@ -313,7 +311,7 @@ export default function AdminChatMonitoringPage() {
                               )}
                               {conversation.participant2 && (
                                 <DropdownMenuItem
-                                  onClick={() => handleFlagMessage(conversation.participant2.id, 'Flagged for review')}
+                                  onClick={() => handleFlagMessage(conversation.participant2!.id, 'Flagged for review')}
                                   className="text-amber-600"
                                 >
                                   <Flag className="w-4 h-4 mr-2" />

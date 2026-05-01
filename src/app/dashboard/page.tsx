@@ -52,7 +52,7 @@ function DashboardContent() {
 
     const featuredProfiles = featuredPages?.pages[0]?.profiles?.slice(0, 8) || [];
     const newProfiles = newPages?.pages[0]?.profiles?.slice(0, 8) || [];
-    const discoveryProfiles = discoveryPages?.pages.flatMap((p: unknown) => p.profiles) || [];
+    const discoveryProfiles = discoveryPages?.pages.flatMap((p: any) => p.profiles) || [];
 
     const [hiddenIds, setHiddenIds] = useState<Set<number | string>>(new Set());
 
@@ -68,11 +68,11 @@ function DashboardContent() {
     const tabs = [
         { id: 'suggested', label: 'Suggested', icon: Sparkles, color: 'text-primary' },
         { id: 'new', label: 'New Members', icon: Zap, color: 'text-accent' },
-        { id: 'discover', label: 'Discover', icon: Users, color: 'text-blue-400' },
+        { id: 'discover', label: 'Discover', icon: Users, color: 'text-primary' },
     ];
 
     const statsConfig = [
-        { label: "Views", value: profileViews, trend: "+12%", icon: Users, color: "text-blue-400", link: "/dashboard/activity" },
+        { label: "Views", value: profileViews, trend: "+12%", icon: Users, color: "text-primary", link: "/dashboard/activity" },
         { label: "Matches", value: newMatches, trend: "Discover", icon: Sparkles, color: "text-primary", link: "/dashboard/matches" },
         { label: "Interests", value: interestsReceived, trend: "Pending", icon: Heart, color: "text-accent", link: "/dashboard/activity" },
         { label: "Messages", value: unreadMessages, trend: "Unread", icon: MessageSquare, color: "text-chat", link: "/dashboard/chat" },
@@ -91,26 +91,26 @@ function DashboardContent() {
                 <motion.div 
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="p-6 rounded-[2rem] bg-amber-400 text-black shadow-2xl shadow-amber-400/20 relative overflow-hidden group"
+                    className="p-6 rounded-[2rem] bg-gold/20 text-black shadow-2xl shadow-gold/20 relative overflow-hidden group"
                 >
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-bl-full -mr-8 -mt-8 blur-2xl group-hover:scale-150 transition-all duration-1000" />
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-background rounded-bl-full -mr-8 -mt-8 blur-2xl group-hover:scale-150 transition-all duration-1000" />
                     <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
                         <div className="flex items-center gap-5">
                             <div className="w-14 h-14 bg-black/10 rounded-2xl flex items-center justify-center shrink-0">
                                 <User className="w-7 h-7" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-black uppercase tracking-tight">Complete Your Profile</h3>
-                                <p className="text-sm font-bold opacity-80 italic">Verified profiles are 10x more likely to find a match!</p>
+                                <h3 className="text-xl font-bold uppercase tracking-tight">Complete Your Profile</h3>
+                                <p className="text-sm font-bold opacity-80 font-medium">Verified profiles are 10x more likely to find a match!</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-4 w-full md:w-auto">
                             <div className="flex-1 md:w-40 h-2 bg-black/10 rounded-full overflow-hidden">
                                 <div className="h-full bg-black transition-all duration-1000" style={{ width: `${completion?.percentage || 0}%` }} />
                             </div>
-                            <span className="font-black text-sm">{completion?.percentage || 0}%</span>
+                            <span className="font-bold text-sm">{completion?.percentage || 0}%</span>
                             <Link href="/dashboard/profile">
-                                <Button className="bg-black text-white hover:bg-black/90 font-black rounded-xl px-8 h-12">
+                                <Button className="bg-black text-foreground hover:bg-foreground/70 font-bold rounded-xl px-8 h-12">
                                     FINISH NOW
                                 </Button>
                             </Link>
@@ -123,22 +123,22 @@ function DashboardContent() {
             <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative overflow-hidden rounded-[1.5rem] bg-gradient-to-r from-primary/90 to-rose-600/90 p-6 text-white shadow-xl"
+                className="relative overflow-hidden rounded-[1.5rem] bg-primary p-6 text-white shadow-xl"
             >
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-black tracking-tighter uppercase mb-1">Shubharambh!</h1>
-                        <p className="text-white/80 font-bold text-sm">Find your perfect match in Chhattisgarh.</p>
+                        <h1 className="text-2xl font-bold tracking-tighter uppercase mb-1">Shubharambh!</h1>
+                        <p className="text-primary-foreground/80 font-bold text-sm">Find your perfect match in Chhattisgarh.</p>
                     </div>
                     <div className="flex gap-2">
                         <Link href="/dashboard/search">
-                            <Button size="sm" className="bg-white/20 hover:bg-white/30 text-white font-black rounded-xl px-6 h-10 border border-white/20 backdrop-blur-md">
+                            <Button size="sm" className="bg-background hover:bg-background text-foreground font-bold rounded-xl px-6 h-10 border border-border backdrop-blur-md">
                                 <Search className="w-4 h-4 mr-2" />
                                 ADVANCED SEARCH
                             </Button>
                         </Link>
                         <Link href="/dashboard/boost">
-                            <Button size="sm" className="bg-white text-primary hover:bg-white/90 font-black rounded-xl px-6 h-10 shadow-lg">
+                            <Button size="sm" className="bg-white text-primary hover:bg-background font-bold rounded-xl px-6 h-10 shadow-lg">
                                 <Zap className="w-4 h-4 mr-2 fill-current" />
                                 BOOST
                             </Button>
@@ -157,22 +157,22 @@ function DashboardContent() {
                         transition={{ delay: i * 0.05 }}
                     >
                         <Link href={stat.link}>
-                            <Card className="border-white/5 bg-card/30 backdrop-blur-lg rounded-[1.2rem] group hover:border-primary/40 transition-all border-t border-l border-white/10 overflow-hidden">
+                            <Card className="border-border bg-surface backdrop-blur-lg rounded-[1.2rem] group hover:border-primary/40 transition-all border-t border-l border-border overflow-hidden">
                                 <CardContent className="p-4 flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className={`p-2.5 rounded-xl bg-white/5 ${stat.color} group-hover:bg-primary group-hover:text-white transition-all`}>
+                                        <div className={`p-2.5 rounded-xl bg-background ${stat.color} group-hover:bg-primary group-hover:text-white transition-all`}>
                                             <stat.icon className="w-4 h-4" />
                                         </div>
                                         <div>
-                                        <p className="text-[11px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">{stat.label}</p>
+                                        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest leading-none mb-1">{stat.label}</p>
                                             {statsLoading ? (
-                                                <div className="h-6 w-10 bg-white/5 rounded animate-pulse" />
+                                                <div className="h-6 w-10 bg-background rounded animate-pulse" />
                                             ) : (
-                                                <p className="text-xl font-black text-foreground tracking-tighter leading-none">{stat.value}</p>
+                                                <p className="text-xl font-bold text-foreground tracking-tighter leading-none">{stat.value}</p>
                                             )}
                                         </div>
                                     </div>
-                                    <span className="text-[8px] font-black text-green-400 bg-green-400/10 px-2 py-1 rounded-full border border-green-400/20">{stat.trend}</span>
+                                    <span className={`text-[8px] font-bold ${stat.color} ${stat.color.replace('text-', 'bg-')}/10 px-2 py-1 rounded-full border ${stat.color.replace('text-', 'border-')}/25`}>{stat.trend}</span>
                                 </CardContent>
                             </Card>
                         </Link>
@@ -181,31 +181,31 @@ function DashboardContent() {
             </div>
 
             {/* Smart Tabs Navigation */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2 border-b border-white/5">
-                <div className="flex p-1 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/5 w-fit">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2 border-b border-border">
+                <div className="flex p-1 bg-background backdrop-blur-xl rounded-2xl border border-border w-fit">
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => setTab(tab.id)}
-                            className={`relative px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-2 ${
-                                activeTab === tab.id ? "text-white" : "text-muted-foreground hover:text-white"
+                            className={`relative px-6 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-2 ${
+                                activeTab === tab.id ? tab.color : "text-muted-foreground hover:text-foreground"
                             }`}
                         >
                             {activeTab === tab.id && (
                                 <motion.div
                                     layoutId="activeTabCompact"
-                                    className="absolute inset-0 bg-primary shadow-lg shadow-primary/20 rounded-xl"
+                                    className={`absolute inset-0 ${activeTab === 'new' ? 'bg-accent/10' : 'bg-primary/10'} rounded-xl`}
                                     transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
                                 />
                             )}
-                            <tab.icon className={`w-3.5 h-3.5 relative z-20 ${activeTab === tab.id ? "text-white" : tab.color}`} />
+                            <tab.icon className={`w-3.5 h-3.5 relative z-20 ${activeTab === tab.id ? tab.color : tab.color + ' opacity-50'}`} />
                             <span className="relative z-20">{tab.label}</span>
                         </button>
                     ))}
                 </div>
                 
-                <div className="flex items-center gap-3 text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/60">
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+                <div className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground/60">
+                    <div className="w-1.5 h-1.5 bg-success/10 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
                     Real-time Discovery
                 </div>
             </div>
@@ -225,13 +225,13 @@ function DashboardContent() {
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <div className="w-1 h-6 bg-primary rounded-full" />
-                                    <h3 className="text-xl font-black tracking-tight uppercase">
-                                        {activeTab === 'suggested' && <>Suggested <span className="text-primary italic">Matches</span></>}
-                                        {activeTab === 'new' && <>New <span className="text-accent italic">Members</span></>}
+                                    <h3 className="text-xl font-bold tracking-tight uppercase">
+                                        {activeTab === 'suggested' && <>Suggested <span className="text-primary font-medium">Matches</span></>}
+                                        {activeTab === 'new' && <>New <span className="text-accent font-medium">Members</span></>}
                                         {activeTab === 'discover' && <>Discover <span className="opacity-40">All</span></>}
                                     </h3>
                                 </div>
-                                <p className="text-[10px] font-bold text-muted-foreground uppercase bg-white/5 px-3 py-1.5 rounded-full border border-white/5 tracking-wider">
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase bg-background px-3 py-1.5 rounded-full border border-border tracking-wider">
                                     Showing Top Profiles
                                 </p>
                             </div>
@@ -239,26 +239,26 @@ function DashboardContent() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
                                 <AnimatePresence mode="popLayout">
                                     {activeTab === 'suggested' && (
-                                        featuredLoading ? [1,2,3,4].map(i => <div key={i} className="aspect-[4/5] bg-card/10 rounded-[1.5rem] animate-pulse border border-white/5" />)
+                                        featuredLoading ? [1,2,3,4].map(i => <div key={i} className="aspect-[4/5] bg-card/10 rounded-[1.5rem] animate-pulse border border-border" />)
                                         : filteredFeatured.map((p: Profile) => (
                                             <motion.div key={p.id} layout exit={{ opacity: 0, scale: 0.9, y: 20 }} transition={{ duration: 0.4, ease: "easeInOut" }}>
-                                                <ProfileCard {...p} name={formatProfileName(p)} id={p.id} gender={p.gender?.toLowerCase() as unknown} media={p.media} canChat={access?.isPremium} onActionSuccess={handleActionSuccess} />
+                                                <ProfileCard {...p} name={formatProfileName(p)} id={p.id} gender={p.gender?.toLowerCase() as any} media={p.media} canChat={access?.isPremium} relationship={p.relationship} onActionSuccess={handleActionSuccess} />
                                             </motion.div>
                                         ))
                                     )}
                                     {activeTab === 'new' && (
-                                        newLoading ? [1,2,3,4].map(i => <div key={i} className="aspect-[4/5] bg-card/10 rounded-[1.5rem] animate-pulse border border-white/5" />)
+                                        newLoading ? [1,2,3,4].map(i => <div key={i} className="aspect-[4/5] bg-card/10 rounded-[1.5rem] animate-pulse border border-border" />)
                                         : filteredNew.map((p: Profile) => (
                                             <motion.div key={p.id} layout exit={{ opacity: 0, scale: 0.9, y: 20 }} transition={{ duration: 0.4, ease: "easeInOut" }}>
-                                                <ProfileCard {...p} name={formatProfileName(p)} id={p.id} gender={p.gender?.toLowerCase() as unknown} media={p.media} canChat={access?.isPremium} onActionSuccess={handleActionSuccess} />
+                                                <ProfileCard {...p} name={formatProfileName(p)} id={p.id} gender={p.gender?.toLowerCase() as any} media={p.media} canChat={access?.isPremium} relationship={p.relationship} onActionSuccess={handleActionSuccess} />
                                             </motion.div>
                                         ))
                                     )}
                                     {activeTab === 'discover' && (
-                                        discoveryLoading ? [1,2,3,4].map(i => <div key={i} className="aspect-[4/5] bg-card/10 rounded-[1.5rem] animate-pulse border border-white/5" />)
+                                        discoveryLoading ? [1,2,3,4].map(i => <div key={i} className="aspect-[4/5] bg-card/10 rounded-[1.5rem] animate-pulse border border-border" />)
                                         : filteredDiscovery.slice(0, 12).map((p: Profile) => (
                                             <motion.div key={p.id} layout exit={{ opacity: 0, scale: 0.9, y: 20 }} transition={{ duration: 0.4, ease: "easeInOut" }}>
-                                                <ProfileCard {...p} name={formatProfileName(p)} id={p.id} gender={p.gender?.toLowerCase() as unknown} media={p.media} canChat={access?.isPremium} onActionSuccess={handleActionSuccess} />
+                                                <ProfileCard {...p} name={formatProfileName(p)} id={p.id} gender={p.gender?.toLowerCase() as any} media={p.media} canChat={access?.isPremium} relationship={p.relationship} onActionSuccess={handleActionSuccess} />
                                             </motion.div>
                                         ))
                                     )}
@@ -267,7 +267,7 @@ function DashboardContent() {
                             
                             <div className="flex justify-center pt-4">
                                 <Link href="/dashboard/matches">
-                                    <Button variant="ghost" className="text-[10px] font-black uppercase tracking-[0.3em] text-primary hover:bg-primary/5 rounded-xl h-12 w-full max-w-xs border border-primary/10 transition-all">
+                                    <Button variant="ghost" className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary hover:bg-primary/5 rounded-xl h-12 w-full max-w-xs border border-primary/10 transition-all">
                                         Explore All {activeTab} Profiles
                                     </Button>
                                 </Link>
@@ -278,14 +278,14 @@ function DashboardContent() {
 
                 {/* Dense Sidebar */}
                 <div className="space-y-4">
-                    <Card className="relative border-none bg-gradient-to-br from-foreground to-black rounded-[1.5rem] p-6 overflow-hidden group shadow-2xl">
+                    <Card className="relative border-none bg-surface rounded-[1.5rem] p-6 overflow-hidden group shadow-2xl">
                         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                             <Star className="w-16 h-16 text-primary group-hover:rotate-12 transition-transform duration-700" />
                         </div>
                         <div className="relative z-10 space-y-4">
-                            <h3 className="text-xl font-black text-white leading-tight uppercase tracking-tighter">Precision <br />Search</h3>
+                            <h3 className="text-xl font-bold text-foreground leading-tight uppercase tracking-tighter">Precision <br />Search</h3>
                             <p className="text-[10px] text-muted-foreground font-bold tracking-wider leading-relaxed">Find your ideal match among 50+ detailed parameters.</p>
-                            <Button asChild className="w-full bg-primary hover:bg-primary/90 text-white font-black rounded-xl h-11 text-[11px] uppercase tracking-widest shadow-lg shadow-primary/20">
+                            <Button asChild className="w-full bg-primary hover:bg-primary/90 text-white font-bold rounded-xl h-11 text-[11px] uppercase tracking-widest shadow-lg shadow-primary/20">
                                 <Link href="/dashboard/search">
                                     USE FILTERS <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
                                 </Link>
@@ -293,21 +293,21 @@ function DashboardContent() {
                         </div>
                     </Card>
 
-                    <div className="bg-card/20 backdrop-blur-xl rounded-[1.5rem] p-5 border border-white/5">
-                        <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-primary/70 mb-5">Quick Stats</h4>
+                    <div className="bg-card/20 backdrop-blur-xl rounded-[1.5rem] p-5 border border-border">
+                        <h4 className="text-[11px] font-bold uppercase tracking-[0.4em] text-primary/70 mb-5">Quick Stats</h4>
                         <div className="space-y-4">
                             {[
-                                { icon: ShieldCheck, label: "Profile Status", value: "Verified", color: "text-green-500" },
-                                { icon: Zap, label: "Boost Credits", value: "12 Left", color: "text-amber-500" },
-                                { icon: Heart, label: "Favorited by", value: "24 Members", color: "text-rose-500" }
+                                { icon: ShieldCheck, label: "Profile Status", value: "Verified", color: "text-success" },
+                                { icon: Zap, label: "Boost Credits", value: "12 Left", color: "text-primaryDark" },
+                                { icon: Heart, label: "Favorited by", value: "24 Members", color: "text-error" }
                             ].map((item, idx) => (
                                 <div key={idx} className="flex items-center gap-3">
-                                    <div className={`p-2 rounded-lg bg-white/5 ${item.color}`}>
+                                    <div className={`p-2 rounded-lg ${item.color} ${item.color.replace('text-', 'bg-')}/10`}>
                                         <item.icon className="w-3.5 h-3.5" />
                                     </div>
                                     <div>
                                         <p className="text-[11px] font-bold text-muted-foreground uppercase leading-none mb-1">{item.label}</p>
-                                        <p className="text-xs font-black text-white uppercase leading-none">{item.value}</p>
+                                        <p className="text-xs font-bold text-foreground uppercase leading-none">{item.value}</p>
                                     </div>
                                 </div>
                             ))}

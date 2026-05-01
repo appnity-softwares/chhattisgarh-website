@@ -144,12 +144,12 @@ function BoostCheckoutContent() {
                     >
                         <Zap className="w-10 h-10 text-white" />
                     </motion.div>
-                    <h2 className="text-3xl font-black text-white mb-3">Boost Activated!</h2>
+                    <h2 className="text-3xl font-bold text-white mb-3">Boost Activated!</h2>
                     <p className="text-amber-200/60 text-sm mb-10 font-medium">
                         Your profile is now receiving maximum visibility.
                     </p>
                     
-                    <Button asChild className="w-full h-14 bg-amber-500 hover:bg-amber-600 text-white font-black rounded-2xl shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2 uppercase tracking-widest">
+                    <Button asChild className="w-full h-14 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2 uppercase tracking-widest">
                         <a href={details.deepLinkSuccess}>
                             COMPLETE IN APP
                             <RefreshCw className="w-4 h-4 animate-spin" />
@@ -177,7 +177,7 @@ function BoostCheckoutContent() {
                             <Zap className="w-6 h-6 text-amber-500" />
                         </div>
                         <div>
-                            <p className="text-[10px] uppercase tracking-[0.2em] font-black text-amber-500">Profile Acceleration</p>
+                            <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-amber-500">Profile Acceleration</p>
                             <h2 className="text-2xl font-bold text-white tracking-tight">{details.boost.name}</h2>
                         </div>
                     </div>
@@ -186,10 +186,10 @@ function BoostCheckoutContent() {
                         <div className="flex justify-between items-end border-b border-white/5 pb-6">
                             <div className="space-y-1">
                                 <p className="text-sm text-muted-foreground font-medium">Boost Duration</p>
-                                <p className="text-xs text-muted-foreground italic">{details.boost.duration} Hours active push</p>
+                                <p className="text-xs text-muted-foreground font-medium">{details.boost.duration} Hours active push</p>
                             </div>
                             <div className="text-right">
-                                <p className="text-4xl font-black text-white tracking-tighter">₹{details.amount / 100}</p>
+                                <p className="text-4xl font-bold text-white tracking-tighter">₹{details.amount / 100}</p>
                                 <p className="text-[10px] uppercase tracking-wider font-bold text-amber-500">Instant Activation</p>
                             </div>
                         </div>
@@ -205,7 +205,7 @@ function BoostCheckoutContent() {
                     <Button 
                         onClick={handlePayment} 
                         disabled={verifying}
-                        className="w-full h-16 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-xl rounded-2xl shadow-2xl shadow-amber-500/20 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 group"
+                        className="w-full h-16 bg-gold hover:bg-gold/90 text-white font-bold text-xl rounded-2xl shadow-2xl shadow-amber-500/20 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 group"
                     >
                         {verifying ? (
                             <RefreshCw className="w-6 h-6 animate-spin" />
@@ -218,16 +218,16 @@ function BoostCheckoutContent() {
                     </Button>
 
                     <div className="mt-8 flex flex-wrap items-center justify-center gap-4 opacity-40 hover:opacity-100 transition-all duration-500">
-                        <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white border border-white/10 px-3 py-1.5 rounded-lg bg-white/5">
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-white border border-white/10 px-3 py-1.5 rounded-lg bg-white/5">
                             <Shield className="w-3.5 h-3.5 text-amber-500" />
                             PCI-DSS
                         </div>
-                        <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white border border-white/10 px-3 py-1.5 rounded-lg bg-white/5">
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-white border border-white/10 px-3 py-1.5 rounded-lg bg-white/5">
                             <CreditCard className="w-3.5 h-3.5 text-amber-500" />
                             RAZORPAY
                         </div>
-                        <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white border border-white/10 px-3 py-1.5 rounded-lg bg-white/5">
-                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-white border border-white/10 px-3 py-1.5 rounded-lg bg-white/5">
+                            <ShieldCheck className="w-3.5 h-3.5 text-success" />
                             256-bit SSL
                         </div>
                     </div>

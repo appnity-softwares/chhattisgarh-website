@@ -83,10 +83,10 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex flex-col gap-6 animate-pulse">
-        <div className="h-10 w-48 bg-white/5 rounded-lg mb-2" />
+        <div className="h-10 w-48 bg-background rounded-lg mb-2" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="h-64 bg-white/5 rounded-xl col-span-2" />
-          <div className="h-64 bg-white/5 rounded-xl" />
+          <div className="h-64 bg-background rounded-xl col-span-2" />
+          <div className="h-64 bg-background rounded-xl" />
         </div>
       </div>
     );
@@ -95,7 +95,7 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6 pb-12">
       <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
           <div className="p-2 rounded-xl bg-primary/20">
             <SettingsIcon className="w-6 h-6 text-primary" />
           </div>
@@ -105,7 +105,7 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="payments" className="space-y-6">
-        <TabsList className="bg-white/5 border border-white/10 p-1">
+        <TabsList className="bg-background border border-border p-1">
           <TabsTrigger value="payments" className="data-[state=active]:bg-primary data-[state=active]:text-white flex gap-2">
             <CreditCard className="w-4 h-4" /> Payments
           </TabsTrigger>
@@ -120,20 +120,20 @@ export default function SettingsPage() {
         <TabsContent value="payments" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
-              <Card className="bg-white/[0.03] border-white/10 overflow-hidden shadow-2xl">
-                <CardHeader className="border-b border-white/10 bg-white/[0.02]">
+              <Card className="bg-background border-border overflow-hidden shadow-2xl">
+                <CardHeader className="border-b border-border bg-background">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-blue-500/20">
-                      <Key className="w-5 h-5 text-blue-400" />
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Key className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <CardTitle className="text-white">Razorpay Integration</CardTitle>
+                      <CardTitle className="text-foreground">Razorpay Integration</CardTitle>
                       <CardDescription>Live update your payment gateway credentials.</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-6 space-y-6">
-                  <Alert className="bg-amber-500/10 border-amber-500/20 text-amber-200">
+                  <Alert className="bg-gold/20 border-gold/35 text-primaryDark">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Important Note</AlertTitle>
                     <AlertDescription className="text-xs">
@@ -151,7 +151,7 @@ export default function SettingsPage() {
                         value={razorpayKeyId}
                         onChange={(e) => setRazorpayKeyId(e.target.value)}
                         placeholder="rzp_live_xxxxxxxxxxxx"
-                        className="bg-white/5 border-white/10 text-white h-11 focus:ring-primary/50"
+                        className="bg-background border-border text-foreground h-11 focus:ring-primary/50"
                       />
                     </div>
 
@@ -164,7 +164,7 @@ export default function SettingsPage() {
                         value={razorpayKeySecret}
                         onChange={(e) => setRazorpayKeySecret(e.target.value)}
                         placeholder="Enter your key secret"
-                        className="bg-white/5 border-white/10 text-white h-11 focus:ring-primary/50"
+                        className="bg-background border-border text-foreground h-11 focus:ring-primary/50"
                       />
                       <p className="text-[10px] text-muted-foreground mt-1">
                         For security, the secret is never displayed once saved. Always provide a fresh secret to update.
@@ -177,7 +177,7 @@ export default function SettingsPage() {
                       variant="outline" 
                       onClick={fetchSettings}
                       disabled={saving}
-                      className="bg-transparent border-white/10 text-white hover:bg-white/5"
+                      className="bg-transparent border-border text-foreground hover:bg-background"
                     >
                       <RefreshCw className={`w-4 h-4 mr-2 ${saving ? 'animate-spin' : ''}`} />
                       Discard
@@ -203,20 +203,20 @@ export default function SettingsPage() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/[0.03] border-white/10 shadow-2xl">
-                <CardHeader className="border-b border-white/10 bg-white/[0.02]">
-                  <CardTitle className="text-white text-base">Payment Logs Connectivity</CardTitle>
+              <Card className="bg-background border-border shadow-2xl">
+                <CardHeader className="border-b border-border bg-background">
+                  <CardTitle className="text-foreground text-base">Payment Logs Connectivity</CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6">
-                   <div className="flex items-center gap-4 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                      <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                        <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+                   <div className="flex items-center gap-4 p-4 rounded-xl bg-success/10 border border-success/25">
+                      <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center">
+                        <CheckCircle2 className="w-6 h-6 text-success" />
                       </div>
                       <div className="flex-1">
-                        <h4 className="text-sm font-bold text-white">System Verified</h4>
+                        <h4 className="text-sm font-bold text-foreground">System Verified</h4>
                         <p className="text-xs text-muted-foreground">The payment system is currently using the live configurations provided above.</p>
                       </div>
-                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full uppercase tracking-wider">
+                      <span className="text-[10px] font-bold text-success bg-success/10 px-2 py-1 rounded-full uppercase tracking-wider">
                         Active
                       </span>
                    </div>
@@ -225,32 +225,32 @@ export default function SettingsPage() {
             </div>
 
             <div className="space-y-6">
-              <Card className="bg-white/[0.03] border-white/10 shadow-2xl">
+              <Card className="bg-background border-border shadow-2xl">
                 <CardHeader>
-                  <CardTitle className="text-white text-base flex items-center gap-2">
+                  <CardTitle className="text-foreground text-base flex items-center gap-2">
                     <Lock className="w-4 h-4 text-primary" /> Security Overview
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-muted-foreground">SSL Encryption</span>
-                    <span className="text-emerald-400 font-bold">Enabled</span>
+                    <span className="text-success font-bold">Enabled</span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-muted-foreground">Secret Masking</span>
-                    <span className="text-emerald-400 font-bold">Active</span>
+                    <span className="text-success font-bold">Active</span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-muted-foreground">Admin Audit</span>
-                    <span className="text-emerald-400 font-bold">Enabled</span>
+                    <span className="text-success font-bold">Enabled</span>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/[0.03] border-white/10 shadow-2xl">
+              <Card className="bg-background border-border shadow-2xl">
                 <CardHeader>
-                  <CardTitle className="text-white text-base flex items-center gap-2">
-                    <Database className="w-4 h-4 text-blue-400" /> Data Management
+                  <CardTitle className="text-foreground text-base flex items-center gap-2">
+                    <Database className="w-4 h-4 text-primary" /> Data Management
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-xs text-muted-foreground space-y-3">
@@ -263,7 +263,7 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="general" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-           <Card className="bg-white/[0.03] border-white/10">
+           <Card className="bg-background border-border">
               <CardContent className="flex flex-col items-center justify-center py-20 text-muted-foreground">
                 <Globe className="w-12 h-12 mb-4 opacity-20" />
                 <p>General site settings appearing coming soon.</p>
@@ -272,7 +272,7 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="security" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-           <Card className="bg-white/[0.03] border-white/10">
+           <Card className="bg-background border-border">
               <CardContent className="flex flex-col items-center justify-center py-20 text-muted-foreground">
                 <BellRing className="w-12 h-12 mb-4 opacity-20" />
                 <p>Security and notification settings coming soon.</p>

@@ -103,7 +103,7 @@ export default function MembershipPage() {
             <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-primary to-rose-700 p-10 md:p-16 text-white text-center shadow-3xl shadow-primary/30"
+                className="relative overflow-hidden rounded-[3rem] bg-primary p-10 md:p-16 text-white text-center shadow-3xl shadow-primary/30"
             >
                 {/* Abstract Background */}
                 <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
@@ -113,7 +113,7 @@ export default function MembershipPage() {
                             rotate: [0, 90, 0]
                         }}
                         transition={{ duration: 20, repeat: Infinity }}
-                        className="absolute -top-32 -left-32 w-96 h-96 bg-white/10 rounded-full blur-[100px]" 
+                        className="absolute -top-32 -left-32 w-96 h-96 bg-background rounded-full blur-[100px]" 
                     />
                     <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-accent/20 rounded-full blur-[80px]" />
                 </div>
@@ -122,20 +122,20 @@ export default function MembershipPage() {
                     <motion.div 
                         animate={{ y: [0, -10, 0] }}
                         transition={{ duration: 3, repeat: Infinity }}
-                        className="w-24 h-24 bg-white/20 backdrop-blur-md rounded-[2rem] border border-white/30 flex items-center justify-center shadow-2xl"
+                        className="w-24 h-24 bg-background backdrop-blur-md rounded-[2rem] border border-border flex items-center justify-center shadow-2xl"
                     >
-                        <Rocket className="w-12 h-12 text-white fill-current" />
+                        <Rocket className="w-12 h-12 text-foreground fill-current" />
                     </motion.div>
                     
                     <div className="space-y-2 max-w-2xl">
-                        <h1 className="text-4xl md:text-5xl font-black tracking-tight uppercase leading-tight">
-                            Unlock Your <span className="text-white italic">Soulmate!</span> 👑
+                        <h1 className="text-4xl md:text-5xl font-bold tracking-tight uppercase leading-tight">
+                            Unlock Your <span className="text-foreground font-medium">Soulmate!</span> 👑
                         </h1>
-                        <p className="text-white/80 font-medium text-lg md:text-xl">Choose a premium plan that fits your journey to a beautiful marriage.</p>
+                        <p className="text-primary-foreground/80 font-medium text-lg md:text-xl">Choose a premium plan that fits your journey to a beautiful marriage.</p>
                     </div>
 
-                    <div className="flex bg-white/15 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 items-center gap-4">
-                        <ShieldCheck className="w-5 h-5 text-green-400" />
+                    <div className="flex bg-background backdrop-blur-md px-6 py-3 rounded-full border border-border items-center gap-4">
+                        <ShieldCheck className="w-5 h-5 text-success" />
                         <span className="text-sm font-bold tracking-tight">Trusted by 50,000+ Verified Profiles</span>
                     </div>
                 </div>
@@ -145,7 +145,7 @@ export default function MembershipPage() {
             {plansLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {[1, 2, 3].map(i => (
-                        <div key={i} className="h-[500px] bg-white/5 rounded-[2.5rem] animate-pulse" />
+                        <div key={i} className="h-[500px] bg-background rounded-[2.5rem] animate-pulse" />
                     ))}
                 </div>
             ) : (
@@ -159,22 +159,22 @@ export default function MembershipPage() {
                         >
                             <Card 
                                 onClick={() => setSelectedPlanId(plan.id)}
-                                className={`h-full relative cursor-pointer group transition-all duration-500 rounded-[2.5rem] border-white/5 overflow-hidden ${selectedPlanId === plan.id ? 'bg-card/60 ring-2 ring-primary shadow-2xl shadow-primary/10' : 'bg-card/30 hover:bg-card/40'}`}
+                                className={`h-full relative cursor-pointer group transition-all duration-500 rounded-[2.5rem] border-border overflow-hidden ${selectedPlanId === plan.id ? 'bg-surface ring-2 ring-primary shadow-2xl shadow-primary/10' : 'bg-surface hover:bg-surface'}`}
                             >
                                 {i === 1 && (
                                     <div className="absolute top-0 right-0 p-6">
-                                        <Badge className="bg-primary text-white font-black px-4 py-1.5 rounded-full text-[10px] tracking-[0.2em] uppercase shadow-lg shadow-primary/20">Most Popular</Badge>
+                                        <Badge className="bg-primary text-white font-bold px-4 py-1.5 rounded-full text-[10px] tracking-[0.2em] uppercase shadow-lg shadow-primary/20">Most Popular</Badge>
                                     </div>
                                 )}
 
                                 <CardContent className="p-10 flex flex-col h-full">
                                     <div className="mb-8 space-y-1">
-                                        <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground group-hover:text-primary transition-colors">{plan.name}</h3>
+                                        <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground group-hover:text-primary transition-colors">{plan.name}</h3>
                                         <div className="flex items-baseline gap-2">
-                                            <span className="text-4xl font-black tracking-tighter text-foreground">₹{plan.price}</span>
+                                            <span className="text-4xl font-bold tracking-tighter text-foreground">₹{plan.price}</span>
                                             <span className="text-sm font-bold text-muted-foreground">/ {plan.duration} days</span>
                                         </div>
-                                        <p className="text-[10px] font-bold text-primary italic uppercase tracking-widest pt-2 flex items-center gap-2">
+                                        <p className="text-[10px] font-bold text-primary font-medium uppercase tracking-widest pt-2 flex items-center gap-2">
                                             <Clock className="w-3 h-3" />
                                             Active for {plan.duration} Days
                                         </p>
@@ -191,7 +191,7 @@ export default function MembershipPage() {
                                         ))}
                                     </div>
 
-                                    <Button className={`w-full h-14 rounded-2xl font-black text-lg transition-all active:scale-95 ${selectedPlanId === plan.id ? 'bg-primary text-white shadow-xl shadow-primary/20' : 'bg-white/5 border border-white/10 text-foreground hover:bg-primary hover:text-white'}`}>
+                                    <Button className={`w-full h-14 rounded-2xl font-bold text-lg transition-all active:scale-95 ${selectedPlanId === plan.id ? 'bg-primary text-white shadow-xl shadow-primary/20' : 'bg-background border border-border text-foreground hover:bg-primary hover:text-white'}`}>
                                         {selectedPlanId === plan.id ? 'SELECTED' : 'SELECT PLAN'}
                                     </Button>
                                 </CardContent>
@@ -202,24 +202,24 @@ export default function MembershipPage() {
             )}
 
             {/* Bottom Section - Summary & Pay */}
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-10 pt-10 border-t border-white/5 mx-2">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-10 pt-10 border-t border-border mx-2">
                 <div className="flex flex-col md:flex-row items-center gap-8">
                     <div className="flex items-center gap-3">
-                        <div className="bg-green-500/20 p-3 rounded-2xl">
-                            <ShieldCheck className="w-6 h-6 text-green-500" />
+                        <div className="bg-success/10 p-3 rounded-2xl">
+                            <ShieldCheck className="w-6 h-6 text-success" />
                         </div>
                         <div>
-                            <p className="font-black text-sm uppercase tracking-widest text-foreground">Secure Payment</p>
+                            <p className="font-bold text-sm uppercase tracking-widest text-foreground">Secure Payment</p>
                             <p className="text-[10px] text-muted-foreground font-bold tracking-widest uppercase">Verified by Razorpay</p>
                         </div>
                     </div>
-                    <div className="w-px h-10 bg-white/10 hidden md:block" />
+                    <div className="w-px h-10 bg-background hidden md:block" />
                     <div className="flex items-center gap-3">
-                        <div className="bg-amber-400/20 p-3 rounded-2xl">
-                            <Lock className="w-6 h-6 text-amber-400" />
+                        <div className="bg-gold/20 p-3 rounded-2xl">
+                            <Lock className="w-6 h-6 text-primaryDark" />
                         </div>
                         <div>
-                            <p className="font-black text-sm uppercase tracking-widest text-foreground">Instant Activation</p>
+                            <p className="font-bold text-sm uppercase tracking-widest text-foreground">Instant Activation</p>
                             <p className="text-[10px] text-muted-foreground font-bold tracking-widest uppercase">Immediate profile upgrade</p>
                         </div>
                     </div>
@@ -235,25 +235,25 @@ export default function MembershipPage() {
                             placeholder="Promo Code" 
                             value={promoCode}
                             onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                            className="h-14 pl-11 bg-white/5 border-white/10 rounded-2xl focus:ring-primary focus:border-primary font-bold tracking-widest placeholder:font-normal placeholder:tracking-normal"
+                            className="h-14 pl-11 bg-background border-border rounded-2xl focus:ring-primary focus:border-primary font-bold tracking-widest placeholder:font-normal placeholder:tracking-normal"
                         />
                         {promoCode && (
                             <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                                <span className="text-[10px] font-black text-primary animate-pulse">APPLYING</span>
+                                <span className="text-[10px] font-bold text-primary animate-pulse">APPLYING</span>
                             </div>
                         )}
                     </div>
 
                     <div className="text-right hidden sm:block">
                         <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Selected: <span className="text-foreground">{activePlan?.name}</span></p>
-                        <p className="text-3xl font-black text-foreground">₹{activePlan?.price || 0}</p>
+                        <p className="text-3xl font-bold text-foreground">₹{activePlan?.price || 0}</p>
                     </div>
                     <div className="flex flex-col gap-3 w-full sm:w-auto">
                         <Button 
                             size="lg" 
                             onClick={handlePayment}
                             disabled={initiatePayment.isPending || verifyPayment.isPending}
-                            className="w-full lg:w-[280px] h-16 bg-primary hover:bg-primary/90 text-white font-black text-xl rounded-[1.5rem] shadow-2xl shadow-primary/30 group disabled:opacity-50"
+                            className="w-full lg:w-[280px] h-16 bg-primary hover:bg-primary/90 text-white font-bold text-xl rounded-[1.5rem] shadow-2xl shadow-primary/30 group disabled:opacity-50"
                         >
                             {initiatePayment.isPending || verifyPayment.isPending ? (
                                 <Loader2 className="w-6 h-6 animate-spin" />
@@ -300,7 +300,7 @@ export default function MembershipPage() {
                                     });
                                 }
                             }}
-                            className="h-10 rounded-xl bg-green-500/10 hover:bg-green-500/20 text-green-500 text-[10px] font-black uppercase tracking-widest border border-green-500/20"
+                            className="h-10 rounded-xl bg-success/10 hover:bg-success/10 text-success text-[10px] font-bold uppercase tracking-widest border border-success/25"
                         >
                             Share Payment Link
                         </Button>

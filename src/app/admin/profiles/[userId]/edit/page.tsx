@@ -233,12 +233,12 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-black text-white uppercase tracking-tight flex items-center gap-3">
+                        <h1 className="text-3xl font-bold text-foreground uppercase tracking-tight flex items-center gap-3">
                             <UserIcon className="w-8 h-8 text-primary" />
                             {hasProfile ? 'Edit' : 'Create'} <span className="text-primary">Profile</span>
                         </h1>
                         <p className="text-muted-foreground text-sm font-medium mt-1">
-                            Current User: <span className="text-white font-bold">{user?.email}</span>
+                            Current User: <span className="text-foreground font-bold">{user?.email}</span>
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -249,7 +249,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                         >
                             <Eye className="w-4 h-4 mr-2" /> Preview
                         </Button>
-                        <Button variant="outline" onClick={() => router.back()} className="border-white/10 bg-white/5">
+                        <Button variant="outline" onClick={() => router.back()} className="border-border bg-background">
                            <X className="w-4 h-4 mr-2" /> Cancel
                         </Button>
                         <Button 
@@ -270,14 +270,14 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                     {/* Left Column: Form Sections */}
                     <div className="md:col-span-2 space-y-6">
                         {/* Section 1: Identity */}
-                        <Card className="bg-card/40 border-white/5 backdrop-blur-md">
+                        <Card className="bg-card/40 border-border backdrop-blur-md">
                             <CardHeader>
                                 <CardDescription className="text-xs flex items-center gap-2">
                            <span className={cn(
                                "px-2 py-0.5 rounded-full font-bold",
-                               completeness.total > 80 ? "bg-emerald-500/20 text-emerald-400" : 
-                               completeness.total > 50 ? "bg-amber-500/20 text-amber-400" : 
-                               "bg-rose-500/20 text-rose-400"
+                               completeness.total > 80 ? "bg-success/10 text-success" : 
+                               completeness.total > 50 ? "bg-gold/20 text-primaryDark" : 
+                               "bg-error/10 text-error"
                            )}>
                                Profile Strength: {completeness.total}%
                            </span>
@@ -286,41 +286,41 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label className={cn("text-[10px] uppercase font-bold", errors.firstName ? "text-rose-400" : "text-muted-foreground")}>First Name *</Label>
+                                        <Label className={cn("text-[10px] uppercase font-bold", errors.firstName ? "text-error" : "text-muted-foreground")}>First Name *</Label>
                                         <Input 
                                             name="firstName"
                                             value={formData.firstName}
                                             onChange={(e) => setFormData({...formData, firstName: e.target.value})}
-                                            className={cn("bg-white/5 border-white/10", errors.firstName && "border-rose-500/50 bg-rose-500/5")}
+                                            className={cn("bg-background border-border", errors.firstName && "border-error/25 bg-error/10")}
                                             placeholder="Aaradhya"
                                         />
-                                        {errors.firstName && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.firstName}</p>}
+                                        {errors.firstName && <p className="text-[10px] text-error font-bold uppercase">{errors.firstName}</p>}
                                     </div>
                                     <div className="space-y-2">
                                         <Label className="text-[10px] uppercase font-bold text-muted-foreground">Middle Name</Label>
                                         <Input 
                                             value={formData.middleName}
                                             onChange={(e) => setFormData({...formData, middleName: e.target.value})}
-                                            className="bg-white/5 border-white/10"
+                                            className="bg-background border-border"
                                             placeholder="Kumar"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className={cn("text-[10px] uppercase font-bold", errors.lastName ? "text-rose-400" : "text-muted-foreground")}>Last Name</Label>
+                                        <Label className={cn("text-[10px] uppercase font-bold", errors.lastName ? "text-error" : "text-muted-foreground")}>Last Name</Label>
                                         <Input 
                                             name="lastName"
                                             value={formData.lastName}
                                             onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-                                            className={cn("bg-white/5 border-white/10", errors.lastName && "border-rose-500/50 bg-rose-500/5")}
+                                            className={cn("bg-background border-border", errors.lastName && "border-error/25 bg-error/10")}
                                             placeholder="Sharma"
                                         />
-                                        {errors.lastName && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.lastName}</p>}
+                                        {errors.lastName && <p className="text-[10px] text-error font-bold uppercase">{errors.lastName}</p>}
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label className={cn("text-[10px] uppercase font-bold flex items-center gap-1", errors.dateOfBirth ? "text-rose-400" : "text-muted-foreground")}>
+                                        <Label className={cn("text-[10px] uppercase font-bold flex items-center gap-1", errors.dateOfBirth ? "text-error" : "text-muted-foreground")}>
                                             <Calendar className="w-3 h-3" /> Date of Birth *
                                         </Label>
                                         <Input 
@@ -328,31 +328,31 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                             type="date"
                                             value={formData.dateOfBirth}
                                             onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})}
-                                            className={cn("bg-white/5 border-white/10", errors.dateOfBirth && "border-rose-500/50 bg-rose-500/5")}
+                                            className={cn("bg-background border-border", errors.dateOfBirth && "border-error/25 bg-error/10")}
                                         />
-                                        {errors.dateOfBirth && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.dateOfBirth}</p>}
+                                        {errors.dateOfBirth && <p className="text-[10px] text-error font-bold uppercase">{errors.dateOfBirth}</p>}
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className={cn("text-[10px] uppercase font-bold", errors.gender ? "text-rose-400" : "text-muted-foreground")}>Gender *</Label>
+                                        <Label className={cn("text-[10px] uppercase font-bold", errors.gender ? "text-error" : "text-muted-foreground")}>Gender *</Label>
                                         <Select name="gender" value={formData.gender} onValueChange={(v) => setFormData({...formData, gender: v})}>
-                                            <SelectTrigger className={cn("bg-white/5 border-white/10 h-10", errors.gender && "border-rose-500/50 bg-rose-500/5")}>
+                                            <SelectTrigger className={cn("bg-background border-border h-10", errors.gender && "border-error/25 bg-error/10")}>
                                                 <SelectValue placeholder="Select Gender" />
                                             </SelectTrigger>
                                             <SelectContent className="bg-card border-border">
                                                 {GENDERS.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}
                                             </SelectContent>
                                         </Select>
-                                        {errors.gender && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.gender}</p>}
+                                        {errors.gender && <p className="text-[10px] text-error font-bold uppercase">{errors.gender}</p>}
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
 
                         {/* Section 2: Social & Religious */}
-                        <Card className="bg-card/40 border-white/5 backdrop-blur-md">
+                        <Card className="bg-card/40 border-border backdrop-blur-md">
                             <CardHeader>
                                 <CardTitle className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
-                                    <Heart className="w-4 h-4 text-rose-400" /> Background
+                                    <Heart className="w-4 h-4 text-error" /> Background
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
@@ -360,7 +360,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                     <div className="space-y-2">
                                         <Label className="text-[10px] uppercase font-bold text-muted-foreground">Marital Status</Label>
                                         <Select value={formData.maritalStatus} onValueChange={(v) => setFormData({...formData, maritalStatus: v})}>
-                                            <SelectTrigger className="bg-white/5 border-white/10 h-10">
+                                            <SelectTrigger className="bg-background border-border h-10">
                                                 <SelectValue placeholder="Select Status" />
                                             </SelectTrigger>
                                             <SelectContent className="bg-card border-border">
@@ -369,16 +369,16 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                         </Select>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className={cn("text-[10px] uppercase font-bold", errors.religion ? "text-rose-400" : "text-muted-foreground")}>Community / Religion *</Label>
+                                        <Label className={cn("text-[10px] uppercase font-bold", errors.religion ? "text-error" : "text-muted-foreground")}>Community / Religion *</Label>
                                         <Select name="religion" value={formData.religion} onValueChange={(v) => setFormData({...formData, religion: v})}>
-                                            <SelectTrigger className={cn("bg-white/5 border-white/10 h-10", errors.religion && "border-rose-500/50 bg-rose-500/5")}>
+                                            <SelectTrigger className={cn("bg-background border-border h-10", errors.religion && "border-error/25 bg-error/10")}>
                                                 <SelectValue placeholder="Select Religion" />
                                             </SelectTrigger>
                                             <SelectContent className="bg-card border-border">
                                                 {RELIGIONS.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
                                             </SelectContent>
                                         </Select>
-                                        {errors.religion && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.religion}</p>}
+                                        {errors.religion && <p className="text-[10px] text-error font-bold uppercase">{errors.religion}</p>}
                                     </div>
                                 </div>
                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -388,13 +388,13 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                             <Input 
                                                 value={formData.caste}
                                                 onChange={(e) => setFormData({...formData, caste: e.target.value})}
-                                                className="bg-white/5 border-white/10"
+                                                className="bg-background border-border"
                                                 placeholder="Caste"
                                             />
                                             <Input 
                                                 value={formData.subCaste}
                                                 onChange={(e) => setFormData({...formData, subCaste: e.target.value})}
-                                                className="bg-white/5 border-white/10"
+                                                className="bg-background border-border"
                                                 placeholder="Sub-caste"
                                             />
                                         </div>
@@ -406,7 +406,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                         <Input 
                                             value={formData.motherTongue}
                                             onChange={(e) => setFormData({...formData, motherTongue: e.target.value})}
-                                            className="bg-white/5 border-white/10"
+                                            className="bg-background border-border"
                                             placeholder="Chhattisgarhi, Hindi, etc."
                                         />
                                     </div>
@@ -417,7 +417,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                         <Input 
                                             value={formData.nativeVillage}
                                             onChange={(e) => setFormData({...formData, nativeVillage: e.target.value})}
-                                            className="bg-white/5 border-white/10"
+                                            className="bg-background border-border"
                                             placeholder="Village Name"
                                         />
                                     </div>
@@ -426,17 +426,17 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                             checked={formData.speaksChhattisgarhi}
                                             onCheckedChange={(v) => setFormData({...formData, speaksChhattisgarhi: v})}
                                         />
-                                        <span className="text-[10px] font-bold text-white uppercase tracking-widest">Speaks Chhattisgarhi</span>
+                                        <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Speaks Chhattisgarhi</span>
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
 
                         {/* Section 3: Professional & Bio */}
-                        <Card className="bg-card/40 border-white/5 backdrop-blur-md">
+                        <Card className="bg-card/40 border-border backdrop-blur-md">
                             <CardHeader>
                                 <CardTitle className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
-                                    <Briefcase className="w-4 h-4 text-blue-400" /> Career & About
+                                    <Briefcase className="w-4 h-4 text-primary" /> Career & About
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
@@ -448,7 +448,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                          <Input 
                                             value={formData.education}
                                             onChange={(e) => setFormData({...formData, education: e.target.value})}
-                                            className="bg-white/5 border-white/10"
+                                            className="bg-background border-border"
                                             placeholder="B.Tech, MBA, etc."
                                         />
                                     </div>
@@ -457,7 +457,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                         <Input 
                                             value={formData.occupation}
                                             onChange={(e) => setFormData({...formData, occupation: (e.target as unknown).value})}
-                                            className="bg-white/5 border-white/10"
+                                            className="bg-background border-border"
                                             placeholder="Software Developer"
                                         />
                                     </div>
@@ -468,7 +468,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                         <Input 
                                             value={formData.annualIncome}
                                             onChange={(e) => setFormData({...formData, annualIncome: e.target.value})}
-                                            className="bg-white/5 border-white/10"
+                                            className="bg-background border-border"
                                             placeholder="e.g. 5 LPA, 8-10 LPA, ₹12,00,000 per year"
                                         />
                                     </div>
@@ -479,7 +479,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                         <Input 
                                             value={formData.fatherOccupation}
                                             onChange={(e) => setFormData({...formData, fatherOccupation: e.target.value})}
-                                            className="bg-white/5 border-white/10"
+                                            className="bg-background border-border"
                                             placeholder="Business, Service, etc."
                                         />
                                     </div>
@@ -488,7 +488,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                         <Input 
                                             value={formData.familyIncome}
                                             onChange={(e) => setFormData({...formData, familyIncome: e.target.value})}
-                                            className="bg-white/5 border-white/10"
+                                            className="bg-background border-border"
                                             placeholder="Annual Family Income"
                                         />
                                     </div>
@@ -498,7 +498,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                     <Textarea 
                                         value={formData.bio}
                                         onChange={(e) => setFormData({...formData, bio: e.target.value})}
-                                        className="bg-white/5 border-white/10 min-h-[120px]"
+                                        className="bg-background border-border min-h-[120px]"
                                         placeholder="Tell something about the personality, interests, and family background..."
                                     />
                                 </div>
@@ -509,7 +509,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                     {/* Right Column: Sidebar Options */}
                     <div className="space-y-6">
                         {/* Section 0: Profile Photo */}
-                        <Card className="bg-card/40 border-white/5 backdrop-blur-md overflow-hidden">
+                        <Card className="bg-card/40 border-border backdrop-blur-md overflow-hidden">
                              <div className="aspect-square w-full relative group">
                                 {user?.profilePicture ? (
                                     /* eslint-disable-next-line @next/next/no-img-element */
@@ -519,14 +519,14 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                         className="w-full h-full object-cover"
                                     />
                                 ) : (
-                                    <div className="w-full h-full bg-white/5 flex flex-col items-center justify-center gap-3">
+                                    <div className="w-full h-full bg-background flex flex-col items-center justify-center gap-3">
                                         <UserIcon className="w-12 h-12 text-muted-foreground/30" />
                                         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">No Photo</p>
                                     </div>
                                 )}
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-6">
                                     <div className="text-center">
-                                        <p className="text-white text-[11px] font-bold uppercase tracking-tight mb-3">Update Profile Photo</p>
+                                        <p className="text-foreground text-[11px] font-bold uppercase tracking-tight mb-3">Update Profile Photo</p>
                                         <label className="cursor-pointer">
                                             <div className={cn(
                                                 "bg-primary hover:bg-primary/90 text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-all active:scale-95",
@@ -540,15 +540,15 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                     </div>
                                 </div>
                              </div>
-                             <div className="p-4 border-t border-white/5 flex items-center justify-between">
+                             <div className="p-4 border-t border-border flex items-center justify-between">
                                 <span className={cn(
-                                    "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full",
-                                    user?.profilePicture ? "bg-emerald-500/10 text-emerald-400" : "bg-rose-500/10 text-rose-400"
+                                    "text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full",
+                                    user?.profilePicture ? "bg-success/10 text-success" : "bg-error/10 text-error"
                                 )}>
                                     {user?.profilePicture ? 'Current Avatar Set' : 'Missing Photo'}
                                 </span>
                                 {user?.profilePicture && (
-                                    <button className="text-rose-400 hover:text-rose-300 transition-colors">
+                                    <button className="text-error hover:text-error transition-colors">
                                         <Trash2 className="w-3.5 h-3.5" />
                                     </button>
                                 )}
@@ -556,17 +556,17 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                         </Card>
 
                         {/* Section 4: Location */}
-                        <Card className="bg-card/40 border-white/5 backdrop-blur-md">
+                        <Card className="bg-card/40 border-border backdrop-blur-md">
                             <CardHeader>
                                 <CardTitle className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
-                                    <MapPin className="w-4 h-4 text-amber-400" /> Location
+                                    <MapPin className="w-4 h-4 text-primaryDark" /> Location
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label className={cn("text-[10px] uppercase font-bold", errors.height ? "text-rose-400" : "text-muted-foreground")}>Height</Label>
+                                    <Label className={cn("text-[10px] uppercase font-bold", errors.height ? "text-error" : "text-muted-foreground")}>Height</Label>
                                     <Select value={formData.height?.toString()} onValueChange={(v) => setFormData({...formData, height: v})}>
-                                        <SelectTrigger className={cn("bg-white/5 border-white/10 h-10", errors.height && "border-rose-500/50 bg-rose-500/5")}>
+                                        <SelectTrigger className={cn("bg-background border-border h-10", errors.height && "border-error/25 bg-error/10")}>
                                             <SelectValue placeholder="Select Height" />
                                         </SelectTrigger>
                                         <SelectContent className="bg-card border-border max-h-[300px]">
@@ -575,42 +575,42 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.height && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.height}</p>}
+                                    {errors.height && <p className="text-[10px] text-error font-bold uppercase">{errors.height}</p>}
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
-                                        <MapPin className="w-4 h-4 text-amber-400" /> Location
+                                        <MapPin className="w-4 h-4 text-primaryDark" /> Location
                                     </Label>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className={cn("text-[10px] uppercase font-bold", errors.city ? "text-rose-400" : "text-muted-foreground")}>City *</Label>
+                                    <Label className={cn("text-[10px] uppercase font-bold", errors.city ? "text-error" : "text-muted-foreground")}>City *</Label>
                                     <Input 
                                         name="city"
                                         value={formData.city}
                                         onChange={(e) => setFormData({...formData, city: e.target.value})}
-                                        className={cn("bg-white/5 border-white/10", errors.city && "border-rose-500/50 bg-rose-500/5")}
+                                        className={cn("bg-background border-border", errors.city && "border-error/25 bg-error/10")}
                                         placeholder="Raipur"
                                     />
-                                    {errors.city && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.city}</p>}
+                                    {errors.city && <p className="text-[10px] text-error font-bold uppercase">{errors.city}</p>}
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className={cn("text-[10px] uppercase font-bold", errors.state ? "text-rose-400" : "text-muted-foreground")}>State *</Label>
+                                    <Label className={cn("text-[10px] uppercase font-bold", errors.state ? "text-error" : "text-muted-foreground")}>State *</Label>
                                     <Select name="state" value={formData.state} onValueChange={(v) => setFormData({...formData, state: v})}>
-                                        <SelectTrigger className={cn("bg-white/5 border-white/10 h-10", errors.state && "border-rose-500/50 bg-rose-500/5")}>
+                                        <SelectTrigger className={cn("bg-background border-border h-10", errors.state && "border-error/25 bg-error/10")}>
                                             <SelectValue placeholder="Select State" />
                                         </SelectTrigger>
                                         <SelectContent className="bg-card border-border">
                                             {STATES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
-                                    {errors.state && <p className="text-[10px] text-rose-400 font-bold uppercase">{errors.state}</p>}
+                                    {errors.state && <p className="text-[10px] text-error font-bold uppercase">{errors.state}</p>}
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-[10px] uppercase font-bold text-muted-foreground">Country</Label>
                                     <Input 
                                         value={formData.country}
                                         onChange={(e) => setFormData({...formData, country: e.target.value})}
-                                        className="bg-white/5 border-white/10"
+                                        className="bg-background border-border"
                                         placeholder="India"
                                     />
                                 </div>
@@ -625,7 +625,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                             <CardContent className="space-y-6">
                                 <div className="flex items-center justify-between">
                                     <div className="space-y-0.5">
-                                        <Label className="text-xs font-bold text-white">Trust Verified</Label>
+                                        <Label className="text-xs font-bold text-foreground">Trust Verified</Label>
                                         <p className="text-[9px] text-muted-foreground uppercase">Show blue badge</p>
                                     </div>
                                     <Switch 
@@ -635,7 +635,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <div className="space-y-0.5">
-                                        <Label className="text-xs font-bold text-white">Live Status</Label>
+                                        <Label className="text-xs font-bold text-foreground">Live Status</Label>
                                         <p className="text-[9px] text-muted-foreground uppercase">Visibility in app</p>
                                     </div>
                                     <Switch 
@@ -650,7 +650,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                             variant="ghost" 
                                             onClick={handleDelete}
                                             disabled={isDeleting}
-                                            className="w-full text-red-400 hover:text-red-400 hover:bg-red-500/10 gap-2 font-bold text-xs uppercase tracking-widest"
+                                            className="w-full text-error hover:text-error hover:bg-error/10 gap-2 font-bold text-xs uppercase tracking-widest"
                                         >
                                             {isDeleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
                                             Delete Profile

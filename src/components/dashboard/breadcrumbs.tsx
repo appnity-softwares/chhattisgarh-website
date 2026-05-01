@@ -15,7 +15,7 @@ export function Breadcrumbs() {
         <nav className="flex items-center gap-2 mb-6 overflow-x-auto no-scrollbar py-2">
             <Link 
                 href="/dashboard"
-                className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
+                className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
             >
                 <Home className="w-3.5 h-3.5" />
                 DASHBOARD
@@ -40,7 +40,7 @@ export function Breadcrumbs() {
                         <ChevronRight className="w-3 h-3 text-muted-foreground/30" />
                         <Link
                             href={href}
-                            className={`text-[10px] font-black uppercase tracking-widest transition-colors whitespace-nowrap ${isLast ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                            className={`text-[10px] font-bold uppercase tracking-widest transition-colors whitespace-nowrap ${isLast ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                         >
                             {label}
                         </Link>

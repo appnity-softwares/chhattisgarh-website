@@ -286,11 +286,11 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
                 <div className="space-y-4">
                     <div className="space-y-2">
-                        <h1 className="text-3xl md:text-5xl font-black tracking-tight uppercase text-foreground">
+                        <h1 className="text-3xl md:text-5xl font-bold tracking-tight uppercase text-foreground">
                             {(!userData?.profile || (completion?.percentage || 0) < 20) ? "Create" : "Edit"}{" "}
-                            <span className="text-primary italic">Profile</span>
+                            <span className="text-primary font-medium">Profile</span>
                         </h1>
-                        <p className="text-muted-foreground font-medium text-lg italic">
+                        <p className="text-muted-foreground font-medium text-lg font-medium">
                             {(!userData?.profile || (completion?.percentage || 0) < 20)
                                 ? "Welcome! Let's build your identity to find your perfect match."
                                 : "Keep your details updated to find better matches"}
@@ -300,19 +300,19 @@ export default function ProfilePage() {
                     {/* Quick Progress Indicator */}
                     <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-3">
-                            <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
+                            <div className="h-1.5 w-32 bg-background rounded-full overflow-hidden">
                                 <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${completion?.percentage || 0}%` }}
                                     className="h-full bg-primary"
                                 />
                             </div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
                                 {completion?.percentage || 0}% Complete
                             </span>
                         </div>
                         {completion?.tips && completion.tips.length > 0 && (
-                            <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest italic">
+                            <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest font-medium">
                                 Tip: {completion.tips[0]}
                             </p>
                         )}
@@ -324,7 +324,7 @@ export default function ProfilePage() {
                         <Link href="/dashboard/profile/verify">
                             <Button
                                 variant="outline"
-                                className="h-14 px-8 border-primary/20 hover:bg-primary/5 text-primary font-black rounded-2xl transition-all active:scale-95 flex items-center gap-3"
+                                className="h-14 px-8 border-primary/20 hover:bg-primary/5 text-primary font-bold rounded-2xl transition-all active:scale-95 flex items-center gap-3"
                             >
                                 <Shield className="w-5 h-5" />
                                 VERIFY PROFILE
@@ -335,7 +335,7 @@ export default function ProfilePage() {
                     <Button
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="h-14 px-8 bg-primary hover:bg-primary/90 text-white font-black rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95 flex items-center gap-3"
+                        className="h-14 px-8 bg-primary hover:bg-primary/90 text-white font-bold rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95 flex items-center gap-3"
                     >
                         {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                         {isSaving ? "SAVING..." : "SAVE CHANGES"}
@@ -345,15 +345,15 @@ export default function ProfilePage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 {/* Navigation Sidebar */}
-                <Card className="lg:col-span-3 bg-card/30 backdrop-blur-xl border-white/5 rounded-[2rem] overflow-hidden sticky top-8">
+                <Card className="lg:col-span-3 bg-surface backdrop-blur-xl border-border rounded-[2rem] overflow-hidden sticky top-8">
                     <div className="p-4 space-y-1">
                         {SECTIONS.map((section) => (
                             <button
                                 key={section.id}
                                 onClick={() => setActiveSection(section.id)}
-                                className={`w-full flex items-center gap-4 px-6 py-5 rounded-2xl transition-all font-black text-sm uppercase tracking-widest ${activeSection === section.id ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]' : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'}`}
+                                className={`w-full flex items-center gap-4 px-6 py-5 rounded-2xl transition-all font-bold text-sm uppercase tracking-widest ${activeSection === section.id ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]' : 'text-muted-foreground hover:bg-background hover:text-foreground'}`}
                             >
-                                <section.icon className={`w-5 h-5 ${activeSection === section.id ? 'text-white' : 'text-primary'}`} />
+                                <section.icon className={`w-5 h-5 ${activeSection === section.id ? 'text-foreground' : 'text-primary'}`} />
                                 {section.label}
                             </button>
                         ))}
@@ -362,14 +362,14 @@ export default function ProfilePage() {
 
                 {/* Form Content */}
                 <div className="lg:col-span-9 space-y-8">
-                    <Card className="bg-card/40 backdrop-blur-3xl border-white/10 rounded-[2.5rem] shadow-3xl overflow-hidden min-h-[600px]">
+                    <Card className="bg-surface backdrop-blur-3xl border-border rounded-[2.5rem] shadow-3xl overflow-hidden min-h-[600px]">
                         <CardContent className="p-8 md:p-12">
                             <AnimatePresence mode="wait">
                                  {activeSection === "basic" && (
                                     <motion.div key="basic" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <div className="space-y-3">
-                                                <Label className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 transition-colors ${errors.firstName ? 'text-red-500' : 'text-muted-foreground'}`}>
+                                                <Label className={`text-[10px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors ${errors.firstName ? 'text-error' : 'text-muted-foreground'}`}>
                                                     First Name {errors.firstName && "— Required"}
                                                 </Label>
                                                 <Input
@@ -378,27 +378,27 @@ export default function ProfilePage() {
                                                         setFormData({...formData, firstName: e.target.value});
                                                         if (errors.firstName) setErrors({...errors, firstName: ""});
                                                     }}
-                                                    className={`h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold ${errors.firstName ? 'border-red-500/50 bg-red-500/5' : ''}`}
+                                                    className={`h-14 bg-background border-border rounded-xl focus:ring-primary/20 font-bold ${errors.firstName ? 'border-error/25 bg-error/10' : ''}`}
                                                 />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Middle Name</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Middle Name</Label>
                                                 <Input
                                                     value={formData.middleName || ""}
                                                     onChange={(e) => setFormData({...formData, middleName: e.target.value})}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold"
+                                                    className="h-14 bg-background border-border rounded-xl focus:ring-primary/20 font-bold"
                                                 />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Last Name</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Last Name</Label>
                                                 <Input
                                                     value={formData.lastName || ""}
                                                     onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-bold"
+                                                    className="h-14 bg-background border-border rounded-xl focus:ring-primary/20 font-bold"
                                                 />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 transition-colors ${errors.dateOfBirth ? 'text-red-500' : 'text-muted-foreground'}`}>
+                                                <Label className={`text-[10px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors ${errors.dateOfBirth ? 'text-error' : 'text-muted-foreground'}`}>
                                                     Date of Birth {errors.dateOfBirth && "— Required"}
                                                 </Label>
                                                 <div className="relative">
@@ -410,12 +410,12 @@ export default function ProfilePage() {
                                                             setFormData({ ...formData, dateOfBirth: e.target.value });
                                                             if (errors.dateOfBirth) setErrors({...errors, dateOfBirth: ""});
                                                         }}
-                                                        className={`pl-12 h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.dateOfBirth ? 'border-red-500/50 bg-red-500/5' : ''}`}
+                                                        className={`pl-12 h-14 bg-background border-border rounded-xl transition-all ${errors.dateOfBirth ? 'border-error/25 bg-error/10' : ''}`}
                                                     />
                                                 </div>
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 transition-colors ${errors.gender ? 'text-red-500' : 'text-muted-foreground'}`}>
+                                                <Label className={`text-[10px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors ${errors.gender ? 'text-error' : 'text-muted-foreground'}`}>
                                                     Gender {errors.gender && "— Required"}
                                                 </Label>
                                                 <Select
@@ -425,7 +425,7 @@ export default function ProfilePage() {
                                                         if (errors.gender) setErrors({...errors, gender: ""});
                                                     }}
                                                 >
-                                                    <SelectTrigger className={`h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.gender ? 'border-red-500/50 bg-red-500/5' : ''}`}>
+                                                    <SelectTrigger className={`h-14 bg-background border-border rounded-xl transition-all ${errors.gender ? 'border-error/25 bg-error/10' : ''}`}>
                                                         <SelectValue placeholder="Select gender" />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -435,7 +435,7 @@ export default function ProfilePage() {
                                                 </Select>
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 transition-colors ${errors.height ? 'text-red-500' : 'text-muted-foreground'}`}>
+                                                <Label className={`text-[10px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors ${errors.height ? 'text-error' : 'text-muted-foreground'}`}>
                                                     Height (cm) {errors.height && `— ${errors.height}`}
                                                 </Label>
                                                 <Input
@@ -446,22 +446,22 @@ export default function ProfilePage() {
                                                         setFormData({ ...formData, height: e.target.value });
                                                         if (errors.height) setErrors({...errors, height: ""});
                                                     }}
-                                                    className={`h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.height ? 'border-red-500/50 bg-red-500/5' : ''}`}
+                                                    className={`h-14 bg-background border-border rounded-xl transition-all ${errors.height ? 'border-error/25 bg-error/10' : ''}`}
                                                 />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Weight (kg)</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Weight (kg)</Label>
                                                 <Input
                                                     type="number"
                                                     value={formData.weight || ""}
                                                     onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl transition-all"
+                                                    className="h-14 bg-background border-border rounded-xl transition-all"
                                                 />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Marital Status</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Marital Status</Label>
                                                 <Select value={(formData.maritalStatus as string) || ""} onValueChange={(value) => setFormData({ ...formData, maritalStatus: value })}>
-                                                    <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
+                                                    <SelectTrigger className="h-14 bg-background border-border rounded-xl">
                                                         <SelectValue placeholder="Select status" />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -482,7 +482,7 @@ export default function ProfilePage() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <div className="space-y-3">
                                                 <Label
-                                                    className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 transition-colors ${errors.religion ? 'text-red-500' : 'text-muted-foreground'}`}
+                                                    className={`text-[10px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors ${errors.religion ? 'text-error' : 'text-muted-foreground'}`}
                                                 >
                                                     Religion {errors.religion && "— Required"}
                                                 </Label>
@@ -493,7 +493,7 @@ export default function ProfilePage() {
                                                         if (errors.religion) setErrors({...errors, religion: ""});
                                                     }}
                                                 >
-                                                    <SelectTrigger className={`h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.religion ? 'border-red-500/50 bg-red-500/5' : ''}`}>
+                                                    <SelectTrigger className={`h-14 bg-background border-border rounded-xl transition-all ${errors.religion ? 'border-error/25 bg-error/10' : ''}`}>
                                                         <SelectValue placeholder="Select religion" />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -507,7 +507,7 @@ export default function ProfilePage() {
                                             </div>
                                             <div className="space-y-3">
                                                 <Label
-                                                    className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 transition-colors ${errors.caste ? 'text-red-500' : 'text-muted-foreground'}`}
+                                                    className={`text-[10px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors ${errors.caste ? 'text-error' : 'text-muted-foreground'}`}
                                                 >
                                                     Caste {errors.caste && "— Required"}
                                                 </Label>
@@ -517,25 +517,25 @@ export default function ProfilePage() {
                                                         setFormData({ ...formData, caste: e.target.value });
                                                         if (errors.caste) setErrors({...errors, caste: ""});
                                                     }}
-                                                    className={`h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.caste ? 'border-red-500/50 bg-red-500/5 shadow-[0_0_10px_rgba(239,68,68,0.1)]' : ''}`}
+                                                    className={`h-14 bg-background border-border rounded-xl transition-all ${errors.caste ? 'border-error/25 bg-error/10 shadow-[0_0_10px_rgba(239,68,68,0.1)]' : ''}`}
                                                 />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Gothram</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Gothram</Label>
                                                 <Input
                                                     value={formData.gothram || ""}
                                                     onChange={(e) => setFormData({ ...formData, gothram: e.target.value })}
                                                     placeholder="Enter your Gothram"
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
+                                                    className="h-14 bg-background border-border rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Manglik Status</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Manglik Status</Label>
                                                 <Select
                                                     value={typeof formData.manglik === "boolean" ? String(formData.manglik) : ""}
                                                     onValueChange={(value) => setFormData({ ...formData, manglik: value === "true" })}
                                                 >
-                                                    <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
+                                                    <SelectTrigger className="h-14 bg-background border-border rounded-xl">
                                                         <SelectValue placeholder="Select status" />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -545,9 +545,9 @@ export default function ProfilePage() {
                                                 </Select>
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Mother Tongue</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Mother Tongue</Label>
                                                 <Select value={(formData.motherTongue as string) || ""} onValueChange={(value) => setFormData({ ...formData, motherTongue: value })}>
-                                                    <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
+                                                    <SelectTrigger className="h-14 bg-background border-border rounded-xl">
                                                         <SelectValue placeholder="Select mother tongue" />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -560,17 +560,17 @@ export default function ProfilePage() {
                                                 </Select>
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Sub Caste</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Sub Caste</Label>
                                                 <Input
                                                     value={formData.subCaste || ""}
                                                     onChange={(e) => setFormData({ ...formData, subCaste: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
+                                                    className="h-14 bg-background border-border rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Nakshatra</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Nakshatra</Label>
                                                 <Select value={(formData.nakshatra as string) || ""} onValueChange={(value) => setFormData({ ...formData, nakshatra: value })}>
-                                                    <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
+                                                    <SelectTrigger className="h-14 bg-background border-border rounded-xl">
                                                         <SelectValue placeholder="Select Nakshatra" />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -583,9 +583,9 @@ export default function ProfilePage() {
                                                 </Select>
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Rashi</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Rashi</Label>
                                                 <Select value={(formData.rashi as string) || ""} onValueChange={(value) => setFormData({ ...formData, rashi: value })}>
-                                                    <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
+                                                    <SelectTrigger className="h-14 bg-background border-border rounded-xl">
                                                         <SelectValue placeholder="Select Rashi" />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -598,25 +598,25 @@ export default function ProfilePage() {
                                                 </Select>
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Birth Place</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Birth Place</Label>
                                                 <Input
                                                     value={formData.birthPlace || ""}
                                                     onChange={(e) => setFormData({ ...formData, birthPlace: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
+                                                    className="h-14 bg-background border-border rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Birth Time</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Birth Time</Label>
                                                 <Input
                                                     type="time"
                                                     value={formData.birthTime || ""}
                                                     onChange={(e) => setFormData({ ...formData, birthTime: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
+                                                    className="h-14 bg-background border-border rounded-xl"
                                                 />
                                             </div>
-                                            <div className="space-y-3 flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5">
+                                            <div className="space-y-3 flex items-center justify-between p-4 bg-background rounded-xl border border-border">
                                                 <div className="space-y-0.5">
-                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Chhattisgarhi Fluency</Label>
+                                                    <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Chhattisgarhi Fluency</Label>
                                                     <p className="text-[8px] font-bold text-muted-foreground/40 uppercase">Do you speak Chhattisgarhi?</p>
                                                 </div>
                                                 <Switch
@@ -632,45 +632,45 @@ export default function ProfilePage() {
                                     <motion.div key="education" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Highest Education</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Highest Education</Label>
                                                 <Input
                                                     value={formData.highestEducation || ""}
                                                     onChange={(e) => setFormData({ ...formData, highestEducation: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
+                                                    className="h-14 bg-background border-border rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Occupation</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Occupation</Label>
                                                 <Input
                                                     value={formData.occupation || ""}
                                                     onChange={(e) => setFormData({ ...formData, occupation: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
+                                                    className="h-14 bg-background border-border rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Annual Income</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Annual Income</Label>
                                                 <Input
                                                     value={(formData.annualIncome as string) || ""}
                                                     onChange={(e) => setFormData({ ...formData, annualIncome: e.target.value })}
                                                     placeholder="e.g. 5 LPA, 8-10 LPA, ₹12,00,000 per year"
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
+                                                    className="h-14 bg-background border-border rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Designation</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Designation</Label>
                                                 <Input
                                                     value={formData.designation || ""}
                                                     onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
+                                                    className="h-14 bg-background border-border rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3 md:col-span-2">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Education Details</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Education Details</Label>
                                                 <Textarea
                                                     value={formData.educationDetails || ""}
                                                     onChange={(e) => setFormData({ ...formData, educationDetails: e.target.value })}
                                                     placeholder="Degree, specialization, institution, certifications..."
-                                                    className="min-h-[120px] bg-white/5 border-white/10 rounded-2xl p-5 font-medium leading-relaxed"
+                                                    className="min-h-[120px] bg-background border-border rounded-2xl p-5 font-medium leading-relaxed"
                                                 />
                                             </div>
                                         </div>
@@ -682,7 +682,7 @@ export default function ProfilePage() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <div className="space-y-3">
                                                 <Label
-                                                    className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 transition-colors ${errors.city ? 'text-red-500' : 'text-muted-foreground'}`}
+                                                    className={`text-[10px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors ${errors.city ? 'text-error' : 'text-muted-foreground'}`}
                                                 >
                                                     City {errors.city && "— Required"}
                                                 </Label>
@@ -692,12 +692,12 @@ export default function ProfilePage() {
                                                         setFormData({ ...formData, city: e.target.value });
                                                         if (errors.city) setErrors({...errors, city: ""});
                                                     }}
-                                                    className={`h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.city ? 'border-red-500/50 bg-red-500/5' : ''}`}
+                                                    className={`h-14 bg-background border-border rounded-xl transition-all ${errors.city ? 'border-error/25 bg-error/10' : ''}`}
                                                 />
                                             </div>
                                             <div className="space-y-3">
                                                 <Label
-                                                    className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 transition-colors ${errors.state ? 'text-red-500' : 'text-muted-foreground'}`}
+                                                    className={`text-[10px] font-bold uppercase tracking-[0.2em] ml-1 transition-colors ${errors.state ? 'text-error' : 'text-muted-foreground'}`}
                                                 >
                                                     State {errors.state && "— Required"}
                                                 </Label>
@@ -707,39 +707,39 @@ export default function ProfilePage() {
                                                         setFormData({ ...formData, state: e.target.value });
                                                         if (errors.state) setErrors({...errors, state: ""});
                                                     }}
-                                                    className={`h-14 bg-white/5 border-white/10 rounded-xl transition-all ${errors.state ? 'border-red-500/50 bg-red-500/5' : ''}`}
+                                                    className={`h-14 bg-background border-border rounded-xl transition-all ${errors.state ? 'border-error/25 bg-error/10' : ''}`}
                                                 />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Country</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Country</Label>
                                                 <Input
                                                     value={formData.country || ""}
                                                     onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
+                                                    className="h-14 bg-background border-border rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Native Village</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Native Village</Label>
                                                 <Input
                                                     value={formData.nativeVillage || ""}
                                                     onChange={(e) => setFormData({ ...formData, nativeVillage: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
+                                                    className="h-14 bg-background border-border rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Work Location</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Work Location</Label>
                                                 <Input
                                                     value={formData.workLocation || ""}
                                                     onChange={(e) => setFormData({ ...formData, workLocation: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
+                                                    className="h-14 bg-background border-border rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Residency Status</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Residency Status</Label>
                                                 <Input
                                                     value={formData.residencyStatus || ""}
                                                     onChange={(e) => setFormData({ ...formData, residencyStatus: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
+                                                    className="h-14 bg-background border-border rounded-xl"
                                                 />
                                             </div>
                                         </div>
@@ -749,10 +749,10 @@ export default function ProfilePage() {
                                 {activeSection === "about" && (
                                     <motion.div key="about" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                                         <div className="space-y-4">
-                                            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Bio / About Me</Label>
+                                            <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Bio / About Me</Label>
                                             <Textarea
                                                 placeholder="Describe yourself, your interests and what you are looking for in a partner..."
-                                                className="min-h-[200px] bg-white/5 border-white/10 rounded-2xl p-6 text-lg font-medium leading-relaxed"
+                                                className="min-h-[200px] bg-background border-border rounded-2xl p-6 text-lg font-medium leading-relaxed"
                                                 value={formData.bio || ""}
                                                 onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                                             />
@@ -760,35 +760,35 @@ export default function ProfilePage() {
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <div className="space-y-4">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Hobbies</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Hobbies</Label>
                                                 <Input
                                                     value={formData.hobbies || ""}
                                                     onChange={(e) => setFormData({ ...formData, hobbies: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
+                                                    className="h-14 bg-background border-border rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-4">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Interests</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Interests</Label>
                                                 <Input
                                                     value={formData.interests || ""}
                                                     onChange={(e) => setFormData({ ...formData, interests: e.target.value })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
+                                                    className="h-14 bg-background border-border rounded-xl"
                                                 />
                                             </div>
                                             <div className="space-y-4 md:col-span-2">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">About Family</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">About Family</Label>
                                                 <Textarea
                                                     value={formData.aboutFamily || ""}
                                                     onChange={(e) => setFormData({ ...formData, aboutFamily: e.target.value })}
-                                                    className="min-h-[120px] bg-white/5 border-white/10 rounded-2xl p-5 font-medium leading-relaxed"
+                                                    className="min-h-[120px] bg-background border-border rounded-2xl p-5 font-medium leading-relaxed"
                                                 />
                                             </div>
                                             <div className="space-y-4 md:col-span-2">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Partner Expectations</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Partner Expectations</Label>
                                                 <Textarea
                                                     value={formData.partnerExpectations || ""}
                                                     onChange={(e) => setFormData({ ...formData, partnerExpectations: e.target.value })}
-                                                    className="min-h-[120px] bg-white/5 border-white/10 rounded-2xl p-5 font-medium leading-relaxed"
+                                                    className="min-h-[120px] bg-background border-border rounded-2xl p-5 font-medium leading-relaxed"
                                                 />
                                             </div>
                                         </div>
@@ -808,25 +808,25 @@ export default function ProfilePage() {
                                                     <div className="absolute top-2 left-2 flex gap-1">
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
-                                                                <Button variant="ghost" size="icon" className="w-8 h-8 bg-black/40 backdrop-blur-md rounded-full text-white hover:bg-black/60 border-none">
+                                                                <Button variant="ghost" size="icon" className="w-8 h-8 bg-foreground/60 backdrop-blur-md rounded-full text-foreground hover:bg-foreground/60 border-none">
                                                                     <Shield className="w-4 h-4" />
                                                                 </Button>
                                                             </DropdownMenuTrigger>
-                                                            <DropdownMenuContent align="start" className="w-56 bg-card/95 backdrop-blur-xl border-white/10 rounded-xl">
-                                                                <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-3 py-2">Visibility Setting</DropdownMenuLabel>
+                                                            <DropdownMenuContent align="start" className="w-56 bg-surface backdrop-blur-xl border-border rounded-xl">
+                                                                <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-3 py-2">Visibility Setting</DropdownMenuLabel>
                                                                 <DropdownMenuItem onClick={() => updatePrivacy.mutate({ mediaId: item.id, data: { visibility: 'PUBLIC' } })}>
-                                                                    <Eye className="w-4 h-4 mr-2 text-green-400" /> Public
+                                                                    <Eye className="w-4 h-4 mr-2 text-success" /> Public
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem onClick={() => updatePrivacy.mutate({ mediaId: item.id, data: { visibility: 'REGISTERED' } })}>
-                                                                    <User className="w-4 h-4 mr-2 text-blue-400" /> Registered Only
+                                                                    <User className="w-4 h-4 mr-2 text-primary" /> Registered Only
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem onClick={() => updatePrivacy.mutate({ mediaId: item.id, data: { visibility: 'MATCHED' } })}>
-                                                                    <Heart className="w-4 h-4 mr-2 text-rose-400" /> Matches Only
+                                                                    <Heart className="w-4 h-4 mr-2 text-error" /> Matches Only
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem onClick={() => updatePrivacy.mutate({ mediaId: item.id, data: { visibility: 'PRIVATE' } })}>
-                                                                    <Lock className="w-4 h-4 mr-2 text-amber-400" /> Private
+                                                                    <Lock className="w-4 h-4 mr-2 text-primaryDark" /> Private
                                                                 </DropdownMenuItem>
-                                                                <DropdownMenuSeparator className="bg-white/5" />
+                                                                <DropdownMenuSeparator className="bg-background" />
                                                                 <DropdownMenuCheckboxItem
                                                                     checked={item.privacySettings?.blurForNonPremium}
                                                                     onCheckedChange={(checked) => updatePrivacy.mutate({ mediaId: item.id, data: { blurForNonPremium: checked } })}
@@ -839,25 +839,25 @@ export default function ProfilePage() {
 
                                                     <button
                                                         onClick={() => deletePhoto.mutate(item.id)}
-                                                        className="absolute top-2 right-2 w-8 h-8 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 hover:bg-destructive transition-all"
+                                                        className="absolute top-2 right-2 w-8 h-8 bg-foreground/60 backdrop-blur-md rounded-full flex items-center justify-center text-foreground opacity-0 group-hover:opacity-100 hover:bg-destructive transition-all"
                                                     >
                                                         {deletePhoto.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                                                     </button>
 
                                                     {/* Privacy Indicator */}
-                                                    <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/40 backdrop-blur-md rounded-lg flex items-center gap-1.5 border border-white/5">
-                                                        {item.privacySettings?.visibility === 'PRIVATE' ? <Lock className="w-2.5 h-2.5 text-amber-400" /> :
-                                                         item.privacySettings?.visibility === 'MATCHED' ? <Heart className="w-2.5 h-2.5 text-rose-400" /> :
-                                                         item.privacySettings?.visibility === 'REGISTERED' ? <User className="w-2.5 h-2.5 text-blue-400" /> :
-                                                         <Eye className="w-2.5 h-2.5 text-green-400" />}
-                                                        <span className="text-[8px] font-black text-white uppercase tracking-widest">
+                                                    <div className="absolute bottom-2 right-2 px-2 py-1 bg-foreground/60 backdrop-blur-md rounded-lg flex items-center gap-1.5 border border-border">
+                                                        {item.privacySettings?.visibility === 'PRIVATE' ? <Lock className="w-2.5 h-2.5 text-primaryDark" /> :
+                                                         item.privacySettings?.visibility === 'MATCHED' ? <Heart className="w-2.5 h-2.5 text-error" /> :
+                                                         item.privacySettings?.visibility === 'REGISTERED' ? <User className="w-2.5 h-2.5 text-primary" /> :
+                                                         <Eye className="w-2.5 h-2.5 text-success" />}
+                                                        <span className="text-[8px] font-bold text-foreground uppercase tracking-widest">
                                                             {item.privacySettings?.visibility || 'REGISTERED'}
                                                         </span>
                                                     </div>
 
                                                     {idx === 0 && (
-                                                        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent">
-                                                            <span className="text-[8px] font-black text-white uppercase tracking-widest">Main Photo</span>
+                                                        <div className="absolute bottom-0 left-0 right-0 p-2 bg-surface/70">
+                                                            <span className="text-[8px] font-bold text-foreground uppercase tracking-widest">Main Photo</span>
                                                         </div>
                                                     )}
                                                 </div>
@@ -867,7 +867,7 @@ export default function ProfilePage() {
                                             <button
                                                 onClick={() => fileInputRef.current?.click()}
                                                 disabled={uploadPhotos.isPending}
-                                                className="aspect-square rounded-[1.5rem] bg-white/5 border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-3 hover:bg-white/10 transition-all hover:border-primary/40 group overflow-hidden"
+                                                className="aspect-square rounded-[1.5rem] bg-background border-2 border-dashed border-border flex flex-col items-center justify-center gap-3 hover:bg-background transition-all hover:border-primary/40 group overflow-hidden"
                                             >
                                                 {uploadPhotos.isPending ? (
                                                     <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -876,7 +876,7 @@ export default function ProfilePage() {
                                                         <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                                                             <Plus className="w-6 h-6 text-primary" />
                                                         </div>
-                                                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Add Photo</span>
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Add Photo</span>
                                                     </>
                                                 )}
                                                 <input
@@ -893,7 +893,7 @@ export default function ProfilePage() {
                                         <div className="bg-primary/5 border border-primary/20 p-6 rounded-2xl flex items-start gap-4">
                                             <CheckCircle2 className="w-5 h-5 text-primary mt-1" />
                                             <div>
-                                                <h4 className="font-black text-sm uppercase tracking-widest text-primary">Photo Guidelines</h4>
+                                                <h4 className="font-bold text-sm uppercase tracking-widest text-primary">Photo Guidelines</h4>
                                                 <p className="text-xs text-muted-foreground font-medium mt-1 leading-relaxed">Profiles with real photos get 10x more responses. Avoid group photos, blurring, or hats/sunglasses in your primary photo.</p>
                                             </div>
                                         </div>
@@ -904,23 +904,23 @@ export default function ProfilePage() {
                                     <motion.div key="family" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-10">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             {/* Father's Info */}
-                                            <Card className="bg-white/5 border-white/5 rounded-[2rem] p-6 space-y-6">
-                                                <h3 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                                            <Card className="bg-background border-border rounded-[2rem] p-6 space-y-6">
+                                                <h3 className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
                                                     <User className="w-4 h-4" /> Father&apos;s Details
                                                 </h3>
                                                 <div className="space-y-4">
                                                     <div className="space-y-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Father&apos;s Name</Label>
-                                                        <Input value={formData.fatherName || ""} onChange={(e) => setFormData({...formData, fatherName: e.target.value})} className="h-12 bg-white/5 border-white/10 rounded-xl" />
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Father&apos;s Name</Label>
+                                                        <Input value={formData.fatherName || ""} onChange={(e) => setFormData({...formData, fatherName: e.target.value})} className="h-12 bg-background border-border rounded-xl" />
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Occupation</Label>
-                                                        <Input value={formData.fatherOccupation || ""} onChange={(e) => setFormData({...formData, fatherOccupation: e.target.value})} className="h-12 bg-white/5 border-white/10 rounded-xl" />
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Occupation</Label>
+                                                        <Input value={formData.fatherOccupation || ""} onChange={(e) => setFormData({...formData, fatherOccupation: e.target.value})} className="h-12 bg-background border-border rounded-xl" />
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Current Status</Label>
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Current Status</Label>
                                                         <Select value={formData.fatherStatus || ""} onValueChange={(val) => setFormData({...formData, fatherStatus: val})}>
-                                                            <SelectTrigger className="h-12 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select Status" /></SelectTrigger>
+                                                            <SelectTrigger className="h-12 bg-background border-border rounded-xl"><SelectValue placeholder="Select Status" /></SelectTrigger>
                                                             <SelectContent>
                                                                 <SelectItem value="EMPLOYED">Employed</SelectItem>
                                                                 <SelectItem value="BUSINESS">Business</SelectItem>
@@ -933,23 +933,23 @@ export default function ProfilePage() {
                                             </Card>
 
                                             {/* Mother's Info */}
-                                            <Card className="bg-white/5 border-white/5 rounded-[2rem] p-6 space-y-6">
-                                                <h3 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                                            <Card className="bg-background border-border rounded-[2rem] p-6 space-y-6">
+                                                <h3 className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
                                                     <User className="w-4 h-4" /> Mother&apos;s Details
                                                 </h3>
                                                 <div className="space-y-4">
                                                     <div className="space-y-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Mother&apos;s Name</Label>
-                                                        <Input value={formData.motherName || ""} onChange={(e) => setFormData({...formData, motherName: e.target.value})} className="h-12 bg-white/5 border-white/10 rounded-xl" />
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Mother&apos;s Name</Label>
+                                                        <Input value={formData.motherName || ""} onChange={(e) => setFormData({...formData, motherName: e.target.value})} className="h-12 bg-background border-border rounded-xl" />
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Occupation</Label>
-                                                        <Input value={formData.motherOccupation || ""} onChange={(e) => setFormData({...formData, motherOccupation: e.target.value})} className="h-12 bg-white/5 border-white/10 rounded-xl" />
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Occupation</Label>
+                                                        <Input value={formData.motherOccupation || ""} onChange={(e) => setFormData({...formData, motherOccupation: e.target.value})} className="h-12 bg-background border-border rounded-xl" />
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Current Status</Label>
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Current Status</Label>
                                                         <Select value={formData.motherStatus || ""} onValueChange={(val) => setFormData({...formData, motherStatus: val})}>
-                                                            <SelectTrigger className="h-12 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select Status" /></SelectTrigger>
+                                                            <SelectTrigger className="h-12 bg-background border-border rounded-xl"><SelectValue placeholder="Select Status" /></SelectTrigger>
                                                             <SelectContent>
                                                                 <SelectItem value="HOMEMAKER">Homemaker</SelectItem>
                                                                 <SelectItem value="EMPLOYED">Employed</SelectItem>
@@ -962,36 +962,36 @@ export default function ProfilePage() {
                                             </Card>
 
                                             {/* Siblings */}
-                                            <Card className="bg-white/5 border-white/5 rounded-[2rem] p-6 space-y-6 md:col-span-2">
-                                                <h3 className="text-xs font-black uppercase tracking-widest text-primary">Siblings Information</h3>
+                                            <Card className="bg-background border-border rounded-[2rem] p-6 space-y-6 md:col-span-2">
+                                                <h3 className="text-xs font-bold uppercase tracking-widest text-primary">Siblings Information</h3>
                                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                                                     <div className="space-y-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Brothers</Label>
-                                                        <Input type="number" value={formData.numberOfBrothers || 0} onChange={(e) => setFormData({...formData, numberOfBrothers: parseInt(e.target.value)})} className="h-12 bg-white/5 border-white/10 rounded-xl text-center" />
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Brothers</Label>
+                                                        <Input type="number" value={formData.numberOfBrothers || 0} onChange={(e) => setFormData({...formData, numberOfBrothers: parseInt(e.target.value)})} className="h-12 bg-background border-border rounded-xl text-center" />
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Married Bros</Label>
-                                                        <Input type="number" value={formData.brothersMarried || 0} onChange={(e) => setFormData({...formData, brothersMarried: parseInt(e.target.value)})} className="h-12 bg-white/5 border-white/10 rounded-xl text-center" />
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Married Bros</Label>
+                                                        <Input type="number" value={formData.brothersMarried || 0} onChange={(e) => setFormData({...formData, brothersMarried: parseInt(e.target.value)})} className="h-12 bg-background border-border rounded-xl text-center" />
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Sisters</Label>
-                                                        <Input type="number" value={formData.numberOfSisters || 0} onChange={(e) => setFormData({...formData, numberOfSisters: parseInt(e.target.value)})} className="h-12 bg-white/5 border-white/10 rounded-xl text-center" />
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Sisters</Label>
+                                                        <Input type="number" value={formData.numberOfSisters || 0} onChange={(e) => setFormData({...formData, numberOfSisters: parseInt(e.target.value)})} className="h-12 bg-background border-border rounded-xl text-center" />
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Married Sisters</Label>
-                                                        <Input type="number" value={formData.sistersMarried || 0} onChange={(e) => setFormData({...formData, sistersMarried: parseInt(e.target.value)})} className="h-12 bg-white/5 border-white/10 rounded-xl text-center" />
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Married Sisters</Label>
+                                                        <Input type="number" value={formData.sistersMarried || 0} onChange={(e) => setFormData({...formData, sistersMarried: parseInt(e.target.value)})} className="h-12 bg-background border-border rounded-xl text-center" />
                                                     </div>
                                                 </div>
                                             </Card>
 
                                             {/* Family Values & Background */}
-                                            <Card className="bg-white/5 border-white/5 rounded-[2rem] p-6 space-y-6 md:col-span-2">
-                                                <h3 className="text-xs font-black uppercase tracking-widest text-primary">Family Values & Origin</h3>
+                                            <Card className="bg-background border-border rounded-[2rem] p-6 space-y-6 md:col-span-2">
+                                                <h3 className="text-xs font-bold uppercase tracking-widest text-primary">Family Values & Origin</h3>
                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                                     <div className="space-y-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Family Type</Label>
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Family Type</Label>
                                                         <Select value={formData.familyType || ""} onValueChange={(val) => setFormData({...formData, familyType: val})}>
-                                                            <SelectTrigger className="h-12 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
+                                                            <SelectTrigger className="h-12 bg-background border-border rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
                                                             <SelectContent>
                                                                 <SelectItem value="NUCLEAR">Nuclear</SelectItem>
                                                                 <SelectItem value="JOINT">Joint</SelectItem>
@@ -999,9 +999,9 @@ export default function ProfilePage() {
                                                         </Select>
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Family Values</Label>
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Family Values</Label>
                                                         <Select value={formData.familyValues || ""} onValueChange={(val) => setFormData({...formData, familyValues: val})}>
-                                                            <SelectTrigger className="h-12 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
+                                                            <SelectTrigger className="h-12 bg-background border-border rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
                                                             <SelectContent>
                                                                 <SelectItem value="TRADITIONAL">Traditional</SelectItem>
                                                                 <SelectItem value="MODERATE">Moderate</SelectItem>
@@ -1010,8 +1010,8 @@ export default function ProfilePage() {
                                                         </Select>
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Ancestral Origin</Label>
-                                                        <Input value={formData.ancestralOrigin || ""} onChange={(e) => setFormData({...formData, ancestralOrigin: e.target.value})} placeholder="e.g. Bilaspur, CG" className="h-12 bg-white/5 border-white/10 rounded-xl" />
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Ancestral Origin</Label>
+                                                        <Input value={formData.ancestralOrigin || ""} onChange={(e) => setFormData({...formData, ancestralOrigin: e.target.value})} placeholder="e.g. Bilaspur, CG" className="h-12 bg-background border-border rounded-xl" />
                                                     </div>
                                                 </div>
                                             </Card>
@@ -1021,12 +1021,12 @@ export default function ProfilePage() {
 
                                 {activeSection === "lifestyle" && (
                                     <motion.div key="lifestyle" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-10">
-                                        <Card className="bg-white/5 border-white/5 rounded-[2.5rem] p-10">
+                                        <Card className="bg-background border-border rounded-[2.5rem] p-10">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
                                                 <div className="space-y-3">
-                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Dietary Habits</Label>
+                                                    <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Dietary Habits</Label>
                                                     <Select value={formData.diet || ""} onValueChange={(val) => setFormData({...formData, diet: val})}>
-                                                        <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select Diet" /></SelectTrigger>
+                                                        <SelectTrigger className="h-14 bg-background border-border rounded-xl"><SelectValue placeholder="Select Diet" /></SelectTrigger>
                                                         <SelectContent>
                                                             <SelectItem value="VEGETARIAN">Vegetarian</SelectItem>
                                                             <SelectItem value="NON_VEGETARIAN">Non-Vegetarian</SelectItem>
@@ -1037,9 +1037,9 @@ export default function ProfilePage() {
                                                     </Select>
                                                 </div>
                                                 <div className="space-y-3">
-                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Smoking Habit</Label>
+                                                    <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Smoking Habit</Label>
                                                     <Select value={formData.smokingHabit || ""} onValueChange={(val) => setFormData({...formData, smokingHabit: val})}>
-                                                        <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
+                                                        <SelectTrigger className="h-14 bg-background border-border rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
                                                         <SelectContent>
                                                             <SelectItem value="NEVER">Never</SelectItem>
                                                             <SelectItem value="OCCASIONAL">Occasional</SelectItem>
@@ -1048,9 +1048,9 @@ export default function ProfilePage() {
                                                     </Select>
                                                 </div>
                                                 <div className="space-y-3">
-                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Drinking Habit</Label>
+                                                    <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Drinking Habit</Label>
                                                     <Select value={formData.drinkingHabit || ""} onValueChange={(val) => setFormData({...formData, drinkingHabit: val})}>
-                                                        <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
+                                                        <SelectTrigger className="h-14 bg-background border-border rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
                                                         <SelectContent>
                                                             <SelectItem value="NEVER">Never</SelectItem>
                                                             <SelectItem value="OCCASIONAL">Occasional</SelectItem>
@@ -1059,18 +1059,18 @@ export default function ProfilePage() {
                                                     </Select>
                                                 </div>
                                                 <div className="space-y-3">
-                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Physical Disability</Label>
-                                                    <Input value={formData.physicalDisability || ""} onChange={(e) => setFormData({...formData, physicalDisability: e.target.value})} placeholder="None / Specify if any" className="h-14 bg-white/5 border-white/10 rounded-xl" />
+                                                    <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Physical Disability</Label>
+                                                    <Input value={formData.physicalDisability || ""} onChange={(e) => setFormData({...formData, physicalDisability: e.target.value})} placeholder="None / Specify if any" className="h-14 bg-background border-border rounded-xl" />
                                                 </div>
                                             </div>
                                         </Card>
 
-                                        <div className="bg-amber-400/5 border border-amber-400/20 p-8 rounded-[2rem] flex items-center gap-6">
-                                            <div className="w-16 h-16 bg-amber-400/10 rounded-[1.5rem] flex items-center justify-center shrink-0">
-                                                <Star className="w-8 h-8 text-amber-500 fill-current" />
+                                        <div className="bg-gold/20 border border-gold/30 p-8 rounded-[2rem] flex items-center gap-6">
+                                            <div className="w-16 h-16 bg-gold/20 rounded-[1.5rem] flex items-center justify-center shrink-0">
+                                                <Star className="w-8 h-8 text-primaryDark fill-current" />
                                             </div>
                                             <div>
-                                                <h4 className="font-black text-sm uppercase tracking-widest text-amber-500">Why Lifestyle Matters?</h4>
+                                                <h4 className="font-bold text-sm uppercase tracking-widest text-primaryDark">Why Lifestyle Matters?</h4>
                                                 <p className="text-xs text-muted-foreground font-medium mt-1 leading-relaxed">Honest lifestyle details help find partners with compatible daily routines, leading to 4x higher success in long-term relationships.</p>
                                             </div>
                                         </div>
@@ -1082,7 +1082,7 @@ export default function ProfilePage() {
                                             {/* Age & Height */}
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                                                 <div className="space-y-6">
-                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Age Range</Label>
+                                                    <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Age Range</Label>
                                                     <div className="flex items-center gap-4">
                                                         <div className="flex-1 space-y-2">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest text-center">Min Age</p>
@@ -1090,24 +1090,24 @@ export default function ProfilePage() {
                                                                 type="number"
                                                                 value={prefFormData.minAge || ""}
                                                                 onChange={(e) => setPrefFormData({ ...prefFormData, minAge: e.target.value ? parseInt(e.target.value) : undefined })}
-                                                                className="h-14 bg-white/5 border-white/10 rounded-xl text-center font-bold"
+                                                                className="h-14 bg-background border-border rounded-xl text-center font-bold"
                                                             />
                                                         </div>
-                                                        <div className="w-4 h-0.5 bg-white/10 mt-6" />
+                                                        <div className="w-4 h-0.5 bg-background mt-6" />
                                                         <div className="flex-1 space-y-2">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest text-center">Max Age</p>
                                                             <Input
                                                                 type="number"
                                                                 value={prefFormData.maxAge || ""}
                                                                 onChange={(e) => setPrefFormData({ ...prefFormData, maxAge: e.target.value ? parseInt(e.target.value) : undefined })}
-                                                                className="h-14 bg-white/5 border-white/10 rounded-xl text-center font-bold"
+                                                                className="h-14 bg-background border-border rounded-xl text-center font-bold"
                                                             />
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 <div className="space-y-6">
-                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Height Range (cm)</Label>
+                                                    <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Height Range (cm)</Label>
                                                     <div className="flex items-center gap-4">
                                                         <div className="flex-1 space-y-2">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest text-center">Min Height</p>
@@ -1115,17 +1115,17 @@ export default function ProfilePage() {
                                                                 type="number"
                                                                 value={prefFormData.minHeight || ""}
                                                                 onChange={(e) => setPrefFormData({ ...prefFormData, minHeight: e.target.value ? parseInt(e.target.value) : undefined })}
-                                                                className="h-14 bg-white/5 border-white/10 rounded-xl text-center font-bold"
+                                                                className="h-14 bg-background border-border rounded-xl text-center font-bold"
                                                             />
                                                         </div>
-                                                        <div className="w-4 h-0.5 bg-white/10 mt-6" />
+                                                        <div className="w-4 h-0.5 bg-background mt-6" />
                                                         <div className="flex-1 space-y-2">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest text-center">Max Height</p>
                                                             <Input
                                                                 type="number"
                                                                 value={prefFormData.maxHeight || ""}
                                                                 onChange={(e) => setPrefFormData({ ...prefFormData, maxHeight: e.target.value ? parseInt(e.target.value) : undefined })}
-                                                                className="h-14 bg-white/5 border-white/10 rounded-xl text-center font-bold"
+                                                                className="h-14 bg-background border-border rounded-xl text-center font-bold"
                                                             />
                                                         </div>
                                                     </div>
@@ -1135,12 +1135,12 @@ export default function ProfilePage() {
                                             {/* Community & Status */}
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                 <div className="space-y-3">
-                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Marital Status</Label>
+                                                    <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Marital Status</Label>
                                                     <Select
                                                         value={prefFormData.maritalStatus?.[0] || ""}
                                                         onValueChange={(val) => setPrefFormData({ ...prefFormData, maritalStatus: [val] })}
                                                     >
-                                                        <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
+                                                        <SelectTrigger className="h-14 bg-background border-border rounded-xl">
                                                             <SelectValue placeholder="Preferred Status" />
                                                         </SelectTrigger>
                                                         <SelectContent>
@@ -1151,12 +1151,12 @@ export default function ProfilePage() {
                                                     </Select>
                                                 </div>
                                                 <div className="space-y-3">
-                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Religion</Label>
+                                                    <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Religion</Label>
                                                     <Select
                                                         value={prefFormData.religion?.[0] || ""}
                                                         onValueChange={(val) => setPrefFormData({ ...prefFormData, religion: [val] })}
                                                     >
-                                                        <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
+                                                        <SelectTrigger className="h-14 bg-background border-border rounded-xl">
                                                             <SelectValue placeholder="Preferred Religion" />
                                                         </SelectTrigger>
                                                         <SelectContent>
@@ -1169,7 +1169,7 @@ export default function ProfilePage() {
                                             </div>
 
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Caste(s)</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Caste(s)</Label>
                                                 <Input
                                                     placeholder="Enter preferred castes (comma separated)"
                                                     value={Array.isArray(prefFormData.caste) ? prefFormData.caste.join(", ") : ""}
@@ -1177,17 +1177,17 @@ export default function ProfilePage() {
                                                         ...prefFormData,
                                                         caste: e.target.value.split(",").map(c => c.trim()).filter(Boolean)
                                                     })}
-                                                    className="h-14 bg-white/5 border-white/10 rounded-xl"
+                                                    className="h-14 bg-background border-border rounded-xl"
                                                 />
                                             </div>
 
                                             <div className="space-y-3">
-                                                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Manglik Status</Label>
+                                                <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Manglik Status</Label>
                                                 <Select
                                                     value={typeof prefFormData.manglik === "boolean" ? String(prefFormData.manglik) : "any"}
                                                     onValueChange={(val) => setPrefFormData({ ...prefFormData, manglik: val === "any" ? null : val === "true" })}
                                                 >
-                                                    <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl">
+                                                    <SelectTrigger className="h-14 bg-background border-border rounded-xl">
                                                         <SelectValue placeholder="Select Status" />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -1200,9 +1200,9 @@ export default function ProfilePage() {
 
                                             {/* Inter-caste & Gothra */}
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:col-span-2 mt-4">
-                                                <div className="flex items-center justify-between p-6 bg-white/5 border border-white/10 rounded-2xl group hover:border-primary/30 transition-all">
+                                                <div className="flex items-center justify-between p-6 bg-background border border-border rounded-2xl group hover:border-primary/30 transition-all">
                                                     <div className="space-y-1">
-                                                        <Label className="text-sm font-black uppercase tracking-widest text-foreground">Open to Inter-caste?</Label>
+                                                        <Label className="text-sm font-bold uppercase tracking-widest text-foreground">Open to Inter-caste?</Label>
                                                         <p className="text-[10px] text-muted-foreground font-medium">Show profiles from other castes if they match your criteria.</p>
                                                     </div>
                                                     <Switch
@@ -1211,9 +1211,9 @@ export default function ProfilePage() {
                                                     />
                                                 </div>
 
-                                                <div className="flex items-center justify-between p-6 bg-white/5 border border-white/10 rounded-2xl group hover:border-primary/30 transition-all">
+                                                <div className="flex items-center justify-between p-6 bg-background border border-border rounded-2xl group hover:border-primary/30 transition-all">
                                                     <div className="space-y-1">
-                                                        <Label className="text-sm font-black uppercase tracking-widest text-foreground">Strict Gothra Filter?</Label>
+                                                        <Label className="text-sm font-bold uppercase tracking-widest text-foreground">Strict Gothra Filter?</Label>
                                                         <p className="text-[10px] text-muted-foreground font-medium">Automatically avoid profiles with the same Gothra as yours.</p>
                                                     </div>
                                                     <Switch
@@ -1222,9 +1222,9 @@ export default function ProfilePage() {
                                                     />
                                                 </div>
 
-                                                <div className="flex items-center justify-between p-6 bg-white/5 border border-white/10 rounded-2xl group hover:border-primary/30 transition-all">
+                                                <div className="flex items-center justify-between p-6 bg-background border border-border rounded-2xl group hover:border-primary/30 transition-all">
                                                     <div className="space-y-1">
-                                                        <Label className="text-sm font-black uppercase tracking-widest text-foreground">Must Speak Chhattisgarhi?</Label>
+                                                        <Label className="text-sm font-bold uppercase tracking-widest text-foreground">Must Speak Chhattisgarhi?</Label>
                                                         <p className="text-[10px] text-muted-foreground font-medium">Only show me partners who are fluent in Chhattisgarhi.</p>
                                                     </div>
                                                     <Switch
@@ -1237,12 +1237,12 @@ export default function ProfilePage() {
                                             {/* Lifestyle Preferences */}
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
                                                 <div className="space-y-3">
-                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Preferred Smoking Habit</Label>
+                                                    <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Preferred Smoking Habit</Label>
                                                     <Select
                                                         value={prefFormData.smoking || "any"}
                                                         onValueChange={(val) => setPrefFormData({ ...prefFormData, smoking: val === "any" ? null : val })}
                                                     >
-                                                        <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
+                                                        <SelectTrigger className="h-14 bg-background border-border rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
                                                         <SelectContent>
                                                             <SelectItem value="any">Does Not Matter</SelectItem>
                                                             <SelectItem value="NEVER">Non-Smoker Only</SelectItem>
@@ -1251,12 +1251,12 @@ export default function ProfilePage() {
                                                     </Select>
                                                 </div>
                                                 <div className="space-y-3">
-                                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Preferred Drinking Habit</Label>
+                                                    <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Preferred Drinking Habit</Label>
                                                     <Select
                                                         value={prefFormData.drinking || "any"}
                                                         onValueChange={(val) => setPrefFormData({ ...prefFormData, drinking: val === "any" ? null : val })}
                                                     >
-                                                        <SelectTrigger className="h-14 bg-white/5 border-white/10 rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
+                                                        <SelectTrigger className="h-14 bg-background border-border rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
                                                         <SelectContent>
                                                             <SelectItem value="any">Does Not Matter</SelectItem>
                                                             <SelectItem value="NEVER">Non-Drinker Only</SelectItem>
@@ -1267,12 +1267,12 @@ export default function ProfilePage() {
                                             </div>
                                         </div>
 
-                                        <div className="p-6 bg-blue-500/5 border border-blue-500/20 rounded-2xl flex items-start gap-4">
-                                            <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center shrink-0">
-                                                <Star className="w-5 h-5 text-blue-500" />
+                                        <div className="p-6 bg-primary/10 border border-primary/25 rounded-2xl flex items-start gap-4">
+                                            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                                                <Star className="w-5 h-5 text-primary" />
                                             </div>
                                             <div>
-                                                <h4 className="font-black text-sm uppercase tracking-widest text-blue-500">Matching Algorithm</h4>
+                                                <h4 className="font-bold text-sm uppercase tracking-widest text-primary">Matching Algorithm</h4>
                                                 <p className="text-xs text-muted-foreground font-medium mt-1 leading-relaxed">
                                                     Updating these preferences will instantly refresh your match recommendations.
                                                     We use these criteria to calculate compatibility scores for every profile you view.
@@ -1286,26 +1286,26 @@ export default function ProfilePage() {
                     </Card>
 
                     {/* Quick Preview Mobile-style Info */}
-                    <div className="flex bg-amber-400/10 border border-amber-400/20 p-6 rounded-[2rem] items-center gap-4">
-                        <div className="bg-amber-400 p-3 rounded-2xl shadow-lg shadow-amber-400/20">
+                    <div className="flex bg-gold/20 border border-gold/30 p-6 rounded-[2rem] items-center gap-4">
+                        <div className="bg-gold/20 p-3 rounded-2xl shadow-lg shadow-gold/20">
                             <Star className="w-5 h-5 text-black" />
                         </div>
                         <div className="flex-1">
                             <div className="flex justify-between items-center mb-1">
-                                <p className="font-black text-sm uppercase tracking-widest text-foreground">Profile Completeness: {completion?.percentage || 0}%</p>
+                                <p className="font-bold text-sm uppercase tracking-widest text-foreground">Profile Completeness: {completion?.percentage || 0}%</p>
                             </div>
-                            <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+                            <div className="w-full bg-background h-2 rounded-full overflow-hidden">
                                 <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${completion?.percentage || 0}%` }}
-                                    className="h-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)]"
+                                    className="h-full bg-gold/20 shadow-[0_0_10px_rgba(251,191,36,0.5)]"
                                 />
                             </div>
                             {completion?.missingFields?.length > 0 && (
                                 <p className="text-[9px] text-muted-foreground font-bold mt-2 uppercase">Missing: {completion.missingFields.slice(0, 3).join(', ')}...</p>
                             )}
                         </div>
-                        <Button variant="outline" className="ml-auto rounded-xl border-amber-400/30 font-bold active:scale-95 text-xs">View Tips</Button>
+                        <Button variant="outline" className="ml-auto rounded-xl border-gold/30 font-bold active:scale-95 text-xs">View Tips</Button>
                     </div>
                 </div>
             </div>

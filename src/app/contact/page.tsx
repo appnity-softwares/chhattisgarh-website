@@ -21,7 +21,7 @@ export default function ContactPage() {
             <Navbar />
             <main className="flex-1">
                 {/* Hero Section */}
-                <section className="py-16 bg-gradient-to-b from-primary/5 to-background">
+                <section className="py-16 bg-background">
                     <div className="container mx-auto px-4 text-center">
                         <h1 className="text-4xl md:text-5xl font-bold font-headline mb-4">
                             Contact Us

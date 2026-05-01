@@ -16,7 +16,7 @@ import {
   BarChart, Bar, PieChart, Pie, Cell, Legend
 } from 'recharts';
 
-const CHART_COLORS = ['#8B1E3F', '#D4AF37', '#15803D', '#64142D', '#DC2626'];
+const CHART_COLORS = ['var(--primary)', 'var(--gold)', 'var(--success)', 'var(--primary-dark)', 'var(--error)'];
 
 function StatCard({
   title, value, subtitle, icon: Icon, trend, colorClass, delay = ''
@@ -33,22 +33,22 @@ function StatCard({
   return (
     <div className={`admin-card p-5 ${colorClass} animate-slide-up ${delay}`} style={{ animationFillMode: 'both' }}>
       <div className="flex items-start justify-between mb-3">
-        <div className="p-2.5 rounded-xl bg-white/10">
-          <Icon className="w-5 h-5 text-white" />
+        <div className="p-2.5 rounded-xl bg-background">
+          <Icon className="w-5 h-5 text-foreground" />
         </div>
         {trend !== undefined && (
-          <div className={`flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${isPositive ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
+          <div className={`flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${isPositive ? 'bg-success/10 text-success' : 'bg-error/10 text-error'}`}>
             {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
             {Math.abs(trend)}%
           </div>
         )}
       </div>
       <div>
-        <div className="text-2xl font-bold text-white mb-0.5" style={{ fontFamily: 'Outfit, sans-serif' }}>
+        <div className="text-2xl font-bold text-foreground mb-0.5" style={{ fontFamily: 'Outfit, sans-serif' }}>
           {typeof value === 'number' ? value.toLocaleString() : value}
         </div>
-        <p className="text-xs text-white/60 font-medium uppercase tracking-wider">{title}</p>
-        <p className="text-xs text-white/40 mt-1">{subtitle}</p>
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{title}</p>
+        <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
       </div>
     </div>
   );
@@ -57,10 +57,10 @@ function StatCard({
 const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number | string }>; label?: string }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[hsl(222_40%_9%)] border border-white/10 rounded-xl p-3">
+      <div className="bg-surface border border-border rounded-xl p-3 shadow-sm">
         <p className="text-xs text-muted-foreground mb-1">{label}</p>
         {payload.map((p: { name: string; value: number | string }, i: number) => (
-          <p key={i} className="text-sm font-semibold text-white">
+          <p key={i} className="text-sm font-semibold text-foreground">
             {p.name === 'revenue' ? `₹${Number(p.value).toLocaleString()}` : p.value}
           </p>
         ))}
@@ -111,12 +111,12 @@ export default function AdminPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[500px] gap-4">
         <div className="w-16 h-16 rounded-full stat-card-red flex items-center justify-center">
-          <AlertTriangle className="w-8 h-8 text-red-400" />
+          <AlertTriangle className="w-8 h-8 text-error" />
         </div>
-        <p className="text-red-400 font-medium">{error}</p>
+        <p className="text-error font-medium">{error}</p>
         <button
           onClick={fetchData}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-sm font-medium transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primaryDark text-white text-sm font-medium transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
           Try Again
@@ -132,7 +132,7 @@ export default function AdminPage() {
       subtitle: signupData?.growth ? `${signupData.growth > 0 ? '+' : ''}${signupData.growth}% from last month` : `${stats?.totalProfiles ?? 0} profiles`,
       icon: Users,
       trend: signupData?.growth,
-      colorClass: 'stat-card-purple',
+      colorClass: 'stat-card-primary',
       delay: 'stagger-1',
     },
     {
@@ -149,7 +149,7 @@ export default function AdminPage() {
       value: subData?.activeSubscriptions ?? (isLoading ? '—' : 0),
       subtitle: subData?.mostPopularPlan ? `Top: ${subData.mostPopularPlan}` : 'Current active plans',
       icon: Crown,
-      colorClass: 'stat-card-blue',
+      colorClass: 'stat-card-gold',
       delay: 'stagger-3',
     },
     {
@@ -157,7 +157,7 @@ export default function AdminPage() {
       value: stats?.pendingReports ?? (isLoading ? '—' : 0),
       subtitle: 'Needs immediate review',
       icon: FileWarning,
-      colorClass: stats?.pendingReports ? 'stat-card-red' : 'stat-card-orange',
+      colorClass: stats?.pendingReports ? 'stat-card-red' : 'stat-card-warning',
       delay: 'stagger-4',
     },
     {
@@ -165,7 +165,7 @@ export default function AdminPage() {
       value: stats?.pendingStories ?? (isLoading ? '—' : 0),
       subtitle: 'Stories for approval',
       icon: Heart,
-      colorClass: 'stat-card-purple',
+      colorClass: 'stat-card-primary',
       delay: 'stagger-1',
     },
   ];
@@ -175,7 +175,7 @@ export default function AdminPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>
             Dashboard Overview
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
@@ -185,7 +185,7 @@ export default function AdminPage() {
         <button
           onClick={() => window.location.reload()}
           disabled={isLoading}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-sm font-medium transition-all disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-surface hover:bg-background text-foreground text-sm font-medium transition-all disabled:opacity-50"
         >
           <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
           <span className="hidden sm:inline">Refresh</span>
@@ -202,15 +202,15 @@ export default function AdminPage() {
       {/* Additional Quick Stats */}
       <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
         {[
-          { label: 'Total Profiles', value: stats?.totalProfiles ?? 0, icon: Users, color: 'text-purple-400' },
-          { label: 'Total Matches', value: stats?.totalMatches ?? 0, icon: Activity, color: 'text-blue-400' },
-          { label: 'Total Messages', value: stats?.totalMessages ?? 0, icon: Zap, color: 'text-emerald-400' }
+          { label: 'Total Profiles', value: stats?.totalProfiles ?? 0, icon: Users, color: 'text-primary' },
+          { label: 'Total Matches', value: stats?.totalMatches ?? 0, icon: Activity, color: 'text-primary' },
+          { label: 'Total Messages', value: stats?.totalMessages ?? 0, icon: Zap, color: 'text-success' }
         ].map((item, i) => (
           <div key={item.label} className={`admin-card p-4 animate-slide-up stagger-${i + 1}`} style={{ animationFillMode: 'both' }}>
             <div className="flex items-center gap-2.5">
               <item.icon className={`w-4 h-4 ${item.color} flex-shrink-0`} />
               <div className="min-w-0">
-                <div className="text-lg font-bold text-white">
+                <div className="text-lg font-bold text-foreground">
                   {isLoading ? '—' : item.value.toLocaleString()}
                 </div>
                 <div className="text-[11px] text-muted-foreground truncate">{item.label}</div>
@@ -226,10 +226,10 @@ export default function AdminPage() {
         <div className="admin-card p-5 lg:col-span-4">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-base font-semibold text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>Revenue Overview</h3>
+              <h3 className="text-base font-semibold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Revenue Overview</h3>
               <p className="text-xs text-muted-foreground">Monthly revenue · Last 6 months</p>
             </div>
-            <div className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400">
+            <div className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-success/10 text-success">
               <TrendingUp className="w-3 h-3" />
               {revenueData?.growth ?? 0}%
             </div>
@@ -240,17 +240,11 @@ export default function AdminPage() {
             ) : (
               <ResponsiveContainer width="100%" height="100%" minWidth={100} minHeight={240} debounce={100}>
                 <AreaChart data={revenueData?.data || []} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="revGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8B1E3F" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="#8B1E3F" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                  <XAxis dataKey="month" tick={{ fill: '#6B7280', fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: '#6B7280', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                  <XAxis dataKey="month" tick={{ fill: 'var(--muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: 'var(--muted)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Area type="monotone" dataKey="revenue" stroke="#8B1E3F" strokeWidth={2.5} fill="url(#revGradient)" dot={false} activeDot={{ r: 5, fill: '#8B1E3F', stroke: '#FFFFFF', strokeWidth: 2 }} />
+                  <Area type="monotone" dataKey="revenue" stroke="var(--primary)" strokeWidth={2.5} fill="var(--primary)" fillOpacity={0.12} dot={false} activeDot={{ r: 5, fill: 'var(--primary)', stroke: 'var(--surface)', strokeWidth: 2 }} />
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -260,7 +254,7 @@ export default function AdminPage() {
         {/* Top Districts */}
         <div className="admin-card p-5 lg:col-span-3">
           <div className="mb-4">
-            <h3 className="text-base font-semibold text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>Top Districts</h3>
+            <h3 className="text-base font-semibold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Top Districts</h3>
             <p className="text-xs text-muted-foreground">Users by registration district</p>
           </div>
           <div className="h-[240px] notranslate">
@@ -269,11 +263,11 @@ export default function AdminPage() {
             ) : (
               <ResponsiveContainer width="100%" height="100%" minWidth={100} minHeight={240} debounce={100}>
                 <BarChart data={signupData?.data || []} layout="vertical" margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(255,255,255,0.05)" />
-                  <XAxis type="number" tick={{ fill: '#6B7280', fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis dataKey="district" type="category" width={75} tick={{ fill: '#6B7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
+                  <XAxis type="number" tick={{ fill: 'var(--muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis dataKey="district" type="category" width={75} tick={{ fill: 'var(--muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="users" fill="#D4AF37" radius={[0, 6, 6, 0]} maxBarSize={18} />
+                  <Bar dataKey="users" fill="var(--gold)" radius={[0, 6, 6, 0]} maxBarSize={18} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -286,7 +280,7 @@ export default function AdminPage() {
         {/* Subscription Pie */}
         <div className="admin-card p-5 lg:col-span-3">
           <div className="mb-4">
-            <h3 className="text-base font-semibold text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>Plan Distribution</h3>
+            <h3 className="text-base font-semibold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Plan Distribution</h3>
             <p className="text-xs text-muted-foreground">Active subscription breakdown</p>
           </div>
           <div className="h-[240px] notranslate">
@@ -329,12 +323,12 @@ export default function AdminPage() {
         <div className="admin-card p-5 lg:col-span-4">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-base font-semibold text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>Recent Registrations</h3>
+              <h3 className="text-base font-semibold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Recent Registrations</h3>
               <p className="text-xs text-muted-foreground">Latest user sign-ups</p>
             </div>
             <Link
               href="/admin/users"
-              className="flex items-center gap-1 text-xs font-medium text-purple-400 hover:text-purple-300 transition-colors"
+              className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary transition-colors"
             >
               View All <ArrowRight className="w-3 h-3" />
             </Link>
@@ -352,15 +346,15 @@ export default function AdminPage() {
                 <p className="text-center text-muted-foreground py-8 text-sm">No recent users</p>
               ) : (
                 recentUsers.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                  <div key={user.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-background transition-colors group">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600/40 to-indigo-600/40 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs font-semibold text-purple-300">
+                      <div className="w-8 h-8 rounded-full bg-primary border border-primary/25 flex items-center justify-center flex-shrink-0">
+                        <span className="text-xs font-semibold text-primary">
                           {user.profile ? user.profile.firstName?.charAt(0)?.toUpperCase() : user.email?.charAt(0)?.toUpperCase() || 'U'}
                         </span>
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-white truncate">
+                        <p className="text-sm font-medium text-foreground truncate">
                           {user.profile ? `${user.profile.firstName} ${user.profile.lastName}` : 'No profile'}
                         </p>
                         <p className="text-xs text-muted-foreground truncate max-w-[180px]">{user.email}</p>
@@ -384,21 +378,21 @@ export default function AdminPage() {
 
       {/* Quick Actions */}
       <div className="admin-card p-5">
-        <h3 className="text-base font-semibold text-white mb-4" style={{ fontFamily: 'Outfit, sans-serif' }}>Quick Actions</h3>
+        <h3 className="text-base font-semibold text-foreground mb-4" style={{ fontFamily: 'Outfit, sans-serif' }}>Quick Actions</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: 'Review Reports', href: '/admin/reports', color: 'from-red-500/20 to-red-600/10 border-red-500/20', textColor: 'text-red-400', icon: FileWarning, count: stats?.pendingReports },
-            { label: 'Verify Profiles', href: '/admin/verifications', color: 'from-yellow-500/20 to-yellow-600/10 border-yellow-500/20', textColor: 'text-yellow-400', icon: Eye },
-            { label: 'Manage Users', href: '/admin/users', color: 'from-blue-500/20 to-blue-600/10 border-blue-500/20', textColor: 'text-blue-400', icon: Users },
-            { label: 'Push Notifs', href: '/admin/notifications', color: 'from-purple-500/20 to-purple-600/10 border-purple-500/20', textColor: 'text-purple-400', icon: BarChart3 },
+            { label: 'Review Reports', href: '/admin/reports', color: 'bg-error/10 border-error/20', textColor: 'text-error', icon: FileWarning, count: stats?.pendingReports },
+            { label: 'Verify Profiles', href: '/admin/verifications', color: 'bg-gold/10 border-gold/30', textColor: 'text-primaryDark', icon: Eye },
+            { label: 'Manage Users', href: '/admin/users', color: 'bg-primary/10 border-primary/20', textColor: 'text-primary', icon: Users },
+            { label: 'Push Notifs', href: '/admin/notifications', color: 'bg-surface border-border', textColor: 'text-primary', icon: BarChart3 },
           ].map((action) => (
             <Link
               key={action.label}
               href={action.href}
-              className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border bg-gradient-to-br ${action.color} hover:scale-[1.02] transition-all duration-200 text-center`}
+              className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border ${action.color} hover:scale-[1.02] transition-all duration-200 text-center`}
             >
               {action.count ? (
-                <span className="absolute top-2 right-2 w-5 h-5 bg-red-500 rounded-full text-[10px] text-white font-bold flex items-center justify-center">
+                <span className="absolute top-2 right-2 w-5 h-5 bg-error/10 rounded-full text-[10px] text-foreground font-bold flex items-center justify-center">
                   {action.count}
                 </span>
               ) : null}

@@ -17,14 +17,14 @@ import { formatDistanceToNow } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
 
 const STATUS_BADGES: Record<ReportStatus, string> = {
-  PENDING: 'bg-amber-500/15 text-amber-400 border-amber-500/25',
-  UNDER_REVIEW: 'bg-blue-500/15 text-blue-400 border-blue-500/25',
-  RESOLVED: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
-  DISMISSED: 'bg-slate-500/15 text-slate-400 border-slate-500/25',
-  ESCALATED: 'bg-red-500/15 text-red-400 border-red-500/25',
+  PENDING: 'bg-gold/20 text-primaryDark border-gold/35',
+  UNDER_REVIEW: 'bg-primary/10 text-primary border-primary/25',
+  RESOLVED: 'bg-success/10 text-success border-success/25',
+  DISMISSED: 'bg-muted text-muted-foreground border-border',
+  ESCALATED: 'bg-error/10 text-error border-error/25',
 };
 
-const REASON_STYLES = 'bg-purple-500/15 text-purple-400 border-purple-500/25';
+const REASON_STYLES = 'bg-primary/10 text-primary border-primary/25';
 
 export default function AdminReportsPage() {
   const { toast } = useToast();
@@ -162,7 +162,7 @@ export default function AdminReportsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>Report Management</h1>
+          <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Report Management</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             {isLoading ? 'Loading...' : `${pagination.total} total reports`}
           </p>
@@ -171,7 +171,7 @@ export default function AdminReportsPage() {
           <button
             onClick={exportToCSV}
             disabled={isLoading || reports.length === 0}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-sm font-medium transition-all disabled:opacity-40"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-background hover:bg-background text-foreground text-sm font-medium transition-all disabled:opacity-40"
           >
             <Download className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Export</span>
@@ -179,7 +179,7 @@ export default function AdminReportsPage() {
           <button
             onClick={() => fetchReports(pagination.page)}
             disabled={isLoading}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-sm font-medium transition-all disabled:opacity-40"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-background hover:bg-background text-foreground text-sm font-medium transition-all disabled:opacity-40"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
             <span className="hidden sm:inline">Refresh</span>
@@ -190,25 +190,25 @@ export default function AdminReportsPage() {
       {/* Main Card */}
       <div className="admin-card overflow-hidden">
         {/* Toolbar */}
-        <div className="p-4 border-b border-white/[0.06] space-y-3">
+        <div className="p-4 border-b border-border space-y-3">
           {/* Bulk Actions */}
           {selectedReports.size > 0 && (
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
-              <Flag className="w-4 h-4 text-amber-400 flex-shrink-0" />
-              <span className="text-sm font-semibold text-amber-300">{selectedReports.size} selected</span>
-              <div className="h-4 w-px bg-white/10" />
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-gold/20 border border-gold/35">
+              <Flag className="w-4 h-4 text-primaryDark flex-shrink-0" />
+              <span className="text-sm font-semibold text-primaryDark">{selectedReports.size} selected</span>
+              <div className="h-4 w-px bg-background" />
               <div className="flex gap-2 flex-wrap">
-                <button disabled={isBulkProcessing} onClick={handleBulkApprove} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 text-xs font-medium transition-colors disabled:opacity-50">
+                <button disabled={isBulkProcessing} onClick={handleBulkApprove} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-success/10 hover:bg-success/10 text-success text-xs font-medium transition-colors disabled:opacity-50">
                   <CheckCircle className="w-3 h-3" /> Approve All
                 </button>
-                <button disabled={isBulkProcessing} onClick={() => handleBulkStatusChange('DISMISSED' as ReportStatus)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-500/15 hover:bg-slate-500/25 text-slate-300 text-xs font-medium transition-colors disabled:opacity-50">
+                <button disabled={isBulkProcessing} onClick={() => handleBulkStatusChange('DISMISSED' as ReportStatus)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted hover:bg-muted text-muted-foreground text-xs font-medium transition-colors disabled:opacity-50">
                   <XCircle className="w-3 h-3" /> Dismiss All
                 </button>
-                <button disabled={isBulkProcessing} onClick={handleBulkDelete} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-400 text-xs font-medium transition-colors disabled:opacity-50">
+                <button disabled={isBulkProcessing} onClick={handleBulkDelete} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-error/10 hover:bg-error/10 text-error text-xs font-medium transition-colors disabled:opacity-50">
                   <Ban className="w-3 h-3" /> Delete All
                 </button>
               </div>
-              <button onClick={() => setSelectedReports(new Set())} className="ml-auto text-muted-foreground hover:text-white">
+              <button onClick={() => setSelectedReports(new Set())} className="ml-auto text-muted-foreground hover:text-primary">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -216,7 +216,7 @@ export default function AdminReportsPage() {
 
           {/* Filter */}
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as ReportStatus | 'ALL')}>
-            <SelectTrigger className="w-[170px] bg-white/[0.05] border-white/[0.08] text-white rounded-xl">
+            <SelectTrigger className="w-[170px] bg-background border-border text-foreground rounded-xl">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent className="bg-card border-border">
@@ -236,7 +236,7 @@ export default function AdminReportsPage() {
             <thead>
               <tr>
                 <th className="w-10 px-4 py-3.5 text-left">
-                  <Checkbox checked={selectedReports.size === reports.length && reports.length > 0} onCheckedChange={toggleSelectAll} className="border-white/20" />
+                  <Checkbox checked={selectedReports.size === reports.length && reports.length > 0} onCheckedChange={toggleSelectAll} className="border-border" />
                 </th>
                 <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Reporter</th>
                 <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Reported User</th>
@@ -250,7 +250,7 @@ export default function AdminReportsPage() {
             <tbody>
               {isLoading ? (
                 Array.from({ length: 7 }).map((_, i) => (
-                  <tr key={i} className="border-b border-white/[0.04]">
+                  <tr key={i} className="border-b border-border">
                     <td className="px-4 py-3"><div className="w-4 h-4 skeleton-pulse rounded" /></td>
                     {[140, 140, 100, 160, 80, 70].map((w, j) => (
                       <td key={j} className="px-4 py-3"><div className={`w-${w} h-3.5 skeleton-pulse rounded`} style={{ width: w }} /></td>
@@ -267,19 +267,19 @@ export default function AdminReportsPage() {
                 </tr>
               ) : (
                 reports.map(report => (
-                  <tr key={report.id} className={`border-b border-white/[0.04] transition-colors ${selectedReports.has(report.id) ? 'bg-amber-500/5' : ''}`}>
+                  <tr key={report.id} className={`border-b border-border transition-colors ${selectedReports.has(report.id) ? 'bg-gold/20' : ''}`}>
                     <td className="px-4 py-3.5">
-                      <Checkbox checked={selectedReports.has(report.id)} onCheckedChange={() => toggleSelectReport(report.id)} className="border-white/20" />
+                      <Checkbox checked={selectedReports.has(report.id)} onCheckedChange={() => toggleSelectReport(report.id)} className="border-border" />
                     </td>
                     <td className="px-4 py-3.5">
                       {report.reporter?.id === report.reportedUser?.id ? (
-                        <span className="text-xs font-bold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">SYSTEM FLAG</span>
+                        <span className="text-xs font-bold text-primaryDark bg-gold/20 px-2 py-0.5 rounded border border-gold/35">SYSTEM FLAG</span>
                       ) : (
-                        <span className="text-sm text-white font-medium">{getUserName(report.reporter)}</span>
+                        <span className="text-sm text-foreground font-medium">{getUserName(report.reporter)}</span>
                       )}
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className="text-sm text-white font-medium">{getUserName(report.reportedUser)}</span>
+                      <span className="text-sm text-foreground font-medium">{getUserName(report.reportedUser)}</span>
                     </td>
                     <td className="px-4 py-3.5 hidden sm:table-cell">
                       <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${REASON_STYLES}`}>
@@ -304,19 +304,19 @@ export default function AdminReportsPage() {
                     <td className="px-4 py-3.5 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <button className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-white transition-colors">
+                          <button className="p-1.5 rounded-lg hover:bg-background text-muted-foreground hover:text-primary transition-colors">
                             <MoreHorizontal className="w-4 h-4" />
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-card border-border w-48">
                           <DropdownMenuLabel className="text-xs text-muted-foreground">Update Status</DropdownMenuLabel>
-                          <DropdownMenuSeparator className="bg-white/[0.06]" />
-                          <DropdownMenuItem onClick={() => handleStatusChange(report.id, 'UNDER_REVIEW' as ReportStatus)} className="cursor-pointer text-blue-400 focus:text-blue-400 focus:bg-blue-500/10">Mark Under Review</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleStatusChange(report.id, 'RESOLVED' as ReportStatus)} className="cursor-pointer text-emerald-400 focus:text-emerald-400 focus:bg-emerald-500/10">Mark Resolved</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleStatusChange(report.id, 'DISMISSED' as ReportStatus)} className="cursor-pointer text-slate-400 focus:bg-slate-500/10">Dismiss</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleStatusChange(report.id, 'ESCALATED' as ReportStatus)} className="cursor-pointer text-red-400 focus:text-red-400 focus:bg-red-500/10">Escalate</DropdownMenuItem>
-                          <DropdownMenuSeparator className="bg-white/[0.06]" />
-                          <DropdownMenuItem onClick={() => handleBanUser(report.reportedUserId, report.reason, report.id)} className="cursor-pointer text-red-400 focus:text-red-400 focus:bg-red-500/10 gap-2 font-semibold">
+                          <DropdownMenuSeparator className="bg-background" />
+                          <DropdownMenuItem onClick={() => handleStatusChange(report.id, 'UNDER_REVIEW' as ReportStatus)} className="cursor-pointer text-primary focus:text-primary focus:bg-primary/10">Mark Under Review</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleStatusChange(report.id, 'RESOLVED' as ReportStatus)} className="cursor-pointer text-success focus:text-success focus:bg-success/10">Mark Resolved</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleStatusChange(report.id, 'DISMISSED' as ReportStatus)} className="cursor-pointer text-muted-foreground focus:bg-muted">Dismiss</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleStatusChange(report.id, 'ESCALATED' as ReportStatus)} className="cursor-pointer text-error focus:text-error focus:bg-error/10">Escalate</DropdownMenuItem>
+                          <DropdownMenuSeparator className="bg-background" />
+                          <DropdownMenuItem onClick={() => handleBanUser(report.reportedUserId, report.reason, report.id)} className="cursor-pointer text-error focus:text-error focus:bg-error/10 gap-2 font-semibold">
                             <Ban className="w-3.5 h-3.5" /> Ban Reported User
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -330,15 +330,15 @@ export default function AdminReportsPage() {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between px-4 py-3.5 border-t border-white/[0.06]">
+        <div className="flex items-center justify-between px-4 py-3.5 border-t border-border">
           <p className="text-xs text-muted-foreground">
             Showing {reports.length} of {pagination.total} reports
           </p>
           <div className="flex gap-1.5">
-            <button onClick={() => fetchReports(pagination.page - 1)} disabled={pagination.page <= 1 || isLoading} className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-xs font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+            <button onClick={() => fetchReports(pagination.page - 1)} disabled={pagination.page <= 1 || isLoading} className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-background text-foreground text-xs font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed">
               <ChevronLeft className="w-3.5 h-3.5" /> Prev
             </button>
-            <button onClick={() => fetchReports(pagination.page + 1)} disabled={pagination.page >= pagination.totalPages || isLoading} className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-xs font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+            <button onClick={() => fetchReports(pagination.page + 1)} disabled={pagination.page >= pagination.totalPages || isLoading} className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-background text-foreground text-xs font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed">
               Next <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>

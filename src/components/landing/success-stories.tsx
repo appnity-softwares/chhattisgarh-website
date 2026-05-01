@@ -40,13 +40,13 @@ export function SuccessStories() {
     return (
         <section id="stories" className="py-24 bg-background relative overflow-hidden">
             {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'radial-gradient(hsl(var(--primary)) 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+            <div className="absolute inset-0 bg-primary/[0.02] pointer-events-none" />
 
             <div className="container mx-auto px-4 relative z-10">
                 <div className="text-center mb-16 animate-fade-in-up">
                     <span className="text-primary font-bold tracking-[0.2em] uppercase text-xs mb-3 block">Testimonials</span>
                     <h2 className="text-3xl md:text-5xl font-bold font-headline mb-4 text-foreground leading-tight">
-                        Real People. <span className="text-primary italic">Real Love.</span>
+                        Real People. <span className="text-primary font-medium">Real Love.</span>
                     </h2>
                     <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
                         We have helped thousands of couples find their perfect match. Be our next success story.
@@ -67,7 +67,7 @@ export function SuccessStories() {
                                                     fill
                                                     className="object-cover transition-transform duration-1000 group-hover:scale-110"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-90" />
+                                                <div className="absolute inset-0 bg-background/90 opacity-90" />
                                                 <div className="absolute bottom-6 left-6 right-6 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
                                                     <p className="font-bold text-2xl mb-1">{story.title || story.partnerName}</p>
                                                     <div className="flex items-center gap-2">
@@ -82,7 +82,7 @@ export function SuccessStories() {
                                                 <div className="bg-primary/20 p-3 rounded-2xl absolute -top-6 right-8 shadow-xl backdrop-blur-md border border-white/10">
                                                     <Quote className="h-6 w-6 text-primary rotate-180" />
                                                 </div>
-                                                <p className="text-muted-foreground italic leading-relaxed pt-2 text-base font-light group-hover:text-foreground transition-colors duration-500">
+                                                <p className="text-muted-foreground font-medium leading-relaxed pt-2 text-base font-light group-hover:text-foreground transition-colors duration-500">
                                                     &quot;{story.story}&quot;
                                                 </p>
                                             </CardContent>

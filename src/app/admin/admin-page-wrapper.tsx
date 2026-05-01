@@ -15,12 +15,12 @@ export function AdminPageWrapper({ children, title, subtitle, description, actio
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex flex-col gap-1">
             {title && (
-              <h1 className="text-2xl font-bold text-white uppercase tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              <h1 className="text-2xl font-bold text-foreground uppercase tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 {title}
               </h1>
             )}
             {(subtitle || description) && (
-              <p className="text-sm text-zinc-500 max-w-2xl">
+              <p className="text-sm text-muted-foreground max-w-2xl">
                 {subtitle || description}
               </p>
             )}

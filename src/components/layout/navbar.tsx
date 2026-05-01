@@ -14,9 +14,9 @@ import { LayoutDashboard } from "lucide-react";
 
 const navLinks = [
   { href: "/browse", label: "Browse Profiles" },
-  { href: "/#pricing", label: "Pricing" },
+  { href: "/pricing", label: "Pricing" },
   { href: "/#features", label: "Features" },
-  { href: "/#stories", label: "Success Stories" },
+  { href: "/success-stories", label: "Success Stories" },
 ];
 
 export function Navbar() {
@@ -110,14 +110,14 @@ export function Navbar() {
           </Button>
           
           {user ? (
-            <Button variant="default" asChild className="bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-9 shadow-lg shadow-primary/20">
+            <Button variant="default" asChild className="hidden sm:flex bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-9 shadow-md">
               <Link href="/dashboard" className="flex items-center gap-2">
                 <LayoutDashboard className="w-4 h-4" />
                 Dashboard
               </Link>
             </Button>
           ) : admin ? (
-            <Button variant="default" asChild className="bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-9 shadow-lg shadow-primary/20">
+            <Button variant="default" asChild className="hidden sm:flex bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-9 shadow-md">
               <Link href="/admin" className="flex items-center gap-2">
                 <LayoutDashboard className="w-4 h-4" />
                 Admin Panel
@@ -132,7 +132,7 @@ export function Navbar() {
                 </Link>
               </Button>
 
-              <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-9 group shadow-lg shadow-primary/20">
+              <Button asChild className="hidden sm:flex bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-9 group shadow-md">
                 <Link href="/register">
                   Join Now
                 </Link>
@@ -144,4 +144,3 @@ export function Navbar() {
     </header>
   );
 }
-

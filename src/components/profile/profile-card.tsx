@@ -103,7 +103,7 @@ export function ProfileCard({ name, age, city, occupation, education: _education
         try {
             await reportUser.mutateAsync({
                 userId: targetId,
-                reason: reportReason as unknown,
+                reason: reportReason as any,
                 description: reportDescription
             });
             setShowReportModal(false);
@@ -159,7 +159,7 @@ export function ProfileCard({ name, age, city, occupation, education: _education
             layout
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="group relative h-full flex flex-col bg-foreground border border-white/5 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/20 cursor-pointer"
+            className="group relative h-full flex flex-col bg-surface border border-border rounded-[2rem] overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20 cursor-pointer"
             onClick={() => router.push(`/dashboard/profile/${id}`)}
         >
             <Card className="h-full overflow-hidden bg-transparent border-none flex flex-col">
@@ -180,7 +180,7 @@ export function ProfileCard({ name, age, city, occupation, education: _education
                         </div>
                     </div>
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
+                    <div className="absolute inset-0 bg-foreground/60 opacity-80" />
 
                     {/* Interaction Buttons Overlay */}
                     <div className="absolute top-4 inset-x-4 flex justify-between items-start z-30">
@@ -188,17 +188,17 @@ export function ProfileCard({ name, age, city, occupation, education: _education
                             {statusBadge}
                             <div className="flex flex-wrap gap-1.5">
                                 {isVerified && (
-                                    <Badge className="bg-success/90 backdrop-blur-md text-white border-none py-1 px-2.5 rounded-full flex items-center gap-1.5 font-black text-[8px] uppercase tracking-widest shadow-xl">
+                                    <Badge className="bg-success/90 backdrop-blur-md text-white border-none py-1 px-2.5 rounded-full flex items-center gap-1.5 font-bold text-[8px] uppercase tracking-widest shadow-xl">
                                         <ShieldCheck className="w-3 h-3" /> Verified
                                     </Badge>
                                 )}
                                 {state.type === 'matched' && (
-                                    <Badge className="bg-primary backdrop-blur-md text-white border-none py-1 px-2.5 rounded-full flex items-center gap-1.5 font-black text-[8px] uppercase tracking-widest shadow-xl animate-pulse">
+                                    <Badge className="bg-primary backdrop-blur-md text-white border-none py-1 px-2.5 rounded-full flex items-center gap-1.5 font-bold text-[8px] uppercase tracking-widest shadow-xl animate-pulse">
                                         <Heart className="w-3 h-3 fill-current" /> Matched
                                     </Badge>
                                 )}
                                 {state.isSuper && (
-                                    <Badge className="bg-accentGold backdrop-blur-md text-primaryDark border-none py-1 px-2.5 rounded-full flex items-center gap-1.5 font-black text-[8px] uppercase tracking-widest shadow-xl">
+                                    <Badge className="bg-accentGold backdrop-blur-md text-primaryDark border-none py-1 px-2.5 rounded-full flex items-center gap-1.5 font-bold text-[8px] uppercase tracking-widest shadow-xl">
                                         <Zap className="w-3 h-3 fill-current" /> Priority
                                     </Badge>
                                 )}
@@ -208,7 +208,7 @@ export function ProfileCard({ name, age, city, occupation, education: _education
                         <div className="relative" ref={menuRef}>
                             <button
                                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowMenu(!showMenu); }}
-                                className="bg-black/40 backdrop-blur-md border border-white/10 w-9 h-9 rounded-full text-white/70 hover:text-white transition-all shadow-xl flex items-center justify-center"
+                                className="bg-surface/90 border border-border w-9 h-9 rounded-full text-muted-foreground hover:text-primary transition-all shadow-xl flex items-center justify-center"
                             >
                                 <MoreVertical className="w-4 h-4" />
                             </button>
@@ -216,19 +216,19 @@ export function ProfileCard({ name, age, city, occupation, education: _education
                                 {showMenu && (
                                     <motion.div
                                         initial={{ opacity: 0, scale: 0.95, y: -5 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -5 }}
-                                        className="absolute right-0 top-11 z-50 w-36 bg-foreground border border-white/10 rounded-2xl shadow-3xl overflow-hidden"
+                                        className="absolute right-0 top-11 z-50 w-36 bg-surface border border-border rounded-2xl shadow-3xl overflow-hidden"
                                     >
                                         <ProfileQRCode
                                             userId={id}
                                             userName={safeName}
                                             profileUrl={`/dashboard/profile/${id}`}
                                         />
-                                        <div className="border-t border-white/5">
-                                            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowReportModal(true); setShowMenu(false); }} className="w-full flex items-center gap-2 px-4 py-3 text-[9px] font-black uppercase tracking-widest text-amber-500 hover:bg-white/5 transition-colors">
+                                        <div className="border-t border-border">
+                                            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowReportModal(true); setShowMenu(false); }} className="w-full flex items-center gap-2 px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-primaryDark hover:bg-background transition-colors">
                                                 <Flag className="w-3.5 h-3.5" /> Report
                                             </button>
                                         </div>
-                                        <button onClick={(e) => handleAction(e, () => blockUser(targetId))} className="w-full flex items-center gap-2 px-4 py-3 text-[9px] font-black uppercase tracking-widest text-error hover:bg-error/10 transition-colors border-t border-white/5">
+                                        <button onClick={(e) => handleAction(e, () => blockUser(targetId))} className="w-full flex items-center gap-2 px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-error hover:bg-error/10 transition-colors border-t border-border">
                                             <Ban className="w-3.5 h-3.5" /> Block
                                         </button>
                                     </motion.div>
@@ -238,10 +238,10 @@ export function ProfileCard({ name, age, city, occupation, education: _education
                     </div>
 
                     <div className="absolute bottom-3 left-4 right-4 text-white">
-                        <h3 className="text-base font-black tracking-tight flex items-center gap-1.5 drop-shadow-lg">
+                        <h3 className="text-base font-bold tracking-tight flex items-center gap-1.5 drop-shadow-lg">
                             {safeName}{safeAge ? `, ${safeAge}` : ""}
                         </h3>
-                        <div className="flex items-center gap-1 text-[9px] text-white/80 font-black uppercase tracking-widest">
+                        <div className="flex items-center gap-1 text-[9px] text-white/80 font-bold uppercase tracking-widest">
                             <MapPin className="w-3 h-3 text-primary opacity-90" />
                             {safeCity}
                         </div>
@@ -250,7 +250,7 @@ export function ProfileCard({ name, age, city, occupation, education: _education
 
                 <div className="p-4 space-y-4 flex-1 flex flex-col justify-between">
                     <div className="space-y-2">
-                        <div className="flex items-center gap-2.5 text-[10px] text-muted-foreground font-black uppercase tracking-widest bg-white/[0.03] px-3 py-2.5 rounded-2xl truncate border border-white/5">
+                        <div className="flex items-center gap-2.5 text-[10px] text-muted-foreground font-bold uppercase tracking-widest bg-background px-3 py-2.5 rounded-2xl truncate border border-border">
                             <Briefcase className="w-3.5 h-3.5 text-primary shrink-0 opacity-80" />
                             {safeOccupation}
                         </div>
@@ -258,64 +258,72 @@ export function ProfileCard({ name, age, city, occupation, education: _education
 
                     {/* ACTION HUB - Strictly Defined Behavior */}
                     <div className="flex gap-2.5 h-11">
-                        <button
-                            onClick={(e) => handleAction(e, () => toggleShortlist(targetId))}
-                            className={`aspect-square flex items-center justify-center rounded-2xl border transition-all active:scale-95 ${state.isShortlisted ? 'bg-primary/20 text-primary border-primary/30' : 'bg-white/5 border-white/5 hover:border-primary/40 text-muted-foreground'}`}
-                        >
-                            <Heart className={`w-5 h-5 ${state.isShortlisted ? 'fill-current' : ''}`} />
-                        </button>
-
-                        { (state.type === 'matched' || isPremium) ? (
-                            <Link
-                                href={`/dashboard/chat?userId=${targetId}`}
-                                onClick={(e) => e.stopPropagation()}
-                                className="flex-1 flex items-center justify-center gap-2 bg-success/10 border border-success/20 text-success rounded-2xl hover:bg-success/20 transition-all active:scale-95 font-black text-[10px] uppercase tracking-widest"
-                            >
-                                <MessageSquare className="w-4 h-4" />
-                                <span>{state.type === 'matched' ? 'Message' : 'Pre-Match Chat 💬'}</span>
-                            </Link>
-                        ) : state.type === 'received' ? (
+                        {_customActions ? (
                             <div className="flex-1 flex gap-2">
-                                <button
-                                    onClick={(e) => handleAction(e, () => acceptInterest(targetId, propRelationship?.matchId || 0))}
-                                    className="flex-1 bg-success text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-success/90 transition-all active:scale-95"
-                                >
-                                    Accept
-                                </button>
-                                <button
-                                    onClick={(e) => handleAction(e, () => rejectInterest(targetId, propRelationship?.matchId))}
-                                    className="px-4 bg-white/5 text-muted-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all"
-                                >
-                                    Skip
-                                </button>
+                                {_customActions}
                             </div>
-                        ) : state.type === 'sent' ? (
-                            <div className="flex-1 flex gap-2">
-                                <button disabled className="flex-1 bg-white/10 text-muted-foreground rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-not-allowed">
-                                    Pending
-                                </button>
-                            </div>
-                        ) : state.type === 'rejected' ? (
-                            <button
-                                onClick={(e) => handleAction(e, () => sendInterest(targetId))}
-                                className="flex-1 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-primary/90 transition-all"
-                            >
-                                Connect Again
-                            </button>
-                        ) : state.type === 'blocked' ? (
-                            <button disabled className="flex-1 bg-error/10 text-error border border-error/20 rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-not-allowed">
-                                User Blocked
-                            </button>
                         ) : (
-                            <div className="flex-1 flex gap-2">
+                            <>
                                 <button
-                                    onClick={(e) => handleAction(e, () => sendInterest(targetId))}
-                                    className="flex-1 flex items-center justify-center gap-2 bg-primary text-white rounded-2xl hover:bg-primary/90 transition-all active:scale-95 font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/30"
+                                    onClick={(e) => handleAction(e, () => toggleShortlist(targetId))}
+                                    className={`aspect-square flex items-center justify-center rounded-2xl border transition-all active:scale-95 ${state.isShortlisted ? 'bg-primary/20 text-primary border-primary/30' : 'bg-background border-border hover:border-primary/40 text-muted-foreground'}`}
                                 >
-                                    <Send className="w-4 h-4" />
-                                    <span>Connect</span>
+                                    <Heart className={`w-5 h-5 ${state.isShortlisted ? 'fill-current' : ''}`} />
                                 </button>
-                            </div>
+
+                                { (state.type === 'matched' || isPremium) ? (
+                                    <Link
+                                        href={`/dashboard/chat?userId=${targetId}`}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="flex-1 flex items-center justify-center gap-2 bg-success/10 border border-success/20 text-success rounded-2xl hover:bg-success/20 transition-all active:scale-95 font-bold text-[10px] uppercase tracking-widest"
+                                    >
+                                        <MessageSquare className="w-4 h-4" />
+                                        <span>{state.type === 'matched' ? 'Message' : 'Pre-Match Chat 💬'}</span>
+                                    </Link>
+                                ) : state.type === 'received' ? (
+                                    <div className="flex-1 flex gap-2">
+                                        <button
+                                            onClick={(e) => handleAction(e, () => acceptInterest(targetId, propRelationship?.matchId || 0))}
+                                            className="flex-1 bg-success text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-success/90 transition-all active:scale-95"
+                                        >
+                                            Accept
+                                        </button>
+                                        <button
+                                            onClick={(e) => handleAction(e, () => rejectInterest(targetId, propRelationship?.matchId))}
+                                            className="px-4 bg-background text-muted-foreground rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-muted transition-all"
+                                        >
+                                            Skip
+                                        </button>
+                                    </div>
+                                ) : state.type === 'sent' ? (
+                                    <div className="flex-1 flex gap-2">
+                                        <button disabled className="flex-1 bg-primary/10 text-primary rounded-2xl font-bold text-[10px] uppercase tracking-widest cursor-not-allowed border border-primary/20">
+                                            Pending
+                                        </button>
+                                    </div>
+                                ) : state.type === 'rejected' ? (
+                                    <button
+                                        onClick={(e) => handleAction(e, () => sendInterest(targetId))}
+                                        className="flex-1 bg-primary text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary/90 transition-all"
+                                    >
+                                        Connect Again
+                                    </button>
+                                ) : state.type === 'blocked' ? (
+                                    <button disabled className="flex-1 bg-error/10 text-error border border-error/20 rounded-2xl font-bold text-[10px] uppercase tracking-widest cursor-not-allowed">
+                                        User Blocked
+                                    </button>
+                                ) : (
+                                    <div className="flex-1 flex gap-2">
+                                        <button
+                                            onClick={(e) => handleAction(e, () => sendInterest(targetId))}
+                                            className="flex-1 flex items-center justify-center gap-2 bg-primary text-white rounded-2xl hover:bg-primary/90 transition-all active:scale-95 font-bold text-[10px] uppercase tracking-widest shadow-md"
+                                        >
+                                            <Send className="w-4 h-4" />
+                                            <span>Connect</span>
+                                        </button>
+                                    </div>
+                                )}
+                            </>
                         )}
 
                         <div className="flex gap-2">
@@ -326,7 +334,7 @@ export function ProfileCard({ name, age, city, occupation, education: _education
                                         e.stopPropagation();
                                         setShowPhotoModal(true);
                                     }}
-                                    className="flex-1 h-full px-3 bg-accentGold/10 border border-accentGold/30 text-accentGold font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-accentGold/20 active:scale-95 flex items-center justify-center gap-2"
+                                    className="flex-1 h-full px-3 bg-accentGold/10 border border-accentGold/30 text-accentGold font-bold text-[10px] uppercase tracking-widest rounded-2xl hover:bg-accentGold/20 active:scale-95 flex items-center justify-center gap-2"
                                     title="Request Photo Access"
                                 >
                                     <Camera className="w-4 h-4" />
@@ -340,13 +348,13 @@ export function ProfileCard({ name, age, city, occupation, education: _education
                                         e.stopPropagation();
                                         setShowContactModal(true);
                                     }}
-                                    className="flex-1 h-full px-4 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-primaryDark active:scale-95 shadow-xl flex items-center justify-center gap-2"
+                                    className="flex-1 h-full px-4 bg-primary text-white font-bold text-[10px] uppercase tracking-widest rounded-2xl hover:bg-primaryDark active:scale-95 shadow-xl flex items-center justify-center gap-2"
                                 >
                                     <UserPlus className="w-4 h-4" />
                                     Contact
                                 </button>
                             )}
-                            <Button asChild className="flex-1 h-full px-5 bg-white text-black font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-white/90 active:scale-95 shadow-xl">
+                            <Button asChild className="flex-1 h-full px-5 bg-white text-black font-bold text-[10px] uppercase tracking-widest rounded-2xl hover:bg-white/90 active:scale-95 shadow-xl">
                                 <Link href={`/dashboard/profile/${id}`}>View</Link>
                             </Button>
                         </div>
@@ -358,9 +366,9 @@ export function ProfileCard({ name, age, city, occupation, education: _education
             {showReportModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" onClick={() => setShowReportModal(false)}>
                     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-foreground border border-white/10 rounded-2xl p-6 w-full max-w-sm space-y-6 shadow-4xl">
-                        <h2 className="text-base font-black text-white uppercase tracking-tighter">Report <span className="text-accentGold font-italic">Member</span></h2>
+                        <h2 className="text-base font-bold text-white uppercase tracking-tighter">Report <span className="text-accentGold font-semibold">Member</span></h2>
                         <div className="space-y-3">
-                            <select value={reportReason} onChange={(e) => setReportReason(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-[11px] font-black uppercase tracking-widest text-white outline-none focus:border-primary/50 transition-colors">
+                            <select value={reportReason} onChange={(e) => setReportReason(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-[11px] font-bold uppercase tracking-widest text-white outline-none focus:border-primary/50 transition-colors">
                                 <option value="" className="bg-foreground">Select Reason</option>
                                 <option value="fake" className="bg-foreground">Fake Profile</option>
                                 <option value="spam" className="bg-foreground">Spam/Commercial</option>
@@ -370,8 +378,8 @@ export function ProfileCard({ name, age, city, occupation, education: _education
                             <textarea placeholder="Tell us more about the issue..." value={reportDescription} onChange={(e) => setReportDescription(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs font-bold text-white min-h-[100px] outline-none focus:border-primary/50 transition-colors" />
                         </div>
                         <div className="flex gap-3">
-                            <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={() => setShowReportModal(false)}>Cancel</Button>
-                            <Button variant="premium" className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={handleReportSubmit} disabled={!reportReason}>Submit Report</Button>
+                            <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-bold uppercase tracking-widest h-11" onClick={() => setShowReportModal(false)}>Cancel</Button>
+                            <Button variant="premium" className="flex-1 rounded-xl text-[10px] font-bold uppercase tracking-widest h-11" onClick={handleReportSubmit} disabled={!reportReason}>Submit Report</Button>
                         </div>
                     </motion.div>
                 </div>
@@ -382,7 +390,7 @@ export function ProfileCard({ name, age, city, occupation, education: _education
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" onClick={() => setShowContactModal(false)}>
                     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-foreground border border-white/10 rounded-2xl p-6 w-full max-w-sm space-y-6 shadow-4xl">
                         <div className="space-y-2">
-                            <h2 className="text-base font-black text-white uppercase tracking-tighter">Request <span className="text-primary font-italic">Contact</span></h2>
+                            <h2 className="text-base font-bold text-white uppercase tracking-tighter">Request <span className="text-primary font-semibold">Contact</span></h2>
                             <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                                 <Lock className="w-3.5 h-3.5 text-primary" />
                                 Phone, email and WhatsApp stay hidden until approved.
@@ -391,7 +399,7 @@ export function ProfileCard({ name, age, city, occupation, education: _education
 
                         <div className="space-y-4">
                             <div className="space-y-4">
-                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2 block">What would you like to request?</label>
+                                <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">What would you like to request?</label>
                                 <div className="grid grid-cols-3 gap-2">
                                     <button
                                         onClick={() => sendContact.mutate({ profileId: targetId, requestType: 'PHONE' })}
@@ -399,7 +407,7 @@ export function ProfileCard({ name, age, city, occupation, education: _education
                                         className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all flex flex-col items-center gap-2"
                                     >
                                         <Phone className="w-5 h-5 text-primary" />
-                                        <span className="text-xs text-white font-black uppercase">Phone</span>
+                                        <span className="text-xs text-white font-bold uppercase">Phone</span>
                                     </button>
                                     <button
                                         onClick={() => sendContact.mutate({ profileId: targetId, requestType: 'EMAIL' })}
@@ -407,7 +415,7 @@ export function ProfileCard({ name, age, city, occupation, education: _education
                                         className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all flex flex-col items-center gap-2"
                                     >
                                         <Mail className="w-5 h-5 text-primary" />
-                                        <span className="text-xs text-white font-black uppercase">Email</span>
+                                        <span className="text-xs text-white font-bold uppercase">Email</span>
                                     </button>
                                     <button
                                         onClick={() => sendContact.mutate({ profileId: targetId, requestType: 'WHATSAPP' })}
@@ -415,13 +423,13 @@ export function ProfileCard({ name, age, city, occupation, education: _education
                                         className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all flex flex-col items-center gap-2"
                                     >
                                         <MessageCircle className="w-5 h-5 text-primary" />
-                                        <span className="text-xs text-white font-black uppercase">WhatsApp</span>
+                                        <span className="text-xs text-white font-bold uppercase">WhatsApp</span>
                                     </button>
                                 </div>
                             </div>
 
                             <div>
-                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2 block">Message (Optional)</label>
+                                <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">Message (Optional)</label>
                                 <textarea
                                     placeholder="Hi, I'd like to connect with you..."
                                     className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs font-bold text-white min-h-[80px] outline-none focus:border-primary/50 transition-colors resize-none"
@@ -429,8 +437,8 @@ export function ProfileCard({ name, age, city, occupation, education: _education
                             </div>
 
                             <div className="flex gap-3">
-                                <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={() => setShowContactModal(false)}>Cancel</Button>
-                                <Button className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={() => setShowContactModal(false)}>Close</Button>
+                                <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-bold uppercase tracking-widest h-11" onClick={() => setShowContactModal(false)}>Cancel</Button>
+                                <Button className="flex-1 rounded-xl text-[10px] font-bold uppercase tracking-widest h-11" onClick={() => setShowContactModal(false)}>Close</Button>
                             </div>
                         </div>
                     </motion.div>
@@ -441,11 +449,11 @@ export function ProfileCard({ name, age, city, occupation, education: _education
             {showPhotoModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" onClick={() => setShowPhotoModal(false)}>
                     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-foreground border border-white/10 rounded-2xl p-6 w-full max-w-sm space-y-6 shadow-4xl">
-                        <h2 className="text-base font-black text-white uppercase tracking-tighter">Request <span className="text-accentGold font-italic">Photo Access</span></h2>
+                        <h2 className="text-base font-bold text-white uppercase tracking-tighter">Request <span className="text-accentGold font-semibold">Photo Access</span></h2>
 
                         <div className="space-y-4">
                             <div>
-                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2 block">Message (Optional)</label>
+                                <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">Message (Optional)</label>
                                 <textarea
                                     placeholder="Hi, I'd like to see your photos..."
                                     className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs font-bold text-white min-h-[80px] outline-none focus:border-primary/50 transition-colors resize-none"
@@ -454,10 +462,10 @@ export function ProfileCard({ name, age, city, occupation, education: _education
                         </div>
 
                         <div className="flex gap-3">
-                            <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={() => setShowPhotoModal(false)}>Cancel</Button>
+                            <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-bold uppercase tracking-widest h-11" onClick={() => setShowPhotoModal(false)}>Cancel</Button>
                             <Button
                                 variant="premium"
-                                className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11"
+                                className="flex-1 rounded-xl text-[10px] font-bold uppercase tracking-widest h-11"
                                 onClick={() => {
                                     sendPhoto.mutate({
                                         photoId: 1, // Use first photo ID (backend will handle mapping)

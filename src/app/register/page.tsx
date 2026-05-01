@@ -240,8 +240,8 @@ export default function RegisterPage() {
             >
                 <div className="flex flex-col items-center mb-10 space-y-3">
                     <Logo className="scale-125 mb-4" />
-                    <h2 className="text-3xl font-black tracking-tight text-foreground uppercase">
-                        {step === 3 ? "Verify" : "Join"} <span className="text-primary italic">CG Shaadi</span>
+                    <h2 className="text-3xl font-bold tracking-tight text-foreground uppercase">
+                        {step === 3 ? "Verify" : "Join"} <span className="text-primary font-medium">CG Shaadi</span>
                     </h2>
                     <p className="text-muted-foreground font-bold uppercase tracking-widest text-[10px] text-center">
                         {step === 3 ? `Code sent to +91 ${phone}` : "Find your life partner in Chhattisgarh"}
@@ -281,9 +281,9 @@ export default function RegisterPage() {
                                     className="space-y-6"
                                 >
                                     <div className="space-y-3">
-                                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Creating account for</Label>
+                                        <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Creating account for</Label>
                                         <Select defaultValue={creatingFor} onValueChange={setCreatingFor}>
-                                            <SelectTrigger className="h-16 bg-white/5 border-white/10 rounded-2xl focus:ring-primary/20 font-black text-sm uppercase">
+                                            <SelectTrigger className="h-16 bg-white/5 border-white/10 rounded-2xl focus:ring-primary/20 font-bold text-sm uppercase">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent className="bg-foreground border-white/10 text-white">
@@ -298,24 +298,24 @@ export default function RegisterPage() {
 
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-3">
-                                            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Gender</Label>
+                                            <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Gender</Label>
                                             <div className="flex p-1.5 bg-white/5 rounded-2xl border border-white/10 h-16">
                                                 <Button 
                                                     type="button"
                                                     variant="ghost" 
                                                     onClick={() => setGender("MALE")}
-                                                    className={`flex-1 h-full rounded-xl text-[10px] font-black tracking-widest uppercase ${gender === 'MALE' ? 'bg-primary text-white' : 'hover:bg-white/5 text-muted-foreground'}`}
+                                                    className={`flex-1 h-full rounded-xl text-[10px] font-bold tracking-widest uppercase ${gender === 'MALE' ? 'bg-primary text-white' : 'hover:bg-white/5 text-muted-foreground'}`}
                                                 >MALE</Button>
                                                 <Button 
                                                     type="button"
                                                     variant="ghost" 
                                                     onClick={() => setGender("FEMALE")}
-                                                    className={`flex-1 h-full rounded-xl text-[10px] font-black tracking-widest uppercase ${gender === 'FEMALE' ? 'bg-primary text-white' : 'hover:bg-white/5 text-muted-foreground'}`}
+                                                    className={`flex-1 h-full rounded-xl text-[10px] font-bold tracking-widest uppercase ${gender === 'FEMALE' ? 'bg-primary text-white' : 'hover:bg-white/5 text-muted-foreground'}`}
                                                 >FEMALE</Button>
                                             </div>
                                         </div>
                                         <div className="space-y-3">
-                                            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Date of Birth</Label>
+                                            <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Date of Birth</Label>
                                             <div className="relative">
                                                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
                                                 <Input 
@@ -330,7 +330,7 @@ export default function RegisterPage() {
 
                                     <Button 
                                         onClick={handleStep1Continue}
-                                        className="w-full h-16 bg-primary hover:bg-primary/90 text-white font-black text-lg rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] mt-4"
+                                        className="w-full h-16 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] mt-4"
                                     >
                                         CONTINUE
                                         <ChevronRight className="w-5 h-5 ml-2" />
@@ -348,41 +348,41 @@ export default function RegisterPage() {
                                 >
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-3">
-                                            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">First Name</Label>
+                                            <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">First Name</Label>
                                             <div className="relative">
                                                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
                                                 <Input 
                                                     placeholder="First name" 
                                                     value={firstName}
                                                     onChange={(e) => setFirstName(e.target.value)}
-                                                    className="pl-14 h-16 bg-white/5 border-white/10 rounded-2xl focus:ring-primary/20 font-black"
+                                                    className="pl-14 h-16 bg-white/5 border-white/10 rounded-2xl focus:ring-primary/20 font-bold"
                                                 />
                                             </div>
                                         </div>
                                         <div className="space-y-3">
-                                            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Last Name</Label>
+                                            <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Last Name</Label>
                                             <Input 
                                                 placeholder="Last name" 
                                                 value={lastName}
                                                 onChange={(e) => setLastName(e.target.value)}
-                                                className="h-16 bg-white/5 border-white/10 rounded-2xl focus:ring-primary/20 font-black"
+                                                className="h-16 bg-white/5 border-white/10 rounded-2xl focus:ring-primary/20 font-bold"
                                             />
                                         </div>
                                     </div>
 
                                     <div className="space-y-3">
-                                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Mobile Number</Label>
+                                        <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Mobile Number</Label>
                                         <div className="relative group">
                                             <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 border-r border-white/10 pr-3 pointer-events-none">
                                                 <Smartphone className="w-5 h-5 text-primary" />
-                                                <span className="font-black text-sm text-foreground">+91</span>
+                                                <span className="font-bold text-sm text-foreground">+91</span>
                                             </div>
                                             <Input 
                                                 placeholder="0000 0000 00" 
                                                 maxLength={10}
                                                 value={phone}
                                                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
-                                                className="pl-24 h-16 bg-white/5 border-white/10 rounded-2xl focus:ring-primary/20 font-black text-lg tracking-[0.2em]"
+                                                className="pl-24 h-16 bg-white/5 border-white/10 rounded-2xl focus:ring-primary/20 font-bold text-lg tracking-[0.2em]"
                                             />
                                         </div>
                                     </div>
@@ -391,7 +391,7 @@ export default function RegisterPage() {
                                         <Button 
                                             variant="outline"
                                             onClick={() => setStep(1)}
-                                            className="h-16 w-24 border-white/10 hover:bg-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-muted-foreground"
+                                            className="h-16 w-24 border-white/10 hover:bg-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-muted-foreground"
                                         >
                                             <ChevronLeft className="w-4 h-4 mr-1" />
                                             Back
@@ -399,7 +399,7 @@ export default function RegisterPage() {
                                         <Button 
                                             onClick={handleSendOTP}
                                             disabled={phone.length < 10 || !firstName.trim()}
-                                            className="flex-1 h-16 bg-primary hover:bg-primary/90 text-white font-black text-lg rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] group"
+                                            className="flex-1 h-16 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] group"
                                         >
                                             CREATE PROFILE
                                             <Sparkles className="w-5 h-5 ml-2 group-hover:rotate-12 transition-transform" />
@@ -421,7 +421,7 @@ export default function RegisterPage() {
                                     
                                     <div className="space-y-6 w-full">
                                         <div className="space-y-3">
-                                            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Verify OTP</Label>
+                                            <Label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Verify OTP</Label>
                                             <Input 
                                                 autoFocus
                                                 type="text"
@@ -429,14 +429,14 @@ export default function RegisterPage() {
                                                 placeholder="000000"
                                                 value={otp}
                                                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                                                className="h-20 text-center text-4xl font-black tracking-[0.4em] bg-white/5 border-white/10 rounded-2xl focus:ring-primary/20 text-primary"
+                                                className="h-20 text-center text-4xl font-bold tracking-[0.4em] bg-white/5 border-white/10 rounded-2xl focus:ring-primary/20 text-primary"
                                             />
                                         </div>
 
                                         <div className="flex items-center justify-between px-2">
                                             <button 
                                                 onClick={() => setStep(2)}
-                                                className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors group"
+                                                className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors group"
                                             >
                                                 <ChevronLeft className="w-3 h-3 group-hover:-translate-x-0.5 transition-transform" />
                                                 Edit Phone
@@ -445,7 +445,7 @@ export default function RegisterPage() {
                                             <button 
                                                 disabled={!canResend}
                                                 onClick={handleResendOTP}
-                                                className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest transition-colors ${canResend ? 'text-primary hover:text-primary/80' : 'text-muted-foreground opacity-50 cursor-not-allowed'}`}
+                                                className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors ${canResend ? 'text-primary hover:text-primary/80' : 'text-muted-foreground opacity-50 cursor-not-allowed'}`}
                                             >
                                                 <RotateCcw className={`w-3 h-3 ${!canResend && 'animate-spin-slow'}`} />
                                                 {canResend ? "Resend OTP" : `Resend in ${timer}s`}
@@ -456,7 +456,7 @@ export default function RegisterPage() {
                                     <Button 
                                         onClick={handleVerifyAndRegister}
                                         disabled={otp.length < 6}
-                                        className="w-full h-16 bg-primary hover:bg-primary/90 text-white font-black text-lg rounded-2xl shadow-xl shadow-primary/20 active:scale-95 transition-all"
+                                        className="w-full h-16 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-2xl shadow-xl shadow-primary/20 active:scale-95 transition-all"
                                     >
                                         VERIFY & REGISTER
                                     </Button>
@@ -465,8 +465,8 @@ export default function RegisterPage() {
                         </AnimatePresence>
 
                         <div className="text-center pt-8 border-t border-white/5 mt-8">
-                            <Link href="/login" className="text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
-                                Already have an account? <span className="text-primary italic">Sign In</span>
+                            <Link href="/login" className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+                                Already have an account? <span className="text-primary font-medium">Sign In</span>
                             </Link>
                         </div>
                     </div>
@@ -475,7 +475,7 @@ export default function RegisterPage() {
                 </Card>
 
                 {/* Secure Trust Badge */}
-                <div className="mt-8 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">
+                <div className="mt-8 flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-60">
                     <CheckCircle2 className="w-3 h-3 text-green-500" />
                     Verified by Firebase Phone Identity
                 </div>

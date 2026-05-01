@@ -21,14 +21,14 @@ import {
 const revenueChartConfig = {
     revenue: {
         label: "Revenue",
-        color: "hsl(var(--primary))",
+        color: "var(--primary)",
     },
 } satisfies ChartConfig
 
 const signupsChartConfig = {
     users: {
         label: "New Users",
-        color: "hsl(var(--accent))",
+        color: "var(--gold)",
     }
 } satisfies ChartConfig
 
@@ -130,7 +130,7 @@ export default function AdminAnalyticsPage() {
                                     </div>
                                     <p className="text-xs text-muted-foreground">
                                         {revenueData?.growth ? (
-                                            <span className={revenueData.growth >= 0 ? 'text-green-500' : 'text-red-500'}>
+                                            <span className={revenueData.growth >= 0 ? 'text-success' : 'text-error'}>
                                                 {revenueData.growth >= 0 ? '+' : ''}{revenueData.growth}%
                                             </span>
                                         ) : null} from last month
@@ -148,7 +148,7 @@ export default function AdminAnalyticsPage() {
                                     </div>
                                     <p className="text-xs text-muted-foreground">
                                         {signupsData?.growth ? (
-                                            <span className={signupsData.growth >= 0 ? 'text-green-500' : 'text-red-500'}>
+                                            <span className={signupsData.growth >= 0 ? 'text-success' : 'text-error'}>
                                                 {signupsData.growth >= 0 ? '+' : ''}{signupsData.growth}%
                                             </span>
                                         ) : null} from previous period

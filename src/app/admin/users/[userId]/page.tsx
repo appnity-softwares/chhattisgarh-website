@@ -155,7 +155,7 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
                                     <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Premium</Badge>
                                 )}
                                 {profile?.isVerified && (
-                                    <Badge variant="outline" className="border-blue-500 text-blue-500">Verified</Badge>
+                                    <Badge variant="outline" className="border-primary/25 text-primary">Verified</Badge>
                                 )}
                             </h1>
                             <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mt-2">
@@ -176,7 +176,7 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
                     <div className="flex gap-2">
                         <Dialog open={grantDialogOpen} onOpenChange={setGrantDialogOpen}>
                             <DialogTrigger asChild>
-                                <Button variant="secondary" className="bg-amber-100 text-amber-900 border-amber-200 hover:bg-amber-200">
+                                <Button variant="secondary" className="bg-gold/20 text-primaryDark border-gold/35 hover:bg-gold/20">
                                     <CreditCard className="mr-2 h-4 w-4" /> Grant Subscription
                                 </Button>
                             </DialogTrigger>
@@ -226,7 +226,7 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
 
                         <Button 
                             variant="default" 
-                            className="bg-yellow-500 hover:bg-yellow-600 text-white border-none shadow-lg shadow-yellow-500/20"
+                            className="bg-gold hover:bg-gold/90 text-foreground border-none shadow-lg shadow-gold/20"
                             onClick={() => handleGrantSubscription(2, 90)}
                             disabled={isGrantingSub || user.role === 'PREMIUM_USER'}
                         >

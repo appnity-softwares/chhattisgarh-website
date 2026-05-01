@@ -37,15 +37,15 @@ const NOTIFICATION_ICONS: Record<string, LucideIcon> = {
 
 const NOTIFICATION_COLORS: Record<string, string> = {
     MATCH_REQUEST: "text-primary",
-    MATCH_ACCEPTED: "text-green-500",
+    MATCH_ACCEPTED: "text-success",
     MATCH_REJECTED: "text-muted-foreground",
-    MESSAGE: "text-blue-400",
-    PROFILE_VIEW: "text-amber-500",
+    MESSAGE: "text-primary",
+    PROFILE_VIEW: "text-primaryDark",
     CONTACT_REQUEST: "text-violet-400",
     PHOTO_REQUEST: "text-cyan-400",
     SUBSCRIPTION: "text-primary",
-    SYSTEM: "text-amber-500",
-    VERIFICATION: "text-green-500",
+    SYSTEM: "text-primaryDark",
+    VERIFICATION: "text-success",
 };
 
 function getNotificationLink(notification: Notification): string | null {
@@ -111,13 +111,13 @@ export default function NotificationsPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
                 <div className="space-y-2">
-                    <h1 className="text-3xl md:text-4xl font-black tracking-tight uppercase text-foreground">Alert <span className="text-primary italic">Center</span></h1>
+                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight uppercase text-foreground">Alert <span className="text-primary font-medium">Center</span></h1>
                     <p className="text-muted-foreground font-light text-lg">Stay updated with your match activity and interests</p>
                 </div>
                 
                 <div className="flex items-center gap-3">
                     {unreadCount > 0 && (
-                        <Badge className="bg-primary/20 text-primary border-primary/20 font-black px-3 py-1">
+                        <Badge className="bg-primary/20 text-primary border-primary/20 font-bold px-3 py-1">
                             {unreadCount} Unread
                         </Badge>
                     )}
@@ -125,7 +125,7 @@ export default function NotificationsPage() {
                         variant="ghost" 
                         onClick={handleMarkAllRead}
                         disabled={markAllRead.isPending || unreadCount === 0}
-                        className="h-12 px-6 rounded-xl text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
+                        className="h-12 px-6 rounded-xl text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
                     >
                         {markAllRead.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                         Mark all as read
@@ -134,7 +134,7 @@ export default function NotificationsPage() {
                         variant="outline" 
                         onClick={handleDeleteAll}
                         disabled={deleteAll.isPending || notifications.length === 0}
-                        className="h-12 w-12 rounded-xl bg-card border-white/5 p-0 hover:bg-white/5 active:scale-95 transition-all text-red-400 border-red-500/10"
+                        className="h-12 w-12 rounded-xl bg-card border-border p-0 hover:bg-background active:scale-95 transition-all text-error border-error/25"
                     >
                         {deleteAll.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
                     </Button>
@@ -155,12 +155,12 @@ export default function NotificationsPage() {
                 <div className="space-y-4">
                     {notifications.map((notification: Notification, i: number) => {
                         const IconComponent = NOTIFICATION_ICONS[notification.type] || Bell;
-                        const iconColor = NOTIFICATION_COLORS[notification.type] || "text-amber-500";
+                        const iconColor = NOTIFICATION_COLORS[notification.type] || "text-primaryDark";
                         const link = getNotificationLink(notification);
                         
                         const content = (
                             <Card 
-                                className={`relative overflow-hidden transition-all duration-300 rounded-[2rem] border-white/5 cursor-pointer ${notification.isRead ? 'bg-card/20 opacity-80' : 'bg-card/50 ring-1 ring-primary/20 shadow-xl shadow-primary/5'}`}
+                                className={`relative overflow-hidden transition-all duration-300 rounded-[2rem] border-border cursor-pointer ${notification.isRead ? 'bg-card/20 opacity-80' : 'bg-surface ring-1 ring-primary/20 shadow-xl shadow-primary/5'}`}
                                 onClick={() => handleNotificationClick(notification)}
                             >
                                 {!notification.isRead && (
@@ -168,7 +168,7 @@ export default function NotificationsPage() {
                                 )}
                                 
                                 <CardContent className="p-6 md:p-8 flex items-center gap-6">
-                                    <div className={`w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center relative shrink-0`}>
+                                    <div className={`w-14 h-14 rounded-2xl bg-background flex items-center justify-center relative shrink-0`}>
                                         <IconComponent className={`w-6 h-6 ${iconColor}`} />
                                         {!notification.isRead && (
                                             <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-background" />
@@ -177,7 +177,7 @@ export default function NotificationsPage() {
 
                                     <div className="flex-1 space-y-1 min-w-0">
                                         <div className="flex items-center justify-between">
-                                            <h4 className="font-black text-sm uppercase tracking-widest text-foreground group-hover:text-primary transition-colors truncate">
+                                            <h4 className="font-bold text-sm uppercase tracking-widest text-foreground group-hover:text-primary transition-colors truncate">
                                                 {notification.title || notification.type?.replace(/_/g, ' ')}
                                             </h4>
                                             <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1.5 uppercase tracking-widest shrink-0 ml-4">
@@ -191,7 +191,7 @@ export default function NotificationsPage() {
                                     </div>
 
                                     {link && (
-                                        <Button variant="ghost" className="h-12 w-12 rounded-xl bg-white/5 opacity-0 group-hover:opacity-100 transition-all active:scale-95 shrink-0">
+                                        <Button variant="ghost" className="h-12 w-12 rounded-xl bg-background opacity-0 group-hover:opacity-100 transition-all active:scale-95 shrink-0">
                                             <ArrowRight className="w-5 h-5 text-muted-foreground" />
                                         </Button>
                                     )}
@@ -221,11 +221,11 @@ export default function NotificationsPage() {
             {/* Empty State */}
             {!isLoading && notifications.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-20 text-center space-y-6">
-                    <div className="w-32 h-32 bg-card/40 rounded-full flex items-center justify-center">
+                    <div className="w-32 h-32 bg-surface rounded-full flex items-center justify-center">
                         <Bell className="w-16 h-16 text-muted-foreground opacity-20" />
                     </div>
                     <div className="space-y-1">
-                        <h3 className="font-black text-xl uppercase tracking-widest text-foreground">All Caught Up!</h3>
+                        <h3 className="font-bold text-xl uppercase tracking-widest text-foreground">All Caught Up!</h3>
                         <p className="text-muted-foreground font-medium">We&apos;ll notify you when someone shows interest in your profile.</p>
                     </div>
                 </div>

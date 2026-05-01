@@ -15,7 +15,7 @@ export default function RefundPage() {
             <Navbar />
             <main className="flex-1">
                 {/* Hero */}
-                <section className="py-16 bg-gradient-to-b from-primary/5 to-background">
+                <section className="py-16 bg-background">
                     <div className="container mx-auto px-4 text-center">
                         <h1 className="text-4xl md:text-5xl font-bold font-headline mb-4">
                             रिफंड नीति
@@ -39,7 +39,7 @@ export default function RefundPage() {
                             </p>
                         </div>
 
-                        <div className="prose prose-lg max-w-none space-y-8">
+                        <div className="space-y-8 text-foreground leading-relaxed">
                             <Card>
                                 <CardHeader>
                                     <CardTitle>1. सामान्य रिफंड नीति</CardTitle>

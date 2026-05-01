@@ -45,10 +45,10 @@ export default function AuditLogs() {
     };
 
     const actionColors: Record<string, string> = {
-        'CHANGE_ROLE': 'text-purple-600 bg-purple-50 border-purple-100',
-        'TOGGLE_FEATURE': 'text-blue-600 bg-blue-50 border-blue-100',
-        'APPROVE_PAYMENT': 'text-green-600 bg-green-50 border-green-100',
-        'BAN_USER': 'text-red-600 bg-red-50 border-red-100'
+        'CHANGE_ROLE': 'text-primary bg-primary/10 border-primary/25',
+        'TOGGLE_FEATURE': 'text-primary bg-primary/10 border-primary/25',
+        'APPROVE_PAYMENT': 'text-success bg-success/10 border-success/25',
+        'BAN_USER': 'text-error bg-error/10 border-error/25'
     };
 
     const filteredLogs = (logs || []).filter(log => 
@@ -66,34 +66,34 @@ export default function AuditLogs() {
 
             {/* Stats */}
             <div className="grid gap-4 md:grid-cols-3">
-                <Card className="bg-slate-50 border-slate-200">
+                <Card className="bg-surface border-border">
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-4">
-                            <Activity className="w-10 h-10 text-slate-400" />
+                            <Activity className="w-10 h-10 text-muted-foreground" />
                             <div>
-                                <p className="text-sm font-medium text-slate-500">Total Actions</p>
+                                <p className="text-sm font-medium text-muted-foreground">Total Actions</p>
                                 <h3 className="text-2xl font-bold">{stats.total}</h3>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-blue-50 border-blue-100">
+                <Card className="bg-primary/10 border-primary/25">
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-4">
-                            <ShieldCheck className="w-10 h-10 text-blue-400" />
+                            <ShieldCheck className="w-10 h-10 text-primary" />
                             <div>
-                                <p className="text-sm font-medium text-blue-500">Active Admins</p>
+                                <p className="text-sm font-medium text-primary">Active Admins</p>
                                 <h3 className="text-2xl font-bold">{stats.uniqueAdmins}</h3>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-green-50 border-green-100">
+                <Card className="bg-success/10 border-success/25">
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-4">
-                            <Clock className="w-10 h-10 text-green-400" />
+                            <Clock className="w-10 h-10 text-success" />
                             <div>
-                                <p className="text-sm font-medium text-green-500">Actions Today</p>
+                                <p className="text-sm font-medium text-success">Actions Today</p>
                                 <h3 className="text-2xl font-bold">{stats.todayActions}</h3>
                             </div>
                         </div>
@@ -139,7 +139,7 @@ export default function AuditLogs() {
                                                 {format(new Date(log.timestamp), 'MMM d, HH:mm:ss')}
                                             </TableCell>
                                             <TableCell className="font-semibold flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center">
+                                                <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
                                                     <User className="w-3 h-3" />
                                                 </div>
                                                 {log.admin}
@@ -150,7 +150,7 @@ export default function AuditLogs() {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="text-sm">{log.target}</TableCell>
-                                            <TableCell className="text-xs italic text-muted-foreground">{log.details}</TableCell>
+                                            <TableCell className="text-xs font-medium text-muted-foreground">{log.details}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>

@@ -85,36 +85,21 @@ export function LoginForm() {
       <div className="login-orb-1" />
       <div className="login-orb-2" />
 
-      {/* Animated grid background */}
-      <div
-        className="fixed inset-0 pointer-events-none opacity-[0.03]"
-        style={{
-          backgroundImage: 'linear-gradient(rgba(109,40,217,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(109,40,217,0.5) 1px, transparent 1px)',
-          backgroundSize: '50px 50px',
-        }}
-      />
-
       {/* Login card */}
       <div className="relative z-10 w-full max-w-md animate-slide-up">
         {/* Card */}
-        <div
-          className="rounded-3xl p-8 sm:p-10 glass-card stat-card-glow"
-          style={{
-            background: 'linear-gradient(145deg, rgba(109,40,217,0.08), rgba(30,27,75,0.95))',
-            border: '1px solid rgba(109,40,217,0.2)',
-          }}
-        >
+        <div className="rounded-3xl p-8 sm:p-10 glass-card stat-card-glow bg-surface border border-border">
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
             <div className="relative mb-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center glow-purple animate-float">
+              <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center glow-primary animate-float">
                 <Sparkles className="w-8 h-8 text-white" />
               </div>
               <div className="absolute -top-1 -right-1 w-5 h-5 bg-success rounded-full border-2 border-foreground flex items-center justify-center">
                 <Shield className="w-2.5 h-2.5 text-white" />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>
               Admin Console
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
@@ -140,10 +125,10 @@ export function LoginForm() {
                   disabled={isLoading}
                   required
                   className="
-                    w-full pl-10 pr-4 py-3 rounded-xl text-sm text-white
-                    bg-white/[0.05] border border-white/[0.08]
+                    w-full pl-10 pr-4 py-3 rounded-xl text-sm text-foreground
+                    bg-surface border border-border
                     placeholder:text-muted-foreground
-                    focus:outline-none focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/20
+                    focus:outline-none focus:border-primary/25 focus:ring-2 focus:ring-primary/20
                     transition-all duration-200
                     disabled:opacity-50 disabled:cursor-not-allowed
                   "
@@ -167,10 +152,10 @@ export function LoginForm() {
                   disabled={isLoading}
                   required
                   className="
-                    w-full pl-10 pr-12 py-3 rounded-xl text-sm text-white
-                    bg-white/[0.05] border border-white/[0.08]
+                    w-full pl-10 pr-12 py-3 rounded-xl text-sm text-foreground
+                    bg-surface border border-border
                     placeholder:text-muted-foreground
-                    focus:outline-none focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/20
+                    focus:outline-none focus:border-primary/25 focus:ring-2 focus:ring-primary/20
                     transition-all duration-200
                     disabled:opacity-50 disabled:cursor-not-allowed
                   "
@@ -178,7 +163,7 @@ export function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white transition-colors p-0.5"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors p-0.5"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>

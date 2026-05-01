@@ -31,11 +31,11 @@ const currencyFormatter = new Intl.NumberFormat('en-IN', {
 });
 
 const STATUS_STYLES: Record<string, string> = {
-  COMPLETED: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
-  PENDING: 'bg-amber-500/15 text-amber-400 border-amber-500/25',
-  FAILED: 'bg-rose-500/15 text-rose-400 border-rose-500/25',
+  COMPLETED: 'bg-success/10 text-success border-success/25',
+  PENDING: 'bg-gold/20 text-primaryDark border-gold/35',
+  FAILED: 'bg-error/10 text-error border-error/25',
   REFUNDED: 'bg-sky-500/15 text-sky-400 border-sky-500/25',
-  CANCELLED: 'bg-slate-500/15 text-slate-400 border-slate-500/25',
+  CANCELLED: 'bg-muted text-muted-foreground border-border',
 };
 
 const EMPTY_SUMMARY: PaymentSummary = {
@@ -133,29 +133,29 @@ export default function AdminPaymentsPage() {
       label: 'Total Payments',
       value: summary.totalPayments,
       icon: CreditCard,
-      className: 'stat-card-purple',
-      iconClassName: 'text-purple-300',
+      className: 'stat-card-primary',
+      iconClassName: 'text-primary',
     },
     {
       label: 'Completed',
       value: summary.completedPayments,
       icon: CheckCircle2,
       className: 'stat-card-green',
-      iconClassName: 'text-emerald-300',
+      iconClassName: 'text-success',
     },
     {
       label: 'Pending',
       value: summary.pendingPayments,
       icon: Clock3,
-      className: 'stat-card-orange',
-      iconClassName: 'text-amber-300',
+      className: 'stat-card-warning',
+      iconClassName: 'text-primaryDark',
     },
     {
       label: 'Failed',
       value: summary.failedPayments,
       icon: AlertCircle,
-      className: 'bg-rose-500/10 border border-rose-500/20',
-      iconClassName: 'text-rose-300',
+      className: 'bg-error/10 border border-error/25',
+      iconClassName: 'text-error',
     },
     {
       label: 'Revenue',
@@ -187,12 +187,12 @@ export default function AdminPaymentsPage() {
           <div key={item.label} className={`admin-card p-4 ${item.className}`}>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl font-bold text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                <div className="text-2xl font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>
                   {isLoading ? '—' : item.value}
                 </div>
-                <div className="text-xs text-white/50 mt-0.5">{item.label}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">{item.label}</div>
               </div>
-              <div className="p-2 rounded-xl bg-white/10">
+              <div className="p-2 rounded-xl bg-background">
                 <item.icon className={`w-5 h-5 ${item.iconClassName}`} />
               </div>
             </div>
@@ -275,7 +275,7 @@ export default function AdminPaymentsPage() {
                       <TableRow key={payment.id}>
                         <TableCell className="align-top">
                           <div className="space-y-1">
-                            <div className="font-medium text-white">
+                            <div className="font-medium text-foreground">
                               {payment.transactionId || payment.razorpayOrderId || `Payment #${payment.id}`}
                             </div>
                             <div className="text-xs text-muted-foreground break-all">
@@ -316,13 +316,13 @@ export default function AdminPaymentsPage() {
                             {payment.status}
                           </span>
                           {payment.failureReason && (
-                            <p className="mt-2 max-w-[220px] text-xs text-rose-300">
+                            <p className="mt-2 max-w-[220px] text-xs text-error">
                               {payment.failureReason}
                             </p>
                           )}
                         </TableCell>
                         <TableCell className="align-top">
-                          <div className="font-semibold text-white">
+                          <div className="font-semibold text-foreground">
                             {currencyFormatter.format(toAmount(payment.amount))}
                           </div>
                           <div className="text-xs text-muted-foreground">

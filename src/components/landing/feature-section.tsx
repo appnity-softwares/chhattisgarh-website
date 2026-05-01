@@ -45,7 +45,7 @@ export function FeatureSection() {
             <div className="container mx-auto px-4 relative z-10">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-5xl font-bold font-headline mb-4 text-foreground">
-                        Why Choose <span className="text-primary italic">Chhattisgarh Shaadi?</span>
+                        Why Choose <span className="text-primary font-medium">Chhattisgarh Shaadi?</span>
                     </h2>
                     <p className="text-muted-foreground text-lg max-w-2xl mx-auto font-light leading-relaxed">
                         Because finding a life partner is not just about algorithms, it&apos;s about understanding culture, values, and trust.

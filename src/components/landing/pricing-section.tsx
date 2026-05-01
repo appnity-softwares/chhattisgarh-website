@@ -58,7 +58,7 @@ export function PricingSection() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-4"
+                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-[0.2em] mb-4"
                     >
                         <Zap className="w-3 h-3" />
                         Premium Experience
@@ -68,9 +68,9 @@ export function PricingSection() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}
-                        className="text-4xl md:text-6xl font-black mb-6 tracking-tighter"
+                        className="text-4xl md:text-6xl font-bold mb-6 tracking-tighter"
                     >
-                        Upgrade Your <br /> <span className="gradient-text italic">Success Scope</span>
+                        Upgrade Your <br /> <span className="text-primary font-medium italic">Success Scope</span>
                     </motion.h2>
                     <motion.p 
                         initial={{ opacity: 0, y: 20 }}
@@ -99,7 +99,7 @@ export function PricingSection() {
                             >
                                 <Card className={`flex-1 glass-card border-white/10 p-8 rounded-[2.5rem] relative overflow-hidden flex flex-col transition-all duration-500 hover:scale-[1.02] hover:border-primary/30 group ${isMostPopular ? 'ring-2 ring-primary/40 shadow-2xl shadow-primary/10' : ''}`}>
                                     {isMostPopular && (
-                                        <div className="absolute top-0 right-0 bg-primary text-white text-[10px] font-black uppercase tracking-widest px-6 py-2 rounded-bl-3xl shadow-lg">
+                                        <div className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold uppercase tracking-widest px-6 py-2 rounded-bl-3xl shadow-lg">
                                             Most Popular
                                         </div>
                                     )}
@@ -110,13 +110,13 @@ export function PricingSection() {
                                         </div>
                                         <h3 className="text-2xl font-bold mb-2 tracking-tight">{plan.name}</h3>
                                         <div className="flex items-baseline gap-1">
-                                            <span className="text-4xl font-black tracking-tighter">₹{plan.effectivePrice || plan.price}</span>
+                                            <span className="text-4xl font-bold tracking-tighter">₹{plan.effectivePrice || plan.price}</span>
                                             <span className="text-muted-foreground text-sm font-medium">/ {plan.durationDays} Days</span>
                                         </div>
                                         {plan.hasActiveDiscount && plan.originalPrice && (
                                             <div className="mt-1 flex items-center gap-2">
                                                 <span className="text-xs text-muted-foreground line-through">₹{plan.originalPrice}</span>
-                                                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-tighter bg-emerald-400/10 px-2 py-0.5 rounded-full">
+                                                <span className="text-[10px] font-bold text-success uppercase tracking-tighter bg-success/10 px-2 py-0.5 rounded-full">
                                                     Save {plan.discountPercentage}%
                                                 </span>
                                             </div>
@@ -140,7 +140,7 @@ export function PricingSection() {
                                         </div>
                                     </div>
 
-                                    <Button asChild className={`w-full h-14 rounded-2xl font-black text-sm uppercase tracking-widest transition-all ${isMostPopular ? 'bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20' : 'bg-white/5 hover:bg-white/10 text-white border border-white/10'}`}>
+                                    <Button asChild className={`w-full h-14 rounded-2xl font-bold text-sm uppercase tracking-widest transition-all ${isMostPopular ? 'bg-primary hover:bg-primary-dark text-white shadow-md' : 'bg-surface hover:bg-muted text-foreground border border-border'}`}>
                                         <Link href="/register">
                                             Get Started
                                         </Link>
@@ -172,7 +172,7 @@ export function PricingSection() {
                         Razorpay Secure
                     </div>
                     <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest border border-white/10 px-4 py-2 rounded-xl bg-white/5">
-                        <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                        <ShieldCheck className="w-4 h-4 text-success" />
                         256-bit SSL
                     </div>
                 </motion.div>

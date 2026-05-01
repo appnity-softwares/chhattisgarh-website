@@ -13,15 +13,15 @@ export const ProfileCompletenessTracker: React.FC<ProfileCompletenessTrackerProp
   const { total, sections } = data;
 
   const getStatusColor = (percent: number) => {
-    if (percent < 40) return 'text-rose-400';
+    if (percent < 40) return 'text-error';
     if (percent < 80) return 'text-amber-400';
-    return 'text-emerald-400';
+    return 'text-success';
   };
 
   const getProgressColor = (percent: number) => {
-    if (percent < 40) return 'bg-rose-500';
+    if (percent < 40) return 'bg-error/10';
     if (percent < 80) return 'bg-amber-500';
-    return 'bg-emerald-500';
+    return 'bg-success/10';
   };
 
   return (
@@ -30,7 +30,7 @@ export const ProfileCompletenessTracker: React.FC<ProfileCompletenessTrackerProp
         <div className="flex flex-col md:flex-row items-center gap-6">
           {/* Percentage */}
           <div className="flex flex-col items-center justify-center min-w-[80px]">
-            <span className={cn("text-3xl font-black tracking-tighter", getStatusColor(total))}>
+            <span className={cn("text-3xl font-bold tracking-tighter", getStatusColor(total))}>
               {total}%
             </span>
             <span className="text-[10px] font-bold uppercase text-muted-foreground whitespace-nowrap">
@@ -46,11 +46,11 @@ export const ProfileCompletenessTracker: React.FC<ProfileCompletenessTrackerProp
                   <div key={idx} className="flex flex-col items-center gap-1">
                     <div className={cn(
                         "w-2 h-2 rounded-full",
-                        section.isComplete ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-white/10"
+                        section.isComplete ? "bg-success/10 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-white/10"
                     )} />
                     <span className={cn(
-                      "text-[9px] font-black uppercase tracking-widest",
-                      section.isComplete ? "text-emerald-400" : "text-muted-foreground"
+                      "text-[9px] font-bold uppercase tracking-widest",
+                      section.isComplete ? "text-success" : "text-muted-foreground"
                     )}>
                       {section.title.split(' ')[0]}
                     </span>
@@ -59,7 +59,7 @@ export const ProfileCompletenessTracker: React.FC<ProfileCompletenessTrackerProp
               </div>
               <span className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1">
                 {total === 100 ? (
-                    <><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Perfect Score</>
+                    <><CheckCircle2 className="w-3 h-3 text-success" /> Perfect Score</>
                 ) : (
                     <><AlertCircle className="w-3 h-3 text-amber-400" /> Almost there</>
                 )}

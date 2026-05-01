@@ -147,8 +147,8 @@ export function ProfileQRCode({ userId, userName, profileUrl }: ProfileQRCodePro
             </DialogTrigger>
             <DialogContent className="bg-foreground border-white/10 rounded-2xl p-0 max-w-md w-full">
                 <DialogHeader className="p-6 pb-0">
-                    <DialogTitle className="text-xl font-black text-white uppercase tracking-tighter">
-                        Share <span className="text-primary font-italic">Profile</span>
+                    <DialogTitle className="text-xl font-bold text-white uppercase tracking-tighter">
+                        Share <span className="text-primary font-semibold">Profile</span>
                     </DialogTitle>
                 </DialogHeader>
                 
@@ -169,7 +169,7 @@ export function ProfileQRCode({ userId, userName, profileUrl }: ProfileQRCodePro
 
                     {/* Profile Info */}
                     <div className="text-center space-y-2">
-                        <h3 className="font-black text-lg text-white">{profileName}</h3>
+                        <h3 className="font-bold text-lg text-white">{profileName}</h3>
                         <p className="text-sm text-muted-foreground">Scan to view profile</p>
                         <p className="text-xs text-muted-foreground font-mono bg-white/5 px-3 py-1 rounded-lg inline-block">
                             {url}

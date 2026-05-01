@@ -61,8 +61,8 @@ export default function HelpPage() {
                     >
                         <HelpCircle className="w-12 h-12 text-primary" />
                     </motion.div>
-                    <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none">
-                        How can we <span className="text-primary italic">Help?</span>
+                    <h1 className="text-5xl md:text-7xl font-bold tracking-tighter uppercase leading-none">
+                        How can we <span className="text-primary font-medium">Help?</span>
                     </h1>
                     <p className="text-xl text-muted-foreground max-w-2xl font-medium">
                         Search our knowledge base or get in touch with our support team in Chhattisgarh.
@@ -82,40 +82,40 @@ export default function HelpPage() {
                         <div className="w-14 h-14 bg-green-500 rounded-2xl flex items-center justify-center mx-auto text-white shadow-lg shadow-green-500/20 group-hover:scale-110 transition-transform">
                             <MessageCircle className="w-7 h-7" />
                         </div>
-                        <h3 className="font-black text-lg uppercase tracking-widest text-foreground">WhatsApp Support</h3>
+                        <h3 className="font-bold text-lg uppercase tracking-widest text-foreground">WhatsApp Support</h3>
                         <p className="text-sm text-muted-foreground font-medium">Instant help from our team</p>
-                        <Button className="w-full h-12 bg-green-500 hover:bg-green-600 text-white font-black rounded-xl">CHAT NOW</Button>
+                        <Button className="w-full h-12 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl">CHAT NOW</Button>
                     </Card>
 
                     <Card className="bg-primary/5 border-primary/10 rounded-[2.5rem] group hover:bg-primary/10 transition-all p-8 text-center space-y-4">
                         <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center mx-auto text-white shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
                             <Mail className="w-7 h-7" />
                         </div>
-                        <h3 className="font-black text-lg uppercase tracking-widest text-foreground">Email Us</h3>
+                        <h3 className="font-bold text-lg uppercase tracking-widest text-foreground">Email Us</h3>
                         <p className="text-sm text-muted-foreground font-medium">Resolution within 24 hours</p>
-                        <Button className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-black rounded-xl">SEND EMAIL</Button>
+                        <Button className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl">SEND EMAIL</Button>
                     </Card>
 
                     <Card className="bg-blue-500/5 border-blue-500/10 rounded-[2.5rem] group hover:bg-blue-500/10 transition-all p-8 text-center space-y-4">
                         <div className="w-14 h-14 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto text-white shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
                             <Phone className="w-7 h-7" />
                         </div>
-                        <h3 className="font-black text-lg uppercase tracking-widest text-foreground">Call Us</h3>
+                        <h3 className="font-bold text-lg uppercase tracking-widest text-foreground">Call Us</h3>
                         <p className="text-sm text-muted-foreground font-medium">10 AM - 7 PM, Mon-Sat</p>
-                        <Button className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white font-black rounded-xl">CALL HELP</Button>
+                        <Button className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl">CALL HELP</Button>
                     </Card>
                 </div>
 
                 {/* FAQ Content */}
                 <div className="max-w-4xl mx-auto space-y-12 pb-32">
-                    <h2 className="text-3xl font-black uppercase tracking-tight text-center">Frequently Asked <span className="text-primary italic">Questions</span></h2>
+                    <h2 className="text-3xl font-bold uppercase tracking-tight text-center">Frequently Asked <span className="text-primary font-medium">Questions</span></h2>
                     
                     <div className="space-y-6">
                         {FAQ_DATA.map((cat, catIdx) => (
                             <div key={catIdx} className="space-y-4">
                                 <div className="flex items-center gap-3 px-2">
                                     <cat.icon className="w-5 h-5 text-primary" />
-                                    <h3 className="font-black text-sm uppercase tracking-widest text-muted-foreground">{cat.category}</h3>
+                                    <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">{cat.category}</h3>
                                 </div>
                                 <div className="space-y-3">
                                     {cat.items.map((item, itemIdx) => {

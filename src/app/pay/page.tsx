@@ -151,24 +151,24 @@ function CheckoutContent() {
     if (success) {
         return (
             <div className="max-w-md mx-auto py-10">
-                <Card className="glass-card border-emerald-500/20 p-10 text-center bg-emerald-500/10 relative overflow-hidden">
+                <Card className="glass-card border-success/25 p-10 text-center bg-success/10 relative overflow-hidden">
                     <motion.div 
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-emerald-500/20"
+                        className="w-20 h-20 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-emerald-500/20"
                     >
                         <CheckCircle2 className="w-10 h-10 text-white" />
                     </motion.div>
-                    <h2 className="text-3xl font-black text-white mb-3 tracking-tight">Payment Successful!</h2>
-                    <p className="text-emerald-200/60 text-sm mb-10 font-medium tracking-wide">
+                    <h2 className="text-3xl font-bold text-white mb-3 tracking-tight">Payment Successful!</h2>
+                    <p className="text-success text-sm mb-10 font-medium tracking-wide">
                         Your {details.plan.name} is now active.
                     </p>
                     
                     <div className="space-y-4">
-                        <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-emerald-400 mb-2">
+                        <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-success mb-2">
                             Redirecting to App...
                         </p>
-                        <Button asChild className="w-full h-14 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-2xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
+                        <Button asChild className="w-full h-14 bg-success/10 hover:bg-success/10 text-white font-bold rounded-2xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
                             <a href={details.deepLinkSuccess}>
                                 RETURN TO APP
                                 <RefreshCw className="w-4 h-4 animate-spin" />
@@ -198,7 +198,7 @@ function CheckoutContent() {
                             <Crown className="w-6 h-6 text-primary" />
                         </div>
                         <div>
-                            <p className="text-[10px] uppercase tracking-[0.2em] font-black text-primary">Membership Upgrade</p>
+                            <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-primary">Membership Upgrade</p>
                             <h2 className="text-2xl font-bold text-white tracking-tight">{details.plan.name} Plan</h2>
                         </div>
                     </div>
@@ -207,10 +207,10 @@ function CheckoutContent() {
                         <div className="flex justify-between items-end border-b border-white/5 pb-6">
                             <div className="space-y-1">
                                 <p className="text-sm text-muted-foreground font-medium">Monthly/Package Rate</p>
-                                <p className="text-xs text-muted-foreground italic">Validity: {details.plan.duration}</p>
+                                <p className="text-xs text-muted-foreground font-medium">Validity: {details.plan.duration}</p>
                             </div>
                             <div className="text-right">
-                                <p className="text-4xl font-black text-white tracking-tighter">₹{details.amount / 100}</p>
+                                <p className="text-4xl font-bold text-white tracking-tighter">₹{details.amount / 100}</p>
                                 <p className="text-[10px] uppercase tracking-wider font-bold text-primary">All Inclusive</p>
                             </div>
                         </div>
@@ -228,7 +228,7 @@ function CheckoutContent() {
                     <Button 
                         onClick={handlePayment} 
                         disabled={verifying}
-                        className="w-full h-16 bg-primary hover:bg-primary/90 text-white font-black text-xl rounded-2xl shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 group"
+                        className="w-full h-16 bg-primary hover:bg-primary/90 text-white font-bold text-xl rounded-2xl shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 group"
                     >
                         {verifying ? (
                             <>
@@ -244,16 +244,16 @@ function CheckoutContent() {
                     </Button>
 
                     <div className="mt-8 flex flex-wrap items-center justify-center gap-4 opacity-40 hover:opacity-100 transition-all duration-500">
-                        <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white border border-white/10 px-3 py-1.5 rounded-lg bg-white/5">
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-white border border-white/10 px-3 py-1.5 rounded-lg bg-white/5">
                             <Shield className="w-3.5 h-3.5 text-primary" />
                             PCI-DSS
                         </div>
-                        <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white border border-white/10 px-3 py-1.5 rounded-lg bg-white/5">
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-white border border-white/10 px-3 py-1.5 rounded-lg bg-white/5">
                             <CreditCard className="w-3.5 h-3.5 text-primary" />
                             RAZORPAY
                         </div>
-                        <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white border border-white/10 px-3 py-1.5 rounded-lg bg-white/5">
-                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-white border border-white/10 px-3 py-1.5 rounded-lg bg-white/5">
+                            <ShieldCheck className="w-3.5 h-3.5 text-success" />
                             256-bit SSL
                         </div>
                     </div>
@@ -277,7 +277,7 @@ export default function CheckoutPage() {
             {/* Background Blobs */}
             <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/30 rounded-full blur-[120px] animate-pulse" />
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] animate-float" />
+                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-float" />
             </div>
 
             <div className="container relative z-10">

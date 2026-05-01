@@ -282,7 +282,7 @@ export default function AdminChatMonitoringPage() {
                         </div>
                         <div className="flex items-center space-x-2">
                           {conversation.isFlagged && (
-                            <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/25">
+                            <Badge className="bg-gold/20 text-primaryDark border-gold/35">
                               <Flag className="w-3 h-3 mr-1" />
                               Flagged
                             </Badge>
@@ -306,7 +306,7 @@ export default function AdminChatMonitoringPage() {
                               {conversation.participant1 && (
                                 <DropdownMenuItem
                                   onClick={() => handleFlagMessage(conversation.participant1!.id, 'Flagged for review')}
-                                  className="text-amber-600"
+                                  className="text-primaryDark"
                                 >
                                   <Flag className="w-4 h-4 mr-2" />
                                   Flag User 1
@@ -315,7 +315,7 @@ export default function AdminChatMonitoringPage() {
                               {conversation.participant2 && (
                                 <DropdownMenuItem
                                   onClick={() => handleFlagMessage(conversation.participant2!.id, 'Flagged for review')}
-                                  className="text-amber-600"
+                                  className="text-primaryDark"
                                 >
                                   <Flag className="w-4 h-4 mr-2" />
                                   Flag User 2
@@ -442,7 +442,7 @@ export default function AdminChatMonitoringPage() {
                               {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
                             </div>
                             {message.isFlagged && (
-                              <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/25">
+                              <Badge className="bg-gold/20 text-primaryDark border-gold/35">
                                 <Flag className="w-3 h-3 mr-1" />
                                 Flagged
                               </Badge>
@@ -462,7 +462,7 @@ export default function AdminChatMonitoringPage() {
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem
                               onClick={() => handleFlagMessage(message.id, 'Flagged for moderation')}
-                              className="text-amber-600"
+                              className="text-primaryDark"
                             >
                               <Flag className="w-4 h-4 mr-2" />
                               Flag Message

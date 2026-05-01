@@ -14,7 +14,7 @@ export default function PrivacyPage() {
             <Navbar />
             <main className="flex-1">
                 {/* Hero */}
-                <section className="py-16 bg-gradient-to-b from-primary/5 to-background">
+                <section className="py-16 bg-background">
                     <div className="container mx-auto px-4 text-center">
                         <h1 className="text-4xl md:text-5xl font-bold font-headline mb-4">
                             गोपनीयता नीति
@@ -31,7 +31,7 @@ export default function PrivacyPage() {
                 {/* Content */}
                 <section className="py-16">
                     <div className="container mx-auto px-4 max-w-4xl">
-                        <div className="prose prose-lg max-w-none">
+                        <div className="space-y-6 text-foreground leading-relaxed">
                             <p className="text-lg text-muted-foreground mb-8">
                                 हमारी गोपनीयता नीति का उद्देश्य यह समझाना है कि हम आपकी जानकारी कैसे एकत्रित करते हैं, उपयोग करते हैं और सुरक्षित रखते हैं।
                             </p>
@@ -124,8 +124,8 @@ export default function PrivacyPage() {
                                 <CardContent className="space-y-4">
                                     <div className="border-l-4 border-primary pl-4 py-2 bg-primary/5 rounded-r-lg mb-6 text-sm">
                                         <p className="font-bold text-base mb-2 underline text-card-foreground">English Version (Mandatory for Google Play Compliance)</p>
-                                        <p className="font-semibold italic mb-1">App: ChhattisgarhShadi.Com</p>
-                                        <p className="font-semibold italic mb-3">Developer: Appnity Softwares Private Limited</p>
+                                        <p className="font-semibold font-medium mb-1">App: ChhattisgarhShadi.Com</p>
+                                        <p className="font-semibold font-medium mb-3">Developer: Appnity Softwares Private Limited</p>
                                         
                                         <p className="mb-2 font-bold text-red-600">Zero-Tolerance for CSAE & Predatory Behavior:</p>
                                         <ul className="mb-4 text-xs list-disc pl-5 space-y-1">

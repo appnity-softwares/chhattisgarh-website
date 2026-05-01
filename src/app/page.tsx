@@ -53,13 +53,13 @@ export default function Home() {
   if (features.maintenanceMode) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
-        <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(hsl(var(--primary)) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        <div className="absolute inset-0 bg-primary/[0.02] pointer-events-none" />
         <div className="relative z-10 max-w-2xl">
           <div className="w-24 h-24 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-8 animate-bounce">
             <Hammer className="w-12 h-12 text-primary" />
           </div>
-          <h1 className="text-4xl md:text-6xl font-black mb-6 text-foreground leading-tight">
-            We&apos;re Tinkering <br /> <span className="text-primary italic">With Perfection</span>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-foreground leading-tight">
+            We&apos;re Tinkering <br /> <span className="text-primary font-medium">With Perfection</span>
           </h1>
           <p className="text-xl text-muted-foreground mb-12 font-light leading-relaxed">
             Our platform is currently undergoing scheduled maintenance to bring you new features and a better experience. We&apos;ll be back shortly!
@@ -95,7 +95,7 @@ export default function Home() {
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-4xl mx-auto bg-card/30 backdrop-blur-2xl border border-white/10 rounded-[3rem] p-12 md:p-20 shadow-3xl shadow-primary/5">
                 <h2 className="text-4xl md:text-6xl font-bold font-headline mb-8 text-foreground leading-tight">
-                    Ready to Find Your <span className="text-primary italic">Match?</span>
+                    Ready to Find Your <span className="text-primary font-medium">Match?</span>
                 </h2>
                 <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto font-light leading-relaxed">
                     Join thousands of happy couples from Chhattisgarh. <br className="hidden md:block" /> Your journey to a lifetime of happiness starts here.
@@ -116,4 +116,3 @@ export default function Home() {
     </div>
   );
 }
-

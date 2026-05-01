@@ -21,7 +21,7 @@ export default function NotFound() {
                 className="text-center relative z-10 max-w-2xl mx-auto space-y-8"
             >
                 {/* 404 Visual */}
-                <div className="relative font-bold text-[12rem] leading-none tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-primary/20 to-transparent select-none">
+                <div className="relative font-bold text-[12rem] leading-none tracking-tighter text-primary/20 select-none">
                     404
                     <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}

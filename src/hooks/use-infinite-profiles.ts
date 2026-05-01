@@ -20,6 +20,10 @@ export interface Profile {
     score?: number;
     isShortlisted?: boolean;
     allowPhotoRequest?: boolean;
+    relationship?: {
+        status: string;
+        matchId?: number;
+    };
 }
 
 export function useInfiniteProfiles(params: Record<string, unknown> = {}) {
@@ -54,7 +58,7 @@ export function useInfiniteProfiles(params: Record<string, unknown> = {}) {
                     // If we are looking at 'received', we want 'sender'
                     const target = params.type === 'sent' ? m.receiver : m.sender;
                     // Normalize data: match endpoints return 'matches', search returns 'profiles'
-                    const profileData = (target?.profile || target || {}) as unknown;
+                    const profileData = (target?.profile || target || {}) as any;
                     
                     return {
                         ...profileData,

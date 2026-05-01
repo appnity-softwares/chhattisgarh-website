@@ -27,9 +27,9 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const STATUS_BADGES: Record<PhotoRequestStatus, string> = {
-  PENDING: 'bg-amber-500/15 text-amber-400 border-amber-500/25',
-  APPROVED: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
-  REJECTED: 'bg-rose-500/15 text-rose-400 border-rose-500/25',
+  PENDING: 'bg-gold/20 text-primaryDark border-gold/35',
+  APPROVED: 'bg-success/10 text-success border-success/25',
+  REJECTED: 'bg-error/10 text-error border-error/25',
 };
 
 const STATUS_LABELS: Record<PhotoRequestStatus, string> = {

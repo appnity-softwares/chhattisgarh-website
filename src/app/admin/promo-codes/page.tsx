@@ -170,7 +170,7 @@ export default function PromoCodes() {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <div className="text-xl font-black text-primary">
+                                            <div className="text-xl font-bold text-primary">
                                                 {code.discountType === 'PERCENTAGE' ? `${code.discount}%` : `₹${code.discount}`} OFF
                                             </div>
                                             <Button 

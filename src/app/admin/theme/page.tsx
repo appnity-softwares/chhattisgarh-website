@@ -11,37 +11,37 @@ import {
 } from 'lucide-react';
 
 const DEFAULTS = {
-  primaryColor: '#E94057',
-  secondaryColor: '#8A2387',
-  accentColor: '#F27121',
-  backgroundColor: '#FFFFFF',
-  surfaceColor: '#F8F9FA',
-  textPrimary: '#1A1A1A',
-  textSecondary: '#757575',
-  successColor: '#4CAF50',
-  errorColor: '#F44336',
-  gradientStart: '#E94057',
-  gradientEnd: '#8A2387',
+  primaryColor: '#8B1E3F',
+  secondaryColor: '#64142D',
+  accentColor: '#D4AF37',
+  backgroundColor: '#FFF8F0',
+  surfaceColor: '#FFFFFF',
+  textPrimary: '#2B2B2B',
+  textSecondary: '#6B7280',
+  successColor: '#15803D',
+  errorColor: '#DC2626',
+  gradientStart: '#8B1E3F',
+  gradientEnd: '#64142D',
   profileCardColor: '#FFFFFF',
-  profileCardTextColor: '#1A1A1A'
+  profileCardTextColor: '#2B2B2B'
 };
 
 const PRESET_THEMES = [
   {
-    name: 'Passion Red',
-    colors: { ...DEFAULTS, primaryColor: '#E94057', secondaryColor: '#FF99AC', backgroundColor: '#FFFFFF', surfaceColor: '#FFF5F6', textPrimary: '#1A1A1A', textSecondary: '#757575', profileCardColor: '#FFFFFF', profileCardTextColor: '#1A1A1A' }
+    name: 'CG Shadi Classic',
+    colors: { ...DEFAULTS }
   },
   {
-    name: 'Royal Purple',
-    colors: { ...DEFAULTS, primaryColor: '#7C3AED', secondaryColor: '#A78BFA', backgroundColor: '#F5F3FF', surfaceColor: '#FFFFFF', textPrimary: '#1E1B4B', textSecondary: '#4338CA' }
+    name: 'Warm Ivory',
+    colors: { ...DEFAULTS, backgroundColor: '#FFF8F0', surfaceColor: '#FFFFFF', accentColor: '#D4AF37' }
   },
   {
-    name: 'Midnight Gold',
-    colors: { ...DEFAULTS, primaryColor: '#F59E0B', secondaryColor: '#1F2937', backgroundColor: '#111827', surfaceColor: '#1F2937', textPrimary: '#FFFFFF', textSecondary: '#9CA3AF' }
+    name: 'Family Trust',
+    colors: { ...DEFAULTS, primaryColor: '#64142D', secondaryColor: '#8B1E3F', backgroundColor: '#FFF8F0' }
   },
   {
-    name: 'Ocean Deep',
-    colors: { ...DEFAULTS, primaryColor: '#0ea5e9', secondaryColor: '#7dd3fc', backgroundColor: '#f0f9ff', surfaceColor: '#ffffff', textPrimary: '#0c4a6e', textSecondary: '#0369a1' }
+    name: 'Premium Gold',
+    colors: { ...DEFAULTS, accentColor: '#D4AF37', surfaceColor: '#FFFFFF' }
   }
 ];
 
@@ -49,10 +49,10 @@ const ColorField = ({ keyId, label, theme, onChange, desc }: { keyId: keyof type
   <div className="flex flex-col gap-2.5">
     <div className="flex justify-between items-end">
       <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{label}</label>
-      <span className="text-[10px] text-muted-foreground/60 italic">{desc}</span>
+      <span className="text-[10px] text-muted-foreground/60 font-medium">{desc}</span>
     </div>
     <div className="flex gap-4 items-center">
-      <div className="relative w-14 h-14 rounded-2xl overflow-hidden shadow-2xl border border-white/10 group transition-transform hover:scale-105 active:scale-95">
+      <div className="relative w-14 h-14 rounded-2xl overflow-hidden shadow-2xl border border-border group transition-transform hover:scale-105 active:scale-95">
         <input
           type="color"
           value={theme[keyId]}
@@ -64,7 +64,7 @@ const ColorField = ({ keyId, label, theme, onChange, desc }: { keyId: keyof type
         type="text"
         value={theme[keyId].toUpperCase()}
         onChange={(e) => onChange(keyId, e.target.value)}
-        className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-sm font-mono uppercase text-white focus:border-primary/50 focus:ring-4 focus:ring-primary/10 outline-none transition-all"
+        className="flex-1 px-4 py-3 bg-background border border-border rounded-2xl text-sm font-mono uppercase text-foreground focus:border-primary/50 focus:ring-4 focus:ring-primary/10 outline-none transition-all"
       />
     </div>
   </div>
@@ -124,8 +124,8 @@ export default function ThemeSettingsPage() {
     setTheme({
         ...theme,
         secondaryColor: primary + 'CC',
-        accentColor: '#F27121',
-        surfaceColor: theme.backgroundColor === '#FFFFFF' ? '#F8F9FA' : '#1F2937'
+        accentColor: '#D4AF37',
+        surfaceColor: '#FFFFFF'
     });
     toast({ title: 'Magic Applied!', description: 'Generated a complementary palette based on your primary color.' });
   };
@@ -142,7 +142,7 @@ export default function ThemeSettingsPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3" style={{ fontFamily: 'Outfit, sans-serif' }}>
             <Palette className="w-8 h-8 text-primary" />
             App Branding & Theme
           </h1>
@@ -163,10 +163,10 @@ export default function ThemeSettingsPage() {
         {/* Editor Pane */}
         <div className="lg:col-span-1 space-y-6">
           {/* Quick Presets */}
-          <div className="bg-card p-6 rounded-[2rem] border border-white/5 backdrop-blur-md">
+          <div className="bg-card p-6 rounded-[2rem] border border-border backdrop-blur-md">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-400" />
+              <h3 className="text-sm font-bold text-foreground uppercase tracking-widest flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primaryDark" />
                 Quick Presets
               </h3>
             </div>
@@ -178,7 +178,7 @@ export default function ThemeSettingsPage() {
                     setTheme(preset.colors);
                     toast({ title: 'Preset Applied', description: `Switched to ${preset.name} theme.` });
                   }}
-                  className="group relative h-20 rounded-2xl overflow-hidden border border-white/5 bg-white/5 transition-all hover:border-primary/50 text-left"
+                  className="group relative h-20 rounded-2xl overflow-hidden border border-border bg-background transition-all hover:border-primary/50 text-left"
                 >
                   <div className="absolute inset-0 flex flex-col p-3">
                     <div className="flex gap-1 mb-2">
@@ -186,7 +186,7 @@ export default function ThemeSettingsPage() {
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: preset.colors.secondaryColor }} />
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: preset.colors.backgroundColor }} />
                     </div>
-                    <span className="text-[10px] font-bold text-white/70 group-hover:text-white transition-colors uppercase leading-none">{preset.name}</span>
+                    <span className="text-[10px] font-bold text-muted-foreground group-hover:text-primary transition-colors uppercase leading-none">{preset.name}</span>
                   </div>
                   <div className="absolute bottom-0 right-0 w-8 h-8 bg-primary/10 rounded-tl-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <CheckCircle2 className="w-4 h-4 text-primary" />
@@ -197,7 +197,7 @@ export default function ThemeSettingsPage() {
           </div>
 
           {/* Categorized Config */}
-          <div className="bg-card p-8 rounded-[2rem] shadow-2xl border border-white/5 backdrop-blur-md">
+          <div className="bg-card p-8 rounded-[2rem] shadow-2xl border border-border backdrop-blur-md">
             <div className="flex gap-2 p-1 bg-black/20 rounded-2xl mb-8">
               {[
                 { id: 'brand', icon: Zap, label: 'Brand' },
@@ -207,7 +207,7 @@ export default function ThemeSettingsPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as 'brand' | 'surface' | 'text')}
-                  className={`flex-1 flex flex-col items-center gap-1.5 py-2.5 rounded-xl transition-all ${activeTab === tab.id ? 'bg-primary text-white shadow-lg' : 'text-muted-foreground hover:text-white hover:bg-white/5'}`}
+                  className={`flex-1 flex flex-col items-center gap-1.5 py-2.5 rounded-xl transition-all ${activeTab === tab.id ? 'bg-primary text-white shadow-lg' : 'text-muted-foreground hover:text-primary hover:bg-background'}`}
                 >
                   <tab.icon className="w-4 h-4" />
                   <span className="text-[10px] font-bold uppercase tracking-tighter">{tab.label}</span>
@@ -234,8 +234,8 @@ export default function ThemeSettingsPage() {
                   <>
                     <ColorField keyId="backgroundColor" label="App Background" theme={theme} onChange={handleChange} desc="Base application background" />
                     <ColorField keyId="surfaceColor" label="Surface Elements" theme={theme} onChange={handleChange} desc="Bottom sheets & message bubbles" />
-                    <div className="pt-4 border-t border-white/5 mt-4">
-                      <h4 className="text-[10px] font-black uppercase tracking-widest text-primary mb-4">Profile Card Style</h4>
+                    <div className="pt-4 border-t border-border mt-4">
+                      <h4 className="text-[10px] font-bold uppercase tracking-widest text-primary mb-4">Profile Card Style</h4>
                       <ColorField keyId="profileCardColor" label="Card Background" theme={theme} onChange={handleChange} desc="The main card surface" />
                       <div className="mt-4">
                         <ColorField keyId="profileCardTextColor" label="Card Text Color" theme={theme} onChange={handleChange} desc="Text inside the profile card" />
@@ -252,7 +252,7 @@ export default function ThemeSettingsPage() {
               </motion.div>
             </AnimatePresence>
 
-            <div className="mt-10 pt-8 border-t border-white/5 space-y-3">
+            <div className="mt-10 pt-8 border-t border-border space-y-3">
               <button
                 onClick={generateMagicPalette}
                 className="w-full py-3.5 px-4 bg-primary/10 hover:bg-primary/20 text-primary rounded-2xl text-sm font-bold transition-all border border-primary/20 flex items-center justify-center gap-2 group"
@@ -262,7 +262,7 @@ export default function ThemeSettingsPage() {
               </button>
               <button
                 onClick={() => setTheme(DEFAULTS)}
-                className="w-full py-3 px-4 bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-white rounded-2xl text-sm font-bold transition-all border border-white/5"
+                className="w-full py-3 px-4 bg-background hover:bg-background text-muted-foreground hover:text-primary rounded-2xl text-sm font-bold transition-all border border-border"
               >
                 Reset to Defaults
               </button>
@@ -272,12 +272,12 @@ export default function ThemeSettingsPage() {
 
         {/* Live Preview Pane */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-black/20 p-8 rounded-[3rem] border border-white/5 flex flex-col items-center pb-16 pt-16 relative overflow-hidden backdrop-blur-sm h-full">
+          <div className="bg-black/20 p-8 rounded-[3rem] border border-border flex flex-col items-center pb-16 pt-16 relative overflow-hidden backdrop-blur-sm h-full">
             {/* Background Decorative Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] opacity-20 pointer-events-none" />
 
             {/* Screen Switcher */}
-            <div className="absolute top-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-black/60 p-1.5 rounded-2xl border border-white/10 shadow-2xl backdrop-blur-md">
+            <div className="absolute top-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-black/60 p-1.5 rounded-2xl border border-border shadow-2xl backdrop-blur-md">
               {[
                 { id: 'feed', icon: Search, label: 'Discovery' },
                 { id: 'profile', icon: User, label: 'Profile' },
@@ -286,7 +286,7 @@ export default function ThemeSettingsPage() {
                 <button
                   key={s.id}
                   onClick={() => setPreviewScreen(s.id as 'feed' | 'profile' | 'chat')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all ${previewScreen === s.id ? 'bg-primary text-white scale-105 shadow-xl shadow-primary/20' : 'text-muted-foreground hover:text-white'}`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-tight transition-all ${previewScreen === s.id ? 'bg-primary text-white scale-105 shadow-xl shadow-primary/20' : 'text-muted-foreground hover:text-primary'}`}
                 >
                   <s.icon className="w-3.5 h-3.5" />
                   {s.label}
@@ -317,9 +317,9 @@ export default function ThemeSettingsPage() {
               <div className="px-6 py-4 flex justify-between items-center z-40 relative">
                 <div className="flex flex-col">
                   <span className="text-[10px] uppercase font-bold tracking-widest" style={{ color: theme.textSecondary }}>CHHATTISGARH</span>
-                  <span className="text-xl font-black italic" style={{ color: theme.primaryColor }}>Shadi</span>
+                  <span className="text-xl font-bold font-medium" style={{ color: theme.primaryColor }}>Shadi</span>
                 </div>
-                <div className="w-10 h-10 rounded-2xl flex items-center justify-center border border-white/10 bg-white/5">
+                <div className="w-10 h-10 rounded-2xl flex items-center justify-center border border-border bg-background">
                    <div className="relative w-7 h-7">
                       <div className="absolute inset-0 rounded-full animate-ping opacity-20" style={{ backgroundColor: theme.primaryColor }} />
                       <div className="relative w-7 h-7 rounded-full flex items-center justify-center" style={{ backgroundColor: theme.primaryColor + '20' }}>
@@ -336,38 +336,38 @@ export default function ThemeSettingsPage() {
                     <div className="w-full h-[380px] rounded-[32px] overflow-hidden relative shadow-2xl group">
                       <div className="absolute inset-0 bg-gray-200" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1595152772835-219674b2a8a6?w=600&q=80")', backgroundSize: 'cover', backgroundPosition: 'center' }} />
                       <div className="absolute top-4 left-4 flex gap-2">
-                        <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-bold text-white border border-white/20">Featured</span>
-                        <span className="px-3 py-1 rounded-full text-[10px] font-bold text-white flex items-center gap-1" style={{ backgroundColor: theme.successColor }}>
+                        <span className="px-3 py-1 bg-background backdrop-blur-md rounded-full text-[10px] font-bold text-foreground border border-border">Featured</span>
+                        <span className="px-3 py-1 rounded-full text-[10px] font-bold text-foreground flex items-center gap-1" style={{ backgroundColor: theme.successColor }}>
                           <ShieldCheck className="w-2.5 h-2.5" /> Verified
                         </span>
                       </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                      <div className="absolute inset-0 bg-foreground/75" />
                       <div className="absolute bottom-0 left-0 right-0 p-6">
                         <div className="flex items-center gap-2 mb-1">
-                          <h4 className="text-white font-black text-2xl">Aaradhya S.</h4>
-                          <span className="text-white/80 text-xl font-medium">24</span>
+                          <h4 className="text-foreground font-bold text-2xl">Aaradhya S.</h4>
+                          <span className="text-muted-foreground text-xl font-medium">24</span>
                         </div>
-                        <p className="text-white/70 text-sm font-medium mb-4 flex items-center gap-1">
+                        <p className="text-muted-foreground text-sm font-medium mb-4 flex items-center gap-1">
                           <Smartphone className="w-3 h-3" /> Software Engineer • Bhilai, CG
                         </p>
                         <div className="flex gap-3">
-                          <button className="flex-1 py-3.5 rounded-2xl text-sm font-black shadow-lg shadow-black/20 transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2" style={{ backgroundColor: theme.primaryColor, color: '#FFFFFF' }}>
+                          <button className="flex-1 py-3.5 rounded-2xl text-sm font-bold shadow-lg shadow-black/20 transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2" style={{ backgroundColor: theme.primaryColor, color: '#FFFFFF' }}>
                             View Profile
                           </button>
-                          <button className="w-12 h-12 rounded-2xl flex justify-center items-center shadow-lg shadow-black/20 transition-all hover:scale-105 active:scale-95 text-white" style={{ backgroundColor: theme.accentColor }}>
+                          <button className="w-12 h-12 rounded-2xl flex justify-center items-center shadow-lg shadow-black/20 transition-all hover:scale-105 active:scale-95 text-foreground" style={{ backgroundColor: theme.accentColor }}>
                             <Heart className="w-5 h-5 fill-current" />
                           </button>
                         </div>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="p-4 rounded-3xl flex flex-col gap-1 border border-white/5" style={{ backgroundColor: theme.profileCardColor }}>
+                      <div className="p-4 rounded-3xl flex flex-col gap-1 border border-border" style={{ backgroundColor: theme.profileCardColor }}>
                         <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: theme.profileCardTextColor + 'CC' }}>Matches</span>
-                        <span className="text-lg font-black" style={{ color: theme.primaryColor }}>85%</span>
+                        <span className="text-lg font-bold" style={{ color: theme.primaryColor }}>85%</span>
                       </div>
-                      <div className="p-4 rounded-3xl flex flex-col gap-1 border border-white/5" style={{ backgroundColor: theme.profileCardColor }}>
+                      <div className="p-4 rounded-3xl flex flex-col gap-1 border border-border" style={{ backgroundColor: theme.profileCardColor }}>
                         <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: theme.profileCardTextColor + 'CC' }}>Trust Score</span>
-                        <span className="text-lg font-black" style={{ color: theme.successColor }}>High</span>
+                        <span className="text-lg font-bold" style={{ color: theme.successColor }}>High</span>
                       </div>
                     </div>
                   </motion.div>
@@ -379,12 +379,12 @@ export default function ThemeSettingsPage() {
                       <div className="w-24 h-24 rounded-full border-[3px] border-primary/20 p-1 mb-3">
                         <div className="w-full h-full rounded-full bg-cover bg-center shadow-xl" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80")' }} />
                       </div>
-                      <h3 className="text-xl font-black" style={{ color: theme.textPrimary }}>My Profile</h3>
+                      <h3 className="text-xl font-bold" style={{ color: theme.textPrimary }}>My Profile</h3>
                       <p className="text-xs" style={{ color: theme.textSecondary }}>Complete your details to find better matches</p>
                     </div>
                     <div className="space-y-3">
                       {['Account Settings', 'Preferences', 'Privacy'].map((item) => (
-                        <div key={item} className="flex items-center justify-between p-4 rounded-2xl border border-white/5" style={{ backgroundColor: theme.surfaceColor }}>
+                        <div key={item} className="flex items-center justify-between p-4 rounded-2xl border border-border" style={{ backgroundColor: theme.surfaceColor }}>
                           <span className="text-sm font-bold" style={{ color: theme.textPrimary }}>{item}</span>
                           <div className="w-6 h-6 rounded-full flex items-center justify-center opacity-40" style={{ backgroundColor: theme.textSecondary + '20' }}>
                             <div className="w-1.5 h-1.5 border-t-2 border-r-2 border-white rotate-45" style={{ borderColor: theme.textPrimary }} />
@@ -405,12 +405,12 @@ export default function ThemeSettingsPage() {
                     </div>
                     <div className="flex gap-3 justify-end">
                       <div className="p-4 rounded-2xl rounded-tr-none shadow-lg shadow-primary/10" style={{ backgroundColor: theme.primaryColor }}>
-                        <p className="text-xs font-bold text-white leading-relaxed">Hello! Thank you for reaching out. I&apos;m interested too.</p>
+                        <p className="text-xs font-bold text-foreground leading-relaxed">Hello! Thank you for reaching out. I&apos;m interested too.</p>
                       </div>
                     </div>
                     <div className="pt-2">
                       <div className="p-3 rounded-2xl border border-dashed border-primary/30 flex items-center justify-center" style={{ backgroundColor: theme.primaryColor + '08' }}>
-                        <p className="text-[10px] font-bold text-primary italic">Awaiting response...</p>
+                        <p className="text-[10px] font-bold text-primary font-medium">Awaiting response...</p>
                       </div>
                     </div>
                   </motion.div>

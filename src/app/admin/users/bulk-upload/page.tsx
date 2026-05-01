@@ -110,11 +110,11 @@ export default function BulkUploadPage() {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="flex items-center space-x-2 text-green-600 bg-green-50 p-3 rounded-lg">
+                                    <div className="flex items-center space-x-2 text-success bg-success/10 p-3 rounded-lg">
                                         <CheckCircle className="h-5 w-5" />
                                         <span className="font-medium">{result.success} Successful</span>
                                     </div>
-                                    <div className="flex items-center space-x-2 text-red-600 bg-red-50 p-3 rounded-lg">
+                                    <div className="flex items-center space-x-2 text-error bg-error/10 p-3 rounded-lg">
                                         <AlertCircle className="h-5 w-5" />
                                         <span className="font-medium">{result.failed} Failed</span>
                                     </div>
@@ -125,10 +125,10 @@ export default function BulkUploadPage() {
                                         <h4 className="font-semibold mb-2">Error Details:</h4>
                                         <div className="max-h-60 overflow-y-auto space-y-2 text-sm border p-2 rounded">
                                             {result.errors.map((err, idx) => (
-                                                <div key={idx} className="p-2 bg-slate-50 border-b last:border-0">
-                                                    <span className="font-mono text-xs text-slate-500 mr-2">Row {err.row}</span>
-                                                    <span className="font-medium text-slate-700">{err.email}</span>
-                                                    <p className="text-red-500 mt-1">{err.error}</p>
+                                                <div key={idx} className="p-2 bg-muted border-b last:border-0">
+                                                    <span className="font-mono text-xs text-muted-foreground mr-2">Row {err.row}</span>
+                                                    <span className="font-medium text-muted-foreground">{err.email}</span>
+                                                    <p className="text-error mt-1">{err.error}</p>
                                                 </div>
                                             ))}
                                         </div>
@@ -144,7 +144,7 @@ export default function BulkUploadPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <FileSpreadsheet className="h-5 w-5 text-green-600" />
+                                <FileSpreadsheet className="h-5 w-5 text-success" />
                                 Required Columns
                             </CardTitle>
                             <CardDescription>
@@ -164,7 +164,7 @@ export default function BulkUploadPage() {
 
                                 <div className="rounded-md border">
                                     <table className="w-full text-sm">
-                                        <thead className="bg-slate-50">
+                                        <thead className="bg-muted">
                                             <tr>
                                                 <th className="p-2 text-left font-medium">Column Name</th>
                                                 <th className="p-2 text-left font-medium">Format / Example</th>
@@ -172,23 +172,23 @@ export default function BulkUploadPage() {
                                         </thead>
                                         <tbody className="divide-y">
                                             <tr>
-                                                <td className="p-2 font-mono text-blue-600">firstName</td>
+                                                <td className="p-2 font-mono text-primary">firstName</td>
                                                 <td className="p-2">Text</td>
                                             </tr>
                                             <tr>
-                                                <td className="p-2 font-mono text-blue-600">lastName</td>
+                                                <td className="p-2 font-mono text-primary">lastName</td>
                                                 <td className="p-2">Text</td>
                                             </tr>
                                             <tr>
-                                                <td className="p-2 font-mono text-blue-600">email</td>
+                                                <td className="p-2 font-mono text-primary">email</td>
                                                 <td className="p-2">Unique Email Address</td>
                                             </tr>
                                             <tr>
-                                                <td className="p-2 font-mono text-blue-600">gender</td>
+                                                <td className="p-2 font-mono text-primary">gender</td>
                                                 <td className="p-2">MALE, FEMALE, OTHER</td>
                                             </tr>
                                             <tr>
-                                                <td className="p-2 font-mono text-blue-600">dateOfBirth</td>
+                                                <td className="p-2 font-mono text-primary">dateOfBirth</td>
                                                 <td className="p-2">YYYY-MM-DD</td>
                                             </tr>
                                             <tr>

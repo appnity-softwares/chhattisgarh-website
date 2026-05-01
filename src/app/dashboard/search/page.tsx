@@ -130,9 +130,9 @@ export default function SearchPage() {
             <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-xl font-black tracking-tighter uppercase text-foreground flex items-center gap-2">
-                             Soulmate <span className="text-primary italic">Cloud</span>
-                             <Badge className="bg-primary/10 text-primary border-none text-[9px] font-black uppercase tracking-widest px-2 h-5">Live Search</Badge>
+                        <h1 className="text-xl font-bold tracking-tighter uppercase text-foreground flex items-center gap-2">
+                             Soulmate <span className="text-primary font-medium">Cloud</span>
+                             <Badge className="bg-primary/10 text-primary border-none text-[9px] font-bold uppercase tracking-widest px-2 h-5">Live Search</Badge>
                         </h1>
                         <p className="text-muted-foreground font-bold text-[10px] uppercase tracking-widest opacity-60">Search name, city or id with precision</p>
                     </div>
@@ -140,7 +140,7 @@ export default function SearchPage() {
                         onClick={() => setShowFilters(!showFilters)}
                         variant="ghost"
                         size="sm"
-                        className={`h-9 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] gap-2 border border-white/5 ${showFilters ? 'bg-primary/10 text-primary' : 'bg-white/5 text-muted-foreground'}`}
+                        className={`h-9 rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] gap-2 border border-border ${showFilters ? 'bg-primary/10 text-primary' : 'bg-background text-muted-foreground'}`}
                     >
                         <SlidersHorizontal className="w-3.5 h-3.5" />
                         {showFilters ? 'Hide Filters' : 'Show Filters'}
@@ -151,7 +151,7 @@ export default function SearchPage() {
                     <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/50 group-focus-within:text-primary transition-all" />
                     <Input
                         placeholder="Search by name, city or keyword..."
-                        className="h-12 pl-12 pr-6 bg-white/5 border-white/5 rounded-xl text-sm font-bold focus:ring-primary/20 transition-all border-t border-l border-white/10"
+                        className="h-12 pl-12 pr-6 bg-background border-border rounded-xl text-sm font-bold focus:ring-primary/20 transition-all border-t border-l border-border"
                         value={searchQuery}
                         onChange={(e) => {
                             const val = e.target.value;
@@ -181,18 +181,18 @@ export default function SearchPage() {
                             exit={{ opacity: 0, x: -10 }}
                             className="lg:col-span-1 space-y-4"
                         >
-                            <Card className="bg-foreground border-white/5 rounded-[1.5rem] shadow-xl border-t border-l border-white/10">
+                            <Card className="bg-surface border-border rounded-[1.5rem] shadow-xl border-t border-l border-border">
                                 <CardContent className="p-5 space-y-6">
                                     <div className="flex items-center gap-2 mb-2">
                                         <Filter className="w-3 h-3 text-primary" />
-                                        <h4 className="text-[10px] font-black uppercase tracking-[.3em] text-white">Advanced Search</h4>
+                                        <h4 className="text-[10px] font-bold uppercase tracking-[.3em] text-foreground">Advanced Search</h4>
                                     </div>
 
                                     {/* Age Range Slider */}
                                     <div className="space-y-4">
                                         <div className="flex justify-between items-center">
-                                            <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Age range</Label>
-                                            <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-md">{ageRange[0]} - {ageRange[1]}</span>
+                                            <Label className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Age range</Label>
+                                            <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md">{ageRange[0]} - {ageRange[1]}</span>
                                         </div>
                                         <Slider
                                             value={ageRange}
@@ -207,8 +207,8 @@ export default function SearchPage() {
                                     {/* Height Range Slider */}
                                     <div className="space-y-4 pt-2">
                                         <div className="flex justify-between items-center">
-                                            <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Height range (cm)</Label>
-                                            <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-md">{heightRange[0]} - {heightRange[1]}</span>
+                                            <Label className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Height range (cm)</Label>
+                                            <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md">{heightRange[0]} - {heightRange[1]}</span>
                                         </div>
                                         <Slider
                                             value={heightRange}
@@ -225,12 +225,12 @@ export default function SearchPage() {
 
                                     {/* Categorized Selects */}
                                     <div className="space-y-2.5">
-                                        <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block mb-2">Demographics</Label>
+                                        <Label className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground block mb-2">Demographics</Label>
                                         <Select value={filters.religion} onValueChange={(value) => handleFilterChange('religion', value)}>
-                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                            <SelectTrigger className="h-10 bg-background border-border rounded-xl font-bold text-xs">
                                                 <SelectValue placeholder="Religion" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-foreground border-white/10 text-xs">
+                                            <SelectContent className="bg-surface border-border text-xs">
                                                 <SelectItem value="any">Any Religion</SelectItem>
                                                 <SelectItem value="HINDU">Hindu</SelectItem>
                                                 <SelectItem value="MUSLIM">Muslim</SelectItem>
@@ -241,10 +241,10 @@ export default function SearchPage() {
                                         </Select>
 
                                         <Select value={filters.community} onValueChange={(value) => handleFilterChange('community', value)}>
-                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                            <SelectTrigger className="h-10 bg-background border-border rounded-xl font-bold text-xs">
                                                 <SelectValue placeholder="Community" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-foreground border-white/10">
+                                            <SelectContent className="bg-surface border-border">
                                                 <SelectItem value="any">Open to All</SelectItem>
                                                 <SelectItem value="sahu">Sahu</SelectItem>
                                                 <SelectItem value="verma">Verma</SelectItem>
@@ -254,10 +254,10 @@ export default function SearchPage() {
                                         </Select>
 
                                         <Select value={filters.category} onValueChange={(value) => handleFilterChange('category', value)}>
-                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                            <SelectTrigger className="h-10 bg-background border-border rounded-xl font-bold text-xs">
                                                 <SelectValue placeholder="Category" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-foreground border-white/10">
+                                            <SelectContent className="bg-surface border-border">
                                                 <SelectItem value="any">Any Category</SelectItem>
                                                 <SelectItem value="OBC">OBC</SelectItem>
                                                 <SelectItem value="GENERAL">General</SelectItem>
@@ -267,13 +267,13 @@ export default function SearchPage() {
                                         </Select>
                                     </div>
 
-                                    <div className="space-y-2.5 pt-4 border-t border-white/5">
-                                        <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block mb-2">Lifestyle</Label>
+                                    <div className="space-y-2.5 pt-4 border-t border-border">
+                                        <Label className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground block mb-2">Lifestyle</Label>
                                         <Select value={filters.occupation} onValueChange={(value) => handleFilterChange('occupation', value)}>
-                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                            <SelectTrigger className="h-10 bg-background border-border rounded-xl font-bold text-xs">
                                                 <SelectValue placeholder="Occupation" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-foreground border-white/10">
+                                            <SelectContent className="bg-surface border-border">
                                                 <SelectItem value="any">Any Profession</SelectItem>
                                                 <SelectItem value="IT Professional">IT Professional</SelectItem>
                                                 <SelectItem value="Doctor">Medical / Doctor</SelectItem>
@@ -283,10 +283,10 @@ export default function SearchPage() {
                                             </SelectContent>
                                         </Select>
                                         <Select value={filters.education} onValueChange={(value) => handleFilterChange('education', value)}>
-                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                            <SelectTrigger className="h-10 bg-background border-border rounded-xl font-bold text-xs">
                                                 <SelectValue placeholder="Education" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-foreground border-white/10">
+                                            <SelectContent className="bg-surface border-border">
                                                 <SelectItem value="any">Any Level</SelectItem>
                                                 <SelectItem value="BACHELORS">Graduate</SelectItem>
                                                 <SelectItem value="MASTERS">Post Graduate</SelectItem>
@@ -295,10 +295,10 @@ export default function SearchPage() {
                                         </Select>
 
                                         <Select value={filters.district} onValueChange={(value) => handleFilterChange('district', value)}>
-                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                            <SelectTrigger className="h-10 bg-background border-border rounded-xl font-bold text-xs">
                                                 <SelectValue placeholder="District" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-foreground border-white/10">
+                                            <SelectContent className="bg-surface border-border">
                                                 <SelectItem value="any">Chhattisgarh (All)</SelectItem>
                                                 <SelectItem value="Raipur">Raipur</SelectItem>
                                                 <SelectItem value="Bilaspur">Bilaspur</SelectItem>
@@ -311,23 +311,23 @@ export default function SearchPage() {
                                     </div>
 
                                     {/* Additional Filters */}
-                                    <div className="space-y-2.5 pt-4 border-t border-white/5">
-                                        <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block mb-2">Preferences</Label>
+                                    <div className="space-y-2.5 pt-4 border-t border-border">
+                                        <Label className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground block mb-2">Preferences</Label>
                                         <Select value={filters.gender} onValueChange={(value) => handleFilterChange('gender', value)}>
-                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                            <SelectTrigger className="h-10 bg-background border-border rounded-xl font-bold text-xs">
                                                 <SelectValue placeholder="Gender" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-foreground border-white/10">
+                                            <SelectContent className="bg-surface border-border">
                                                 <SelectItem value="any">Any Gender</SelectItem>
                                                 <SelectItem value="MALE">Male</SelectItem>
                                                 <SelectItem value="FEMALE">Female</SelectItem>
                                             </SelectContent>
                                         </Select>
                                         <Select value={filters.maritalStatus} onValueChange={(value) => handleFilterChange('maritalStatus', value)}>
-                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                            <SelectTrigger className="h-10 bg-background border-border rounded-xl font-bold text-xs">
                                                 <SelectValue placeholder="Marital Status" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-foreground border-white/10">
+                                            <SelectContent className="bg-surface border-border">
                                                 <SelectItem value="any">Any Status</SelectItem>
                                                 <SelectItem value="NEVER_MARRIED">Never Married</SelectItem>
                                                 <SelectItem value="DIVORCED">Divorced</SelectItem>
@@ -336,10 +336,10 @@ export default function SearchPage() {
                                         </Select>
 
                                         <Select value={filters.manglik} onValueChange={(value) => handleFilterChange('manglik', value)}>
-                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                            <SelectTrigger className="h-10 bg-background border-border rounded-xl font-bold text-xs">
                                                 <SelectValue placeholder="Manglik" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-foreground border-white/10">
+                                            <SelectContent className="bg-surface border-border">
                                                 <SelectItem value="any">Non-Specified</SelectItem>
                                                 <SelectItem value="yes">Manglik</SelectItem>
                                                 <SelectItem value="no">Non-Manglik</SelectItem>
@@ -347,10 +347,10 @@ export default function SearchPage() {
                                         </Select>
 
                                         <Select value={filters.diet} onValueChange={(value) => handleFilterChange('diet', value)}>
-                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                            <SelectTrigger className="h-10 bg-background border-border rounded-xl font-bold text-xs">
                                                 <SelectValue placeholder="Diet" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-foreground border-white/10">
+                                            <SelectContent className="bg-surface border-border">
                                                 <SelectItem value="any">Any Diet</SelectItem>
                                                 <SelectItem value="VEGETARIAN">Pure Veg</SelectItem>
                                                 <SelectItem value="NON_VEGETARIAN">Non-Veg</SelectItem>
@@ -359,10 +359,10 @@ export default function SearchPage() {
                                         </Select>
 
                                         <Select value={filters.speaksChhattisgarhi} onValueChange={(value) => handleFilterChange('speaksChhattisgarhi', value)}>
-                                            <SelectTrigger className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs">
+                                            <SelectTrigger className="h-10 bg-background border-border rounded-xl font-bold text-xs">
                                                 <SelectValue placeholder="Language" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-foreground border-white/10">
+                                            <SelectContent className="bg-surface border-border">
                                                 <SelectItem value="any">Any Language</SelectItem>
                                                 <SelectItem value="yes">Speaks Chhattisgarhi</SelectItem>
                                                 <SelectItem value="no">Only Hindi/Other</SelectItem>
@@ -370,7 +370,7 @@ export default function SearchPage() {
                                         </Select>
                                         <Input
                                             placeholder="Location/City..."
-                                            className="h-10 bg-white/5 border-white/5 rounded-xl font-bold text-xs"
+                                            className="h-10 bg-background border-border rounded-xl font-bold text-xs"
                                             value={filters.location}
                                             onChange={(e) => handleFilterChange('location', e.target.value)}
                                         />
@@ -380,12 +380,12 @@ export default function SearchPage() {
                                         <Button
                                             variant="ghost"
                                             onClick={clearFilters}
-                                            className="h-10 w-10 p-0 rounded-xl hover:bg-white/5 text-muted-foreground border border-white/5"
+                                            className="h-10 w-10 p-0 rounded-xl hover:bg-background text-muted-foreground border border-border"
                                             title="Clear all filters"
                                         >
                                             <X className="w-4 h-4" />
                                         </Button>
-                                        <Button onClick={() => refetch()} className="flex-1 h-10 bg-primary hover:bg-primary/90 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20">
+                                        <Button onClick={() => refetch()} className="flex-1 h-10 bg-primary hover:bg-primary/90 text-white font-bold text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20">
                                             Apply Filters
                                         </Button>
                                     </div>
@@ -399,18 +399,18 @@ export default function SearchPage() {
                 <div className={`${showFilters ? 'lg:col-span-3 xl:col-span-4' : 'lg:col-span-4 xl:col-span-5'} space-y-6`}>
                     <div className="flex items-center justify-between pb-2">
                         <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
                                 {isLoading ? "Scanning Network..." : `${profiles.length} Matches Found`}
                             </span>
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 hidden sm:block">Sort:</span>
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/40 hidden sm:block">Sort:</span>
                             <Select defaultValue="recent">
-                                <SelectTrigger className="w-24 h-7 bg-transparent border-white/5 text-[9px] font-black uppercase tracking-widest focus:ring-0 rounded-lg">
+                                <SelectTrigger className="w-24 h-7 bg-transparent border-border text-[9px] font-bold uppercase tracking-widest focus:ring-0 rounded-lg">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="bg-foreground border-white/10">
+                                <SelectContent className="bg-surface border-border">
                                     <SelectItem value="recent" className="text-[10px] font-bold">Newest</SelectItem>
                                     <SelectItem value="active" className="text-[10px] font-bold">Active</SelectItem>
                                 </SelectContent>
@@ -421,19 +421,19 @@ export default function SearchPage() {
                     <div className={`grid gap-4 ${showFilters ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'}`}>
                         <AnimatePresence mode="popLayout">
                             {isLoading ? (
-                                [1,2,3,4,5,6].map(i => <div key={i} className="aspect-[4/5] bg-white/5 rounded-[1.5rem] animate-pulse border border-white/5" />)
+                                [1,2,3,4,5,6].map(i => <div key={i} className="aspect-[4/5] bg-background rounded-[1.5rem] animate-pulse border border-border" />)
                             ) : isError ? (
                                 <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     className="col-span-full py-24 flex flex-col justify-center items-center text-muted-foreground"
                                 >
-                                    <div className="p-6 bg-white/5 rounded-full mb-4 border border-white/5">
+                                    <div className="p-6 bg-background rounded-full mb-4 border border-border">
                                         <SearchIcon className="w-10 h-10 opacity-30" />
                                     </div>
-                                    <h3 className="text-xl font-black text-white uppercase tracking-tighter">Unable to load profiles</h3>
+                                    <h3 className="text-xl font-bold text-foreground uppercase tracking-tighter">Unable to load profiles</h3>
                                     <p className="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-5">Please retry the search</p>
-                                    <Button onClick={() => refetch()} className="rounded-xl text-[10px] font-black uppercase tracking-widest">
+                                    <Button onClick={() => refetch()} className="rounded-xl text-[10px] font-bold uppercase tracking-widest">
                                         Retry
                                     </Button>
                                 </motion.div>
@@ -443,10 +443,10 @@ export default function SearchPage() {
                                     animate={{ opacity: 1 }}
                                     className="col-span-full py-24 flex flex-col justify-center items-center text-muted-foreground"
                                 >
-                                    <div className="p-6 bg-white/5 rounded-full mb-4 border border-white/5">
+                                    <div className="p-6 bg-background rounded-full mb-4 border border-border">
                                         <SearchIcon className="w-10 h-10 opacity-30" />
                                     </div>
-                                    <h3 className="text-xl font-black text-white uppercase tracking-tighter">No profiles found</h3>
+                                    <h3 className="text-xl font-bold text-foreground uppercase tracking-tighter">No profiles found</h3>
                                     <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">Try adjusting your filters or location</p>
                                 </motion.div>
                             ) : profiles.map((profile, _i) => (
@@ -479,7 +479,7 @@ export default function SearchPage() {
                                 variant="ghost"
                                 onClick={() => fetchNextPage()}
                                 disabled={isFetchingNextPage}
-                                className="h-11 px-8 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase tracking-[0.3em] text-primary group transition-all w-full max-w-sm"
+                                className="h-11 px-8 rounded-xl border border-border bg-background hover:bg-background text-[10px] font-bold uppercase tracking-[0.3em] text-primary group transition-all w-full max-w-sm"
                             >
                                 {isFetchingNextPage ? (
                                     <Loader2 className="w-4 h-4 animate-spin mr-2" />

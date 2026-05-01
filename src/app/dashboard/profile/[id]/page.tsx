@@ -255,16 +255,16 @@ export default function ProfileDetailPage() {
   return (
     <div className="max-w-7xl mx-auto pb-20 space-y-8 animate-fade-in">
       {/* Immersive Header Navigation */}
-      <div className="flex items-center justify-between px-4 py-3 bg-black/40 backdrop-blur-xl rounded-[2.5rem] border border-white/5 sticky top-2 z-[60] shadow-2xl">
-        <Button variant="ghost" onClick={() => router.back()} className="hover:bg-white/5 text-muted-foreground hover:text-white rounded-full px-6 font-black uppercase tracking-widest text-[10px] gap-2 transition-all active:scale-95">
+      <div className="flex items-center justify-between px-4 py-3 bg-foreground/60 backdrop-blur-xl rounded-[2.5rem] border border-border sticky top-2 z-[60] shadow-2xl">
+        <Button variant="ghost" onClick={() => router.back()} className="hover:bg-background text-muted-foreground hover:text-foreground rounded-full px-6 font-bold uppercase tracking-widest text-[10px] gap-2 transition-all active:scale-95">
           <ChevronLeft className="w-4 h-4" /> Back to Search
         </Button>
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/5 h-11 w-11 border border-white/5 transition-all active:scale-95" onClick={handleShare}>
+          <Button variant="ghost" size="icon" className="rounded-full hover:bg-background h-11 w-11 border border-border transition-all active:scale-95" onClick={handleShare}>
             <Share2 className="w-4 h-4 text-muted-foreground" />
           </Button>
           {!isOwnProfile && (
-            <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/5 h-11 w-11 border border-white/5 transition-all active:scale-95" onClick={() => toggleShortlist(profileUserId)}>
+            <Button variant="ghost" size="icon" className="rounded-full hover:bg-background h-11 w-11 border border-border transition-all active:scale-95" onClick={() => toggleShortlist(profileUserId)}>
               <Heart className={`w-4 h-4 ${state.isShortlisted ? "fill-primary text-primary" : "text-muted-foreground"}`} />
             </Button>
           )}
@@ -274,7 +274,7 @@ export default function ProfileDetailPage() {
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-start">
         {/* Left Column: Media & Actions */}
         <div className="xl:col-span-5 space-y-6">
-          <div className="relative aspect-[3.8/5] w-full rounded-[3.5rem] overflow-hidden shadow-4xl group border border-white/5">
+          <div className="relative aspect-[3.8/5] w-full rounded-[3.5rem] overflow-hidden shadow-4xl group border border-border">
              {/* Image Carousel */}
              <div className="h-full" ref={emblaRef}>
                 <div className="flex h-full">
@@ -290,17 +290,17 @@ export default function ProfileDetailPage() {
                            className={`object-cover transition-transform duration-1000 group-hover:scale-105 ${isLocked ? 'blur-2xl opacity-50 scale-125' : ''}`}
                          />
                          {isLocked && (
-                           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm z-10 transition-all group-hover:bg-black/20">
+                           <div className="absolute inset-0 flex flex-col items-center justify-center bg-foreground/60 backdrop-blur-sm z-10 transition-all group-hover:bg-background">
                              <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mb-6 animate-pulse border border-primary/30">
                                <Lock className="w-10 h-10 text-primary" />
                              </div>
-                             <p className="text-white font-black text-xl uppercase tracking-tighter mb-2 drop-shadow-lg">Photos Locked</p>
-                             <p className="text-white/60 text-xs font-bold uppercase tracking-widest px-10 text-center drop-shadow-md">Requires Match or Premium access</p>
+                             <p className="text-foreground font-bold text-xl uppercase tracking-tighter mb-2 drop-shadow-lg">Photos Locked</p>
+                             <p className="text-primary-foreground/80 text-xs font-bold uppercase tracking-widest px-10 text-center drop-shadow-md">Requires Match or Premium access</p>
 
                              {profile.allowPhotoRequest && (
                                <Button
                                  onClick={() => setShowPhotoModal(true)}
-                                 className="mt-8 bg-primary text-white hover:bg-primary/90 font-black px-8 py-6 rounded-2xl shadow-2xl shadow-primary/40 active:scale-95 transition-all text-xs uppercase tracking-widest gap-3"
+                                 className="mt-8 bg-primary text-white hover:bg-primary/90 font-bold px-8 py-6 rounded-2xl shadow-2xl shadow-primary/40 active:scale-95 transition-all text-xs uppercase tracking-widest gap-3"
                                >
                                  <Camera className="w-5 h-5" />
                                  Request Photo Access
@@ -314,20 +314,20 @@ export default function ProfileDetailPage() {
                 </div>
              </div>
 
-             <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
+             <div className="absolute inset-x-0 bottom-0 h-1/2 bg-surface/70 pointer-events-none" />
 
              {/* Carousel Nav */}
              {profileImages.length > 1 && (
                <>
-                <button onClick={() => emblaApi?.scrollPrev()} className="absolute top-1/2 left-6 -translate-y-1/2 w-12 h-12 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-primary z-20">
+                <button onClick={() => emblaApi?.scrollPrev()} className="absolute top-1/2 left-6 -translate-y-1/2 w-12 h-12 bg-foreground/60 backdrop-blur-md rounded-full flex items-center justify-center text-foreground opacity-0 group-hover:opacity-100 transition-all hover:bg-primary z-20">
                   <ChevronLeft className="w-7 h-7" />
                 </button>
-                <button onClick={() => emblaApi?.scrollNext()} className="absolute top-1/2 right-6 -translate-y-1/2 w-12 h-12 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-primary z-20">
+                <button onClick={() => emblaApi?.scrollNext()} className="absolute top-1/2 right-6 -translate-y-1/2 w-12 h-12 bg-foreground/60 backdrop-blur-md rounded-full flex items-center justify-center text-foreground opacity-0 group-hover:opacity-100 transition-all hover:bg-primary z-20">
                   <ChevronRight className="w-7 h-7" />
                 </button>
                 <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-2 z-20">
                   {scrollSnaps.map((_, i) => (
-                    <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === selectedIndex ? 'w-8 bg-primary' : 'w-2 bg-white/30'}`} />
+                    <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === selectedIndex ? 'w-8 bg-primary' : 'w-2 bg-background'}`} />
                   ))}
                 </div>
                </>
@@ -335,23 +335,23 @@ export default function ProfileDetailPage() {
 
              <div className="absolute top-8 left-8 flex flex-col gap-3 z-10">
                {profile.isVerified && (
-                 <Badge className="bg-emerald-500/90 backdrop-blur-md text-white border-none py-2 px-4 rounded-full flex items-center gap-2 font-black text-[10px] uppercase tracking-widest shadow-2xl">
+                 <Badge className="bg-success/10 backdrop-blur-md text-foreground border-none py-2 px-4 rounded-full flex items-center gap-2 font-bold text-[10px] uppercase tracking-widest shadow-2xl">
                    <ShieldCheck className="w-4 h-4" /> Verified Profile
                  </Badge>
                )}
                {profile.membership === 'PREMIUM' && (
-                 <Badge className="bg-amber-500/90 backdrop-blur-md text-white border-none py-2 px-4 rounded-full flex items-center gap-2 font-black text-[10px] uppercase tracking-widest shadow-2xl">
+                 <Badge className="bg-gold/20 backdrop-blur-md text-foreground border-none py-2 px-4 rounded-full flex items-center gap-2 font-bold text-[10px] uppercase tracking-widest shadow-2xl">
                    <Crown className="w-4 h-4" /> Premium Member
                  </Badge>
                )}
              </div>
 
              {/* Bottom Info Overlay */}
-             <div className="absolute bottom-10 left-10 right-10 text-white space-y-2">
-                <h2 className="text-4xl font-black uppercase tracking-tighter drop-shadow-2xl">
+             <div className="absolute bottom-10 left-10 right-10 text-foreground space-y-2">
+                <h2 className="text-4xl font-bold uppercase tracking-tighter drop-shadow-2xl">
                   {profileName}{profile.age ? `, ${profile.age}` : ""}
                 </h2>
-                <div className="flex items-center gap-2 text-xs font-bold text-white/80 tracking-widest uppercase">
+                <div className="flex items-center gap-2 text-xs font-bold text-primary-foreground/80 tracking-widest uppercase">
                   <MapPin className="w-4 h-4 text-primary" />
                   {locationText}
                 </div>
@@ -364,7 +364,7 @@ export default function ProfileDetailPage() {
             <Button
                 onClick={actionConfig.action}
                 disabled={actionConfig.disabled || actionConfig.pending}
-                className={`h-20 w-full rounded-[2rem] font-black text-xl uppercase tracking-widest transition-all active:scale-95 shadow-2xl ${actionConfig.variant === 'primary' ? 'bg-primary text-white hover:bg-primary/90 shadow-primary/20' : 'bg-white/10 text-muted-foreground border border-white/5'}`}
+                className={`h-20 w-full rounded-[2rem] font-bold text-xl uppercase tracking-widest transition-all active:scale-95 shadow-2xl ${actionConfig.variant === 'primary' ? 'bg-primary text-white hover:bg-primary/90 shadow-primary/20' : 'bg-background text-muted-foreground border border-border'}`}
             >
               {actionConfig.pending ? <Loader2 className="animate-spin w-6 h-6" /> : <><actionConfig.icon className="w-7 h-7 mr-4" /> {actionConfig.label}</>}
             </Button>
@@ -373,7 +373,7 @@ export default function ProfileDetailPage() {
               {/* Shortlist Action */}
               <Button
                 onClick={() => toggleShortlist(profileUserId)}
-                className={`h-16 flex-1 rounded-2xl font-black text-xs uppercase tracking-widest gap-3 transition-all active:scale-95 ${state.isShortlisted ? 'bg-primary/20 text-primary border-primary/30' : 'bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10'}`}
+                className={`h-16 flex-1 rounded-2xl font-bold text-xs uppercase tracking-widest gap-3 transition-all active:scale-95 ${state.isShortlisted ? 'bg-primary/20 text-primary border-primary/30' : 'bg-background border border-border text-muted-foreground hover:bg-background'}`}
               >
                 <Heart className={`w-5 h-5 ${state.isShortlisted ? 'fill-current' : ''}`} />
                 {state.isShortlisted ? "Shortlisted" : "Shortlist"}
@@ -384,7 +384,7 @@ export default function ProfileDetailPage() {
               {state.type === "received" && (
                 <Button
                   variant="outline"
-                  className="h-16 flex-1 rounded-2xl border-white/10 bg-white/5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-95"
+                  className="h-16 flex-1 rounded-2xl border-border bg-background text-muted-foreground hover:bg-error/10 hover:text-error transition-all active:scale-95"
                   onClick={() => rejectInterest(profileUserId, profile?.relationship?.matchId ?? undefined)}
                 >
                   <X className="w-6 h-6 mr-2" /> Reject
@@ -397,17 +397,17 @@ export default function ProfileDetailPage() {
         {/* Right Column: Detailed Info Tabs */}
         <div className="xl:col-span-7 space-y-10">
           <div className="space-y-4">
-             <div className="flex items-center gap-4 text-primary font-black uppercase tracking-[0.4em] text-[10px] italic">
+             <div className="flex items-center gap-4 text-primary font-bold uppercase tracking-[0.4em] text-[10px] font-medium">
                <div className="h-0.5 w-12 bg-primary rounded-full shadow-lg shadow-primary/50" /> Profile Discovery
              </div>
-             <h1 className="text-6xl font-black tracking-tighter uppercase leading-none">
-	               {displayValue(profile.firstName, "Profile")} <span className="text-primary italic">{displayValue(profile.lastName, "")}</span>
+             <h1 className="text-6xl font-bold tracking-tighter uppercase leading-none">
+	               {displayValue(profile.firstName, "Profile")} <span className="text-primary font-medium">{displayValue(profile.lastName, "")}</span>
              </h1>
           </div>
 
           {/* Match Score Card */}
           {matchScoreData && !isOwnProfile && (
-              <Card className="bg-gradient-to-br from-primary/10 via-background to-background border-primary/20 p-8 rounded-[3rem] shadow-3xl relative overflow-hidden group">
+              <Card className="bg-surface border-primary/20 p-8 rounded-[3rem] shadow-3xl relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity">
                       <Target className="w-40 h-40 text-primary rotate-12" />
                   </div>
@@ -416,7 +416,7 @@ export default function ProfileDetailPage() {
                       {/* Circular Match Score Indicator */}
                       <div className="relative flex flex-col items-center justify-center h-40 w-40 shrink-0">
                           <svg className="w-full h-full transform -rotate-90">
-                              <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-white/5" />
+                              <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-foreground/5" />
                               <circle
                                 cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent"
                                 strokeDasharray={440}
@@ -426,38 +426,38 @@ export default function ProfileDetailPage() {
                               />
                           </svg>
                           <div className="absolute inset-0 flex flex-col items-center justify-center">
-                              <span className="text-4xl font-black">{matchScoreData.overall}%</span>
-                              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Match</span>
+                              <span className="text-4xl font-bold">{matchScoreData.overall}%</span>
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Match</span>
                           </div>
                       </div>
 
                       <div className="flex-1 space-y-6 w-full">
                           <div className="space-y-1">
-                              <h4 className="text-xl font-black uppercase italic tracking-tight">Compatibility Score</h4>
+                              <h4 className="text-xl font-bold uppercase font-medium tracking-tight">Compatibility Score</h4>
                               <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">Calculated based on your partner preferences</p>
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                               <div className="space-y-2">
                                   <div className="flex justify-between items-center px-1">
-                                      <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5"><Clock className="w-3 h-3 text-blue-400" /> Age</span>
+                                      <span className="text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5"><Clock className="w-3 h-3 text-primary" /> Age</span>
                                       <span className="text-[10px] font-bold">{matchScoreData.age}%</span>
                                   </div>
-                                  <Progress value={matchScoreData.age} className="h-1.5 bg-white/5" indicatorClassName="bg-blue-400" />
+                                  <Progress value={matchScoreData.age} className="h-1.5 bg-background" indicatorClassName="bg-primary/10" />
                               </div>
                               <div className="space-y-2">
                                   <div className="flex justify-between items-center px-1">
-                                      <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5"><Users className="w-3 h-3 text-rose-400" /> Community</span>
+                                      <span className="text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5"><Users className="w-3 h-3 text-error" /> Community</span>
                                       <span className="text-[10px] font-bold">{matchScoreData.community}%</span>
                                   </div>
-                                  <Progress value={matchScoreData.community} className="h-1.5 bg-white/5" indicatorClassName="bg-rose-400" />
+                                  <Progress value={matchScoreData.community} className="h-1.5 bg-background" indicatorClassName="bg-error/10" />
                               </div>
                               <div className="space-y-2">
                                   <div className="flex justify-between items-center px-1">
-                                      <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5"><MapPin className="w-3 h-3 text-amber-400" /> Location</span>
+                                      <span className="text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5"><MapPin className="w-3 h-3 text-primaryDark" /> Location</span>
                                       <span className="text-[10px] font-bold">{matchScoreData.location}%</span>
                                   </div>
-                                  <Progress value={matchScoreData.location} className="h-1.5 bg-white/5" indicatorClassName="bg-amber-400" />
+                                  <Progress value={matchScoreData.location} className="h-1.5 bg-background" indicatorClassName="bg-gold/20" />
                               </div>
                           </div>
                       </div>
@@ -466,20 +466,20 @@ export default function ProfileDetailPage() {
           )}
 
           <Tabs defaultValue="about" className="space-y-8">
-            <TabsList className="bg-white/5 p-1.5 rounded-3xl border border-white/5 flex w-full">
-              <TabsTrigger value="about" className="flex-1 rounded-2xl py-3 font-black text-[10px] uppercase tracking-[0.15em] data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl transition-all">About</TabsTrigger>
-              <TabsTrigger value="details" className="flex-1 rounded-2xl py-3 font-black text-[10px] uppercase tracking-[0.15em] data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl transition-all">My Background</TabsTrigger>
-              <TabsTrigger value="profession" className="flex-1 rounded-2xl py-3 font-black text-[10px] uppercase tracking-[0.15em] data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl transition-all">Work & Stats</TabsTrigger>
-              <TabsTrigger value="life" className="flex-1 rounded-2xl py-3 font-black text-[10px] uppercase tracking-[0.15em] data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl transition-all">Lifestyle</TabsTrigger>
+            <TabsList className="bg-background p-1.5 rounded-3xl border border-border flex w-full">
+              <TabsTrigger value="about" className="flex-1 rounded-2xl py-3 font-bold text-[10px] uppercase tracking-[0.15em] data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl transition-all">About</TabsTrigger>
+              <TabsTrigger value="details" className="flex-1 rounded-2xl py-3 font-bold text-[10px] uppercase tracking-[0.15em] data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl transition-all">My Background</TabsTrigger>
+              <TabsTrigger value="profession" className="flex-1 rounded-2xl py-3 font-bold text-[10px] uppercase tracking-[0.15em] data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl transition-all">Work & Stats</TabsTrigger>
+              <TabsTrigger value="life" className="flex-1 rounded-2xl py-3 font-bold text-[10px] uppercase tracking-[0.15em] data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl transition-all">Lifestyle</TabsTrigger>
             </TabsList>
 
             <TabsContent value="about" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <Card className="bg-white/[0.03] border-white/5 p-10 rounded-[3rem] shadow-2xl group hover:border-primary/20 transition-all">
+              <Card className="bg-background border-border p-10 rounded-[3rem] shadow-2xl group hover:border-primary/20 transition-all">
                 <div className="flex items-center gap-4 mb-8">
                   <div className="h-10 w-1 bg-primary rounded-full" />
-                  <h3 className="text-xl font-black uppercase tracking-tight italic">Personal Story</h3>
+                  <h3 className="text-xl font-bold uppercase tracking-tight font-medium">Personal Story</h3>
                 </div>
-                <p className="text-lg text-muted-foreground leading-relaxed font-medium italic">
+                <p className="text-lg text-muted-foreground leading-relaxed font-medium font-medium">
                   &quot;{displayValue(profile.about, "This member hasn't shared their story yet. Connect with them to learn more about their journey and aspirations.")}&quot;
                 </p>
               </Card>
@@ -487,14 +487,14 @@ export default function ProfileDetailPage() {
               {(hasDisplayValue(profile.gender) || hasDisplayValue(profile.maritalStatus)) && (
                 <div className="grid grid-cols-2 gap-4">
                   {hasDisplayValue(profile.gender) && (
-                    <Card className="bg-white/5 border-white/10 p-6 rounded-3xl space-y-2">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-primary">Gender</p>
+                    <Card className="bg-background border-border p-6 rounded-3xl space-y-2">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Gender</p>
                       <p className="text-sm font-bold uppercase">{formatEnumLabel(profile.gender)}</p>
                     </Card>
                   )}
                   {hasDisplayValue(profile.maritalStatus) && (
-                    <Card className="bg-white/5 border-white/10 p-6 rounded-3xl space-y-2">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-primary">Relationship</p>
+                    <Card className="bg-background border-border p-6 rounded-3xl space-y-2">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Relationship</p>
                       <p className="text-sm font-bold uppercase">{formatEnumLabel(profile.maritalStatus)}</p>
                     </Card>
                   )}
@@ -572,31 +572,31 @@ export default function ProfileDetailPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               onClick={(e: MouseEvent) => e.stopPropagation()}
-              className="bg-foreground border border-white/10 rounded-[2.5rem] p-10 w-full max-w-md space-y-8 shadow-4xl relative overflow-hidden"
+              className="bg-surface border border-border rounded-[2.5rem] p-10 w-full max-w-md space-y-8 shadow-4xl relative overflow-hidden"
             >
                <div className="absolute top-0 right-0 p-10 opacity-5">
                  <Camera className="w-40 h-40 text-primary rotate-12" />
                </div>
 
                <div className="relative z-10 space-y-2">
-                 <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic">Photo <span className="text-primary">Request</span></h2>
+                 <h2 className="text-3xl font-bold text-foreground uppercase tracking-tighter font-medium">Photo <span className="text-primary">Request</span></h2>
                  <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Connect with {profile.firstName} to see their photos</p>
                </div>
 
                <div className="relative z-10 space-y-6">
                    <div className="space-y-3">
-                     <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">Personal Message (Optional)</label>
+                     <label className="text-[10px] font-bold uppercase tracking-widest text-primary/70 ml-1">Personal Message (Optional)</label>
                      <textarea
                          placeholder="Hi, I'm interested in your profile and would love to see more photos..."
-                         className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm font-medium text-white min-h-[120px] outline-none focus:border-primary/50 transition-all resize-none shadow-inner"
+                         className="w-full bg-background border border-border rounded-2xl p-5 text-sm font-medium text-foreground min-h-[120px] outline-none focus:border-primary/50 transition-all resize-none shadow-inner"
                          id="photo-request-msg"
                      />
                    </div>
 
                    <div className="flex gap-4">
-                     <Button variant="ghost" className="flex-1 rounded-2xl text-[10px] font-black uppercase tracking-widest h-14 hover:bg-white/5" onClick={() => setShowPhotoModal(false)}>Nevermind</Button>
+                     <Button variant="ghost" className="flex-1 rounded-2xl text-[10px] font-bold uppercase tracking-widest h-14 hover:bg-background" onClick={() => setShowPhotoModal(false)}>Nevermind</Button>
                      <Button
-                         className="flex-1 rounded-2xl text-[10px] font-black uppercase tracking-widest h-14 bg-primary text-white hover:bg-primary/90 shadow-xl shadow-primary/20"
+                         className="flex-1 rounded-2xl text-[10px] font-bold uppercase tracking-widest h-14 bg-primary text-white hover:bg-primary/90 shadow-xl shadow-primary/20"
                          onClick={() => {
                              const msg = (document.getElementById('photo-request-msg') as HTMLTextAreaElement)?.value;
                              sendPhoto.mutate({
@@ -628,12 +628,12 @@ function DetailSection({ icon: Icon, title, children }: { icon: React.ElementTyp
   if (visibleChildren.length === 0) return null;
 
   return (
-    <Card className="bg-white/[0.03] border-white/5 p-8 rounded-[2.5rem] shadow-xl space-y-6">
+    <Card className="bg-background border-border p-8 rounded-[2.5rem] shadow-xl space-y-6">
       <div className="flex items-center gap-3">
         <div className="p-2 bg-primary/10 rounded-xl">
           <Icon className="w-5 h-5 text-primary" />
         </div>
-        <h3 className="text-sm font-black uppercase tracking-widest">{title}</h3>
+        <h3 className="text-sm font-bold uppercase tracking-widest">{title}</h3>
       </div>
       <div className="space-y-4">
         {visibleChildren}
@@ -647,7 +647,7 @@ function DetailItem({ label, value }: { label: string, value: unknown }) {
 
   return (
     <div className="flex justify-between items-center group font-medium">
-      <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{label}</span>
+      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</span>
       <span className="text-[13px] text-foreground font-bold tracking-tight">{displayValue(value)}</span>
     </div>
   );

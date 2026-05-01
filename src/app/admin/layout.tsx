@@ -142,7 +142,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: 'hsl(340 40% 4%)' }}>
+    <div className="flex h-screen overflow-hidden bg-background text-foreground">
       {/* Mobile Sidebar Overlay */}
       {mobileSidebarOpen && (
         <div
@@ -173,7 +173,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <div className="absolute top-4 right-4">
           <button
             onClick={() => setMobileSidebarOpen(false)}
-            className="p-1 rounded-lg text-muted-foreground hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1 rounded-lg text-muted-foreground hover:text-primary hover:bg-background transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -187,7 +187,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <header className="admin-header flex-shrink-0 h-16 flex items-center px-4 sm:px-6 gap-4 z-30">
           {/* Mobile menu button */}
           <button
-            className="lg:hidden p-1.5 rounded-lg text-muted-foreground hover:text-white hover:bg-white/10 transition-colors"
+            className="lg:hidden p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
             onClick={() => setMobileSidebarOpen(true)}
           >
             <Menu className="w-5 h-5" />
@@ -198,7 +198,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <div className="flex items-center gap-2 text-sm">
               <span className="text-muted-foreground hidden sm:inline">Admin</span>
               <span className="text-muted-foreground hidden sm:inline">/</span>
-              <span className="text-white font-medium capitalize truncate max-w-[200px]">
+              <span className="text-foreground font-medium capitalize truncate max-w-[200px]">
                 {pathname === '/admin' ? 'Dashboard' : pathname.split('/').pop()?.replace(/-/g, ' ') || 'Dashboard'}
               </span>
             </div>
@@ -207,22 +207,22 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           {/* Right side */}
           <div className="flex items-center gap-2">
             {/* Notification bell */}
-            <button className="relative p-1.5 rounded-lg text-muted-foreground hover:text-white hover:bg-white/10 transition-colors">
+            <button className="relative p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
               <Bell className="w-4.5 h-4.5" />
-              <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-rose-500 rounded-full" />
+              <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-error rounded-full" />
             </button>
 
             {/* User dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-white/10 transition-colors">
+                <button className="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-primary/10 transition-colors">
                   <Avatar className="w-7 h-7 ring-2 ring-primary/30">
                     <AvatarImage src={user?.profilePicture || undefined} />
-                    <AvatarFallback className="bg-gradient-to-br from-rose-600 to-primary text-white text-xs font-bold">
+                    <AvatarFallback className="bg-primary text-white text-xs font-bold">
                       {userInitials}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-sm text-white font-medium hidden sm:block max-w-[120px] truncate">
+                  <span className="text-sm text-foreground font-medium hidden sm:block max-w-[120px] truncate">
                     {userEmail.split('@')[0]}
                   </span>
                 </button>
@@ -230,12 +230,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <DropdownMenuContent align="end" className="w-52 bg-card border-border">
                 <DropdownMenuLabel>
                   <div className="flex flex-col">
-                    <span className="text-white">Administrator</span>
+                    <span className="text-foreground">Administrator</span>
                     <span className="text-xs font-normal text-muted-foreground truncate">{userEmail}</span>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-red-400 focus:text-red-400 focus:bg-red-500/10 cursor-pointer">
+                <DropdownMenuItem onClick={handleLogout} className="text-error focus:text-error focus:bg-error/10 cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign Out
                 </DropdownMenuItem>
@@ -272,19 +272,19 @@ function SidebarContent({
   return (
     <div className="flex flex-col h-full">
       {/* Logo Area */}
-      <div className={`flex items-center gap-3 px-4 py-5 border-b border-white/[0.06] ${sidebarCollapsed ? 'justify-center px-2' : ''}`}>
+      <div className={`flex items-center gap-3 px-4 py-5 border-b border-border ${sidebarCollapsed ? 'justify-center px-2' : ''}`}>
         <div className="relative flex-shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-600 to-primary flex items-center justify-center glow-purple">
+          <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center glow-primary">
             <Sparkles className="w-5 h-5 text-white" />
           </div>
-          <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[hsl(340_40_4%)]" />
+          <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-success rounded-full border-2 border-primaryDark" />
         </div>
         {!sidebarCollapsed && (
           <div className="min-w-0">
             <h2 className="text-sm font-bold text-white leading-tight truncate" style={{ fontFamily: 'Outfit, sans-serif' }}>
               CG Shadi
             </h2>
-            <p className="text-[10px] text-rose-400 font-medium tracking-wider uppercase">Admin Console</p>
+            <p className="text-[10px] text-gold font-medium tracking-wider uppercase">Admin Console</p>
           </div>
         )}
       </div>
@@ -309,12 +309,12 @@ function SidebarContent({
                     className={`
                       sidebar-nav-item group flex items-center gap-3 px-3 py-2.5 text-sm font-medium
                       transition-all duration-200 cursor-pointer
-                      ${active ? 'active text-white' : 'text-muted-foreground hover:text-white'}
+                      ${active ? 'active text-white' : 'text-muted-foreground hover:text-primary'}
                       ${sidebarCollapsed ? 'justify-center' : ''}
                     `}
                     title={sidebarCollapsed ? item.label : undefined}
                   >
-                    <Icon className={`flex-shrink-0 w-4 h-4 transition-colors ${active ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`} />
+                    <Icon className={`flex-shrink-0 w-4 h-4 transition-colors ${active ? 'text-gold' : 'text-white/65 group-hover:text-gold'}`} />
                     {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
                     {active && !sidebarCollapsed && (
                       <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
@@ -328,23 +328,23 @@ function SidebarContent({
       </nav>
 
       {/* Collapse Toggle (Desktop) */}
-      <div className="hidden lg:flex px-3 py-2 border-t border-white/[0.06]">
+      <div className="hidden lg:flex px-3 py-2 border-t border-border">
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="w-full flex items-center justify-center gap-2 p-2 rounded-lg text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all text-xs"
+          className="w-full flex items-center justify-center gap-2 p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-background transition-all text-xs"
         >
           {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <><ChevronLeft className="w-4 h-4" /><span>Collapse</span></>}
         </button>
       </div>
 
       {/* User Profile */}
-      <div className={`p-3 border-t border-white/[0.06] ${sidebarCollapsed ? 'flex justify-center' : ''}`}>
+      <div className={`p-3 border-t border-border ${sidebarCollapsed ? 'flex justify-center' : ''}`}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className={`group flex items-center gap-3 rounded-xl p-2 w-full hover:bg-white/[0.04] transition-all ${sidebarCollapsed ? 'justify-center' : ''}`}>
+            <button className={`group flex items-center gap-3 rounded-xl p-2 w-full hover:bg-background transition-all ${sidebarCollapsed ? 'justify-center' : ''}`}>
               <Avatar className="w-8 h-8 flex-shrink-0 ring-2 ring-primary/30">
                 <AvatarImage src={user?.profilePicture || undefined} />
-                <AvatarFallback className="bg-gradient-to-br from-rose-600 to-primary text-white text-xs font-bold">
+                <AvatarFallback className="bg-primary text-white text-xs font-bold">
                   {userInitials}
                 </AvatarFallback>
               </Avatar>
@@ -364,7 +364,7 @@ function SidebarContent({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="text-red-400 focus:text-red-400 focus:bg-red-500/10 cursor-pointer">
+            <DropdownMenuItem onClick={handleLogout} className="text-error focus:text-error focus:bg-error/10 cursor-pointer">
               <LogOut className="mr-2 h-4 w-4" />
               Sign Out
             </DropdownMenuItem>

@@ -18,123 +18,149 @@ import { Sparkles, LayoutDashboard } from "lucide-react";
 export function HeroSection() {
     const user = useUserAuthStore((state) => state.user);
     return (
-        <section className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-background">
-            {/* Immersive Background Decor */}
+        <section className="relative min-h-[90vh] w-full flex items-center justify-center overflow-hidden bg-background pt-16">
+            {/* Elegant Background Patterns */}
             <div className="absolute inset-0 z-0">
-                <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[140px] mix-blend-screen opacity-50" />
-                <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-accent/20 rounded-full blur-[160px] mix-blend-screen opacity-30" />
-                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03]" />
+                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_30%,rgba(139,30,63,0.03)_0%,transparent_50%),radial-gradient(circle_at_80%_70%,rgba(212,175,55,0.03)_0%,transparent_50%)]" />
+                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02]" />
             </div>
 
-            <div className="container relative z-10 mx-auto px-4 py-20 lg:py-32">
-                <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="container relative z-10 mx-auto px-4 py-12 lg:py-24">
+                <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
                     
                     {/* Left Content: The Message */}
-                    <div className="flex flex-col text-left space-y-8 max-w-2xl">
+                    <div className="flex flex-col text-left space-y-10 max-w-2xl">
                         <motion.div 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.6 }}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-black uppercase tracking-[0.2em]"
+                            className="inline-flex w-fit items-center gap-3 rounded-xl border border-primary/10 bg-primary/5 px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.25em] text-primary"
                         >
                             <ShieldCheck className="w-4 h-4" />
                             Chhattisgarh&apos;s #1 Trusted Matrimony
                         </motion.div>
 
-                        <motion.h1 
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, delay: 0.1 }}
-                            className="text-5xl md:text-7xl xl:text-8xl font-black tracking-tighter leading-[0.9] text-foreground"
-                        >
-                            Find Your <br />
-                            <span className="gradient-text italic">Soulmate</span> <br />
-                            Today.
-                        </motion.h1>
-
-                        <motion.p 
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.6, delay: 0.2 }}
-                            className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-lg"
-                        >
-                            Connect with verified profiles from your community in Chhattisgarh. Your journey to a beautiful forever starts right here.
-                        </motion.p>
+                        <div className="space-y-4">
+                            <motion.h1 
+                                initial={{ opacity: 0, y: 30 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.8, ease: "easeOut" }}
+                                className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight leading-[1.05] text-foreground"
+                            >
+                                Find Your <br />
+                                <span className="text-primary font-medium italic">Soulmate</span> <br />
+                                Today.
+                            </motion.h1>
+                            
+                            <motion.p 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.6, delay: 0.3 }}
+                                className="text-lg md:text-xl leading-relaxed text-muted-foreground max-w-lg font-medium opacity-80"
+                            >
+                                Discover verified profiles across Chhattisgarh. Begin your journey toward a meaningful union with trust and tradition.
+                            </motion.p>
+                        </div>
 
                         <motion.div 
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, delay: 0.3 }}
-                            className="flex flex-wrap gap-4 pt-4 items-center"
+                            transition={{ duration: 0.6, delay: 0.5 }}
+                            className="flex flex-wrap gap-6 items-center"
                         >
                             {user ? (
-                                <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white font-black text-lg h-16 px-10 rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
-                                    <Link href="/dashboard" className="flex items-center gap-2">
+                                <Button asChild size="lg" className="bg-primary hover:bg-primary-dark text-white font-bold text-base h-16 px-12 rounded-2xl shadow-xl shadow-primary/10 transition-all hover:-translate-y-1">
+                                    <Link href="/dashboard" className="flex items-center gap-3">
                                         <LayoutDashboard className="w-5 h-5" />
                                         EXPLORE PROFILES
                                     </Link>
                                 </Button>
                             ) : (
-                                <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white font-black text-lg h-16 px-10 rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95 group">
-                                    <Link href="/register">
+                                <Button asChild size="lg" className="bg-primary hover:bg-primary-dark text-white font-bold text-base h-16 px-12 rounded-2xl shadow-xl shadow-primary/10 transition-all hover:-translate-y-1 group">
+                                    <Link href="/register" className="flex items-center gap-3">
                                         JOIN NOW
-                                        <Sparkles className="w-5 h-5 ml-2 group-hover:rotate-12 transition-transform" />
+                                        <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                                     </Link>
                                 </Button>
                             )}
 
-                            <div className="flex -space-x-3 overflow-hidden ml-4">
-                                {[1,2,3,4].map((i) => (
-                                    <div key={i} className="inline-block h-10 w-10 rounded-full ring-2 ring-background bg-muted border border-border" />
-                                ))}
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-sm font-bold text-foreground">10,000+ Success Stories</span>
-                                <span className="text-xs text-muted-foreground">Joined by users across Raipur, Bilaspur & more</span>
+                            <div className="flex items-center gap-5">
+                                <div className="flex -space-x-3">
+                                    {[1,2,3,4].map((i) => (
+                                        <div key={i} className="h-12 w-12 rounded-full border-4 border-background bg-muted shadow-sm" />
+                                    ))}
+                                </div>
+                                <div className="flex flex-col justify-center">
+                                    <span className="text-sm font-bold text-foreground">10k+ Couples Matched</span>
+                                    <span className="text-[10px] uppercase tracking-widest text-primary font-bold opacity-70">Success Stories</span>
+                                </div>
                             </div>
                         </motion.div>
                     </div>
 
                     {/* Right Content: The Quick Search Action */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
                         className="relative"
                     >
-                        {/* Decorative floating elements */}
-                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/20 rounded-2xl blur-2xl animate-pulse" />
-                        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-accent/20 rounded-full blur-3xl animate-float" />
+                        {/* Sharper Decorative Elements */}
+                        <div className="absolute -top-6 -right-6 w-24 h-24 bg-gold/10 rounded-3xl border border-gold/20" />
+                        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-primary/5 rounded-full border border-primary/10" />
 
-                        <Card className="glass-card shadow-3xl border-white/10 p-8 md:p-10 rounded-[2.5rem] relative z-10 overflow-hidden">
-                            <div className="absolute top-0 right-0 p-6 opacity-10">
-                                <Heart className="w-24 h-24 text-primary fill-current" />
+                        <Card className="relative z-10 overflow-hidden rounded-[2.5rem] border-border bg-surface p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border-t border-l border-white/50">
+                            <div className="absolute top-0 right-0 p-8 opacity-[0.03]">
+                                <Heart className="w-32 h-32 text-primary fill-current" />
                             </div>
                             
-                            <h2 className="text-2xl font-bold mb-8 text-foreground flex items-center gap-3">
-                                <Search className="w-6 h-6 text-primary" />
-                                Begin Your Search
-                            </h2>
+                            <div className="flex items-center gap-4 mb-10">
+                                <div className="w-12 h-12 bg-primary/5 rounded-2xl flex items-center justify-center">
+                                    <Search className="w-6 h-6 text-primary" />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-bold text-foreground">Begin Search</h2>
+                                    <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Find your ideal match</p>
+                                </div>
+                            </div>
 
-                            <div className="space-y-6">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Looking For</label>
-                                    <Select defaultValue="female">
-                                        <SelectTrigger className="bg-background/50 border-white/10 h-12 rounded-xl">
-                                            <SelectValue placeholder="Select Gender" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="female">A Bride (Woman)</SelectItem>
-                                            <SelectItem value="male">A Groom (Man)</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                            <div className="space-y-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Looking For</label>
+                                        <Select defaultValue="female">
+                                            <SelectTrigger className="bg-background border-border h-14 rounded-2xl focus:ring-primary/20">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="female">A Bride (Woman)</SelectItem>
+                                                <SelectItem value="male">A Groom (Man)</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Community</label>
+                                        <Select defaultValue="any">
+                                            <SelectTrigger className="bg-background border-border h-14 rounded-2xl focus:ring-primary/20">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="any">Open to All</SelectItem>
+                                                <SelectItem value="hindu">Hindu</SelectItem>
+                                                <SelectItem value="muslim">Muslim</SelectItem>
+                                                <SelectItem value="christian">Christian</SelectItem>
+                                                <SelectItem value="sikh">Sikh</SelectItem>
+                                                <SelectItem value="jain">Jain</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Age Min</label>
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Age Min</label>
                                         <Select defaultValue="18">
-                                            <SelectTrigger className="bg-background/50 border-white/10 h-12 rounded-xl">
+                                            <SelectTrigger className="bg-background border-border h-14 rounded-2xl focus:ring-primary/20">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -144,10 +170,10 @@ export function HeroSection() {
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Age Max</label>
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-1">Age Max</label>
                                         <Select defaultValue="30">
-                                            <SelectTrigger className="bg-background/50 border-white/10 h-12 rounded-xl">
+                                            <SelectTrigger className="bg-background border-border h-14 rounded-2xl focus:ring-primary/20">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -159,31 +185,19 @@ export function HeroSection() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Community</label>
-                                    <Select defaultValue="any">
-                                        <SelectTrigger className="bg-background/50 border-white/10 h-12 rounded-xl">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="any">Open to All Communities</SelectItem>
-                                            <SelectItem value="hindu">Hindu</SelectItem>
-                                            <SelectItem value="muslim">Muslim</SelectItem>
-                                            <SelectItem value="christian">Christian</SelectItem>
-                                            <SelectItem value="sikh">Sikh</SelectItem>
-                                            <SelectItem value="jain">Jain</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <Button className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-black text-lg rounded-2xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 group">
-                                    <Search className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
+                                <Button className="w-full h-16 bg-primary hover:bg-primary-dark text-white font-bold text-lg rounded-2xl shadow-lg shadow-primary/10 transition-all hover:scale-[1.01] active:scale-95 group">
+                                    <Search className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
                                     SEARCH MATCHES
                                 </Button>
                                 
-                                <p className="text-center text-[10px] text-muted-foreground font-medium uppercase tracking-[0.2em]">
-                                    Over 5,000+ active profiles daily
-                                </p>
+                                <div className="flex items-center justify-center gap-4 py-2 border-t border-border/50">
+                                    <div className="flex -space-x-1">
+                                        {[1,2,3].map(i => <div key={i} className="w-2 h-2 rounded-full bg-success animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />)}
+                                    </div>
+                                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.2em]">
+                                        5,240 active members online
+                                    </p>
+                                </div>
                             </div>
                         </Card>
                     </motion.div>

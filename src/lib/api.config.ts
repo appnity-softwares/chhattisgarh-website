@@ -8,6 +8,7 @@ const SOCKET_URL =
 export const apiConfig = {
   baseUrl: API_BASE_URL,
   socketUrl: SOCKET_URL,
+  vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
   endpoints: {
     auth: {
       login: '/admin/login',

@@ -44,9 +44,9 @@ export default function BrowsePage() {
             <motion.h1 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="text-4xl md:text-5xl font-black tracking-tighter text-foreground"
+              className="text-4xl md:text-5xl font-bold tracking-tighter text-foreground"
             >
-              Browse <span className="text-primary italic">Matches</span>
+              Browse <span className="text-primary font-medium">Matches</span>
             </motion.h1>
             <p className="text-muted-foreground font-light text-lg">
               Showing {profiles.length} potential partners from Chhattisgarh
@@ -76,8 +76,8 @@ export default function BrowsePage() {
             <Button 
                 key={idx}
                 variant="ghost" 
-                className={`rounded-full px-6 h-10 text-xs font-bold uppercase tracking-widest border border-white/5 transition-all
-                  ${idx === 0 ? 'bg-primary text-white shadow-lg shadow-primary/20 border-primary' : 'bg-card/40 hover:bg-white/5 text-muted-foreground hover:text-foreground'}
+                className={`rounded-full px-6 h-10 text-xs font-bold uppercase tracking-widest border transition-all
+                  ${idx === 0 ? 'bg-primary text-white shadow-md border-primary' : 'bg-surface border-border hover:bg-muted text-muted-foreground hover:text-foreground'}
                 `}
             >
                 {tag}
@@ -115,15 +115,13 @@ export default function BrowsePage() {
                     transition={{ delay: (index % 12) * 0.05 }}
                   >
                     <ProfileCard 
+                      {...profile}
                       id={profile.id}
                       name={formatProfileName(profile)}
-                      age={profile.age}
-                      city={profile.city}
-                      occupation={profile.occupation}
-                      education={profile.education}
-                      gender={profile.gender?.toLowerCase() as 'male' | 'female'}
-                      isVerified={profile.isVerified}
-                      image={profile.media?.[0]?.url}
+                      gender={profile.gender?.toLowerCase() as any}
+                      media={profile.media}
+                      relationship={profile.relationship}
+                      onActionSuccess={() => {}}
                     />
                   </motion.div>
                 ))}
@@ -135,7 +133,7 @@ export default function BrowsePage() {
                     onClick={() => fetchNextPage()} 
                     disabled={isFetchingNextPage}
                     variant="outline"
-                    className="rounded-2xl h-14 px-10 border-white/10 bg-white/5 hover:bg-white/10 font-black tracking-widest uppercase gap-2"
+                    className="rounded-2xl h-14 px-10 border-border bg-surface hover:bg-muted font-bold tracking-widest uppercase gap-2 shadow-md"
                   >
                     {isFetchingNextPage ? (
                       <Loader2 className="w-5 h-5 animate-spin" />

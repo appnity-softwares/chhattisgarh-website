@@ -56,42 +56,42 @@ export default function TransactionHistoryPage() {
                 <div className="space-y-4">
                     <Link href="/dashboard/membership" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors group">
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Back to Plans</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest">Back to Plans</span>
                     </Link>
-                    <h1 className="text-4xl md:text-5xl font-black tracking-tight uppercase leading-none">Transaction <span className="text-primary italic">History</span></h1>
+                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight uppercase leading-none">Transaction <span className="text-primary font-medium">History</span></h1>
                     <p className="text-muted-foreground font-medium uppercase tracking-[0.2em] text-xs">Manage your billing & payments</p>
                 </div>
             </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="bg-card/40 backdrop-blur-3xl border-white/5 rounded-[2rem] p-8 flex flex-col justify-between group hover:border-primary/20 transition-all">
+                <Card className="bg-surface backdrop-blur-3xl border-border rounded-[2rem] p-8 flex flex-col justify-between group hover:border-primary/20 transition-all">
                     <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
                         <TrendingUp className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Total Spent</p>
-                        <h3 className="text-3xl font-black text-foreground italic">₹2,998</h3>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Total Spent</p>
+                        <h3 className="text-3xl font-bold text-foreground font-medium">₹2,998</h3>
                     </div>
                 </Card>
 
-                <Card className="bg-card/40 backdrop-blur-3xl border-white/5 rounded-[2rem] p-8 flex flex-col justify-between group hover:border-green-500/20 transition-all">
-                    <div className="w-12 h-12 bg-green-500/10 rounded-2xl flex items-center justify-center mb-6">
-                        <CheckCircle2 className="w-6 h-6 text-green-500" />
+                <Card className="bg-surface backdrop-blur-3xl border-border rounded-[2rem] p-8 flex flex-col justify-between group hover:border-success/25 transition-all">
+                    <div className="w-12 h-12 bg-success/10 rounded-2xl flex items-center justify-center mb-6">
+                        <CheckCircle2 className="w-6 h-6 text-success" />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Successful</p>
-                        <h3 className="text-3xl font-black text-foreground italic">02</h3>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Successful</p>
+                        <h3 className="text-3xl font-bold text-foreground font-medium">02</h3>
                     </div>
                 </Card>
 
-                <Card className="bg-card/40 backdrop-blur-3xl border-white/5 rounded-[2rem] p-8 flex flex-col justify-between group hover:border-blue-500/20 transition-all">
-                    <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6">
-                        <ShieldCheck className="w-6 h-6 text-blue-500" />
+                <Card className="bg-surface backdrop-blur-3xl border-border rounded-[2rem] p-8 flex flex-col justify-between group hover:border-primary/25 transition-all">
+                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
+                        <ShieldCheck className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Active Plan</p>
-                        <h3 className="text-3xl font-black text-foreground italic">Platinum</h3>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Active Plan</p>
+                        <h3 className="text-3xl font-bold text-foreground font-medium">Platinum</h3>
                     </div>
                 </Card>
             </div>
@@ -99,8 +99,8 @@ export default function TransactionHistoryPage() {
             {/* Transactions List */}
             <div className="space-y-4">
                 <div className="flex items-center justify-between px-6 mb-2">
-                    <h2 className="font-black text-sm uppercase tracking-widest text-muted-foreground">Recent Payments</h2>
-                    <Button variant="ghost" className="text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary/5">Download All</Button>
+                    <h2 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">Recent Payments</h2>
+                    <Button variant="ghost" className="text-[10px] font-bold uppercase tracking-widest text-primary hover:bg-primary/5">Download All</Button>
                 </div>
 
                 <div className="grid gap-4">
@@ -111,19 +111,19 @@ export default function TransactionHistoryPage() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: idx * 0.1 }}
                         >
-                            <Card className="bg-card/30 backdrop-blur-xl border-white/5 rounded-[2rem] overflow-hidden group hover:bg-card/50 transition-all">
+                            <Card className="bg-surface backdrop-blur-xl border-border rounded-[2rem] overflow-hidden group hover:bg-surface transition-all">
                                 <div className="p-6 md:p-8 flex flex-col md:flex-row md:items-center gap-6">
                                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${
-                                        txn.status === 'SUCCESS' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
+                                        txn.status === 'SUCCESS' ? 'bg-success/10 text-success' : 'bg-error/10 text-error'
                                     }`}>
                                         {txn.status === 'SUCCESS' ? <Receipt className="w-7 h-7" /> : <XCircle className="w-7 h-7" />}
                                     </div>
 
                                     <div className="flex-1 space-y-1">
                                         <div className="flex flex-col md:flex-row md:items-center gap-3">
-                                            <h4 className="font-black text-lg text-foreground uppercase tracking-tight">{txn.plan}</h4>
-                                            <Badge className={`w-fit py-0 px-2 rounded-lg text-[8px] font-black ${
-                                                txn.status === 'SUCCESS' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'
+                                            <h4 className="font-bold text-lg text-foreground uppercase tracking-tight">{txn.plan}</h4>
+                                            <Badge className={`w-fit py-0 px-2 rounded-lg text-[8px] font-bold ${
+                                                txn.status === 'SUCCESS' ? 'bg-success/10 text-success' : 'bg-error/10 text-error'
                                             }`}>
                                                 {txn.status}
                                             </Badge>
@@ -146,13 +146,13 @@ export default function TransactionHistoryPage() {
 
                                     <div className="flex flex-col items-end gap-3 text-right">
                                         <div className="space-y-0.5">
-                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Amount Paid</p>
-                                            <h3 className="text-2xl font-black text-foreground italic">₹{txn.amount.toLocaleString()}</h3>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Amount Paid</p>
+                                            <h3 className="text-2xl font-bold text-foreground font-medium">₹{txn.amount.toLocaleString()}</h3>
                                         </div>
                                         {txn.status === 'SUCCESS' && (
-                                            <Button variant="outline" size="sm" className="h-10 rounded-xl border-white/10 hover:bg-white/5 gap-2 px-4 shadow-xl">
+                                            <Button variant="outline" size="sm" className="h-10 rounded-xl border-border hover:bg-background gap-2 px-4 shadow-xl">
                                                 <Download className="w-4 h-4 text-primary" />
-                                                <span className="text-[10px] font-black uppercase tracking-widest">Invoice</span>
+                                                <span className="text-[10px] font-bold uppercase tracking-widest">Invoice</span>
                                             </Button>
                                         )}
                                     </div>
@@ -164,7 +164,7 @@ export default function TransactionHistoryPage() {
             </div>
 
             {/* Security Note */}
-            <div className="flex items-center justify-center p-8 bg-white/5 border border-white/5 rounded-[2rem] gap-4">
+            <div className="flex items-center justify-center p-8 bg-background border border-border rounded-[2rem] gap-4">
                 <ShieldCheck className="w-6 h-6 text-primary" />
                 <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest text-center max-w-lg">
                     Your payments are secured with 256-bit encryption. We do not store your card details on our servers.

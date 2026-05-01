@@ -27,13 +27,13 @@ interface FAQ {
 }
 
 // Category icons and colors
-const CATEGORY_CONFIG: Record<string, { icon: React.ReactNode; color: string; gradient: string }> = {
-    'General': { icon: <HelpCircle className="w-5 h-5" />, color: 'text-orange-600', gradient: 'from-orange-50 to-orange-100/50' },
-    'Account & Profile': { icon: <HelpCircle className="w-5 h-5" />, color: 'text-orange-600', gradient: 'from-orange-50 to-orange-100/50' },
-    'Privacy & Security': { icon: <Shield className="w-5 h-5" />, color: 'text-green-600', gradient: 'from-green-50 to-green-100/50' },
-    'Matches & Interests': { icon: <Heart className="w-5 h-5" />, color: 'text-pink-600', gradient: 'from-pink-50 to-pink-100/50' },
-    'Premium & Payments': { icon: <Crown className="w-5 h-5" />, color: 'text-amber-600', gradient: 'from-amber-50 to-amber-100/50' },
-    'Chhattisgarh Specific': { icon: <MapPin className="w-5 h-5" />, color: 'text-blue-600', gradient: 'from-blue-50 to-blue-100/50' },
+const CATEGORY_CONFIG: Record<string, { icon: React.ReactNode; color: string; surface: string }> = {
+    'General': { icon: <HelpCircle className="w-5 h-5" />, color: 'text-primary', surface: 'bg-primary/10' },
+    'Account & Profile': { icon: <HelpCircle className="w-5 h-5" />, color: 'text-primary', surface: 'bg-primary/10' },
+    'Privacy & Security': { icon: <Shield className="w-5 h-5" />, color: 'text-success', surface: 'bg-success/10' },
+    'Matches & Interests': { icon: <Heart className="w-5 h-5" />, color: 'text-primary', surface: 'bg-primary/10' },
+    'Premium & Payments': { icon: <Crown className="w-5 h-5" />, color: 'text-primaryDark', surface: 'bg-gold/20' },
+    'Chhattisgarh Specific': { icon: <MapPin className="w-5 h-5" />, color: 'text-primary', surface: 'bg-primary/10' },
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://api.chhattisgarhshadi.com/api/v1';
@@ -94,7 +94,7 @@ export default function FAQPage() {
             <Navbar />
             <main className="flex-1">
                 {/* Hero */}
-                <section className="py-16 bg-gradient-to-b from-primary/5 to-background">
+                <section className="py-16 bg-background">
                     <div className="container mx-auto px-4 text-center">
                         <h1 className="text-4xl md:text-5xl font-bold font-headline mb-4">
                             सामान्य प्रश्न
@@ -140,7 +140,7 @@ export default function FAQPage() {
                                     <div key={category} className="mb-10">
                                         {/* Category Header */}
                                         <div className="flex items-center gap-3 mb-4">
-                                            <div className={`p-2 rounded-lg bg-gradient-to-br ${config.gradient}`}>
+                                            <div className={`p-2 rounded-lg ${config.surface}`}>
                                                 <span className={config.color}>{config.icon}</span>
                                             </div>
                                             <h2 className="text-xl font-bold">{category}</h2>
@@ -174,7 +174,7 @@ export default function FAQPage() {
                         )}
 
                         {/* Still Have Questions */}
-                        <div className="mt-12 text-center p-8 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl border">
+                        <div className="mt-12 text-center p-8 bg-surface border border-border rounded-2xl">
                             <h2 className="text-2xl font-bold mb-4">अभी भी प्रश्न हैं?</h2>
                             <p className="text-muted-foreground mb-6">
                                 हमारी टीम आपकी मदद के लिए तैयार है

@@ -64,7 +64,7 @@ export default function MessagesPage() {
             toast({
                 title: 'Status Updated',
                 description: `Message marked as ${status.toLowerCase()}`,
-                className: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                className: 'bg-success/10 border-success/25 text-success'
             });
             fetchMessages();
             if (selectedMessage?.id === id) {
@@ -102,10 +102,10 @@ export default function MessagesPage() {
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'PENDING': return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
-            case 'READ': return 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20';
-            case 'REPLIED': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-            default: return 'bg-zinc-500/10 text-zinc-400';
+            case 'PENDING': return 'bg-primary/10 text-primary border-primary/25';
+            case 'READ': return 'bg-muted text-muted-foreground border-border';
+            case 'REPLIED': return 'bg-success/10 text-success border-success/25';
+            default: return 'bg-muted text-muted-foreground';
         }
     };
 
@@ -122,18 +122,18 @@ export default function MessagesPage() {
         >
             <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-220px)] min-h-[500px]">
                 {/* Master List */}
-                <Card className="lg:w-1/3 bg-navy-900/50 border-white/10 flex flex-col overflow-hidden">
-                    <div className="p-4 border-b border-white/10 bg-white/[0.03]">
+                <Card className="lg:w-1/3 bg-navy-900/50 border-border flex flex-col overflow-hidden">
+                    <div className="p-4 border-b border-border bg-background">
                         <div className="flex items-center gap-2 mb-3">
                             <Input 
                                 placeholder="Search messages..."
-                                className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 h-9"
+                                className="bg-background border-border text-foreground placeholder:text-muted-foreground h-9"
                             />
                             <Select value={filterStatus} onValueChange={setFilterStatus}>
-                                <SelectTrigger className="w-[110px] bg-white/5 border-white/10 text-white h-9">
+                                <SelectTrigger className="w-[110px] bg-background border-border text-foreground h-9">
                                     <SelectValue placeholder="Status" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-navy-900 border-white/10">
+                                <SelectContent className="bg-navy-900 border-border">
                                     <SelectItem value="ALL">All</SelectItem>
                                     <SelectItem value="PENDING">New</SelectItem>
                                     <SelectItem value="READ">Read</SelectItem>
@@ -147,7 +147,7 @@ export default function MessagesPage() {
                         {isLoading ? (
                             <div className="p-8 space-y-4">
                                 {[...Array(5)].map((_, i) => (
-                                    <div key={i} className="h-16 w-full bg-white/5 rounded-xl animate-pulse" />
+                                    <div key={i} className="h-16 w-full bg-background rounded-xl animate-pulse" />
                                 ))}
                             </div>
                         ) : messages.length === 0 ? (
@@ -160,18 +160,18 @@ export default function MessagesPage() {
                                 <div 
                                     key={msg.id} 
                                     onClick={() => setSelectedMessage(msg)}
-                                    className={`p-4 cursor-pointer transition-all hover:bg-white/[0.03] relative border-l-2 ${
-                                        selectedMessage?.id === msg.id ? 'bg-white/[0.05] border-purple-500' : 
-                                        msg.status === 'PENDING' ? 'border-blue-500' : 'border-transparent'
+                                    className={`p-4 cursor-pointer transition-all hover:bg-background relative border-l-2 ${
+                                        selectedMessage?.id === msg.id ? 'bg-background border-primary/25' : 
+                                        msg.status === 'PENDING' ? 'border-primary/25' : 'border-transparent'
                                     }`}
                                 >
                                     <div className="flex items-center justify-between mb-1">
-                                        <h4 className="text-white font-semibold text-sm truncate max-w-[150px]">{msg.name}</h4>
-                                        <span className="text-[10px] text-zinc-500">
+                                        <h4 className="text-foreground font-semibold text-sm truncate max-w-[150px]">{msg.name}</h4>
+                                        <span className="text-[10px] text-muted-foreground">
                                             {formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true })}
                                         </span>
                                     </div>
-                                    <p className={`text-xs truncate ${msg.status === 'PENDING' ? 'text-zinc-300 font-medium' : 'text-zinc-500'}`}>
+                                    <p className={`text-xs truncate ${msg.status === 'PENDING' ? 'text-muted-foreground font-medium' : 'text-muted-foreground'}`}>
                                         {msg.subject || 'Support Request'}
                                     </p>
                                     <div className="mt-2 flex items-center justify-between">
@@ -186,19 +186,19 @@ export default function MessagesPage() {
                 </Card>
 
                 {/* Detail View */}
-                <Card className="lg:w-2/3 bg-navy-900/50 border-white/10 flex flex-col overflow-hidden">
+                <Card className="lg:w-2/3 bg-navy-900/50 border-border flex flex-col overflow-hidden">
                     {selectedMessage ? (
                         <div className="h-full flex flex-col">
-                            <div className="p-6 border-b border-white/10 bg-white/[0.03] flex items-center justify-between">
+                            <div className="p-6 border-b border-border bg-background flex items-center justify-between">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full bg-purple-600/20 border border-purple-500/20 flex items-center justify-center">
-                                       <UserIcon className="w-6 h-6 text-purple-400" />
+                                    <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/25 flex items-center justify-center">
+                                       <UserIcon className="w-6 h-6 text-primary" />
                                     </div>
                                     <div>
-                                        <h2 className="text-xl font-bold text-white uppercase tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                                        <h2 className="text-xl font-bold text-foreground uppercase tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
                                             {selectedMessage.name}
                                         </h2>
-                                        <div className="flex items-center gap-2 text-xs text-zinc-500 mt-0.5">
+                                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                                             <Mail className="w-3 h-3" /> {selectedMessage.email}
                                             {selectedMessage.phone && (
                                                 <>
@@ -212,19 +212,19 @@ export default function MessagesPage() {
                                 <div className="flex items-center gap-2">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="outline" size="icon" className="h-9 w-9 bg-white/5 border-white/10">
-                                                <MoreVertical className="w-4 h-4 text-white" />
+                                            <Button variant="outline" size="icon" className="h-9 w-9 bg-background border-border">
+                                                <MoreVertical className="w-4 h-4 text-foreground" />
                                             </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent className="bg-navy-900 border-white/10">
-                                            <DropdownMenuItem onClick={() => handleUpdateStatus(selectedMessage.id, ContactMessageStatus.REPLIED)} className="text-emerald-400">
+                                        <DropdownMenuContent className="bg-navy-900 border-border">
+                                            <DropdownMenuItem onClick={() => handleUpdateStatus(selectedMessage.id, ContactMessageStatus.REPLIED)} className="text-success">
                                                 <CheckCircle className="w-4 h-4 mr-2" /> Mark as Replied
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handleUpdateStatus(selectedMessage.id, ContactMessageStatus.READ)} className="text-blue-400">
+                                            <DropdownMenuItem onClick={() => handleUpdateStatus(selectedMessage.id, ContactMessageStatus.READ)} className="text-primary">
                                                 <Eye className="w-4 h-4 mr-2" /> Mark as Read
                                             </DropdownMenuItem>
-                                            <DropdownMenuSeparator className="bg-white/5" />
-                                            <DropdownMenuItem onClick={() => handleDelete(selectedMessage.id)} className="text-red-400">
+                                            <DropdownMenuSeparator className="bg-background" />
+                                            <DropdownMenuItem onClick={() => handleDelete(selectedMessage.id)} className="text-error">
                                                 <Trash2 className="w-4 h-4 mr-2" /> Delete Message
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
@@ -234,38 +234,38 @@ export default function MessagesPage() {
 
                             <div className="flex-1 p-8 overflow-y-auto space-y-8">
                                 <section className="space-y-3">
-                                    <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                                    <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                                         <MessageSquare className="w-3 h-3" /> Subject
                                     </div>
-                                    <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-white font-medium">
+                                    <div className="bg-background border border-border rounded-xl p-4 text-foreground font-medium">
                                         {selectedMessage.subject || 'Inquiry regarding services'}
                                     </div>
                                 </section>
 
                                 <section className="space-y-3">
-                                    <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                                    <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                                         <Reply className="w-3 h-3" /> Message Content
                                     </div>
-                                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-zinc-300 leading-relaxed font-light text-base italic shadow-inner">
+                                    <div className="bg-background border border-border rounded-2xl p-6 text-muted-foreground leading-relaxed font-light text-base font-medium shadow-inner">
                                         &ldquo;{selectedMessage.message}&rdquo;
                                     </div>
                                 </section>
 
                                 <div className="grid grid-cols-2 gap-4 mt-8">
-                                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 flex items-center gap-3">
-                                        <Calendar className="w-4 h-4 text-zinc-600" />
+                                    <div className="p-4 rounded-xl bg-background border border-border flex items-center gap-3">
+                                        <Calendar className="w-4 h-4 text-muted-foreground" />
                                         <div>
-                                            <p className="text-[10px] text-zinc-600 uppercase font-bold tracking-tighter">Received</p>
-                                            <p className="text-xs text-zinc-400">{new Date(selectedMessage.createdAt).toLocaleString()}</p>
+                                            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Received</p>
+                                            <p className="text-xs text-muted-foreground">{new Date(selectedMessage.createdAt).toLocaleString()}</p>
                                         </div>
                                     </div>
-                                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 flex items-center gap-3">
-                                        <Clock className="w-4 h-4 text-zinc-600" />
+                                    <div className="p-4 rounded-xl bg-background border border-border flex items-center gap-3">
+                                        <Clock className="w-4 h-4 text-muted-foreground" />
                                         <div>
-                                            <p className="text-[10px] text-zinc-600 uppercase font-bold tracking-tighter">Last Status</p>
+                                            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Last Status</p>
                                             <p className={`text-xs font-semibold ${
-                                                selectedMessage.status === 'PENDING' ? 'text-blue-400' :
-                                                selectedMessage.status === 'REPLIED' ? 'text-emerald-400' : 'text-zinc-500'
+                                                selectedMessage.status === 'PENDING' ? 'text-primary' :
+                                                selectedMessage.status === 'REPLIED' ? 'text-success' : 'text-muted-foreground'
                                             }`}>
                                                 {selectedMessage.status}
                                             </p>
@@ -274,8 +274,8 @@ export default function MessagesPage() {
                                 </div>
                             </div>
 
-                            <div className="p-6 border-t border-white/10 bg-white/[0.03] flex items-center justify-between">
-                                <div className="text-xs text-zinc-500 flex items-center gap-1">
+                            <div className="p-6 border-t border-border bg-background flex items-center justify-between">
+                                <div className="text-xs text-muted-foreground flex items-center gap-1">
                                     <Info className="w-3 h-3" /> 
                                     Click the action menu to update status after responding via email or phone.
                                 </div>
@@ -283,12 +283,12 @@ export default function MessagesPage() {
                                     <Button 
                                       variant="outline" 
                                       onClick={() => window.open(`mailto:${selectedMessage.email}?subject=Re: ${selectedMessage.subject || 'Matrimony Support'}`)}
-                                      className="border-blue-500/20 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500/40"
+                                      className="border-primary/25 text-primary hover:bg-primary/10 hover:border-primary/25"
                                     >
                                         <Mail className="w-4 h-4 mr-2" /> Email Reply
                                     </Button>
                                     <Button 
-                                      className="bg-purple-600 hover:bg-purple-500 text-white"
+                                      className="bg-primary/10 hover:bg-primary/10 text-foreground"
                                       onClick={() => handleUpdateStatus(selectedMessage.id, ContactMessageStatus.REPLIED)}
                                     >
                                         Mark as Handled
@@ -298,10 +298,10 @@ export default function MessagesPage() {
                         </div>
                     ) : (
                         <div className="h-full flex flex-col items-center justify-center p-20 text-center opacity-30">
-                            <div className="w-20 h-20 rounded-full border-2 border-dashed border-zinc-700 flex items-center justify-center mb-6">
-                                <Mail className="w-8 h-8 text-zinc-600" />
+                            <div className="w-20 h-20 rounded-full border-2 border-dashed border-border flex items-center justify-center mb-6">
+                                <Mail className="w-8 h-8 text-muted-foreground" />
                             </div>
-                            <h3 className="text-xl font-medium text-white mb-2">Select a Message</h3>
+                            <h3 className="text-xl font-medium text-foreground mb-2">Select a Message</h3>
                             <p className="text-sm max-w-[300px]">
                                 Click on a support request from the list to view its contents and take action.
                             </p>

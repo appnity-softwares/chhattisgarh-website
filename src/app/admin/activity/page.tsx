@@ -29,28 +29,28 @@ interface ActivityStats {
 
 const getActionIcon = (action: string) => {
     if (action.includes('CREATED') || action.includes('USER_CREATED')) {
-        return <UserPlus className="h-4 w-4 text-green-500" />;
+        return <UserPlus className="h-4 w-4 text-success" />;
     }
     if (action.includes('DELETED')) {
-        return <Trash2 className="h-4 w-4 text-red-500" />;
+        return <Trash2 className="h-4 w-4 text-error" />;
     }
     if (action.includes('VERIFIED') || action.includes('APPROVED')) {
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-success" />;
     }
     if (action.includes('REJECTED') || action.includes('BANNED')) {
-        return <XCircle className="h-4 w-4 text-red-500" />;
+        return <XCircle className="h-4 w-4 text-error" />;
     }
     if (action.includes('ROLE')) {
-        return <Shield className="h-4 w-4 text-blue-500" />;
+        return <Shield className="h-4 w-4 text-primary" />;
     }
     if (action.includes('LOGIN')) {
-        return <LogIn className="h-4 w-4 text-blue-500" />;
+        return <LogIn className="h-4 w-4 text-primary" />;
     }
     if (action.includes('REPORT')) {
         return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
     }
     if (action.includes('BULK')) {
-        return <Users className="h-4 w-4 text-purple-500" />;
+        return <Users className="h-4 w-4 text-primary" />;
     }
     return <Settings className="h-4 w-4 text-gray-500" />;
 };

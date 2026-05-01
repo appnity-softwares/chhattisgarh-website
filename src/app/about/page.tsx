@@ -15,7 +15,7 @@ export default function AboutPage() {
             <Navbar />
             <main className="flex-1">
                 {/* Hero */}
-                <section className="py-16 bg-gradient-to-b from-primary/5 to-background">
+                <section className="py-16 bg-background">
                     <div className="container mx-auto px-4 text-center">
                         <h1 className="text-4xl md:text-5xl font-bold font-headline mb-4">
                             हमारे बारे में
@@ -104,7 +104,7 @@ export default function AboutPage() {
                         </div>
 
                         {/* Statistics */}
-                        <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg p-8 mb-12">
+                        <div className="bg-surface border border-border rounded-lg p-8 mb-12">
                             <h3 className="text-2xl font-bold text-center mb-8">हमारी उपलब्धियां</h3>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
                                 <div>

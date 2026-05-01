@@ -18,10 +18,10 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const STATUS_STYLES: Record<AgentStatus, string> = {
-  ACTIVE: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
-  INACTIVE: 'bg-slate-500/15 text-slate-400 border-slate-500/25',
-  SUSPENDED: 'bg-amber-500/15 text-amber-400 border-amber-500/25',
-  TERMINATED: 'bg-red-500/15 text-red-400 border-red-500/25',
+  ACTIVE: 'bg-success/10 text-success border-success/25',
+  INACTIVE: 'bg-muted text-muted-foreground border-border',
+  SUSPENDED: 'bg-gold/20 text-primaryDark border-gold/35',
+  TERMINATED: 'bg-error/10 text-error border-error/25',
 };
 
 interface AgentFormData {
@@ -54,7 +54,7 @@ function StyledInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`w-full px-3 py-2.5 rounded-xl text-sm text-white bg-white/[0.05] border border-white/[0.08] placeholder:text-muted-foreground focus:outline-none focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/20 transition-all disabled:opacity-50 ${props.className || ''}`}
+      className={`w-full px-3 py-2.5 rounded-xl text-sm text-foreground bg-background border border-border placeholder:text-muted-foreground focus:outline-none focus:border-primary/25 focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50 ${props.className || ''}`}
     />
   );
 }
@@ -149,7 +149,7 @@ export default function AdminAgentsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>Agent Management</h1>
+          <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Agent Management</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             {isLoading ? 'Loading...' : `${pagination.total} registered agents`}
           </p>
@@ -158,14 +158,14 @@ export default function AdminAgentsPage() {
           <button
             onClick={() => fetchAgents(pagination.page)}
             disabled={isLoading}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-sm font-medium transition-all disabled:opacity-40"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-background hover:bg-background text-foreground text-sm font-medium transition-all disabled:opacity-40"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
             <span className="hidden sm:inline">Refresh</span>
           </button>
           <button
             onClick={() => setShowCreateDialog(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-semibold btn-primary-gradient"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-foreground text-sm font-semibold btn-primary-gradient"
           >
             <Plus className="w-4 h-4" />
             Add Agent
@@ -176,14 +176,14 @@ export default function AdminAgentsPage() {
       {/* Main Card */}
       <div className="admin-card overflow-hidden">
         {/* Search */}
-        <div className="p-4 border-b border-white/[0.06]">
+        <div className="p-4 border-b border-border">
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             <input
               placeholder="Search by name, code, or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-white bg-white/[0.05] border border-white/[0.08] placeholder:text-muted-foreground focus:outline-none focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/20 transition-all"
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-foreground bg-background border border-border placeholder:text-muted-foreground focus:outline-none focus:border-primary/25 focus:ring-2 focus:ring-primary/20 transition-all"
             />
           </div>
         </div>
@@ -204,7 +204,7 @@ export default function AdminAgentsPage() {
             <tbody>
               {isLoading ? (
                 Array.from({ length: 6 }).map((_, i) => (
-                  <tr key={i} className="border-b border-white/[0.04]">
+                  <tr key={i} className="border-b border-border">
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 skeleton-pulse rounded-full" />
@@ -226,21 +226,21 @@ export default function AdminAgentsPage() {
                   <td colSpan={6} className="px-4 py-16 text-center">
                     <Briefcase className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
                     <p className="text-muted-foreground text-sm">No agents found</p>
-                    {searchQuery && <button onClick={() => setSearchQuery('')} className="text-purple-400 text-xs mt-2 hover:underline">Clear search</button>}
+                    {searchQuery && <button onClick={() => setSearchQuery('')} className="text-primary text-xs mt-2 hover:underline">Clear search</button>}
                   </td>
                 </tr>
               ) : (
                 filteredAgents.map(agent => (
-                  <tr key={agent.id} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+                  <tr key={agent.id} className="border-b border-border hover:bg-background transition-colors">
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-600/40 to-purple-600/40 border border-indigo-500/20 flex items-center justify-center flex-shrink-0">
-                          <span className="text-sm font-bold text-indigo-300">
+                        <div className="w-9 h-9 rounded-full bg-primary border border-primary/25 flex items-center justify-center flex-shrink-0">
+                          <span className="text-sm font-bold text-primary">
                             {agent.agentName?.charAt(0)?.toUpperCase()}
                           </span>
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold text-white truncate">{agent.agentName}</p>
+                          <p className="text-sm font-semibold text-foreground truncate">{agent.agentName}</p>
                           <p className="text-xs text-muted-foreground truncate max-w-[180px]">
                             {agent.contactPerson ? agent.contactPerson : agent.email || '—'}
                           </p>
@@ -248,7 +248,7 @@ export default function AdminAgentsPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className="text-xs font-mono font-semibold px-2 py-1 rounded-lg bg-white/[0.06] text-white/70 border border-white/[0.06]">
+                      <span className="text-xs font-mono font-semibold px-2 py-1 rounded-lg bg-background text-muted-foreground border border-border">
                         {agent.agentCode}
                       </span>
                     </td>
@@ -261,8 +261,8 @@ export default function AdminAgentsPage() {
                     <td className="px-4 py-3.5 hidden lg:table-cell">
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-1.5">
-                          <Users className="w-3 h-3 text-blue-400" />
-                          <span className="text-xs text-white font-medium">{agent.totalUsersAdded ?? 0}</span>
+                          <Users className="w-3 h-3 text-primary" />
+                          <span className="text-xs text-foreground font-medium">{agent.totalUsersAdded ?? 0}</span>
                           <span className="text-xs text-muted-foreground">total</span>
                         </div>
                       </div>
@@ -275,18 +275,18 @@ export default function AdminAgentsPage() {
                     <td className="px-4 py-3.5 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <button className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-white transition-colors">
+                          <button className="p-1.5 rounded-lg hover:bg-background text-muted-foreground hover:text-primary transition-colors">
                             <MoreHorizontal className="w-4 h-4" />
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-card border-border w-44">
                           <DropdownMenuLabel className="text-xs text-muted-foreground">Change Status</DropdownMenuLabel>
-                          <DropdownMenuSeparator className="bg-white/[0.06]" />
-                          <DropdownMenuItem onClick={() => handleStatusChange(agent.id, 'ACTIVE' as AgentStatus)} className="text-emerald-400 focus:text-emerald-400 focus:bg-emerald-500/10 cursor-pointer">Set Active</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleStatusChange(agent.id, 'SUSPENDED' as AgentStatus)} className="text-amber-400 focus:text-amber-400 focus:bg-amber-500/10 cursor-pointer">Suspend</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleStatusChange(agent.id, 'TERMINATED' as AgentStatus)} className="text-red-400 focus:text-red-400 focus:bg-red-500/10 cursor-pointer">Terminate</DropdownMenuItem>
-                          <DropdownMenuSeparator className="bg-white/[0.06]" />
-                          <DropdownMenuItem onClick={() => setAgentToDelete(agent)} className="text-red-400 focus:text-red-400 focus:bg-red-500/10 gap-2 cursor-pointer">
+                          <DropdownMenuSeparator className="bg-background" />
+                          <DropdownMenuItem onClick={() => handleStatusChange(agent.id, 'ACTIVE' as AgentStatus)} className="text-success focus:text-success focus:bg-success/10 cursor-pointer">Set Active</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleStatusChange(agent.id, 'SUSPENDED' as AgentStatus)} className="text-primaryDark focus:text-primaryDark focus:bg-gold/20 cursor-pointer">Suspend</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleStatusChange(agent.id, 'TERMINATED' as AgentStatus)} className="text-error focus:text-error focus:bg-error/10 cursor-pointer">Terminate</DropdownMenuItem>
+                          <DropdownMenuSeparator className="bg-background" />
+                          <DropdownMenuItem onClick={() => setAgentToDelete(agent)} className="text-error focus:text-error focus:bg-error/10 gap-2 cursor-pointer">
                             <Trash2 className="w-3.5 h-3.5" /> Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -300,7 +300,7 @@ export default function AdminAgentsPage() {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between px-4 py-3.5 border-t border-white/[0.06]">
+        <div className="flex items-center justify-between px-4 py-3.5 border-t border-border">
           <p className="text-xs text-muted-foreground">
             Showing {agents.length} of {pagination.total} agents
           </p>
@@ -308,14 +308,14 @@ export default function AdminAgentsPage() {
             <button
               onClick={() => fetchAgents(pagination.page - 1)}
               disabled={pagination.page <= 1 || isLoading}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-xs font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-background text-foreground text-xs font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronLeft className="w-3.5 h-3.5" /> Prev
             </button>
             <button
               onClick={() => fetchAgents(pagination.page + 1)}
               disabled={pagination.page >= pagination.totalPages || isLoading}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-xs font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-background text-foreground text-xs font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Next <ChevronRight className="w-3.5 h-3.5" />
             </button>
@@ -327,9 +327,9 @@ export default function AdminAgentsPage() {
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
         <DialogContent className="max-w-md bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-white flex items-center gap-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
-                <Plus className="w-4 h-4 text-white" />
+            <DialogTitle className="text-foreground flex items-center gap-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                <Plus className="w-4 h-4 text-foreground" />
               </div>
               Add New Agent
             </DialogTitle>
@@ -397,14 +397,14 @@ export default function AdminAgentsPage() {
           <DialogFooter className="gap-2">
             <button
               onClick={() => setShowCreateDialog(false)}
-              className="px-4 py-2 rounded-xl text-sm font-medium text-muted-foreground hover:text-white bg-white/[0.05] hover:bg-white/[0.08] border border-white/[0.08] transition-all"
+              className="px-4 py-2 rounded-xl text-sm font-medium text-muted-foreground hover:text-primary bg-background hover:bg-background border border-border transition-all"
             >
               Cancel
             </button>
             <button
               onClick={handleCreateAgent}
               disabled={isSaving}
-              className="px-4 py-2 rounded-xl text-sm font-semibold text-white btn-primary-gradient disabled:opacity-60 disabled:cursor-not-allowed"
+              className="px-4 py-2 rounded-xl text-sm font-semibold text-foreground btn-primary-gradient disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSaving ? 'Creating...' : 'Create Agent'}
             </button>
@@ -416,16 +416,16 @@ export default function AdminAgentsPage() {
       <AlertDialog open={!!agentToDelete} onOpenChange={() => setAgentToDelete(null)}>
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-white">
-              <AlertTriangle className="w-5 h-5 text-red-400" /> Delete Agent?
+            <AlertDialogTitle className="flex items-center gap-2 text-foreground">
+              <AlertTriangle className="w-5 h-5 text-error" /> Delete Agent?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete <strong className="text-white">{agentToDelete?.agentName}</strong>. This action cannot be undone.
+              This will permanently delete <strong className="text-foreground">{agentToDelete?.agentName}</strong>. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white/10 border-white/10 text-white hover:bg-white/15">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteAgent} className="bg-red-600 hover:bg-red-700 text-white">Delete</AlertDialogAction>
+            <AlertDialogCancel className="bg-background border-border text-foreground hover:bg-background">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteAgent} className="bg-error/10 hover:bg-error/10 text-foreground">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -15,7 +15,7 @@ export default function TermsPage() {
             <Navbar />
             <main className="flex-1">
                 {/* Hero */}
-                <section className="py-16 bg-gradient-to-b from-primary/5 to-background">
+                <section className="py-16 bg-background">
                     <div className="container mx-auto px-4 text-center">
                         <h1 className="text-4xl md:text-5xl font-bold font-headline mb-4">
                             नियम एवं शर्तें
@@ -39,7 +39,7 @@ export default function TermsPage() {
                             </p>
                         </div>
 
-                        <div className="prose prose-lg max-w-none space-y-8">
+                        <div className="space-y-8 text-foreground leading-relaxed">
                             <Card>
                                 <CardHeader>
                                     <CardTitle>1. सेवा का उद्देश्य</CardTitle>
@@ -144,8 +144,8 @@ export default function TermsPage() {
                                 <CardContent className="space-y-4">
                                     <div className="border-l-4 border-primary pl-4 py-2 bg-primary/5 rounded-r-lg mb-6">
                                         <p className="font-bold text-lg mb-2 underline">English Version (Mandatory for Google Play Compliance)</p>
-                                        <p className="font-semibold italic mb-1">App Name: ChhattisgarhShadi.Com</p>
-                                        <p className="font-semibold italic mb-3">Developer: Appnity Softwares Private Limited</p>
+                                        <p className="font-semibold font-medium mb-1">App Name: ChhattisgarhShadi.Com</p>
+                                        <p className="font-semibold font-medium mb-3">Developer: Appnity Softwares Private Limited</p>
                                         
                                         <p className="mb-2 font-bold text-red-600">Strict Zero-Tolerance Policy for Child Sexual Abuse and Exploitation (CSAE):</p>
                                         <p className="mb-2 text-sm text-foreground">ChhattisgarhShadi.Com strictly prohibits any behavior, content, or activity that facilitates the exploitation or abuse of children. We have a Zero-Tolerance policy for the following:</p>
@@ -163,7 +163,7 @@ export default function TermsPage() {
                                         <p className="mb-2 text-sm"><strong>Safety Contact:</strong> For child safety-specific notifications, contact our point of contact at: <a href="mailto:chhattisgarhshadi@gmail.com" className="text-primary font-bold hover:underline">chhattisgarhshadi@gmail.com</a>.</p>
                                     </div>
                                     <hr className="my-4" />
-                                    <p className="font-semibold text-muted-foreground italic underline">हिंदी संस्करण (Hindi Translation):</p>
+                                    <p className="font-semibold text-muted-foreground font-medium underline">हिंदी संस्करण (Hindi Translation):</p>
                                     <p className="font-semibold">App Name: ChhattisgarhShadi.Com</p>
                                     <p className="font-semibold">Developer: Appnity Softwares Private Limited</p>
                                     <p>छत्तीसगढ़ शादी के उपयोग के लिए आपकी आयु 18 वर्ष या उससे अधिक होनी चाहिए। हम बाल यौन शोषण और दुर्व्यवहार (Child Sexual Abuse and Exploitation - CSAE) के खिलाफ जीरो-टॉलरेंस नीति रखते हैं।</p>

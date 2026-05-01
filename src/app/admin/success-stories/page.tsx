@@ -100,17 +100,17 @@ export default function AdminSuccessStoriesPage() {
     };
 
     const statusColors = {
-        PENDING: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-        APPROVED: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-        REJECTED: 'bg-red-500/10 text-red-500 border-red-500/20',
-        ARCHIVED: 'bg-slate-500/10 text-slate-500 border-slate-500/20',
+        PENDING: 'bg-gold/20 text-primaryDark border-gold/35',
+        APPROVED: 'bg-success/10 text-success border-success/25',
+        REJECTED: 'bg-error/10 text-error border-error/25',
+        ARCHIVED: 'bg-muted text-muted-foreground border-border',
     };
 
     return (
         <div className="space-y-6 max-w-[1600px] mx-auto pb-20">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight text-white uppercase italic">
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground uppercase font-medium">
                         Success <span className="text-primary">Stories</span>
                     </h1>
                     <p className="text-muted-foreground font-medium text-xs mt-1 uppercase tracking-widest opacity-60">
@@ -118,84 +118,84 @@ export default function AdminSuccessStoriesPage() {
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <Button onClick={() => fetchStories()} variant="outline" size="sm" className="h-10 rounded-xl border-white/10 text-[10px] font-black uppercase tracking-widest">
+                    <Button onClick={() => fetchStories()} variant="outline" size="sm" className="h-10 rounded-xl border-border text-[10px] font-bold uppercase tracking-widest">
                         Refresh
                     </Button>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="bg-foreground border-white/5 shadow-2xl overflow-hidden relative group">
+                <Card className="bg-foreground border-border shadow-2xl overflow-hidden relative group">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 blur-[40px] -mr-12 -mt-12" />
                     <CardContent className="p-6 relative">
                         <Heart className="w-8 h-8 text-primary mb-3 opacity-40" />
-                        <div className="text-2xl font-black text-white">{stories.length}</div>
-                        <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1">Total Stories</div>
+                        <div className="text-2xl font-bold text-foreground">{stories.length}</div>
+                        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">Total Stories</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-foreground border-white/5 shadow-2xl overflow-hidden relative group">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 blur-[40px] -mr-12 -mt-12" />
+                <Card className="bg-foreground border-border shadow-2xl overflow-hidden relative group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-success/10 blur-[40px] -mr-12 -mt-12" />
                     <CardContent className="p-6 relative">
-                        <Star className="w-8 h-8 text-amber-500 mb-3 opacity-40" />
-                        <div className="text-2xl font-black text-white">{stories.filter(s => s.isFeatured).length}</div>
-                        <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1">Featured</div>
+                        <Star className="w-8 h-8 text-primaryDark mb-3 opacity-40" />
+                        <div className="text-2xl font-bold text-foreground">{stories.filter(s => s.isFeatured).length}</div>
+                        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">Featured</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-foreground border-white/5 shadow-2xl overflow-hidden relative group">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 blur-[40px] -mr-12 -mt-12" />
+                <Card className="bg-foreground border-border shadow-2xl overflow-hidden relative group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gold/20 blur-[40px] -mr-12 -mt-12" />
                     <CardContent className="p-6 relative">
-                        <Calendar className="w-8 h-8 text-blue-500 mb-3 opacity-40" />
-                        <div className="text-2xl font-black text-white">{stories.filter(s => s.status === 'PENDING').length}</div>
-                        <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1">Pending Approval</div>
+                        <Calendar className="w-8 h-8 text-primary mb-3 opacity-40" />
+                        <div className="text-2xl font-bold text-foreground">{stories.filter(s => s.status === 'PENDING').length}</div>
+                        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">Pending Approval</div>
                     </CardContent>
                 </Card>
             </div>
 
-            <Card className="bg-foreground border-white/5 shadow-2xl rounded-[2rem] overflow-hidden">
-                <CardHeader className="border-b border-white/5 p-8">
-                    <CardTitle className="text-lg font-black text-white uppercase tracking-tighter">Story Database</CardTitle>
+            <Card className="bg-foreground border-border shadow-2xl rounded-[2rem] overflow-hidden">
+                <CardHeader className="border-b border-border p-8">
+                    <CardTitle className="text-lg font-bold text-foreground uppercase tracking-tighter">Story Database</CardTitle>
                     <CardDescription className="text-xs font-bold uppercase tracking-widest opacity-40">Moderation and management console</CardDescription>
                 </CardHeader>
                 <CardContent className="p-0">
                     {loading ? (
                         <div className="flex flex-col items-center justify-center py-24 gap-4">
                             <Loader2 className="w-10 h-10 text-primary animate-spin opacity-40" />
-                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Syncing Archives...</p>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Syncing Archives...</p>
                         </div>
                     ) : stories.length === 0 ? (
                         <div className="py-24 text-center">
-                            <Heart className="w-16 h-16 mx-auto text-white/5 mb-4" />
-                            <p className="text-sm font-black text-white uppercase tracking-widest">No stories found</p>
+                            <Heart className="w-16 h-16 mx-auto text-foreground/5 mb-4" />
+                            <p className="text-sm font-bold text-foreground uppercase tracking-widest">No stories found</p>
                             <p className="text-[10px] text-muted-foreground uppercase mt-2">Success stories will appear here once submitted by users</p>
                         </div>
                     ) : (
                         <Table>
-                            <TableHeader className="bg-white/[0.02]">
-                                <TableRow className="border-white/5 hover:bg-transparent">
-                                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground pl-8">Couple</TableHead>
-                                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Title & Summary</TableHead>
-                                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Wedding Date</TableHead>
-                                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</TableHead>
-                                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Featured</TableHead>
-                                    <TableHead className="text-right text-[10px] font-black uppercase tracking-widest text-muted-foreground pr-8">Actions</TableHead>
+                            <TableHeader className="bg-background">
+                                <TableRow className="border-border hover:bg-transparent">
+                                    <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground pl-8">Couple</TableHead>
+                                    <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Title & Summary</TableHead>
+                                    <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Wedding Date</TableHead>
+                                    <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Status</TableHead>
+                                    <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Featured</TableHead>
+                                    <TableHead className="text-right text-[10px] font-bold uppercase tracking-widest text-muted-foreground pr-8">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {stories.map((story) => (
-                                    <TableRow key={story.id} className="border-white/5 hover:bg-white/[0.02] transition-colors group">
+                                    <TableRow key={story.id} className="border-border hover:bg-background transition-colors group">
                                         <TableCell className="pl-8 py-6">
                                             <div className="flex items-center gap-4">
-                                                <div className="relative h-14 w-14 rounded-2xl overflow-hidden border border-white/10 group-hover:border-primary/40 transition-all duration-500">
+                                                <div className="relative h-14 w-14 rounded-2xl overflow-hidden border border-border group-hover:border-primary/40 transition-all duration-500">
                                                     {story.imageUrl ? (
                                                         <Image src={story.imageUrl} alt={story.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
                                                     ) : (
-                                                        <div className="w-full h-full bg-white/5 flex items-center justify-center">
-                                                            <Heart className="w-5 h-5 text-white/10" />
+                                                        <div className="w-full h-full bg-background flex items-center justify-center">
+                                                            <Heart className="w-5 h-5 text-foreground/10" />
                                                         </div>
                                                     )}
                                                 </div>
                                                 <div className="space-y-1">
-                                                    <p className="text-sm font-black text-white tracking-tight">
+                                                    <p className="text-sm font-bold text-foreground tracking-tight">
                                                         {story.user1?.profile ? `${story.user1.profile.firstName} & ` : ''}
                                                         {story.partnerName || story.user2?.profile?.firstName || 'Partner'}
                                                     </p>
@@ -207,18 +207,18 @@ export default function AdminSuccessStoriesPage() {
                                         </TableCell>
                                         <TableCell>
                                             <div className="space-y-1 max-w-[300px]">
-                                                <p className="text-xs font-black text-white leading-tight uppercase tracking-tight">{story.title}</p>
-                                                <p className="text-[10px] font-medium text-muted-foreground line-clamp-2 leading-relaxed italic opacity-70 italic">{story.story}</p>
+                                                <p className="text-xs font-bold text-foreground leading-tight uppercase tracking-tight">{story.title}</p>
+                                                <p className="text-[10px] font-medium text-muted-foreground line-clamp-2 leading-relaxed font-medium opacity-70 font-medium">{story.story}</p>
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="flex items-center gap-2 text-[10px] font-black text-muted-foreground uppercase tracking-widest bg-white/5 px-3 py-1.5 rounded-lg w-fit">
+                                            <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-background px-3 py-1.5 rounded-lg w-fit">
                                                 <Calendar className="w-3 h-3 text-primary opacity-60" />
                                                 {story.weddingDate ? new Date(story.weddingDate).toLocaleDateString() : 'N/A'}
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <Badge className={`text-[8px] font-black uppercase tracking-widest border-none px-2 h-6 ${statusColors[story.status]}`}>
+                                            <Badge className={`text-[8px] font-bold uppercase tracking-widest border-none px-2 h-6 ${statusColors[story.status]}`}>
                                                 {story.status}
                                             </Badge>
                                         </TableCell>
@@ -226,7 +226,7 @@ export default function AdminSuccessStoriesPage() {
                                             <Switch 
                                                 checked={story.isFeatured} 
                                                 onCheckedChange={() => handleToggleFeatured(story)}
-                                                className="data-[state=checked]:bg-amber-500"
+                                                className="data-[state=checked]:bg-gold/20"
                                             />
                                         </TableCell>
                                         <TableCell className="pr-8 text-right">
@@ -235,20 +235,20 @@ export default function AdminSuccessStoriesPage() {
                                                     <Button 
                                                         onClick={() => handleUpdateStatus(story.id, 'APPROVED')} 
                                                         size="sm" 
-                                                        className="h-8 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-[9px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20"
+                                                        className="h-8 rounded-lg bg-success/10 hover:bg-success/10 text-[9px] font-bold uppercase tracking-widest shadow-lg shadow-emerald-500/20"
                                                     >
                                                         Approve
                                                     </Button>
                                                 )}
-                                                <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-white/5 text-muted-foreground hover:text-white transition-all">
+                                                <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-background text-muted-foreground hover:text-primary transition-all">
                                                     <Eye className="w-4 h-4" />
                                                 </Button>
                                                 {deleteConfirm === story.id ? (
-                                                    <Button onClick={() => handleDelete(story.id)} variant="destructive" size="sm" className="h-8 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                                    <Button onClick={() => handleDelete(story.id)} variant="destructive" size="sm" className="h-8 rounded-lg text-[9px] font-bold uppercase tracking-widest">
                                                         Confirm
                                                     </Button>
                                                 ) : (
-                                                    <Button onClick={() => setDeleteConfirm(story.id)} variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-red-500/10 text-red-500/60 hover:text-red-500 transition-all">
+                                                    <Button onClick={() => setDeleteConfirm(story.id)} variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-error/10 text-error hover:text-error transition-all">
                                                         <Trash2 className="w-4 h-4" />
                                                     </Button>
                                                 )}

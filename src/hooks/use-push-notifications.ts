@@ -14,11 +14,20 @@ export function usePushNotifications() {
 
         const requestPermission = async () => {
             try {
+                const vapidKey = apiConfig.vapidKey;
+                // Skip if no VAPID key or if it's the placeholder dummy key
+                if (!vapidKey || vapidKey.includes('-0-0-0-')) {
+                    if (process.env.NODE_ENV === 'development') {
+                        console.log('Push notifications skipped: No valid VAPID key configured');
+                    }
+                    return;
+                }
+
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
                     const messaging = getMessaging(app);
                     const currentToken = await getToken(messaging, {
-                        vapidKey: 'BGH9nBvS-u0G6-i-6f-_0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0', // This should be the real VAPID key
+                        vapidKey: vapidKey,
                     });
 
                     if (currentToken) {

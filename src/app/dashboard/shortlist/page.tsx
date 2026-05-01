@@ -60,6 +60,11 @@ interface ProfileSummary {
     gender?: 'male' | 'female' | 'other';
     isVerified?: boolean;
     image?: string;
+    relationship?: {
+        status: string;
+        matchId?: number;
+    };
+    isMatched?: boolean;
 }
 
 export default function ShortlistPage() {
@@ -84,6 +89,8 @@ export default function ShortlistPage() {
                 gender: profile.gender?.toLowerCase() as 'male' | 'female' | 'other' | undefined,
                 isVerified: profile.isVerified || user.isPhoneVerified,
                 image: profile.media?.[0]?.url || user.profilePicture,
+                relationship: (item as any).relationship,
+                isMatched: (item as any).relationship?.status === 'accepted',
             };
         });
     }, [shortlist]);
@@ -118,7 +125,7 @@ export default function ShortlistPage() {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
                 <div className="space-y-2">
-                    <h1 className="text-3xl md:text-6xl font-black tracking-tighter uppercase text-foreground">My <span className="text-primary italic">Shortlist</span></h1>
+                    <h1 className="text-3xl md:text-6xl font-bold tracking-tighter uppercase text-foreground">My <span className="text-primary font-medium">Shortlist</span></h1>
                     <p className="text-muted-foreground font-light text-lg">
                         {isLoading ? 'Loading...' : `${profiles.length} profiles saved for later`}
                     </p>
@@ -129,7 +136,7 @@ export default function ShortlistPage() {
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input 
                             placeholder="Search shortlist..." 
-                            className="pl-12 h-12 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 font-medium"
+                            className="pl-12 h-12 bg-background border-border rounded-xl focus:ring-primary/20 font-medium"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -177,21 +184,21 @@ export default function ShortlistPage() {
             {/* Empty State */}
             {!isLoading && filteredProfiles.length === 0 && (
                 <div className="py-40 flex flex-col items-center text-center space-y-6">
-                    <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center border border-white/10 text-muted-foreground">
+                    <div className="w-24 h-24 bg-background rounded-full flex items-center justify-center border border-border text-muted-foreground">
                         <Heart className="w-10 h-10" />
                     </div>
                     <div className="max-w-md">
-                        <h3 className="text-2xl font-black text-white/90">
+                        <h3 className="text-2xl font-bold text-foreground/90">
                             {searchQuery ? 'No matching profiles' : 'Your shortlist is empty'}
                         </h3>
-                        <p className="text-muted-foreground font-medium mt-2 leading-relaxed italic">
+                        <p className="text-muted-foreground font-medium mt-2 leading-relaxed font-medium">
                             {searchQuery 
                                 ? 'Try a different search term.' 
                                 : 'Profiles you heart will appear here so you can find them again easily.'}
                         </p>
                     </div>
                     {!searchQuery && (
-                        <Button asChild className="bg-primary hover:bg-primary/90 text-white font-black rounded-xl h-12 px-8 shadow-xl shadow-primary/20">
+                        <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold rounded-xl h-12 px-8 shadow-xl shadow-primary/20">
                             <Link href="/dashboard">EXPLORE PROFILES</Link>
                         </Button>
                     )}
@@ -201,27 +208,26 @@ export default function ShortlistPage() {
             {/* Floating Quick Stats */}
             {!isLoading && profiles.length > 0 && (
                 <div className="fixed bottom-10 right-10 hidden md:block">
-                    <div className="bg-card/30 backdrop-blur-3xl border border-white/10 p-6 rounded-[2rem] shadow-3xl max-w-xs group overflow-hidden">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-full -mr-8 -mt-8 blur-2xl group-hover:scale-150 transition-transform duration-1000" />
+                    <div className="bg-surface backdrop-blur-3xl border border-border p-6 rounded-[2rem] shadow-3xl max-w-xs group overflow-hidden">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="bg-primary/20 p-2 rounded-xl">
                                 <Heart className="w-5 h-5 text-primary fill-primary/30" />
                             </div>
-                             <h4 className="font-black text-[11px] uppercase tracking-widest text-foreground">Shortlist Stats</h4>
+                             <h4 className="font-bold text-[11px] uppercase tracking-widest text-foreground">Shortlist Stats</h4>
                         </div>
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                  <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-wider">Total Saved</p>
-                                <p className="text-lg font-black text-foreground">{profiles.length}</p>
+                                <p className="text-lg font-bold text-foreground">{profiles.length}</p>
                             </div>
-                            <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                            <div className="w-full bg-background h-1.5 rounded-full overflow-hidden">
                                 <motion.div 
                                     initial={{ width: 0 }}
                                     animate={{ width: `${Math.min((profiles.length / 20) * 100, 100)}%` }}
                                     className="h-full bg-primary" 
                                 />
                             </div>
-                             <p className="text-[11px] text-muted-foreground/80 leading-tight italic font-medium">
+                             <p className="text-[11px] text-muted-foreground/80 leading-tight font-medium font-medium">
                                 Shortlisted profiles are 3x more likely to lead to a connection.
                             </p>
                         </div>

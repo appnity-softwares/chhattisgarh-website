@@ -19,10 +19,10 @@ function StatCard({ label, value, icon: Icon, colorClass, iconColor }: {
     <div className={`admin-card p-5 ${colorClass}`}>
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-2xl font-bold text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>{value}</div>
-          <div className="text-xs text-white/50 font-medium mt-0.5">{label}</div>
+          <div className="text-2xl font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>{value}</div>
+          <div className="text-xs text-muted-foreground font-medium mt-0.5">{label}</div>
         </div>
-        <div className="p-2.5 rounded-xl bg-white/10">
+        <div className="p-2.5 rounded-xl bg-background">
           <Icon className={`w-5 h-5 ${iconColor}`} />
         </div>
       </div>
@@ -99,11 +99,11 @@ export default function AdminVerificationsPage() {
 
   const getTypeBadge = (type: string) => {
     const styles: Record<string, string> = {
-      AADHAAR: 'bg-blue-500/15 text-blue-400 border-blue-500/25',
-      SELFIE: 'bg-purple-500/15 text-purple-400 border-purple-500/25',
-      PAN: 'bg-amber-500/15 text-amber-400 border-amber-500/25',
+      AADHAAR: 'bg-primary/10 text-primary border-primary/25',
+      SELFIE: 'bg-primary/10 text-primary border-primary/25',
+      PAN: 'bg-gold/20 text-primaryDark border-gold/35',
     };
-    return styles[type] || 'bg-slate-500/15 text-slate-400 border-slate-500/25';
+    return styles[type] || 'bg-muted text-muted-foreground border-border';
   };
 
   return (
@@ -111,13 +111,13 @@ export default function AdminVerificationsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>Profile Verifications</h1>
+          <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Profile Verifications</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Review and moderate user identity documents</p>
         </div>
         <button
           onClick={fetchData}
           disabled={isLoading}
-          className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white text-sm font-medium transition-all disabled:opacity-40"
+          className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-background hover:bg-background text-foreground text-sm font-medium transition-all disabled:opacity-40"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
           Refresh
@@ -126,23 +126,23 @@ export default function AdminVerificationsPage() {
 
       {/* Stats */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Pending Review" value={stats?.pending ?? 0} icon={Clock} colorClass="stat-card-orange" iconColor="text-orange-300" />
-        <StatCard label="Approved" value={stats?.approved ?? 0} icon={ShieldCheck} colorClass="stat-card-green" iconColor="text-emerald-300" />
-        <StatCard label="Rejected" value={stats?.rejected ?? 0} icon={ShieldX} colorClass="stat-card-red" iconColor="text-red-300" />
-        <StatCard label="Total Reviewed" value={stats?.total ?? 0} icon={FileImage} colorClass="stat-card-purple" iconColor="text-purple-300" />
+        <StatCard label="Pending Review" value={stats?.pending ?? 0} icon={Clock} colorClass="stat-card-warning" iconColor="text-primaryDark" />
+        <StatCard label="Approved" value={stats?.approved ?? 0} icon={ShieldCheck} colorClass="stat-card-green" iconColor="text-success" />
+        <StatCard label="Rejected" value={stats?.rejected ?? 0} icon={ShieldX} colorClass="stat-card-red" iconColor="text-error" />
+        <StatCard label="Total Reviewed" value={stats?.total ?? 0} icon={FileImage} colorClass="stat-card-primary" iconColor="text-primary" />
       </div>
 
       {/* Pending Queue */}
       <div className="admin-card overflow-hidden">
-        <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
+        <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <div>
-            <h2 className="text-base font-semibold text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>Pending Queue</h2>
+            <h2 className="text-base font-semibold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Pending Queue</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
               {isLoading ? '...' : `${verifications.length} items awaiting review`}
             </p>
           </div>
           {verifications.length > 0 && (
-            <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/25">
+            <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gold/20 text-primaryDark border border-gold/35">
               {verifications.length} pending
             </span>
           )}
@@ -152,7 +152,7 @@ export default function AdminVerificationsPage() {
           {isLoading ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="rounded-xl border border-white/[0.06] overflow-hidden">
+                <div key={i} className="rounded-xl border border-border overflow-hidden">
                   <div className="h-44 skeleton-pulse" />
                   <div className="p-3 space-y-2">
                     <div className="w-28 h-4 skeleton-pulse rounded" />
@@ -167,17 +167,17 @@ export default function AdminVerificationsPage() {
           ) : verifications.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-16 h-16 rounded-full stat-card-green flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-emerald-400" />
+                <CheckCircle className="w-8 h-8 text-success" />
               </div>
-              <p className="text-white font-semibold mb-1">All Caught Up!</p>
+              <p className="text-foreground font-semibold mb-1">All Caught Up!</p>
               <p className="text-muted-foreground text-sm">No pending verifications at this time.</p>
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {verifications.map((item) => (
-                <div key={item.id} className="rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden hover:border-white/[0.12] transition-colors group">
+                <div key={item.id} className="rounded-xl border border-border bg-background overflow-hidden hover:border-border transition-colors group">
                   {/* Image Preview */}
-                  <div className="relative h-44 bg-white/[0.03]">
+                  <div className="relative h-44 bg-background">
                     {item.mediaUrl ? (
                       <Image
                         src={item.mediaUrl}
@@ -202,7 +202,7 @@ export default function AdminVerificationsPage() {
                   {/* Info & Actions */}
                   <div className="p-3.5 space-y-3">
                     <div>
-                      <p className="text-sm font-semibold text-white">
+                      <p className="text-sm font-semibold text-foreground">
                         {item.user?.profile?.firstName} {item.user?.profile?.lastName}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">{item.user?.email}</p>
@@ -210,28 +210,28 @@ export default function AdminVerificationsPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => openAction(item, 'view')}
-                        className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-medium bg-white/[0.06] hover:bg-white/[0.10] text-white transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-medium bg-background hover:bg-background text-foreground transition-colors"
                         title="View full size"
                       >
                         <Eye className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => openAction(item, 'approve')}
-                        className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/20 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-medium bg-success/10 hover:bg-success/10 text-success border border-success/25 transition-colors"
                         title="Approve"
                       >
                         <CheckCircle className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => openAction(item, 'reject')}
-                        className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-medium bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/20 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-medium bg-error/10 hover:bg-error/10 text-error border border-error/25 transition-colors"
                         title="Reject"
                       >
                         <XCircle className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => openAction(item, 'resubmit')}
-                        className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-medium bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/20 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-medium bg-gold/20 hover:bg-gold/20 text-primaryDark border border-gold/35 transition-colors"
                         title="Request resubmission"
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
@@ -249,11 +249,11 @@ export default function AdminVerificationsPage() {
       <Dialog open={!!selectedItem && !!actionType} onOpenChange={() => { setSelectedItem(null); setActionType(null); }}>
         <DialogContent className="max-w-lg bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-white flex items-center gap-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              {actionType === 'view' && <><Eye className="w-5 h-5 text-blue-400" /> View Document</>}
-              {actionType === 'approve' && <><CheckCircle className="w-5 h-5 text-emerald-400" /> Approve Verification</>}
-              {actionType === 'reject' && <><XCircle className="w-5 h-5 text-red-400" /> Reject Verification</>}
-              {actionType === 'resubmit' && <><RotateCcw className="w-5 h-5 text-amber-400" /> Request Resubmission</>}
+            <DialogTitle className="text-foreground flex items-center gap-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              {actionType === 'view' && <><Eye className="w-5 h-5 text-primary" /> View Document</>}
+              {actionType === 'approve' && <><CheckCircle className="w-5 h-5 text-success" /> Approve Verification</>}
+              {actionType === 'reject' && <><XCircle className="w-5 h-5 text-error" /> Reject Verification</>}
+              {actionType === 'resubmit' && <><RotateCcw className="w-5 h-5 text-primaryDark" /> Request Resubmission</>}
             </DialogTitle>
             <DialogDescription>
               {selectedItem?.user?.profile?.firstName} {selectedItem?.user?.profile?.lastName} · {selectedItem?.user?.email}
@@ -261,7 +261,7 @@ export default function AdminVerificationsPage() {
           </DialogHeader>
 
           {selectedItem?.mediaUrl && (
-            <div className="relative h-56 bg-white/[0.03] rounded-xl overflow-hidden border border-white/[0.06]">
+            <div className="relative h-56 bg-background rounded-xl overflow-hidden border border-border">
               <Image
                 src={selectedItem.mediaUrl}
                 alt="Verification document"
@@ -282,13 +282,13 @@ export default function AdminVerificationsPage() {
                 onChange={(e) => setReason(e.target.value)}
                 rows={3}
                 placeholder={actionType === 'reject' ? 'Explain why this is being rejected...' : 'Describe what needs to be corrected...'}
-                className="w-full px-3 py-2.5 rounded-xl text-sm text-white bg-white/[0.05] border border-white/[0.08] placeholder:text-muted-foreground focus:outline-none focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/20 transition-all resize-none"
+                className="w-full px-3 py-2.5 rounded-xl text-sm text-foreground bg-background border border-border placeholder:text-muted-foreground focus:outline-none focus:border-primary/25 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
               />
             </div>
           )}
 
           {actionType === 'approve' && (
-            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-sm text-emerald-300">
+            <div className="p-3 rounded-xl bg-success/10 border border-success/25 text-sm text-success">
               ✓ This will mark the user&apos;s document as verified and grant verified status.
             </div>
           )}
@@ -296,7 +296,7 @@ export default function AdminVerificationsPage() {
           <DialogFooter className="gap-2">
             <button
               onClick={() => { setSelectedItem(null); setActionType(null); }}
-              className="px-4 py-2 rounded-xl text-sm font-medium text-muted-foreground hover:text-white bg-white/[0.05] hover:bg-white/[0.08] border border-white/[0.08] transition-all"
+              className="px-4 py-2 rounded-xl text-sm font-medium text-muted-foreground hover:text-primary bg-background hover:bg-background border border-border transition-all"
             >
               Cancel
             </button>
@@ -304,10 +304,10 @@ export default function AdminVerificationsPage() {
               <button
                 onClick={handleAction}
                 disabled={isProcessing}
-                className={`px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-60
-                  ${actionType === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700' :
-                    actionType === 'reject' ? 'bg-red-600 hover:bg-red-700' :
-                    'bg-amber-600 hover:bg-amber-700'}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold text-foreground transition-all disabled:opacity-60
+                  ${actionType === 'approve' ? 'bg-success/10 hover:bg-success/10' :
+                    actionType === 'reject' ? 'bg-error/10 hover:bg-error/10' :
+                    'bg-gold/20 hover:bg-gold/20'}
                 `}
               >
                 {isProcessing ? 'Processing...' :

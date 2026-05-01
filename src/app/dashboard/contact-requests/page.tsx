@@ -29,11 +29,11 @@ export default function ContactRequestsPage() {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'PENDING':
-                return <Badge variant="secondary" className="bg-amber-500/10 text-amber-500 border-amber-500/20"><Clock className="w-3 h-3 mr-1" /> Pending</Badge>;
+                return <Badge variant="secondary" className="bg-gold/20 text-primaryDark border-gold/30"><Clock className="w-3 h-3 mr-1" /> Pending</Badge>;
             case 'APPROVED':
-                return <Badge variant="secondary" className="bg-green-500/10 text-green-500 border-green-500/20"><CheckCircle2 className="w-3 h-3 mr-1" /> Approved</Badge>;
+                return <Badge variant="secondary" className="bg-success/10 text-success border-success/25"><CheckCircle2 className="w-3 h-3 mr-1" /> Approved</Badge>;
             case 'REJECTED':
-                return <Badge variant="secondary" className="bg-red-500/10 text-red-500 border-red-500/20"><XCircle className="w-3 h-3 mr-1" /> Rejected</Badge>;
+                return <Badge variant="secondary" className="bg-error/10 text-error border-error/25"><XCircle className="w-3 h-3 mr-1" /> Rejected</Badge>;
             default:
                 return <Badge variant="secondary">{status}</Badge>;
         }
@@ -45,19 +45,19 @@ export default function ContactRequestsPage() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Link href="/dashboard">
-                        <Button variant="ghost" size="icon" className="rounded-2xl h-12 w-12 hover:bg-white/5">
+                        <Button variant="ghost" size="icon" className="rounded-2xl h-12 w-12 hover:bg-background">
                             <ArrowLeft className="w-6 h-6" />
                         </Button>
                     </Link>
                     <div>
-                        <h1 className="text-3xl font-black uppercase tracking-tighter text-foreground">Contact Requests</h1>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1">
+                        <h1 className="text-3xl font-bold uppercase tracking-tighter text-foreground">Contact Requests</h1>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">
                             Manage your contact sharing
                         </p>
                     </div>
                 </div>
                 {pendingCount > 0 && (
-                    <Badge className="bg-primary text-white px-4 py-2 rounded-full text-xs font-black">
+                    <Badge className="bg-primary text-white px-4 py-2 rounded-full text-xs font-bold">
                         {pendingCount} Pending
                     </Badge>
                 )}
@@ -65,8 +65,8 @@ export default function ContactRequestsPage() {
 
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 bg-white/5 rounded-2xl p-1">
-                    <TabsTrigger value="received" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">
+                <TabsList className="grid w-full grid-cols-2 bg-background rounded-2xl p-1">
+                    <TabsTrigger value="received" className="rounded-xl font-bold uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">
                         <Inbox className="w-4 h-4 mr-2" />
                         Received
                         {pendingCount > 0 && (
@@ -75,7 +75,7 @@ export default function ContactRequestsPage() {
                             </span>
                         )}
                     </TabsTrigger>
-                    <TabsTrigger value="sent" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">
+                    <TabsTrigger value="sent" className="rounded-xl font-bold uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">
                         <Send className="w-4 h-4 mr-2" />
                         Sent
                     </TabsTrigger>
@@ -87,13 +87,13 @@ export default function ContactRequestsPage() {
                             <Loader2 className="w-8 h-8 animate-spin text-primary" />
                         </div>
                     ) : received.length === 0 ? (
-                        <Card className="bg-card/30 border-white/5 rounded-[2rem] p-12">
+                        <Card className="bg-surface border-border rounded-[2rem] p-12">
                             <div className="flex flex-col items-center justify-center text-center space-y-4">
-                                <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center">
+                                <div className="w-20 h-20 bg-background rounded-full flex items-center justify-center">
                                     <Inbox className="w-10 h-10 text-muted-foreground" />
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-black uppercase tracking-tight">No Requests</h3>
+                                    <h3 className="text-xl font-bold uppercase tracking-tight">No Requests</h3>
                                     <p className="text-sm text-muted-foreground mt-2">
                                         You haven&apos;t received any contact requests yet.
                                     </p>
@@ -107,20 +107,20 @@ export default function ContactRequestsPage() {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                             >
-                                <Card className="bg-card/30 border-white/5 rounded-[2rem] overflow-hidden hover:border-primary/20 transition-all">
+                                <Card className="bg-surface border-border rounded-[2rem] overflow-hidden hover:border-primary/20 transition-all">
                                     <CardContent className="p-6">
                                         <div className="flex items-start gap-5">
-                                            <Avatar className="h-16 w-16 border-2 border-white/10 cursor-pointer"
+                                            <Avatar className="h-16 w-16 border-2 border-border cursor-pointer"
                                                 onClick={() => router.push(`/dashboard/profile/${request.requester?.id}`)}>
                                                 <AvatarImage src={request.requester?.profile?.media?.[0]?.url} className="object-cover" />
-                                                <AvatarFallback className="bg-primary/10 text-primary font-black">
+                                                <AvatarFallback className="bg-primary/10 text-primary font-bold">
                                                     {request.requester?.profile?.firstName?.charAt(0)}
                                                 </AvatarFallback>
                                             </Avatar>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-start justify-between">
                                                     <div>
-                                                        <h3 className="font-black text-lg tracking-tight">
+                                                        <h3 className="font-bold text-lg tracking-tight">
                                                             {request.requester?.profile?.firstName} {request.requester?.profile?.lastName}
                                                         </h3>
                                                         <p className="text-sm text-muted-foreground mt-1">
@@ -134,8 +134,8 @@ export default function ContactRequestsPage() {
                                                 </div>
 
                                                 {request.message && (
-                                                    <div className="mt-3 p-4 bg-white/5 rounded-xl">
-                                                        <p className="text-sm italic text-muted-foreground">
+                                                    <div className="mt-3 p-4 bg-background rounded-xl">
+                                                        <p className="text-sm font-medium text-muted-foreground">
                                                             &ldquo;{request.message}&rdquo;
                                                         </p>
                                                     </div>
@@ -146,7 +146,7 @@ export default function ContactRequestsPage() {
                                                         <Button
                                                             onClick={() => accept.mutate(request.id)}
                                                             disabled={accept.isPending}
-                                                            className="flex-1 h-12 bg-green-500 hover:bg-green-600 text-white font-black uppercase tracking-widest text-xs rounded-xl"
+                                                            className="flex-1 h-12 bg-success/10 hover:bg-success/10 text-foreground font-bold uppercase tracking-widest text-xs rounded-xl"
                                                         >
                                                             {accept.isPending ? (
                                                                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -159,7 +159,7 @@ export default function ContactRequestsPage() {
                                                             onClick={() => reject.mutate(request.id)}
                                                             disabled={reject.isPending}
                                                             variant="outline"
-                                                            className="flex-1 h-12 border-red-500/20 text-red-500 hover:bg-red-500/10 font-black uppercase tracking-widest text-xs rounded-xl"
+                                                            className="flex-1 h-12 border-error/25 text-error hover:bg-error/10 font-bold uppercase tracking-widest text-xs rounded-xl"
                                                         >
                                                             {reject.isPending ? (
                                                                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -185,13 +185,13 @@ export default function ContactRequestsPage() {
                             <Loader2 className="w-8 h-8 animate-spin text-primary" />
                         </div>
                     ) : sent.length === 0 ? (
-                        <Card className="bg-card/30 border-white/5 rounded-[2rem] p-12">
+                        <Card className="bg-surface border-border rounded-[2rem] p-12">
                             <div className="flex flex-col items-center justify-center text-center space-y-4">
-                                <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center">
+                                <div className="w-20 h-20 bg-background rounded-full flex items-center justify-center">
                                     <Send className="w-10 h-10 text-muted-foreground" />
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-black uppercase tracking-tight">No Sent Requests</h3>
+                                    <h3 className="text-xl font-bold uppercase tracking-tight">No Sent Requests</h3>
                                     <p className="text-sm text-muted-foreground mt-2">
                                         You haven&apos;t sent any contact requests yet.
                                     </p>
@@ -205,20 +205,20 @@ export default function ContactRequestsPage() {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                             >
-                                <Card className="bg-card/30 border-white/5 rounded-[2rem] overflow-hidden">
+                                <Card className="bg-surface border-border rounded-[2rem] overflow-hidden">
                                     <CardContent className="p-6">
                                         <div className="flex items-start gap-5">
-                                            <Avatar className="h-16 w-16 border-2 border-white/10 cursor-pointer"
+                                            <Avatar className="h-16 w-16 border-2 border-border cursor-pointer"
                                                 onClick={() => router.push(`/dashboard/profile/${request.profile?.id}`)}>
                                                 <AvatarImage src={request.profile?.media?.[0]?.url} className="object-cover" />
-                                                <AvatarFallback className="bg-primary/10 text-primary font-black">
+                                                <AvatarFallback className="bg-primary/10 text-primary font-bold">
                                                     {request.profile?.firstName?.charAt(0)}
                                                 </AvatarFallback>
                                             </Avatar>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-start justify-between">
                                                     <div>
-                                                        <h3 className="font-black text-lg tracking-tight">
+                                                        <h3 className="font-bold text-lg tracking-tight">
                                                             {request.profile?.firstName} {request.profile?.lastName}
                                                         </h3>
                                                         <p className="text-sm text-muted-foreground mt-1">
@@ -232,8 +232,8 @@ export default function ContactRequestsPage() {
                                                 </div>
 
                                                 {request.message && (
-                                                    <div className="mt-3 p-4 bg-white/5 rounded-xl">
-                                                        <p className="text-sm italic text-muted-foreground">
+                                                    <div className="mt-3 p-4 bg-background rounded-xl">
+                                                        <p className="text-sm font-medium text-muted-foreground">
                                                             &ldquo;{request.message}&rdquo;
                                                         </p>
                                                     </div>

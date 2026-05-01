@@ -44,7 +44,7 @@ export function TrustSection() {
             <div className="container mx-auto px-4 relative z-10" ref={ref}>
                 <div className="text-center mb-20 max-w-3xl mx-auto">
                     <h2 className="text-3xl md:text-5xl font-bold font-headline mb-6 text-foreground leading-tight">
-                        Trusted by <span className="text-primary italic">Chhattisgarh</span>
+                        Trusted by <span className="text-primary font-medium">Chhattisgarh</span>
                     </h2>
                     <p className="text-muted-foreground text-lg md:text-xl font-light leading-relaxed">
                         The fastest growing and most trusted matrimony platform dedicated to the vibrant communities of Chhattisgarh.
@@ -64,7 +64,7 @@ export function TrustSection() {
                             <div className="h-16 w-16 mx-auto mb-8 bg-primary/10 rounded-2xl flex items-center justify-center shadow-inner">
                                 {stat.icon}
                             </div>
-                            <h3 className="text-4xl font-black text-foreground mb-3 font-headline tracking-tighter">
+                            <h3 className="text-4xl font-bold text-foreground mb-3 font-headline tracking-tighter">
                                 {stat.value}
                             </h3>
                             <p className="text-lg font-bold text-primary mb-3 uppercase tracking-wider text-sm">

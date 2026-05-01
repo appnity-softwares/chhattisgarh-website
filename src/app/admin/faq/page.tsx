@@ -60,12 +60,12 @@ const FAQ_CATEGORIES = [
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
-    'General': 'bg-orange-100 text-orange-800',
-    'Account & Profile': 'bg-blue-100 text-blue-800',
-    'Privacy & Security': 'bg-green-100 text-green-800',
-    'Matches & Interests': 'bg-pink-100 text-pink-800',
-    'Premium & Payments': 'bg-amber-100 text-amber-800',
-    'Chhattisgarh Specific': 'bg-indigo-100 text-indigo-800',
+    'General': 'bg-gold/20 text-primaryDark',
+    'Account & Profile': 'bg-primary/10 text-primary',
+    'Privacy & Security': 'bg-success/10 text-success',
+    'Matches & Interests': 'bg-primary/10 text-primary',
+    'Premium & Payments': 'bg-gold/20 text-primaryDark',
+    'Chhattisgarh Specific': 'bg-primary/10 text-primary',
 };
 
 const emptyFaq = {

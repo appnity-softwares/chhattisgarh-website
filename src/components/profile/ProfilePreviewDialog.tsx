@@ -23,14 +23,14 @@ export const ProfilePreviewDialog: React.FC<ProfilePreviewDialogProps> = ({ isOp
   const InfoItem = ({ icon: Icon, label, value, isMissing }: { icon: unknown, label: string, value: string | number | undefined, isMissing?: boolean }) => (
     <div className={cn(
       "flex items-start gap-3 p-3 rounded-lg border",
-      isMissing ? "bg-rose-500/5 border-rose-500/20" : "bg-white/5 border-white/10"
+      isMissing ? "bg-error/10 border-error/25" : "bg-white/5 border-white/10"
     )}>
-      <div className={cn("mt-1 p-1.5 rounded-md", isMissing ? "bg-rose-500/20" : "bg-primary/10")}>
-        <Icon className={cn("w-3.5 h-3.5", isMissing ? "text-rose-400" : "text-primary")} />
+      <div className={cn("mt-1 p-1.5 rounded-md", isMissing ? "bg-error/10" : "bg-primary/10")}>
+        <Icon className={cn("w-3.5 h-3.5", isMissing ? "text-error" : "text-primary")} />
       </div>
       <div>
         <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
-        <p className={cn("text-sm font-semibold", isMissing ? "text-rose-400 font-bold italic" : "text-white")}>
+        <p className={cn("text-sm font-semibold", isMissing ? "text-error font-bold font-medium" : "text-white")}>
           {isMissing ? "-" : displayValue(value)}
         </p>
       </div>
@@ -46,8 +46,8 @@ export const ProfilePreviewDialog: React.FC<ProfilePreviewDialogProps> = ({ isOp
           <div className="flex items-center gap-3">
             <Eye className="w-5 h-5 text-primary" />
             <div>
-               <p className="text-xs font-black uppercase tracking-widest text-white">Preview Mode</p>
-               <p className="text-[10px] font-bold text-primary italic">This is how the profile will appear in the application</p>
+               <p className="text-xs font-bold uppercase tracking-widest text-white">Preview Mode</p>
+               <p className="text-[10px] font-bold text-primary font-medium">This is how the profile will appear in the application</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
@@ -58,7 +58,7 @@ export const ProfilePreviewDialog: React.FC<ProfilePreviewDialogProps> = ({ isOp
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           {/* Hero Section Mock */}
           <div className="relative h-80 w-full bg-neutral-900 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-transparent z-10" />
+            <div className="absolute inset-0 bg-foreground/70 z-10" />
             <div className="absolute inset-0 flex items-center justify-center">
                <div className="w-40 h-40 rounded-full bg-primary/10 border-4 border-primary/20 flex items-center justify-center">
                   <User className="w-20 h-20 text-primary/40" />
@@ -67,16 +67,16 @@ export const ProfilePreviewDialog: React.FC<ProfilePreviewDialogProps> = ({ isOp
             
             <div className="absolute bottom-8 left-8 z-20 space-y-2">
                <div className="flex items-center gap-3">
-                  <h2 className="text-4xl font-black text-white tracking-tight">
+                  <h2 className="text-4xl font-bold text-white tracking-tight">
                     {formatProfileName(data)}{calculateAge(data.dateOfBirth) ? `, ${calculateAge(data.dateOfBirth)}` : ''}
                   </h2>
                   {data.isVerified && <CheckCircle2 className="w-6 h-6 text-primary fill-primary/20" />}
                </div>
                <div className="flex items-center gap-4">
                   <div className="flex items-center gap-1.5 text-muted-foreground font-bold uppercase text-xs">
-                    <MapPin className="w-4 h-4 text-emerald-400" /> {[data.city, data.state].map((value) => displayValue(value, "")).filter(Boolean).join(", ") || "-"}
+                    <MapPin className="w-4 h-4 text-success" /> {[data.city, data.state].map((value) => displayValue(value, "")).filter(Boolean).join(", ") || "-"}
                   </div>
-                  <Badge className="bg-primary/20 text-primary border-primary/30 font-black uppercase text-[10px] tracking-tighter">
+                  <Badge className="bg-primary/20 text-primary border-primary/30 font-bold uppercase text-[10px] tracking-tighter">
                     {data.maritalStatus?.replace('_', ' ')}
                   </Badge>
                </div>
@@ -84,8 +84,8 @@ export const ProfilePreviewDialog: React.FC<ProfilePreviewDialogProps> = ({ isOp
 
             {/* Photo Counter Mock */}
             <div className="absolute bottom-8 right-8 z-20 bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2">
-               <Heart className="w-3.5 h-3.5 text-rose-400" />
-               <span className="text-xs font-black text-white">{completeness.total}% Match Potential</span>
+               <Heart className="w-3.5 h-3.5 text-error" />
+               <span className="text-xs font-bold text-white">{completeness.total}% Match Potential</span>
             </div>
           </div>
 
@@ -96,11 +96,11 @@ export const ProfilePreviewDialog: React.FC<ProfilePreviewDialogProps> = ({ isOp
                {/* About */}
                <section className="space-y-4">
                   <div className="flex items-center gap-2 border-l-4 border-primary pl-3">
-                     <h3 className="text-lg font-black uppercase tracking-tight">About Me</h3>
+                     <h3 className="text-lg font-bold uppercase tracking-tight">About Me</h3>
                   </div>
                   <div className={cn(
                     "p-6 rounded-2xl border leading-relaxed",
-                    !data.bio ? "bg-rose-500/5 border-rose-500/20 italic text-rose-400" : "bg-white/5 border-white/10"
+                    !data.bio ? "bg-error/10 border-error/25 font-medium text-error" : "bg-white/5 border-white/10"
                   )}>
                     {data.bio || "No biography provided by the user. A detailed bio helps in better matchmaking."}
                   </div>
@@ -109,7 +109,7 @@ export const ProfilePreviewDialog: React.FC<ProfilePreviewDialogProps> = ({ isOp
                {/* Personal Details Grid */}
                <section className="space-y-4">
                   <div className="flex items-center gap-2 border-l-4 border-amber-400 pl-3">
-                     <h3 className="text-lg font-black uppercase tracking-tight">Personal Information</h3>
+                     <h3 className="text-lg font-bold uppercase tracking-tight">Personal Information</h3>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                      <InfoItem icon={Calendar} label="Date of Birth" value={formatDateOfBirth(data.dateOfBirth)} isMissing={!data.dateOfBirth} />
@@ -123,7 +123,7 @@ export const ProfilePreviewDialog: React.FC<ProfilePreviewDialogProps> = ({ isOp
                {/* Career */}
                <section className="space-y-4">
                   <div className="flex items-center gap-2 border-l-4 border-blue-400 pl-3">
-                     <h3 className="text-lg font-black uppercase tracking-tight">Education & Profession</h3>
+                     <h3 className="text-lg font-bold uppercase tracking-tight">Education & Profession</h3>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                      <InfoItem icon={GraduationCap} label="Education" value={data.education} isMissing={!data.education} />
@@ -137,24 +137,24 @@ export const ProfilePreviewDialog: React.FC<ProfilePreviewDialogProps> = ({ isOp
                <div className="p-6 rounded-3xl bg-primary/5 border border-primary/20 space-y-4">
                   <div className="flex items-center gap-2">
                      <AlertCircle className="w-5 h-5 text-primary" />
-                     <h4 className="text-sm font-black uppercase tracking-wider">Missing Highlights</h4>
+                     <h4 className="text-sm font-bold uppercase tracking-wider">Missing Highlights</h4>
                   </div>
                   <div className="space-y-3">
                      {Object.entries(completeness.sections).filter(([_, s]) => !s.isComplete).map(([key, section]) => (
                         <div key={key} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5">
                            <span className="text-[10px] font-bold uppercase text-muted-foreground">{section.title}</span>
-                           <span className="text-[10px] font-black text-rose-400">{section.percent}%</span>
+                           <span className="text-[10px] font-bold text-error">{section.percent}%</span>
                         </div>
                      ))}
                      {completeness.total === 100 && (
-                        <p className="text-xs text-emerald-400 font-bold italic">No missing sections found. Profile is 100% complete!</p>
+                        <p className="text-xs text-success font-bold font-medium">No missing sections found. Profile is 100% complete!</p>
                      )}
                   </div>
                </div>
 
                <div className="p-6 rounded-3xl bg-white/5 border border-white/5 space-y-4">
-                  <h4 className="text-sm font-black uppercase tracking-wider">Preview Note</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed italic">
+                  <h4 className="text-sm font-bold uppercase tracking-wider">Preview Note</h4>
+                  <p className="text-xs text-muted-foreground leading-relaxed font-medium">
                     This view simulates the public appearance of the profile. Private information such as email and contact numbers are hidden by default in this view.
                   </p>
                </div>
@@ -166,7 +166,7 @@ export const ProfilePreviewDialog: React.FC<ProfilePreviewDialogProps> = ({ isOp
         <div className="p-6 bg-neutral-900 border-t border-white/10 flex justify-end">
            <button 
              onClick={onClose}
-             className="px-8 py-3 bg-white text-black font-black uppercase tracking-widest text-xs rounded-full hover:bg-white/90 transition-all active:scale-95 shadow-xl"
+             className="px-8 py-3 bg-white text-black font-bold uppercase tracking-widest text-xs rounded-full hover:bg-white/90 transition-all active:scale-95 shadow-xl"
            >
              Continue Editing
            </button>

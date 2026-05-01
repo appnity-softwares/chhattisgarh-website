@@ -131,7 +131,7 @@ export default function AdminProfilesPage() {
                         <div className="flex items-center gap-3 mt-4 p-3 rounded-lg bg-muted border">
                             <span className="text-sm font-semibold">{selectedProfiles.size} selected</span>
                             <div className="flex gap-2 ml-auto">
-                                <Button size="sm" onClick={handleBulkApprove} disabled={isBulkProcessing} className="bg-emerald-500 hover:bg-emerald-600">
+                                <Button size="sm" onClick={handleBulkApprove} disabled={isBulkProcessing} className="bg-success/10 hover:bg-success/10">
                                     Approve Selected
                                 </Button>
                                 <Button size="sm" variant="destructive" onClick={handleBulkDelete} disabled={isBulkProcessing}>
@@ -250,7 +250,7 @@ export default function AdminProfilesPage() {
                                                                         toast({ variant: 'destructive', title: 'Error', description: errorMsg.message });
                                                                     }
                                                                 }}
-                                                                className="cursor-pointer text-emerald-400 focus:text-emerald-400"
+                                                                className="cursor-pointer text-success focus:text-success"
                                                             >
                                                                 Approve
                                                             </DropdownMenuItem>

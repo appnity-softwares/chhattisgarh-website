@@ -255,17 +255,31 @@ export default function ProfileDetailPage() {
   return (
     <div className="max-w-7xl mx-auto pb-20 space-y-8 animate-fade-in">
       {/* Immersive Header Navigation */}
-      <div className="flex items-center justify-between px-4 py-3 bg-foreground/60 backdrop-blur-xl rounded-[2.5rem] border border-border sticky top-2 z-[60] shadow-2xl">
-        <Button variant="ghost" onClick={() => router.back()} className="hover:bg-background text-muted-foreground hover:text-foreground rounded-full px-6 font-bold uppercase tracking-widest text-[10px] gap-2 transition-all active:scale-95">
+      <div className="flex items-center justify-between px-6 py-4 bg-surface backdrop-blur-xl rounded-[2rem] border border-border sticky top-4 z-[60] shadow-xl">
+        <Button 
+          variant="ghost" 
+          onClick={() => router.back()} 
+          className="hover:bg-background text-foreground font-bold rounded-xl px-4 py-2 text-[11px] uppercase tracking-widest gap-2 transition-all active:scale-95 border border-transparent hover:border-border"
+        >
           <ChevronLeft className="w-4 h-4" /> Back to Search
         </Button>
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="rounded-full hover:bg-background h-11 w-11 border border-border transition-all active:scale-95" onClick={handleShare}>
-            <Share2 className="w-4 h-4 text-muted-foreground" />
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="rounded-xl h-10 w-10 border-border bg-surface text-muted-foreground hover:text-primary transition-all active:scale-95 shadow-sm" 
+            onClick={handleShare}
+          >
+            <Share2 className="w-4 h-4" />
           </Button>
           {!isOwnProfile && (
-            <Button variant="ghost" size="icon" className="rounded-full hover:bg-background h-11 w-11 border border-border transition-all active:scale-95" onClick={() => toggleShortlist(profileUserId)}>
-              <Heart className={`w-4 h-4 ${state.isShortlisted ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className={`rounded-xl h-10 w-10 border-border bg-surface transition-all active:scale-95 shadow-sm ${state.isShortlisted ? "text-primary border-primary/20" : "text-muted-foreground hover:text-primary"}`} 
+              onClick={() => toggleShortlist(profileUserId)}
+            >
+              <Heart className={`w-4 h-4 ${state.isShortlisted ? "fill-current" : ""}`} />
             </Button>
           )}
         </div>
@@ -314,7 +328,7 @@ export default function ProfileDetailPage() {
                 </div>
              </div>
 
-             <div className="absolute inset-x-0 bottom-0 h-1/2 bg-surface/70 pointer-events-none" />
+             <div className="absolute inset-x-0 bottom-0 h-1/4 bg-black/40 pointer-events-none" />
 
              {/* Carousel Nav */}
              {profileImages.length > 1 && (
@@ -347,11 +361,11 @@ export default function ProfileDetailPage() {
              </div>
 
              {/* Bottom Info Overlay */}
-             <div className="absolute bottom-10 left-10 right-10 text-foreground space-y-2">
+             <div className="absolute bottom-10 left-10 right-10 text-white space-y-2">
                 <h2 className="text-4xl font-bold uppercase tracking-tighter drop-shadow-2xl">
                   {profileName}{profile.age ? `, ${profile.age}` : ""}
                 </h2>
-                <div className="flex items-center gap-2 text-xs font-bold text-primary-foreground/80 tracking-widest uppercase">
+                <div className="flex items-center gap-2 text-xs font-bold text-white/80 tracking-widest uppercase">
                   <MapPin className="w-4 h-4 text-primary" />
                   {locationText}
                 </div>
@@ -407,7 +421,7 @@ export default function ProfileDetailPage() {
 
           {/* Match Score Card */}
           {matchScoreData && !isOwnProfile && (
-              <Card className="bg-surface border-primary/20 p-8 rounded-[3rem] shadow-3xl relative overflow-hidden group">
+              <Card className="bg-surface border-primary/20 p-8 rounded-[2rem] shadow-sm relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity">
                       <Target className="w-40 h-40 text-primary rotate-12" />
                   </div>
@@ -466,15 +480,15 @@ export default function ProfileDetailPage() {
           )}
 
           <Tabs defaultValue="about" className="space-y-8">
-            <TabsList className="bg-background p-1.5 rounded-3xl border border-border flex w-full">
-              <TabsTrigger value="about" className="flex-1 rounded-2xl py-3 font-bold text-[10px] uppercase tracking-[0.15em] data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl transition-all">About</TabsTrigger>
-              <TabsTrigger value="details" className="flex-1 rounded-2xl py-3 font-bold text-[10px] uppercase tracking-[0.15em] data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl transition-all">My Background</TabsTrigger>
-              <TabsTrigger value="profession" className="flex-1 rounded-2xl py-3 font-bold text-[10px] uppercase tracking-[0.15em] data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl transition-all">Work & Stats</TabsTrigger>
-              <TabsTrigger value="life" className="flex-1 rounded-2xl py-3 font-bold text-[10px] uppercase tracking-[0.15em] data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl transition-all">Lifestyle</TabsTrigger>
+            <TabsList className="bg-surface p-1.5 rounded-[2rem] border border-border flex w-full h-14 shadow-sm">
+              <TabsTrigger value="about" className="flex-1 rounded-[1.5rem] py-3 font-bold text-[10px] uppercase tracking-[0.15em] data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all">About</TabsTrigger>
+              <TabsTrigger value="details" className="flex-1 rounded-[1.5rem] py-3 font-bold text-[10px] uppercase tracking-[0.15em] data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all">My Background</TabsTrigger>
+              <TabsTrigger value="profession" className="flex-1 rounded-[1.5rem] py-3 font-bold text-[10px] uppercase tracking-[0.15em] data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all">Work & Stats</TabsTrigger>
+              <TabsTrigger value="life" className="flex-1 rounded-[1.5rem] py-3 font-bold text-[10px] uppercase tracking-[0.15em] data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all">Lifestyle</TabsTrigger>
             </TabsList>
 
             <TabsContent value="about" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <Card className="bg-background border-border p-10 rounded-[3rem] shadow-2xl group hover:border-primary/20 transition-all">
+              <Card className="bg-surface border-border p-10 rounded-[2rem] shadow-sm group hover:border-primary/20 transition-all">
                 <div className="flex items-center gap-4 mb-8">
                   <div className="h-10 w-1 bg-primary rounded-full" />
                   <h3 className="text-xl font-bold uppercase tracking-tight font-medium">Personal Story</h3>
@@ -628,7 +642,7 @@ function DetailSection({ icon: Icon, title, children }: { icon: React.ElementTyp
   if (visibleChildren.length === 0) return null;
 
   return (
-    <Card className="bg-background border-border p-8 rounded-[2.5rem] shadow-xl space-y-6">
+    <Card className="bg-surface border-border p-8 rounded-[2rem] shadow-sm space-y-6">
       <div className="flex items-center gap-3">
         <div className="p-2 bg-primary/10 rounded-xl">
           <Icon className="w-5 h-5 text-primary" />
@@ -648,7 +662,7 @@ function DetailItem({ label, value }: { label: string, value: unknown }) {
   return (
     <div className="flex justify-between items-center group font-medium">
       <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</span>
-      <span className="text-[13px] text-foreground font-bold tracking-tight">{displayValue(value)}</span>
+      <span className="text-[14px] text-foreground font-bold tracking-tight">{displayValue(value)}</span>
     </div>
   );
 }

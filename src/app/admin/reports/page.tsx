@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  MoreHorizontal, RefreshCw, ChevronLeft, ChevronRight, Download,
-  CheckCircle, XCircle, AlertTriangle, FileWarning, X, Flag, Ban
-} from "lucide-react";
+import { MoreHorizontal, RefreshCw, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, FileWarning, X, Flag, Ban } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator

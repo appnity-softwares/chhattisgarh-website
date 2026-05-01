@@ -48,7 +48,7 @@ export function useBoostPayment() {
     });
 
     const verifyBoost = useMutation({
-        mutationFn: async (data: any) => {
+        mutationFn: async (data: unknown) => {
             if (!accessToken) throw new Error("Unauthorized");
             const res = await premiumWebService.verifyBoostPayment(data, accessToken);
             if (!res.success) throw new Error(res.message || "Failed to verify boost");

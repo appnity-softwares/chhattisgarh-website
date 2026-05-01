@@ -3,7 +3,7 @@
 export class Debouncer {
     private timers: Map<string, NodeJS.Timeout> = new Map();
 
-    debounce<T extends (...args: any[]) => any>(
+    debounce<T extends (...args: unknown[]) => unknown>(
         key: string,
         fn: T,
         delay: number = 300
@@ -41,7 +41,7 @@ export class Debouncer {
 export class Throttler {
     private lastExecution: Map<string, number> = new Map();
 
-    throttle<T extends (...args: any[]) => any>(
+    throttle<T extends (...args: unknown[]) => unknown>(
         key: string,
         fn: T,
         delay: number = 1000
@@ -105,7 +105,7 @@ export const throttler = new Throttler();
 export const operationLock = new OperationLock();
 
 // Utility functions
-export function createDebouncedCallback<T extends (...args: any[]) => any>(
+export function createDebouncedCallback<T extends (...args: unknown[]) => unknown>(
     fn: T,
     delay: number = 300,
     key?: string
@@ -114,7 +114,7 @@ export function createDebouncedCallback<T extends (...args: any[]) => any>(
     return debouncer.debounce(callbackKey, fn, delay);
 }
 
-export function createThrottledCallback<T extends (...args: any[]) => any>(
+export function createThrottledCallback<T extends (...args: unknown[]) => unknown>(
     fn: T,
     delay: number = 1000,
     key?: string
@@ -131,7 +131,7 @@ export async function withOperationLock<T>(
 }
 
 // Button click prevention
-export function preventDoubleClick<T extends (...args: any[]) => any>(
+export function preventDoubleClick<T extends (...args: unknown[]) => unknown>(
     fn: T,
     delay: number = 1000
 ): (...args: Parameters<T>) => void {
@@ -150,7 +150,7 @@ export function preventDoubleClick<T extends (...args: any[]) => any>(
 }
 
 // Form submission prevention
-export function preventDuplicateSubmission<T extends (...args: any[]) => any>(
+export function preventDuplicateSubmission<T extends (...args: unknown[]) => unknown>(
     fn: T
 ): (...args: Parameters<T>) => Promise<void> {
     const lockKey = 'form-submission';

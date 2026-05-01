@@ -32,8 +32,8 @@ function MatchCard({ match, type, onAccept, onReject, onCancel, isAccepting, isR
     isCancelling?: boolean;
 }) {
     // Extract profile from match data based on type
-    const user = (type === 'received' ? match.sender : match.receiver) as any;
-    const profile = (user?.profile || {}) as any;
+    const user = (type === 'received' ? match.sender : match.receiver) as unknown;
+    const profile = (user?.profile || {}) as unknown;
     const userId = user?.id;
 
     const name = formatProfileName({ ...profile, id: userId });
@@ -110,12 +110,12 @@ function MatchCard({ match, type, onAccept, onReject, onCancel, isAccepting, isR
                 age={age || 0}
                 city={profile.city}
                 occupation={profile.occupation}
-                gender={profile.gender?.toLowerCase() as any}
+                gender={profile.gender?.toLowerCase() as unknown}
                 isVerified={profile.isVerified}
                 image={profile.media?.[0]?.url || user?.profilePicture}
                 statusBadge={statusBadge}
                 isMatched={match.status === 'ACCEPTED'}
-                canChat={(match as any).canChat || false}
+                canChat={(match as unknown).canChat || false}
                 customActions={customActions}
             />
         </MatchCardWrapper>

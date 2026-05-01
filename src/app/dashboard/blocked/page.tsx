@@ -22,7 +22,7 @@ export default function BlockedUsersPage() {
     const { unblockUser } = useInteractions();
     const [searchQuery, setSearchQuery] = useState("");
 
-    const filteredUsers = (blockedUsers || []).filter((user: any) => {
+    const filteredUsers = (blockedUsers || []).filter((user: unknown) => {
         const profile = user.profile || {};
         const fullName = `${profile.firstName || ''} ${profile.lastName || ''} ${user.email || ''}`.toLowerCase();
         return fullName.includes(searchQuery.toLowerCase());
@@ -65,7 +65,7 @@ export default function BlockedUsersPage() {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
                 {/* Stats & Info Sidebar */}
                 <div className="space-y-4 lg:col-span-1">
-                    <div className="bg-[#0c0c0c] border border-white/5 rounded-[2rem] p-6 space-y-6 shadow-2xl overflow-hidden relative group">
+                    <div className="bg-foreground border border-white/5 rounded-[2rem] p-6 space-y-6 shadow-2xl overflow-hidden relative group">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 blur-[80px] -mr-16 -mt-16 group-hover:bg-red-500/10 transition-all duration-700" />
                         
                         <div className="space-y-4 relative">
@@ -122,7 +122,7 @@ export default function BlockedUsersPage() {
                             </motion.div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {filteredUsers.map((user: any, index: number) => {
+                                {filteredUsers.map((user: unknown, index: number) => {
                                     const profile = user.profile || {};
                                     const name = `${profile.firstName || 'Member'} ${profile.lastName || ''}`.trim();
                                     
@@ -138,7 +138,7 @@ export default function BlockedUsersPage() {
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, scale: 0.9 }}
                                             transition={{ duration: 0.4, delay: index * 0.03, ease: "easeOut" }}
-                                            className="group bg-[#0f0f0f] border border-white/5 rounded-[1.5rem] p-5 flex items-center justify-between hover:border-primary/20 transition-all shadow-2xl hover:shadow-primary/5 active:scale-[0.98]"
+                                            className="group bg-foreground border border-white/5 rounded-[1.5rem] p-5 flex items-center justify-between hover:border-primary/20 transition-all shadow-2xl hover:shadow-primary/5 active:scale-[0.98]"
                                         >
                                             <div className="flex items-center gap-4">
                                                 <div className="relative">
@@ -148,11 +148,11 @@ export default function BlockedUsersPage() {
                                                             className="object-cover group-hover:scale-110 transition-transform duration-700" 
                                                             alt={name}
                                                         />
-                                                        <AvatarFallback className="bg-gradient-to-br from-[#1a1a1a] to-black text-primary font-black text-lg">
+                                                        <AvatarFallback className="bg-gradient-to-br from-foreground to-black text-primary font-black text-lg">
                                                             {initial}
                                                         </AvatarFallback>
                                                     </Avatar>
-                                                    <div className="absolute -bottom-1 -right-1 bg-red-500 rounded-full p-1 border-2 border-[#0f0f0f] z-10">
+                                                    <div className="absolute -bottom-1 -right-1 bg-red-500 rounded-full p-1 border-2 border-foreground z-10">
                                                         <Ban className="w-2 h-2 text-white" />
                                                     </div>
                                                 </div>

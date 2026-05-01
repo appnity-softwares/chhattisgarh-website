@@ -98,7 +98,7 @@ export function useProfileDetails(profileId: string | number) {
             try {
                 const relRes = await apiService.get(apiConfig.endpoints.relationship.byUser(Number(profileId)));
                 relationship = relRes.data.data;
-            } catch (e) {
+            } catch (_e) {
                 console.error("Failed to fetch relationship status");
             }
 

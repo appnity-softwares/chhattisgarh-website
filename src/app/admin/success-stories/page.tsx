@@ -3,9 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Label } from '@/components/ui/label';
 import {
     Table,
     TableBody,
@@ -14,17 +12,9 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Plus, Pencil, Trash2, Heart, Star, Eye, Calendar } from 'lucide-react';
+import { Loader2, Trash2, Heart, Star, Eye, Calendar } from 'lucide-react';
 import { adminService } from '@/services/admin.service';
 import Image from 'next/image';
 
@@ -48,12 +38,12 @@ export default function AdminSuccessStoriesPage() {
     const { toast } = useToast();
     const [stories, setStories] = useState<SuccessStory[]>([]);
     const [loading, setLoading] = useState(true);
-    const [saving, setSaving] = useState(false);
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const [editingStory, setEditingStory] = useState<SuccessStory | null>(null);
+    const [_saving, _setSaving] = useState(false);
+    const [_dialogOpen, _setDialogOpen] = useState(false);
+    const [_editingStory, _setEditingStory] = useState<SuccessStory | null>(null);
     const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 
-    const [formData, setFormData] = useState({
+    const [_formData, _setFormData] = useState({
         title: '',
         story: '',
         partnerName: '',
@@ -67,7 +57,7 @@ export default function AdminSuccessStoriesPage() {
         try {
             const data = await adminService.getSuccessStories();
             setStories(data || []);
-        } catch (err: any) {
+        } catch (err: unknown) {
             toast({ title: 'Error', description: err.message || 'Failed to fetch stories', variant: 'destructive' });
         } finally {
             setLoading(false);
@@ -84,7 +74,7 @@ export default function AdminSuccessStoriesPage() {
             await adminService.updateSuccessStory(id, { status });
             toast({ title: 'Status Updated', description: `Story is now ${status.toLowerCase()}` });
             fetchStories();
-        } catch (err: any) {
+        } catch (err: unknown) {
             toast({ title: 'Error', description: err.message, variant: 'destructive' });
         }
     };
@@ -93,7 +83,7 @@ export default function AdminSuccessStoriesPage() {
         try {
             await adminService.updateSuccessStory(story.id, { isFeatured: !story.isFeatured });
             fetchStories();
-        } catch (err: any) {
+        } catch (err: unknown) {
             toast({ title: 'Error', description: err.message, variant: 'destructive' });
         }
     };
@@ -104,7 +94,7 @@ export default function AdminSuccessStoriesPage() {
             toast({ title: 'Deleted', description: 'Success story removed' });
             setDeleteConfirm(null);
             fetchStories();
-        } catch (err: any) {
+        } catch (err: unknown) {
             toast({ title: 'Error', description: err.message, variant: 'destructive' });
         }
     };
@@ -135,7 +125,7 @@ export default function AdminSuccessStoriesPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="bg-[#0f0f0f] border-white/5 shadow-2xl overflow-hidden relative group">
+                <Card className="bg-foreground border-white/5 shadow-2xl overflow-hidden relative group">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 blur-[40px] -mr-12 -mt-12" />
                     <CardContent className="p-6 relative">
                         <Heart className="w-8 h-8 text-primary mb-3 opacity-40" />
@@ -143,7 +133,7 @@ export default function AdminSuccessStoriesPage() {
                         <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1">Total Stories</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#0f0f0f] border-white/5 shadow-2xl overflow-hidden relative group">
+                <Card className="bg-foreground border-white/5 shadow-2xl overflow-hidden relative group">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 blur-[40px] -mr-12 -mt-12" />
                     <CardContent className="p-6 relative">
                         <Star className="w-8 h-8 text-amber-500 mb-3 opacity-40" />
@@ -151,7 +141,7 @@ export default function AdminSuccessStoriesPage() {
                         <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1">Featured</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-[#0f0f0f] border-white/5 shadow-2xl overflow-hidden relative group">
+                <Card className="bg-foreground border-white/5 shadow-2xl overflow-hidden relative group">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 blur-[40px] -mr-12 -mt-12" />
                     <CardContent className="p-6 relative">
                         <Calendar className="w-8 h-8 text-blue-500 mb-3 opacity-40" />
@@ -161,7 +151,7 @@ export default function AdminSuccessStoriesPage() {
                 </Card>
             </div>
 
-            <Card className="bg-[#0f0f0f] border-white/5 shadow-2xl rounded-[2rem] overflow-hidden">
+            <Card className="bg-foreground border-white/5 shadow-2xl rounded-[2rem] overflow-hidden">
                 <CardHeader className="border-b border-white/5 p-8">
                     <CardTitle className="text-lg font-black text-white uppercase tracking-tighter">Story Database</CardTitle>
                     <CardDescription className="text-xs font-bold uppercase tracking-widest opacity-40">Moderation and management console</CardDescription>

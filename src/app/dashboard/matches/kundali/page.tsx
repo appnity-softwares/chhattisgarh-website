@@ -15,11 +15,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAstrologyMatch, useAstrologyMetadata } from "@/hooks/use-astrology";
 
-const GUNA_DATA = [
+const _GUNA_DATA = [
     { name: "Varna", score: 1, max: 1, desc: "Work Compatibility" },
     { name: "Vashya", score: 2, max: 2, desc: "Dominance Compatibility" },
     { name: "Tara", score: 1.5, max: 3, desc: "Destiny Compatibility" },
@@ -34,7 +33,7 @@ export default function KundaliReportPage() {
     const searchParams = useSearchParams();
     const targetUserId = searchParams.get("userId");
     const { data: kundaliMatch, isLoading } = useAstrologyMatch(targetUserId || '');
-    const { nakshatras, rashis } = useAstrologyMetadata();
+    const { nakshatras: _nakshatras, rashis: _rashis } = useAstrologyMetadata();
     
     if (isLoading) {
         return (
@@ -177,7 +176,7 @@ export default function KundaliReportPage() {
                         </div>
                         <CardContent className="p-0">
                             <div className="grid grid-cols-1 md:grid-cols-2">
-                                {gunaData.map((guna: any, i: number) => (
+                                {gunaData.map((guna: unknown, i: number) => (
                                     <div key={i} className={`p-8 flex items-center justify-between group hover:bg-white/5 transition-colors border-white/5 ${i % 2 === 0 ? 'md:border-r' : ''} ${i < gunaData.length - 2 ? 'border-b' : ''}`}>
                                         <div className="space-y-1">
                                             <h4 className="font-black text-sm uppercase tracking-widest text-foreground group-hover:text-primary transition-colors">{guna.name}</h4>

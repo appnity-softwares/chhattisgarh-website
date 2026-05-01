@@ -13,14 +13,14 @@ import { calculateAge, displayValue, formatDateOfBirth, formatProfileName } from
 interface ProfilePreviewDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  data: any;
+  data: unknown;
   completeness: CompletenessResult;
 }
 
 export const ProfilePreviewDialog: React.FC<ProfilePreviewDialogProps> = ({ isOpen, onClose, data, completeness }) => {
   if (!isOpen) return null;
 
-  const InfoItem = ({ icon: Icon, label, value, isMissing }: { icon: any, label: string, value: string | number | undefined, isMissing?: boolean }) => (
+  const InfoItem = ({ icon: Icon, label, value, isMissing }: { icon: unknown, label: string, value: string | number | undefined, isMissing?: boolean }) => (
     <div className={cn(
       "flex items-start gap-3 p-3 rounded-lg border",
       isMissing ? "bg-rose-500/5 border-rose-500/20" : "bg-white/5 border-white/10"
@@ -176,7 +176,7 @@ export const ProfilePreviewDialog: React.FC<ProfilePreviewDialogProps> = ({ isOp
   );
 };
 
-const Activity = (props: any) => (
+const Activity = (props: unknown) => (
   <svg
     {...props}
     xmlns="http://www.w3.org/2000/svg"

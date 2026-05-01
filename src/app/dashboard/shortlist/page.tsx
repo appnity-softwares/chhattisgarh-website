@@ -1,12 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-    Heart, 
-    Search,
-    Trash2,
-    Loader2
-} from "lucide-react";
+import { Heart, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ProfileCard } from "@/components/profile/profile-card";
@@ -155,7 +150,7 @@ export default function ShortlistPage() {
             {!isLoading && displayProfiles.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                     <AnimatePresence mode="popLayout">
-                        {displayProfiles.map((profile: ProfileSummary, index: number) => (
+                        {displayProfiles.map((profile: ProfileSummary, _index: number) => (
                             <motion.div
                                 key={profile.id}
                                 layout

@@ -55,7 +55,7 @@ export function usePartnerPreference() {
                 description: "Your partner preferences have been saved successfully.",
             });
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
             toast({
                 title: "Update Failed",
                 description: error.message || "Failed to update preferences.",

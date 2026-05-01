@@ -99,7 +99,7 @@ function BoostCheckoutContent() {
                 contact: details.user.phone,
             },
             theme: {
-                color: "#f59e0b", // Amber-500 for Boost
+                color: "#D4AF37",
             },
         };
 

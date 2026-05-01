@@ -27,7 +27,7 @@ class Logger {
         return level >= this.logLevel;
     }
 
-    private formatMessage(level: string, message: string, ...args: any[]): [string, ...any[]] {
+    private formatMessage(level: string, message: string, ...args: unknown[]): [string, ...unknown[]] {
         const timestamp = new Date().toISOString();
         const prefix = `[${timestamp}] [${level}]`;
         
@@ -40,28 +40,28 @@ class Logger {
         }
     }
 
-    debug(message: string, ...args: any[]): void {
+    debug(message: string, ...args: unknown[]): void {
         if (this.shouldLog(LogLevel.DEBUG)) {
             const [formattedMessage, ...formattedArgs] = this.formatMessage('DEBUG', message, ...args);
             console.debug(formattedMessage, ...formattedArgs);
         }
     }
 
-    info(message: string, ...args: any[]): void {
+    info(message: string, ...args: unknown[]): void {
         if (this.shouldLog(LogLevel.INFO)) {
             const [formattedMessage, ...formattedArgs] = this.formatMessage('INFO', message, ...args);
             console.info(formattedMessage, ...formattedArgs);
         }
     }
 
-    warn(message: string, ...args: any[]): void {
+    warn(message: string, ...args: unknown[]): void {
         if (this.shouldLog(LogLevel.WARN)) {
             const [formattedMessage, ...formattedArgs] = this.formatMessage('WARN', message, ...args);
             console.warn(formattedMessage, ...formattedArgs);
         }
     }
 
-    error(message: string, ...args: any[]): void {
+    error(message: string, ...args: unknown[]): void {
         if (this.shouldLog(LogLevel.ERROR)) {
             const [formattedMessage, ...formattedArgs] = this.formatMessage('ERROR', message, ...args);
             console.error(formattedMessage, ...formattedArgs);
@@ -74,7 +74,7 @@ class Logger {
     }
 
     // Development-only logging
-    devLog(message: string, ...args: any[]): void {
+    devLog(message: string, ...args: unknown[]): void {
         if (this.isDevelopment) {
             console.log(`[DEV] ${message}`, ...args);
         }
@@ -86,11 +86,11 @@ export const logger = new Logger();
 
 // Convenience exports
 export const log = {
-    debug: (message: string, ...args: any[]) => logger.debug(message, ...args),
-    info: (message: string, ...args: any[]) => logger.info(message, ...args),
-    warn: (message: string, ...args: any[]) => logger.warn(message, ...args),
-    error: (message: string, ...args: any[]) => logger.error(message, ...args),
-    dev: (message: string, ...args: any[]) => logger.devLog(message, ...args),
+    debug: (message: string, ...args: unknown[]) => logger.debug(message, ...args),
+    info: (message: string, ...args: unknown[]) => logger.info(message, ...args),
+    warn: (message: string, ...args: unknown[]) => logger.warn(message, ...args),
+    error: (message: string, ...args: unknown[]) => logger.error(message, ...args),
+    dev: (message: string, ...args: unknown[]) => logger.devLog(message, ...args),
 };
 
 // Replace console methods in production
@@ -103,9 +103,9 @@ if (process.env.NODE_ENV === 'production') {
     console.info = () => {}; // Disable console.info
     
     // Keep warn and error but route through logger
-    console.warn = (message: string, ...args: any[]) => logger.warn(message, ...args);
-    console.error = (message: string, ...args: any[]) => logger.error(message, ...args);
+    console.warn = (message: string, ...args: unknown[]) => logger.warn(message, ...args);
+    console.error = (message: string, ...args: unknown[]) => logger.error(message, ...args);
     
     // Store original for emergency debugging
-    (console as any).original = originalConsole;
+    (console as unknown).original = originalConsole;
 }

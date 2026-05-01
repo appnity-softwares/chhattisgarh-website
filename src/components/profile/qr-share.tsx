@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Share2, Download, Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -87,7 +87,7 @@ export function ProfileQRCode({ userId, userName, profileUrl }: ProfileQRCodePro
                 description: "Profile link copied to clipboard",
             });
             setTimeout(() => setCopied(false), 2000);
-        } catch (error) {
+        } catch (_error) {
             toast({
                 title: "Error",
                 description: "Failed to copy link",
@@ -145,7 +145,7 @@ export function ProfileQRCode({ userId, userName, profileUrl }: ProfileQRCodePro
                     <Share2 className="w-5 h-5" />
                 </Button>
             </DialogTrigger>
-            <DialogContent className="bg-[#111] border-white/10 rounded-2xl p-0 max-w-md w-full">
+            <DialogContent className="bg-foreground border-white/10 rounded-2xl p-0 max-w-md w-full">
                 <DialogHeader className="p-6 pb-0">
                     <DialogTitle className="text-xl font-black text-white uppercase tracking-tighter">
                         Share <span className="text-primary font-italic">Profile</span>
@@ -157,6 +157,7 @@ export function ProfileQRCode({ userId, userName, profileUrl }: ProfileQRCodePro
                     <div className="flex justify-center">
                         <div className="p-6 bg-white rounded-2xl">
                             {qrCodeUrl && (
+                                /* eslint-disable-next-line @next/next/no-img-element */
                                 <img 
                                     src={qrCodeUrl} 
                                     alt="Profile QR Code" 

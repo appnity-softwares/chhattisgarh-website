@@ -1,34 +1,9 @@
 "use client";
 
 import { useProfileDetails } from "@/hooks/use-profile-details";
-import { useInteractions } from "@/hooks/use-interactions";
 import { useParams, useRouter } from "next/navigation";
 import { usePhotoRequests } from "@/hooks/use-photo-requests";
-import {
-  Loader2,
-  MapPin,
-  Briefcase,
-  GraduationCap,
-  Heart,
-  ShieldCheck,
-  Share2,
-  ChevronLeft,
-  ChevronRight,
-  User,
-  Clock,
-  Star,
-  Info,
-  Send,
-  MessageSquare,
-  X,
-  Zap,
-  Crown,
-  Target,
-  Activity,
-  Users,
-  Camera,
-  Lock
-} from "lucide-react";
+import { Loader2, MapPin, Briefcase, GraduationCap, Heart, ShieldCheck, Share2, ChevronLeft, ChevronRight, User, Clock, Star, Info, Send, MessageSquare, X, Zap, Crown, Target, Users, Camera, Lock } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { usePartnerPreference } from "@/hooks/use-partner-preference";
 import { Button } from "@/components/ui/button";
@@ -42,7 +17,7 @@ import { useUserAuthStore } from "@/stores/user-auth-store";
 import { useUserAccess } from "@/hooks/use-user-access";
 import { useInteractionStore } from "@/store/interaction-store";
 import { motion, AnimatePresence } from "framer-motion";
-import { displayValue, formatDateOfBirth, formatEnumLabel, formatProfileName } from "@/lib/display-format";
+import { displayValue, formatDateOfBirth, formatEnumLabel, formatProfileName, hasDisplayValue } from "@/lib/display-format";
 
 export default function ProfileDetailPage() {
   const params = useParams();
@@ -117,13 +92,16 @@ export default function ProfileDetailPage() {
     if (!profile || !profile.media || profile.media.length === 0) {
       return [{ url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80", isPrivate: false }];
     }
-    return profile.media.map(m => ({
+    return profile.media.map(m => {
+      const media = m as typeof m & { privacySettings?: { isPrivate?: boolean } };
+      return {
       url: m.url,
-      isPrivate: (m as any).isPrivate || (m as any).privacySettings?.isPrivate || false
-    }));
+      isPrivate: media.isPrivate || media.privacySettings?.isPrivate || false
+    };
+    });
   }, [profile]);
 
-  const hasPrivatePhotos = useMemo(() => profileImages.some(img => img.isPrivate), [profileImages]);
+  const _hasPrivatePhotos = useMemo(() => profileImages.some(img => img.isPrivate), [profileImages]);
   const canSeePrivatePhotos = useMemo(() => isPremium || state.type === 'matched', [isPremium, state.type]);
 
   const handleShare = () => {
@@ -176,7 +154,7 @@ export default function ProfileDetailPage() {
       action: () => void;
       disabled: boolean;
       pending: boolean;
-      icon: any;
+      icon: React.ElementType;
       variant: "primary" | "secondary";
     }
 
@@ -232,7 +210,7 @@ export default function ProfileDetailPage() {
         // Premium can chat immediately
         if (canChat) {
             return {
-                label: "SEND MESSAGE 💬",
+                label: "SEND MESSAGE",
                 action: () => router.push(`/dashboard/chat?userId=${profileUserId}`),
                 disabled: false,
                 pending: false,
@@ -242,7 +220,7 @@ export default function ProfileDetailPage() {
         }
 
         return {
-          label: "CONNECT ❤️",
+          label: "CONNECT",
           action: () => sendInterest(profileUserId),
           disabled: false,
           pending: false,
@@ -250,7 +228,7 @@ export default function ProfileDetailPage() {
           variant: "primary" as const
         } as ActionItem;
     }
-  }, [isOwnProfile, state.type, router, profileUserId, acceptInterest, profile, sendInterest]);
+  }, [isOwnProfile, state.type, router, profileUserId, acceptInterest, profile, sendInterest, canChat]);
 
   if (isLoading) {
     return (
@@ -269,9 +247,10 @@ export default function ProfileDetailPage() {
     );
   }
 
-  const isShortlisted = profile?.isShortlisted;
+  const _isShortlisted = profile?.isShortlisted;
   const profileName = formatProfileName(profile);
-  const locationText = [profile.city, profile.state].map((value) => displayValue(value, "")).filter(Boolean).join(", ") || "-";
+  const locationText = [profile.city, profile.state].map((value) => displayValue(value, "")).filter(Boolean).join(", ") || "Location not shared";
+  const manglikValue = profile.horoscope?.manglik ?? profile.manglik;
 
   return (
     <div className="max-w-7xl mx-auto pb-20 space-y-8 animate-fade-in">
@@ -348,7 +327,7 @@ export default function ProfileDetailPage() {
                 </button>
                 <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-2 z-20">
                   {scrollSnaps.map((_, i) => (
-                    <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === selectedIndex ? 'w-8 bg-primaryShadow' : 'w-2 bg-white/30'}`} />
+                    <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === selectedIndex ? 'w-8 bg-primary' : 'w-2 bg-white/30'}`} />
                   ))}
                 </div>
                </>
@@ -501,44 +480,50 @@ export default function ProfileDetailPage() {
                   <h3 className="text-xl font-black uppercase tracking-tight italic">Personal Story</h3>
                 </div>
                 <p className="text-lg text-muted-foreground leading-relaxed font-medium italic">
-                  "{profile.about || "This member hasn't shared their story yet. Connect with them to learn more about their journey and aspirations."}"
+                  &quot;{displayValue(profile.about, "This member hasn't shared their story yet. Connect with them to learn more about their journey and aspirations.")}&quot;
                 </p>
               </Card>
 
-              <div className="grid grid-cols-2 gap-4">
-                <Card className="bg-white/5 border-white/10 p-6 rounded-3xl space-y-2">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-primary">Gender</p>
-	                  <p className="text-sm font-bold uppercase">{formatEnumLabel(profile.gender)}</p>
-                </Card>
-                <Card className="bg-white/5 border-white/10 p-6 rounded-3xl space-y-2">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-primary">Relationship</p>
-	                  <p className="text-sm font-bold uppercase">{formatEnumLabel(profile.maritalStatus)}</p>
-                </Card>
-              </div>
+              {(hasDisplayValue(profile.gender) || hasDisplayValue(profile.maritalStatus)) && (
+                <div className="grid grid-cols-2 gap-4">
+                  {hasDisplayValue(profile.gender) && (
+                    <Card className="bg-white/5 border-white/10 p-6 rounded-3xl space-y-2">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-primary">Gender</p>
+                      <p className="text-sm font-bold uppercase">{formatEnumLabel(profile.gender)}</p>
+                    </Card>
+                  )}
+                  {hasDisplayValue(profile.maritalStatus) && (
+                    <Card className="bg-white/5 border-white/10 p-6 rounded-3xl space-y-2">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-primary">Relationship</p>
+                      <p className="text-sm font-bold uppercase">{formatEnumLabel(profile.maritalStatus)}</p>
+                    </Card>
+                  )}
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="details" className="space-y-6">
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <DetailSection icon={Heart} title="Birth Details">
-	                   <DetailItem label="Date of Birth" value={formatDateOfBirth(profile.dateOfBirth)} />
-                   <DetailItem label="Time" value={profile.horoscope?.birthTime || "-"} />
-                   <DetailItem label="Place" value={profile.horoscope?.birthPlace || "-"} />
-                   <DetailItem label="Manglik" value={profile.horoscope?.manglik ? "Yes" : "No"} />
+                   <DetailItem label="Date of Birth" value={formatDateOfBirth(profile.dateOfBirth ?? profile.dob)} />
+                   <DetailItem label="Time" value={profile.horoscope?.birthTime} />
+                   <DetailItem label="Place" value={profile.horoscope?.birthPlace} />
+                   <DetailItem label="Manglik" value={manglikValue === undefined ? undefined : manglikValue ? "Yes" : "No"} />
                  </DetailSection>
 
                  <DetailSection icon={User} title="Cultural Background">
-                   <DetailItem label="Religion" value={profile.religion || "-"} />
-                   <DetailItem label="Caste" value={profile.caste || "-"} />
-                   <DetailItem label="Gothra" value={profile.horoscope?.gothra || "-"} />
-                   <DetailItem label="Mother Tongue" value={profile.motherTongue || "-"} />
+                   <DetailItem label="Religion" value={formatEnumLabel(profile.religion)} />
+                   <DetailItem label="Caste" value={formatEnumLabel(profile.caste)} />
+                   <DetailItem label="Gothra" value={profile.horoscope?.gothra} />
+                   <DetailItem label="Mother Tongue" value={formatEnumLabel(profile.motherTongue)} />
                  </DetailSection>
 
                  <DetailSection icon={Star} title="Family Details">
-                   <DetailItem label="Father" value={profile.family?.fatherOccupation || "-"} />
-                   <DetailItem label="Mother" value={profile.family?.motherOccupation || "-"} />
-                   <DetailItem label="Structure" value={profile.family?.familyType || "-"} />
-                   <DetailItem label="Status" value={profile.family?.familyStatus || "-"} />
-                   <DetailItem label="Values" value={profile.family?.familyValues || "-"} />
+                   <DetailItem label="Father" value={profile.family?.fatherOccupation ?? profile.fatherOccupation} />
+                   <DetailItem label="Mother" value={profile.family?.motherOccupation ?? profile.motherOccupation} />
+                   <DetailItem label="Structure" value={formatEnumLabel(profile.family?.familyType ?? profile.familyType)} />
+                   <DetailItem label="Status" value={formatEnumLabel(profile.family?.familyStatus ?? profile.familyStatus)} />
+                   <DetailItem label="Values" value={formatEnumLabel(profile.family?.familyValues ?? profile.familyValues)} />
                  </DetailSection>
                </div>
             </TabsContent>
@@ -546,21 +531,21 @@ export default function ProfileDetailPage() {
             <TabsContent value="profession" className="space-y-6">
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <DetailSection icon={Briefcase} title="Professional Life">
-                   <DetailItem label="Occupation" value={profile.occupation || "-"} />
-                   <DetailItem label="Organization" value={profile.organization || "-"} />
-                   <DetailItem label="Annual Income" value={profile.income || "-"} />
+                   <DetailItem label="Occupation" value={profile.occupation} />
+                   <DetailItem label="Organization" value={profile.organization} />
+                   <DetailItem label="Annual Income" value={profile.income ?? profile.annualIncome} />
                  </DetailSection>
 
                  <DetailSection icon={GraduationCap} title="Education">
-                   <DetailItem label="Degree" value={profile.education || "-"} />
-                   <DetailItem label="Specialization" value={profile.specialization || "-"} />
-                   <DetailItem label="University" value={profile.college || "-"} />
+                   <DetailItem label="Degree" value={profile.education ?? profile.highestEducation} />
+                   <DetailItem label="Specialization" value={profile.specialization ?? profile.educationDetails} />
+                   <DetailItem label="University" value={profile.college} />
                  </DetailSection>
 
                  <DetailSection icon={Info} title="Physical Stats">
-                   <DetailItem label="Height" value={profile.height ? `${profile.height} cm` : "-"} />
-                   <DetailItem label="Weight" value={profile.weight ? `${profile.weight} kg` : "-"} />
-                   <DetailItem label="Body Type" value={profile.lifestyle?.bodyType || "-"} />
+                   <DetailItem label="Height" value={profile.height ? `${profile.height} cm` : undefined} />
+                   <DetailItem label="Weight" value={profile.weight ? `${profile.weight} kg` : undefined} />
+                   <DetailItem label="Body Type" value={formatEnumLabel(profile.lifestyle?.bodyType)} />
                  </DetailSection>
                </div>
             </TabsContent>
@@ -568,9 +553,9 @@ export default function ProfileDetailPage() {
             <TabsContent value="life" className="space-y-6">
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <DetailSection icon={Zap} title="Lifestyle Habits">
-                   <DetailItem label="Diet" value={profile.lifestyle?.diet || "-"} />
-                   <DetailItem label="Smoking" value={profile.lifestyle?.smoking || "-"} />
-                   <DetailItem label="Drinking" value={profile.lifestyle?.drinking || "-"} />
+                   <DetailItem label="Diet" value={formatEnumLabel(profile.lifestyle?.diet ?? profile.diet)} />
+                   <DetailItem label="Smoking" value={formatEnumLabel(profile.lifestyle?.smoking ?? profile.smokingHabit)} />
+                   <DetailItem label="Drinking" value={formatEnumLabel(profile.lifestyle?.drinking ?? profile.drinkingHabit)} />
                  </DetailSection>
                </div>
             </TabsContent>
@@ -587,7 +572,7 @@ export default function ProfileDetailPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               onClick={(e: MouseEvent) => e.stopPropagation()}
-              className="bg-[#111] border border-white/10 rounded-[2.5rem] p-10 w-full max-w-md space-y-8 shadow-4xl relative overflow-hidden"
+              className="bg-foreground border border-white/10 rounded-[2.5rem] p-10 w-full max-w-md space-y-8 shadow-4xl relative overflow-hidden"
             >
                <div className="absolute top-0 right-0 p-10 opacity-5">
                  <Camera className="w-40 h-40 text-primary rotate-12" />
@@ -634,7 +619,14 @@ export default function ProfileDetailPage() {
   );
 }
 
-function DetailSection({ icon: Icon, title, children }: { icon: any, title: string, children: React.ReactNode }) {
+function DetailSection({ icon: Icon, title, children }: { icon: React.ElementType, title: string, children: React.ReactNode }) {
+  const visibleChildren = React.Children.toArray(children).filter((child) => {
+    if (!React.isValidElement<{ value?: unknown }>(child)) return Boolean(child);
+    return hasDisplayValue(child.props.value);
+  });
+
+  if (visibleChildren.length === 0) return null;
+
   return (
     <Card className="bg-white/[0.03] border-white/5 p-8 rounded-[2.5rem] shadow-xl space-y-6">
       <div className="flex items-center gap-3">
@@ -644,13 +636,15 @@ function DetailSection({ icon: Icon, title, children }: { icon: any, title: stri
         <h3 className="text-sm font-black uppercase tracking-widest">{title}</h3>
       </div>
       <div className="space-y-4">
-        {children}
+        {visibleChildren}
       </div>
     </Card>
   );
 }
 
 function DetailItem({ label, value }: { label: string, value: unknown }) {
+  if (!hasDisplayValue(value)) return null;
+
   return (
     <div className="flex justify-between items-center group font-medium">
       <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{label}</span>

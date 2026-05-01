@@ -6,12 +6,20 @@ const dobFormatter = new Intl.DateTimeFormat("en-IN", {
   year: "numeric",
 });
 
-export function displayValue(value: unknown, fallback = EMPTY_DISPLAY_VALUE): string {
-  if (value === null || value === undefined) return fallback;
+export function hasDisplayValue(value: unknown): boolean {
+  if (value === null || value === undefined) return false;
   if (typeof value === "string") {
     const trimmed = value.trim();
-    return trimmed.length > 0 ? trimmed : fallback;
+    if (!trimmed) return false;
+    return !["-", "n/a", "na", "null", "undefined"].includes(trimmed.toLowerCase());
   }
+  if (Array.isArray(value)) return value.length > 0;
+  return true;
+}
+
+export function displayValue(value: unknown, fallback = EMPTY_DISPLAY_VALUE): string {
+  if (!hasDisplayValue(value)) return fallback;
+  if (typeof value === "string") return value.trim();
   return String(value);
 }
 

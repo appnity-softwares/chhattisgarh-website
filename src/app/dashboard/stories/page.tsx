@@ -117,7 +117,7 @@ export default function SuccessStoriesPage() {
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Partner's Name</Label>
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Partner&apos;s Name</Label>
                                         <Input 
                                             required
                                             value={formData.partnerName}
@@ -210,7 +210,7 @@ export default function SuccessStoriesPage() {
                             <Button onClick={() => setShowForm(true)} variant="outline" className="border-primary/30 text-primary hover:bg-primary/10 rounded-xl h-12 px-8 font-black uppercase tracking-widest text-[10px]">Start Writing</Button>
                         </div>
                     ) : (
-                        stories.map((story: any, i: number) => (
+                        stories.map((story: unknown, i: number) => (
                             <motion.div 
                                 key={story.id} 
                                 initial={{ opacity: 0, y: 20 }}

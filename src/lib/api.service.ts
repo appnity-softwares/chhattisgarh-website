@@ -128,7 +128,7 @@ api.interceptors.response.use(
 );
 
 // Handle different error responses
-function handleErrorResponse(error: any) {
+function handleErrorResponse(error: unknown) {
     if (error.response?.status === 401) {
         // Handle unauthorized - clear storage and redirect
         if (typeof window !== "undefined") {
@@ -172,7 +172,7 @@ function handleErrorResponse(error: any) {
 
 // Create user-friendly error objects
 function createUserFriendlyError(message: string) {
-    const error = new Error(message) as any;
+    const error = new Error(message) as unknown;
     error.isUserFriendly = true;
     return error;
 }

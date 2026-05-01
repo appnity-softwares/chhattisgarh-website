@@ -211,7 +211,7 @@ export class InteractionsService {
         return res.json();
     }
 
-    async updatePartnerPreference(data: any, token: string) {
+    async updatePartnerPreference(data: unknown, token: string) {
         const res = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.profiles.preferences}`, {
             method: 'PUT',
             headers: getAuthHeaders(token),

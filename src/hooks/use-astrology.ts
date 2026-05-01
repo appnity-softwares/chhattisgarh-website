@@ -12,7 +12,7 @@ export function useAstrologyMetadata() {
         queryKey: ["astrology-nakshatras"],
         queryFn: async () => {
             const res = await apiService.get(apiConfig.endpoints.astrology.nakshatras);
-            return (res.data as any).data as AstrologyMetadata[];
+            return (res.data as unknown).data as AstrologyMetadata[];
         },
         staleTime: Infinity,
     });
@@ -21,7 +21,7 @@ export function useAstrologyMetadata() {
         queryKey: ["astrology-rashis"],
         queryFn: async () => {
             const res = await apiService.get(apiConfig.endpoints.astrology.rashis);
-            return (res.data as any).data as AstrologyMetadata[];
+            return (res.data as unknown).data as AstrologyMetadata[];
         },
         staleTime: Infinity,
     });
@@ -40,7 +40,7 @@ export function useAstrologyMatch(targetUserId: number | string) {
         queryFn: async () => {
             if (!targetUserId) return null;
             const res = await apiService.get(apiConfig.endpoints.astrology.match(targetUserId));
-            return (res.data as any).data;
+            return (res.data as unknown).data;
         },
         enabled: !!targetUserId,
     });

@@ -54,7 +54,7 @@ export function useInfiniteProfiles(params: Record<string, unknown> = {}) {
                     // If we are looking at 'received', we want 'sender'
                     const target = params.type === 'sent' ? m.receiver : m.sender;
                     // Normalize data: match endpoints return 'matches', search returns 'profiles'
-                    const profileData = (target?.profile || target || {}) as any;
+                    const profileData = (target?.profile || target || {}) as unknown;
                     
                     return {
                         ...profileData,

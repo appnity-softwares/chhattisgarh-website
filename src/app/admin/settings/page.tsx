@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { 
   CreditCard, Shield, Save, RefreshCw, Key, 
   Settings as SettingsIcon, AlertCircle, CheckCircle2,
@@ -18,17 +18,13 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [settings, setSettings] = useState<any>(null);
+  const [_settings, setSettings] = useState<unknown>(null);
   
   // Razorpay State
   const [razorpayKeyId, setRazorpayKeyId] = useState('');
   const [razorpayKeySecret, setRazorpayKeySecret] = useState('');
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     try {
       setLoading(true);
       const data = await adminService.getSettings();
@@ -36,10 +32,10 @@ export default function SettingsPage() {
       
       // Initialize Razorpay fields if they exist in DB
       if (data.PAYMENTS) {
-        const id = data.PAYMENTS.find((s: any) => s.key === 'RAZORPAY_KEY_ID');
+        const id = data.PAYMENTS.find((s: unknown) => s.key === 'RAZORPAY_KEY_ID');
         if (id) setRazorpayKeyId(id.value === '********' ? '' : id.value);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: "Error fetching settings",
@@ -48,7 +44,11 @@ export default function SettingsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
 
   const handleUpdateRazorpay = async () => {
     if (!razorpayKeyId || !razorpayKeySecret) {
@@ -69,7 +69,7 @@ export default function SettingsPage() {
       });
       setRazorpayKeySecret(''); // Clear secret for security
       fetchSettings();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: "Update Failed",

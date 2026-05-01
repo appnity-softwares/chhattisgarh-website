@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { 
     ShieldCheck, 
     Upload, 
@@ -15,7 +15,7 @@ import {
     Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { verificationsService } from "@/services/verifications.service";
 import { useToast } from "@/hooks/use-toast";
@@ -58,7 +58,7 @@ export default function VerificationPage() {
                 title: "Success",
                 description: "Verification document submitted successfully",
             });
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast({
                 title: "Upload Failed",
                 description: error.message || "Failed to submit document",
@@ -98,7 +98,7 @@ export default function VerificationPage() {
     return (
         <div className="max-w-4xl mx-auto space-y-10 pb-20 px-4">
             {/* Header Section */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-[#111] via-primary/5 to-transparent rounded-[3rem] p-10 md:p-16 border border-white/5 shadow-3xl">
+            <div className="relative overflow-hidden bg-gradient-to-br from-foreground via-primary/5 to-transparent rounded-[3rem] p-10 md:p-16 border border-white/5 shadow-3xl">
                 <div className="absolute -top-12 -right-12 p-8 opacity-5">
                     <ShieldCheck className="w-64 h-64 text-white" />
                 </div>
@@ -155,6 +155,7 @@ export default function VerificationPage() {
                                 
                                 <div className="relative aspect-video bg-black/40 rounded-[2rem] overflow-hidden border border-white/5">
                                     {preview ? (
+                                        /* eslint-disable-next-line @next/next/no-img-element */
                                         <img src={preview} alt="Document Preview" className="w-full h-full object-contain" />
                                     ) : (
                                         <div className="flex flex-col items-center justify-center h-full gap-4 text-muted-foreground/20">
@@ -183,7 +184,7 @@ export default function VerificationPage() {
 
                 {/* Info Section */}
                 <div className="lg:col-span-5 space-y-6">
-                    <Card className="bg-[#111] border border-white/5 rounded-[2.5rem] p-8 space-y-8">
+                    <Card className="bg-foreground border border-white/5 rounded-[2.5rem] p-8 space-y-8">
                         <div className="space-y-2">
                             <h4 className="text-xs font-black uppercase tracking-[0.3em] text-primary italic">Why Verify?</h4>
                             <p className="text-lg font-black uppercase tracking-tighter leading-none">Your trust is our <span className="text-primary">priority</span></p>
@@ -211,7 +212,7 @@ export default function VerificationPage() {
                             <div className="flex items-center gap-3">
                                 <div className="flex -space-x-2">
                                     {[1,2,3,4].map(i => (
-                                        <div key={i} className="w-6 h-6 rounded-full border-2 border-[#111] bg-primary/20" />
+                                        <div key={i} className="w-6 h-6 rounded-full border-2 border-foreground bg-primary/20" />
                                     ))}
                                 </div>
                                 <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 italic">+12k Verified Members</p>

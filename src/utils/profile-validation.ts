@@ -7,7 +7,7 @@ export interface ValidationResult {
   errors: ValidationErrors;
 }
 
-export const validateProfile = (data: any): ValidationResult => {
+export const validateProfile = (data: unknown): ValidationResult => {
   const errors: ValidationErrors = {};
 
   // Mandatory fields
@@ -77,7 +77,7 @@ export interface CompletenessResult {
   };
 }
 
-export const calculateCompleteness = (data: any): CompletenessResult => {
+export const calculateCompleteness = (data: unknown): CompletenessResult => {
   const check = (fields: string[]) => {
     const filled = fields.filter(f => {
       const v = data[f];

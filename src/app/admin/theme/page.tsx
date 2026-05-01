@@ -296,12 +296,12 @@ export default function ThemeSettingsPage() {
             
             {/* Phone Frame */}
             <div 
-              className="w-[340px] h-[680px] rounded-[48px] shadow-2xl overflow-hidden relative border-[10px] border-[#121212] ring-1 ring-white/10"
+              className="w-[340px] h-[680px] rounded-[48px] shadow-2xl overflow-hidden relative border-[10px] border-foreground ring-1 ring-white/10"
               style={{ backgroundColor: theme.backgroundColor }}
             >
               {/* Notch */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-[#121212] rounded-b-2xl z-50 flex items-center justify-center">
-                <div className="w-10 h-1 bg-[#222] rounded-full" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-foreground rounded-b-2xl z-50 flex items-center justify-center">
+                <div className="w-10 h-1 bg-muted-foreground rounded-full" />
               </div>
 
               {/* Status Bar */}

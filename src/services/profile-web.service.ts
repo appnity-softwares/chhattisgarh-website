@@ -79,7 +79,7 @@ export class ProfileWebService {
     }
 
     // Photo upload with retry logic and progress tracking
-    async uploadProfilePhotos(files: File[], token: string, onProgress?: (progress: number) => void): Promise<any> {
+    async uploadProfilePhotos(files: File[], token: string, onProgress?: (progress: number) => void): Promise<unknown> {
         const MAX_RETRIES = 3;
         const RETRY_DELAY = 1000;
 
@@ -116,7 +116,7 @@ export class ProfileWebService {
                             try {
                                 const response = JSON.parse(xhr.responseText);
                                 resolve(response);
-                            } catch (e) {
+                            } catch (_e) {
                                 reject(new Error('Invalid response from server'));
                             }
                         } else {

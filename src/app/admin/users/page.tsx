@@ -2,11 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  MoreHorizontal, Search, RefreshCw, ChevronLeft, ChevronRight,
-  Download, Trash2, Shield, Filter, X, Users, Ban, CheckCircle,
-  Eye, AlertTriangle, UserCheck, Upload, FileText, UserPlus, CreditCard, Star, Pencil,
-} from "lucide-react";
+import { MoreHorizontal, Search, RefreshCw, ChevronLeft, ChevronRight, Download, Trash2, Shield, Filter, X, Users, Ban, CheckCircle, Eye, AlertTriangle, UserCheck, Upload, FileText, UserPlus, Star, Pencil } from "lucide-react";
 import { HEIGHT_OPTIONS } from "@/utils/height-utils";
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
@@ -126,7 +122,7 @@ export default function AdminUsersPage() {
   const { toast } = useToast();
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
-  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 0 });
+  const [pagination, setPagination] = useState<{ page: number, limit: number, total: number, totalPages: number }>({ page: 1, limit: 10, total: 0, totalPages: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
@@ -234,7 +230,7 @@ export default function AdminUsersPage() {
       });
       fetchUsers(1);
     } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Creation Failed', description: err.message });
+      toast({ variant: 'destructive', title: 'Creation Failed', description: err?.message || 'Something went wrong' });
     } finally {
       setIsCreatingUser(false);
     }
@@ -265,14 +261,13 @@ export default function AdminUsersPage() {
       setUsers(data.users || []);
       const pag = data.pagination as any;
       setPagination({
-        page: (pag?.page as number) || 1,
-        limit: (pag?.limit as number) || 10,
-        total: (pag?.total as number) || 0,
-        totalPages: (pag?.totalPages as number) || 0
+        page: pag?.page || 1,
+        limit: pag?.limit || 10,
+        total: pag?.total || 0,
+        totalPages: pag?.totalPages || 0
       });
-    } catch (err: unknown) {
-      const errorMsg = err as { message?: string };
-      toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to load users' });
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: 'Error', description: err?.message || 'Failed to load users' });
     } finally {
       setIsLoading(false);
     }
@@ -416,7 +411,7 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleBulkBan = async () => {
+  const _handleBulkBan = async () => {
     setIsBulkProcessing(true);
     try {
       await adminService.bulkModeration(Array.from(selectedUsers), 'users', 'ban');
@@ -457,7 +452,7 @@ export default function AdminUsersPage() {
       setSelectedFile(null);
       fetchUsers();
     } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Upload Failed', description: err.message });
+      toast({ variant: 'destructive', title: 'Upload Failed', description: err?.message || 'Upload failed' });
     } finally {
       setIsUploading(false);
     }
@@ -471,7 +466,7 @@ export default function AdminUsersPage() {
       setIsGrantSubOpen(false);
       fetchUsers(pagination.page);
     } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Grant Failed', description: err.message });
+      toast({ variant: 'destructive', title: 'Grant Failed', description: err?.message || 'Grant failed' });
     }
   };
 
@@ -703,6 +698,7 @@ export default function AdminUsersPage() {
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full overflow-hidden border border-white/10 flex items-center justify-center flex-shrink-0 bg-white/5">
                           {user.profilePicture ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
                             <img src={user.profilePicture} alt="" className="w-full h-full object-cover" />
                           ) : (
                             <span className="text-xs font-semibold text-purple-300">
@@ -1244,7 +1240,7 @@ export default function AdminUsersPage() {
               <h3 className="text-xs font-black uppercase tracking-widest text-primary/80 border-l-2 border-primary pl-3">Family & About</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Father's Occupation</label>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase ml-1">Father&apos;s Occupation</label>
                   <input
                     value={newUserData.fatherOccupation}
                     onChange={(e) => setNewUserData({...newUserData, fatherOccupation: e.target.value})}

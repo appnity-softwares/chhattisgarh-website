@@ -92,7 +92,7 @@ export default function AdminFAQPage() {
         try {
             const data = await adminService.getFaqsAdmin();
             setFaqs(data || []);
-        } catch (err: any) {
+        } catch (err: unknown) {
             toast({ title: 'Error', description: err.message || 'Failed to fetch FAQs', variant: 'destructive' });
         } finally {
             setLoading(false);
@@ -117,7 +117,7 @@ export default function AdminFAQPage() {
             setDialogOpen(false);
             setFormData(emptyFaq);
             fetchFAQs();
-        } catch (err: any) {
+        } catch (err: unknown) {
             toast({ title: 'Error', description: err.message || 'Failed to create FAQ', variant: 'destructive' });
         } finally {
             setSaving(false);
@@ -134,7 +134,7 @@ export default function AdminFAQPage() {
             setEditingFaq(null);
             setFormData(emptyFaq);
             fetchFAQs();
-        } catch (err: any) {
+        } catch (err: unknown) {
             toast({ title: 'Error', description: err.message || 'Failed to update FAQ', variant: 'destructive' });
         } finally {
             setSaving(false);
@@ -147,7 +147,7 @@ export default function AdminFAQPage() {
             toast({ title: 'Success', description: 'FAQ deleted' });
             setDeleteConfirm(null);
             fetchFAQs();
-        } catch (err: any) {
+        } catch (err: unknown) {
             toast({ title: 'Error', description: err.message || 'Failed to delete FAQ', variant: 'destructive' });
         }
     };
@@ -156,7 +156,7 @@ export default function AdminFAQPage() {
         try {
             await adminService.updateFaq(faq.id, { isActive: !faq.isActive });
             fetchFAQs();
-        } catch (err: any) {
+        } catch (err: unknown) {
             toast({ title: 'Error', description: err.message || 'Failed to toggle status', variant: 'destructive' });
         }
     };

@@ -97,7 +97,7 @@ export function handleApiError(error: unknown): UserFriendlyError {
 
   // Handle axios errors with response data
   if (error && typeof error === 'object' && 'response' in error) {
-    const axiosError = error as any;
+    const axiosError = error as unknown;
     const status = axiosError.response?.status;
     const data = axiosError.response?.data;
 

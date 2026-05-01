@@ -98,9 +98,9 @@ class ConfigService {
             return JSON.parse(value);
         } catch {
             return {
-                primary: '#7c3aed',
-                secondary: '#ec4899',
-                accent: '#8b5cf6'
+                primary: '#8B1E3F',
+                secondary: '#64142D',
+                accent: '#D4AF37'
             };
         }
     }

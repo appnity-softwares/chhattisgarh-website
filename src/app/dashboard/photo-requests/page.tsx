@@ -2,18 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import {
-    Camera,
-    ArrowLeft,
-    CheckCircle2,
-    XCircle,
-    Clock,
-    Eye,
-    Loader2,
-    Send,
-    Inbox,
-    Image as ImageIcon
-} from "lucide-react";
+import { Camera, ArrowLeft, CheckCircle2, XCircle, Clock, Eye, Loader2, Send, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,10 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { usePhotoRequests } from "@/hooks/use-photo-requests";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-
-export default function PhotoRequestsPage() {
+import { useRouter } from "next/navigation";export default function PhotoRequestsPage() {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState("received");
     const { received, sent, isLoading, pendingCount, accept, reject } = usePhotoRequests();

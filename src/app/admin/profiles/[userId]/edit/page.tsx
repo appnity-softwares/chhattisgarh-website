@@ -4,7 +4,7 @@ import React, { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 import adminService from "@/services/admin.service";
-import { Profile, User } from "@/types/api.types";
+import { User } from "@/types/api.types";
 import { AdminPageWrapper } from "@/app/admin/admin-page-wrapper";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,15 +20,11 @@ import {
     Calendar, Eye, Trash2, Upload
 } from "lucide-react";
 import { HEIGHT_OPTIONS } from "@/utils/height-utils";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { validateProfile, calculateCompleteness, ValidationErrors, CompletenessResult } from "@/utils/profile-validation";
 import { cn } from "@/lib/utils";
 import { ProfileCompletenessTracker } from "@/components/profile/ProfileCompletenessTracker";
-import { ProfilePreviewDialog } from "@/components/profile/ProfilePreviewDialog";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-
-const MARITAL_STATUSES = [
+import { ProfilePreviewDialog } from "@/components/profile/ProfilePreviewDialog";const MARITAL_STATUSES = [
     { value: 'NEVER_MARRIED', label: 'Never Married' },
     { value: 'DIVORCED', label: 'Divorced' },
     { value: 'WIDOWED', label: 'Widowed' },
@@ -119,9 +115,9 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                         city: p.city || '',
                         state: p.state || 'Chhattisgarh',
                         country: p.country || 'India',
-                        height: (p as any).height || '',
-                        weight: (p as any).weight || '',
-                        education: (p as any).education || '',
+                        height: (p as unknown).height || '',
+                        weight: (p as unknown).weight || '',
+                        education: (p as unknown).education || '',
                         isVerified: p.isVerified || false,
                         isPublished: p.isPublished || true,
                         annualIncome: p.annualIncome || '',
@@ -131,10 +127,10 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                         nativeVillage: p.nativeVillage || '',
                         category: p.category || '',
                         subCaste: p.subCaste || '',
-                        occupation: (p as any).occupation || ''
+                        occupation: (p as unknown).occupation || ''
                     });
                 }
-            } catch (err: any) {
+            } catch (err: unknown) {
                 toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to load user data' });
             } finally {
                 setIsLoading(false);
@@ -181,7 +177,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                 toast({ title: 'Success', description: 'Profile created successfully' });
             }
             router.push(`/admin/users/${userId}`);
-        } catch (err: any) {
+        } catch (err: unknown) {
             toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to save profile' });
         } finally {
             setIsSaving(false);
@@ -195,7 +191,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
             await adminService.deleteProfile(userId);
             toast({ title: 'Success', description: 'Profile deleted successfully' });
             router.push(`/admin/users/${userId}`);
-        } catch (err: any) {
+        } catch (err: unknown) {
             toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to delete profile' });
         } finally {
             setIsDeleting(false);
@@ -208,12 +204,12 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
 
         setIsPhotoUploading(true);
         try {
-            const result = await adminService.uploadProfilePhoto(userId, file);
+            const _result = await adminService.uploadProfilePhoto(userId, file);
             toast({ title: 'Success', description: 'Profile photo uploaded successfully' });
             // Refresh local user data to show new photo
             const userData = await adminService.getUserById(userId);
             setUser(userData);
-        } catch (err: any) {
+        } catch (err: unknown) {
             toast({ variant: 'destructive', title: 'Upload Failed', description: err.message });
         } finally {
             setIsPhotoUploading(false);
@@ -460,7 +456,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                         <Label className="text-[10px] uppercase font-bold text-muted-foreground">Occupation</Label>
                                         <Input 
                                             value={formData.occupation}
-                                            onChange={(e) => setFormData({...formData, occupation: (e.target as any).value})}
+                                            onChange={(e) => setFormData({...formData, occupation: (e.target as unknown).value})}
                                             className="bg-white/5 border-white/10"
                                             placeholder="Software Developer"
                                         />
@@ -479,7 +475,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] uppercase font-bold text-muted-foreground">Father's Occupation</Label>
+                                        <Label className="text-[10px] uppercase font-bold text-muted-foreground">Father&apos;s Occupation</Label>
                                         <Input 
                                             value={formData.fatherOccupation}
                                             onChange={(e) => setFormData({...formData, fatherOccupation: e.target.value})}
@@ -516,6 +512,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ userId
                         <Card className="bg-card/40 border-white/5 backdrop-blur-md overflow-hidden">
                              <div className="aspect-square w-full relative group">
                                 {user?.profilePicture ? (
+                                    /* eslint-disable-next-line @next/next/no-img-element */
                                     <img 
                                         src={user.profilePicture} 
                                         alt="Profile" 

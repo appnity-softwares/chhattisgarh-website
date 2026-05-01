@@ -102,7 +102,7 @@ export async function initializeNotifications() {
         }
 
         // Handle foreground messages
-        const unsubscribe = onMessage(messaging, (payload: any) => {
+        const unsubscribe = onMessage(messaging, (payload: unknown) => {
             console.log('Received foreground message:', payload);
             
             // Show notification for messages
@@ -169,7 +169,7 @@ export async function initializeNotifications() {
         });
 
         // Handle background messages
-        onBackgroundMessage(messaging, (payload: any) => {
+        onBackgroundMessage(messaging, (payload: unknown) => {
             console.log('Received background message:', payload);
         });
 

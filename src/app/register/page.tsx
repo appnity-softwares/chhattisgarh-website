@@ -286,7 +286,7 @@ export default function RegisterPage() {
                                             <SelectTrigger className="h-16 bg-white/5 border-white/10 rounded-2xl focus:ring-primary/20 font-black text-sm uppercase">
                                                 <SelectValue />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-[#111] border-white/10 text-white">
+                                            <SelectContent className="bg-foreground border-white/10 text-white">
                                                 <SelectItem value="self">Self</SelectItem>
                                                 <SelectItem value="son">Son</SelectItem>
                                                 <SelectItem value="daughter">Daughter</SelectItem>

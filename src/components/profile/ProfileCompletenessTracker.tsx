@@ -2,9 +2,8 @@
 
 import React from 'react';
 import { CompletenessResult } from '@/utils/profile-validation';
-import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { CheckCircle2, Circle, AlertCircle } from 'lucide-react';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface ProfileCompletenessTrackerProps {
   data: CompletenessResult;

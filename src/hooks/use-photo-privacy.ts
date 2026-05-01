@@ -28,7 +28,7 @@ export function usePhotoPrivacy() {
         description: "Your photo visibility settings have been saved.",
       });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: "Update Failed",
         description: error.response?.data?.message || "Could not update privacy settings.",

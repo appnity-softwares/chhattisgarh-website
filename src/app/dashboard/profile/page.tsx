@@ -45,7 +45,6 @@ import {
     DropdownMenuTrigger,
     DropdownMenuCheckboxItem
 } from "@/components/ui/dropdown-menu";
-import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { usePhotoPrivacy } from "@/hooks/use-photo-privacy";
 import { useRef } from "react";
@@ -64,7 +63,7 @@ const SECTIONS = [
     { id: "preferences", label: "Preferences", icon: Star },
 ];
 
-const GENDER_OPTIONS = ["MALE", "FEMALE", "OTHER"] as const;
+const _GENDER_OPTIONS = ["MALE", "FEMALE", "OTHER"] as const;
 const MARITAL_STATUS_OPTIONS = [
     "NEVER_MARRIED",
     "DIVORCED",
@@ -173,14 +172,14 @@ interface ProfileData {
 export default function ProfilePage() {
     const { data: userData, isLoading, saveProfile, uploadPhotos, deletePhoto } = useProfile();
     const { updatePrivacy } = usePhotoPrivacy();
-    const { preference: prefData, updatePreference, isLoading: isPrefLoading } = usePartnerPreference();
+    const { preference: prefData, updatePreference, isLoading: _isPrefLoading } = usePartnerPreference();
     const { data: completion } = useProfileCompletion();
     const { nakshatras, rashis } = useAstrologyMetadata();
     const { toast } = useToast();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [activeSection, setActiveSection] = useState("basic");
     const [formData, setFormData] = useState<ProfileData>({});
-    const [prefFormData, setPrefFormData] = useState<any>({});
+    const [prefFormData, setPrefFormData] = useState<unknown>({});
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     // Profile validation rules
@@ -802,6 +801,7 @@ export default function ProfilePage() {
                                             {/* Existing Photos */}
                                             {media.map((item, idx) => (
                                                 <div key={item.id || idx} className="relative group aspect-square rounded-[1.5rem] overflow-hidden border-2 border-primary/20 bg-background/50">
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                                     <img src={item.url} alt={String(formData.firstName || 'Profile Photo')} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
 
                                                     {/* Privacy Controls overlay */}
@@ -906,11 +906,11 @@ export default function ProfilePage() {
                                             {/* Father's Info */}
                                             <Card className="bg-white/5 border-white/5 rounded-[2rem] p-6 space-y-6">
                                                 <h3 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                                                    <User className="w-4 h-4" /> Father's Details
+                                                    <User className="w-4 h-4" /> Father&apos;s Details
                                                 </h3>
                                                 <div className="space-y-4">
                                                     <div className="space-y-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Father's Name</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Father&apos;s Name</Label>
                                                         <Input value={formData.fatherName || ""} onChange={(e) => setFormData({...formData, fatherName: e.target.value})} className="h-12 bg-white/5 border-white/10 rounded-xl" />
                                                     </div>
                                                     <div className="space-y-2">
@@ -935,11 +935,11 @@ export default function ProfilePage() {
                                             {/* Mother's Info */}
                                             <Card className="bg-white/5 border-white/5 rounded-[2rem] p-6 space-y-6">
                                                 <h3 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                                                    <User className="w-4 h-4" /> Mother's Details
+                                                    <User className="w-4 h-4" /> Mother&apos;s Details
                                                 </h3>
                                                 <div className="space-y-4">
                                                     <div className="space-y-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Mother's Name</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Mother&apos;s Name</Label>
                                                         <Input value={formData.motherName || ""} onChange={(e) => setFormData({...formData, motherName: e.target.value})} className="h-12 bg-white/5 border-white/10 rounded-xl" />
                                                     </div>
                                                     <div className="space-y-2">

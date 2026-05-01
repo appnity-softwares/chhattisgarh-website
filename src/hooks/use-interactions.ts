@@ -18,9 +18,9 @@ export function useProfileVisitors() {
             const rawData = res.data;
             if (Array.isArray(rawData)) return rawData;
             if (rawData && typeof rawData === 'object') {
-                if (Array.isArray((rawData as any).visitors)) return (rawData as any).visitors;
-                if (Array.isArray((rawData as any).profiles)) return (rawData as any).profiles;
-                if (Array.isArray((rawData as any).data)) return (rawData as any).data;
+                if (Array.isArray((rawData as unknown).visitors)) return (rawData as unknown).visitors;
+                if (Array.isArray((rawData as unknown).profiles)) return (rawData as unknown).profiles;
+                if (Array.isArray((rawData as unknown).data)) return (rawData as unknown).data;
             }
             return [];
         },
@@ -46,7 +46,7 @@ export function useInteractions() {
             }
             return res.data;
         },
-        onSuccess: (data: any) => {
+        onSuccess: (data: unknown) => {
             if (data?.alreadyExists) {
                 toast({
                     title: "Status Update",
@@ -138,7 +138,7 @@ export function useInteractions() {
             }
             return res.data;
         },
-        onSuccess: (data: any) => {
+        onSuccess: (data: unknown) => {
             if (data?.alreadyExists) {
                 toast({
                     title: "Status Update",
@@ -323,14 +323,14 @@ export function useBlockedUsers() {
             // Be extremely defensive about the data structure
             const rawData = res.data;
             if (Array.isArray(rawData)) return rawData;
-            if (rawData && typeof rawData === 'object' && Array.isArray((rawData as any).profiles)) {
-                return (rawData as any).profiles;
+            if (rawData && typeof rawData === 'object' && Array.isArray((rawData as unknown).profiles)) {
+                return (rawData as unknown).profiles;
             }
-            if (rawData && typeof rawData === 'object' && Array.isArray((rawData as any).blockedUsers)) {
-                return (rawData as any).blockedUsers;
+            if (rawData && typeof rawData === 'object' && Array.isArray((rawData as unknown).blockedUsers)) {
+                return (rawData as unknown).blockedUsers;
             }
-            if (rawData && typeof rawData === 'object' && Array.isArray((rawData as any).blocks)) {
-                return (rawData as any).blocks;
+            if (rawData && typeof rawData === 'object' && Array.isArray((rawData as unknown).blocks)) {
+                return (rawData as unknown).blocks;
             }
             return [];
         },

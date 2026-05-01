@@ -17,8 +17,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 
 export default function BoostPage() {
-    const { data: packages, isLoading: packsLoading } = useBoostPackages();
-    const { data: activeStatus, isLoading: activeLoading } = useActiveBoost();
+    const { data: packages, isLoading: _packsLoading } = useBoostPackages();
+    const { data: activeStatus, isLoading: _activeLoading } = useActiveBoost();
     const { initiateBoost, verifyBoost } = useBoostPayment();
     const { toast } = useToast();
 
@@ -45,7 +45,7 @@ export default function BoostPage() {
                 description: `Boost: ${orderData.boostPackage?.name || boostType}`,
                 image: "/logo.png",
                 order_id: orderData.orderId,
-                handler: async function (response: any) {
+                handler: async function (response: unknown) {
                     await verifyBoost.mutateAsync({
                         razorpay_order_id: response.razorpay_order_id,
                         razorpay_payment_id: response.razorpay_payment_id,
@@ -54,15 +54,15 @@ export default function BoostPage() {
                     });
                 },
                 theme: {
-                    color: "#E01E5A",
+                    color: "#8B1E3F",
                 },
             };
 
-            // @ts-ignore
+            // @ts-expect-error - Legacy third-party typing is incomplete
             const paymentObject = new window.Razorpay(options);
             paymentObject.open();
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Boost payment failed:", error);
             toast({
                 title: "Error",
@@ -83,7 +83,7 @@ export default function BoostPage() {
     return (
         <div className="max-w-5xl mx-auto space-y-10 pb-20">
             {/* Hero Section */}
-            <div className="relative rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-[#121212] to-black border border-white/5 p-8 lg:p-12">
+            <div className="relative rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-foreground to-black border border-white/5 p-8 lg:p-12">
                 <div className="absolute top-0 right-0 w-1/2 h-full bg-primary/5 blur-[120px] rounded-full -mr-20 -mt-20 animate-pulse pointer-events-none" />
                 
                 <div className="relative z-10 flex flex-col lg:flex-row items-center gap-12">
@@ -112,7 +112,7 @@ export default function BoostPage() {
 
                     <div className="w-full lg:w-72 aspect-[4/5] relative">
                          <div className={`absolute inset-0 rounded-[2.5rem] rotate-6 border blur-sm transition-all duration-700 ${hasActive ? 'bg-green-500/20 border-green-500/30' : 'bg-primary/20 border-primary/30 rotate-6 group-hover:rotate-3'}`} />
-                         <div className="relative h-full bg-[#161616] border border-white/10 rounded-[2.5rem] p-6 flex flex-col justify-between overflow-hidden">
+                         <div className="relative h-full bg-foreground border border-white/10 rounded-[2.5rem] p-6 flex flex-col justify-between overflow-hidden">
                              <div className="flex justify-between items-start">
                                  <div className={`p-2.5 rounded-2xl ${hasActive ? 'bg-green-500/10' : 'bg-white/10'}`}>
                                      <Zap className={`w-6 h-6 ${hasActive ? 'text-green-500 fill-green-500/20' : 'text-primary fill-primary/20'}`} />
@@ -172,11 +172,11 @@ export default function BoostPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-                    {displayPackages.map((option: any) => (
+                    {displayPackages.map((option: unknown) => (
                         <motion.div
                             key={option.id}
                             whileHover={{ y: -10 }}
-                            className={`relative bg-[#0f0f0f] border rounded-[2rem] p-8 flex flex-col gap-8 transition-all duration-500 overflow-hidden ${option.recommended ? 'border-primary shadow-2xl shadow-primary/10 scale-105 z-10' : 'border-white/5'}`}
+                            className={`relative bg-foreground border rounded-[2rem] p-8 flex flex-col gap-8 transition-all duration-500 overflow-hidden ${option.recommended ? 'border-primary shadow-2xl shadow-primary/10 scale-105 z-10' : 'border-white/5'}`}
                         >
                             {option.recommended && (
                                 <div className="absolute top-0 right-0 bg-primary text-white text-[9px] font-black px-6 py-2 rounded-bl-2xl uppercase tracking-widest">Recommended</div>
@@ -241,7 +241,7 @@ export default function BoostPage() {
                                                     description: "Send this link to someone who can pay for your boost.",
                                                 });
                                             }
-                                        } catch (err) {
+                                        } catch (_err) {
                                             toast({
                                                 title: "Error",
                                                 description: "Failed to generate boost link.",
@@ -263,13 +263,14 @@ export default function BoostPage() {
             <div className="bg-primary/5 rounded-[2rem] p-10 flex flex-col items-center text-center space-y-6">
                 <div className="flex -space-x-3">
                     {[1,2,3,4,5].map(i => (
-                        <div key={i} className="w-10 h-10 rounded-full border-4 border-[#0a0a0a] bg-muted overflow-hidden">
+                        <div key={i} className="w-10 h-10 rounded-full border-4 border-foreground bg-muted overflow-hidden">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={`https://i.pravatar.cc/100?u=${i}`} alt="user" className="w-full h-full object-cover" />
                         </div>
                     ))}
                 </div>
                 <div className="max-w-xl space-y-2">
-                    <p className="text-xs font-black uppercase tracking-widest text-white italic">"My profile views jumped from 20 to 500 in just 2 days. I found my match within a week of boosting!"</p>
+                    <p className="text-xs font-black uppercase tracking-widest text-white italic">&quot;My profile views jumped from 20 to 500 in just 2 days. I found my match within a week of boosting!&quot;</p>
                     <p className="text-[9px] font-bold uppercase tracking-tighter text-muted-foreground/60">— Surbhi V., Raipur</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -280,4 +281,3 @@ export default function BoostPage() {
         </div>
     );
 }
-

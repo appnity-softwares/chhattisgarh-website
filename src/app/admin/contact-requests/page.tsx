@@ -1,12 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import {
-  MoreHorizontal, Search, RefreshCw, ChevronLeft, ChevronRight,
-  CheckCircle, XCircle, Eye, Ban, UserCheck, Filter, X,
-  Users, Mail, Clock, AlertTriangle
-} from "lucide-react";
+import { MoreHorizontal, Search, RefreshCw, ChevronLeft, ChevronRight, CheckCircle, XCircle, Ban, Filter, Users, Mail, Clock } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator
@@ -58,7 +54,7 @@ export default function AdminContactRequestsPage() {
     userId?: number;
   }>({ isOpen: false, type: 'approve' });
 
-  const fetchRequests = async (page = 1) => {
+  const fetchRequests = useCallback(async (page = 1) => {
     setIsLoading(true);
     setSelectedRequests(new Set());
     try {
@@ -71,11 +67,11 @@ export default function AdminContactRequestsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchQuery, statusFilter, toast]);
 
   useEffect(() => {
     fetchRequests();
-  }, [statusFilter, searchQuery]);
+  }, [fetchRequests]);
 
   const handleApprove = async (requestId: number) => {
     try {
@@ -88,7 +84,7 @@ export default function AdminContactRequestsPage() {
     }
   };
 
-  const handleReject = async (requestId: number, reason: string) => {
+  const _handleReject = async (requestId: number, reason: string) => {
     try {
       await adminService.updateContactRequest(requestId, 'REJECTED', reason);
       toast({ title: 'Success', description: 'Contact request rejected' });

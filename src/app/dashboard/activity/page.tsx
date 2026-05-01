@@ -18,7 +18,7 @@ import { useProfileVisitors } from "@/hooks/use-interactions";
 import { Loader2 } from "lucide-react";
 import { ProfileView } from "@/types/api.types";
 
-interface ProfileDisplay {
+interface _ProfileDisplay {
     id: number;
     firstName?: string;
     lastName?: string;
@@ -96,7 +96,7 @@ export default function ActivityPage() {
                                 <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">No recent visitors</span>
                             </div>
                         ) : visitors.map((interaction: ProfileView, i: number) => {
-                            const profile = (interaction.viewer || (interaction as any).profile || interaction) as any;
+                            const profile = (interaction.viewer || (interaction as unknown).profile || interaction) as unknown;
                             return (
                                 <motion.div 
                                     key={interaction.id || i}
@@ -117,7 +117,7 @@ export default function ActivityPage() {
                                         age={profile.age || 0}
                                         city={profile.city || ''}
                                         occupation={profile.occupation || ''}
-                                        gender={(profile.gender?.toLowerCase() as any) || 'female'}
+                                        gender={(profile.gender?.toLowerCase() as unknown) || 'female'}
                                         isVerified={profile.isVerified}
                                         image={profile.media?.[0]?.url}
                                     />

@@ -2,19 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import {
-    UserPlus,
-    ArrowLeft,
-    CheckCircle2,
-    XCircle,
-    Clock,
-    Phone,
-    Mail,
-    MessageCircle,
-    Loader2,
-    Send,
-    Inbox
-} from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle, Clock, Phone, Mail, MessageCircle, Loader2, Send, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

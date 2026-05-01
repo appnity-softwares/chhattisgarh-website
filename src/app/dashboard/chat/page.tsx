@@ -1,27 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { 
-    MessageSquare, 
-    Send, 
-    MoreVertical, 
-    Phone, 
-    Video, 
-    Image as ImageIcon,
-    Smile,
-    Search,
-    ArrowLeft,
-    CheckCheck,
-    Loader2,
-    Heart,
-    ShieldCheck,
-    Crown,
-    Info,
-    Trash2,
-    Sparkles,
-    User
-} from "lucide-react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { motion } from "framer-motion";
+import { MessageSquare, Send, MoreVertical, Phone, Video, Smile, Search, ArrowLeft, CheckCheck, Loader2, Heart, ShieldCheck, Trash2, Sparkles, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -166,7 +147,7 @@ export default function ChatPage({ initialUserId: propUserId }: { initialUserId?
                                         <AvatarFallback className="bg-primary/10 text-primary font-black uppercase">{conv.user.profile.firstName.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     {isOnline && selectedUserId === conv.user.id && (
-                                        <div className="absolute bottom-1 right-1 h-4 w-4 bg-emerald-500 rounded-full border-4 border-[#0a0a0a] ring-2 ring-emerald-500/20" />
+                                        <div className="absolute bottom-1 right-1 h-4 w-4 bg-success rounded-full border-4 border-foreground ring-2 ring-success/20" />
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -201,7 +182,7 @@ export default function ChatPage({ initialUserId: propUserId }: { initialUserId?
             </div>
 
             {/* Chat Window */}
-            <Card className={`flex-1 flex flex-col bg-[#0d0d0d] border border-white/5 rounded-[3rem] overflow-hidden shadow-4xl relative ${!selectedUserId ? 'hidden lg:flex' : 'flex'}`}>
+            <Card className={`flex-1 flex flex-col bg-foreground border border-white/5 rounded-[3rem] overflow-hidden shadow-4xl relative ${!selectedUserId ? 'hidden lg:flex' : 'flex'}`}>
                 {!selectedUserId ? (
                     <div className="h-full flex flex-col items-center justify-center text-center space-y-8 p-12">
                         <div className="relative">
@@ -245,7 +226,7 @@ export default function ChatPage({ initialUserId: propUserId }: { initialUserId?
                                         <AvatarImage src={activeConv?.user.profilePicture || activeConv?.user.profile.media?.[0]?.url} className="object-cover" />
                                         <AvatarFallback className="bg-primary/10 text-primary font-black">{activeConv?.user.profile.firstName.charAt(0)}</AvatarFallback>
                                     </Avatar>
-                                    <div className={`absolute bottom-0 right-0 h-4 w-4 rounded-full border-2 border-[#0d0d0d] shadow-lg ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-muted-foreground'}`} />
+                                    <div className={`absolute bottom-0 right-0 h-4 w-4 rounded-full border-2 border-foreground shadow-lg ${isOnline ? 'bg-success animate-pulse' : 'bg-muted-foreground'}`} />
                                 </div>
                                 <div className="cursor-pointer" onClick={() => router.push(`/dashboard/profile/${selectedUserId}`)}>
                                     <div className="flex items-center gap-2">
@@ -270,7 +251,7 @@ export default function ChatPage({ initialUserId: propUserId }: { initialUserId?
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" size="icon" className="rounded-2xl hover:bg-white/5 h-11 w-11 text-muted-foreground"><MoreVertical className="h-5 w-5" /></Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="bg-[#111] border border-white/10 rounded-2xl w-56 p-2 shadow-4xl backdrop-blur-2xl">
+                                    <DropdownMenuContent align="end" className="bg-foreground border border-white/10 rounded-2xl w-56 p-2 shadow-4xl backdrop-blur-2xl">
                                         <DropdownMenuItem onClick={() => router.push(`/dashboard/profile/${selectedUserId}`)} className="rounded-xl cursor-pointer p-3 font-black uppercase tracking-widest text-[9px] gap-3">
                                             <User className="w-4 h-4 text-primary" /> View Full Profile
                                         </DropdownMenuItem>
@@ -358,6 +339,7 @@ export default function ChatPage({ initialUserId: propUserId }: { initialUserId?
                                                 >
                                                     {message.type === "IMAGE" && message.imageUrl ? (
                                                         <div className="space-y-3">
+                                                            {/* eslint-disable-next-line @next/next/no-img-element */}
                                                             <img src={message.imageUrl} alt="shared file" className="rounded-2xl max-h-80 w-full object-cover" />
                                                             {message.text && <p>{message.text}</p>}
                                                         </div>

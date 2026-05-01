@@ -17,7 +17,7 @@ export interface RelationshipState {
 interface InteractionStore {
   relationships: Record<number, RelationshipState>;
   setRelationship: (userId: number, state: Partial<RelationshipState>) => void;
-  syncFromApi: (userId: number, apiData: any) => void;
+  syncFromApi: (userId: number, apiData: unknown) => void;
   
   // Actions
   sendInterest: (userId: number) => Promise<void>;
@@ -72,7 +72,7 @@ export const useInteractionStore = create<InteractionStore>()(
 
       try {
         await apiService.post(apiConfig.endpoints.matches.send, { receiverId: userId });
-      } catch (error) {
+      } catch (_error) {
         get().setRelationship(userId, previousState);
         toast({ title: "Failed", description: "Could not send interest.", variant: "destructive" });
       }
@@ -85,7 +85,7 @@ export const useInteractionStore = create<InteractionStore>()(
 
       try {
         await apiService.post(apiConfig.endpoints.matches.send, { receiverId: userId, isPriority: true });
-      } catch (error) {
+      } catch (_error) {
         get().setRelationship(userId, previousState);
         toast({ title: "Failed", description: "Could not send Priority Interest.", variant: "destructive" });
       }
@@ -98,7 +98,7 @@ export const useInteractionStore = create<InteractionStore>()(
 
       try {
         await apiService.post(apiConfig.endpoints.matches.accept(matchId));
-      } catch (error) {
+      } catch (_error) {
         get().setRelationship(userId, previousState);
       }
     },
@@ -112,7 +112,7 @@ export const useInteractionStore = create<InteractionStore>()(
         if (matchId) {
           await apiService.post(apiConfig.endpoints.matches.reject(matchId));
         }
-      } catch (error) {
+      } catch (_error) {
         get().setRelationship(userId, previousState);
       }
     },
@@ -133,7 +133,7 @@ export const useInteractionStore = create<InteractionStore>()(
         } else {
           await apiService.delete(apiConfig.endpoints.shortlists.delete(userId));
         }
-      } catch (error) {
+      } catch (_error) {
         get().setRelationship(userId, currentState);
       }
     },
@@ -147,7 +147,7 @@ export const useInteractionStore = create<InteractionStore>()(
 
       try {
         await apiService.post(apiConfig.endpoints.blocks.create, { blockedId: userId });
-      } catch (error) {
+      } catch (_error) {
         get().setRelationship(userId, previousState);
       }
     }

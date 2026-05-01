@@ -11,7 +11,7 @@ export function useSystemDiagnostics() {
         queryKey: ["admin-diagnostics"],
         queryFn: async () => {
             const res = await apiService.get(apiConfig.endpoints.admin.diagnostics);
-            return (res.data as any).data;
+            return (res.data as unknown).data;
         },
         refetchInterval: 60000, 
     });
@@ -28,7 +28,7 @@ export function useSystemDiagnostics() {
             });
             queryClient.invalidateQueries({ queryKey: ["admin-diagnostics"] });
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
             toast({
                 title: "Flush Failed",
                 description: error.message || "Failed to clear Redis cache.",

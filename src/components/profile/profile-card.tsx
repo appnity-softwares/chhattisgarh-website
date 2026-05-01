@@ -2,30 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import {
-    MapPin,
-    Briefcase,
-    GraduationCap,
-    ShieldCheck,
-    Heart,
-    MoreVertical,
-    Ban,
-    Flag,
-    Loader2,
-    Zap,
-    Send,
-    MessageSquare,
-    Trash2,
-    ChevronLeft,
-    ChevronRight,
-    Crown,
-    Star,
-    UserPlus,
-    Phone,
-    Mail,
-    MessageCircle,
-    Camera
-} from "lucide-react";
+import { MapPin, Briefcase, ShieldCheck, Heart, MoreVertical, Ban, Flag, Loader2, Zap, Send, MessageSquare, UserPlus, Phone, Mail, MessageCircle, Camera, Lock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -69,10 +46,10 @@ interface ProfileCardProps {
     allowPhotoRequest?: boolean;
 }
 
-export function ProfileCard({ name, age, city, occupation, education, image, media, isVerified, gender, priority, id, isShortlisted, statusBadge, isMatched, canChat: propCanChat, showInteractions, customActions, onActionSuccess, onRemove, relationship: propRelationship, allowPhotoRequest }: ProfileCardProps) {
+export function ProfileCard({ name, age, city, occupation, education: _education, image, media, isVerified, gender, priority: _priority, id, isShortlisted, statusBadge, isMatched, canChat: _propCanChat, showInteractions: _showInteractions, customActions: _customActions, onActionSuccess: _onActionSuccess, onRemove: _onRemove, relationship: propRelationship, allowPhotoRequest }: ProfileCardProps) {
     const { send: sendContact } = useContactRequests();
     const { send: sendPhoto } = usePhotoRequests();
-    const { toast } = useToast();
+    const { toast: _toast } = useToast();
     const [showContactModal, setShowContactModal] = useState(false);
     const [showPhotoModal, setShowPhotoModal] = useState(false);
     const targetId = typeof id === 'string' ? parseInt(id) : id;
@@ -117,8 +94,8 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
     const isPremium = access?.isPremium;
     const safeName = displayValue(name, "Profile");
     const safeAge = typeof age === "number" && age > 0 ? String(age) : "";
-    const safeCity = displayValue(city);
-    const safeOccupation = displayValue(occupation);
+    const safeCity = displayValue(city, "Location not shared");
+    const safeOccupation = displayValue(occupation, "Occupation not shared");
     const safeGender = gender === "male" || gender === "female" ? gender : "other";
 
     const handleReportSubmit = async () => {
@@ -126,7 +103,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
         try {
             await reportUser.mutateAsync({
                 userId: targetId,
-                reason: reportReason as any,
+                reason: reportReason as unknown,
                 description: reportDescription
             });
             setShowReportModal(false);
@@ -138,8 +115,8 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
     };
 
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, skipSnaps: false });
-    const [selectedIndex, setSelectedIndex] = useState(0);
-    const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+    const [_selectedIndex, setSelectedIndex] = useState(0);
+    const [_scrollSnaps, setScrollSnaps] = useState<number[]>([]);
 
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
@@ -153,12 +130,12 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
         emblaApi.on('select', onSelect);
     }, [emblaApi, onSelect]);
 
-    const scrollPrev = useCallback((e: React.MouseEvent) => {
+    const _scrollPrev = useCallback((e: React.MouseEvent) => {
         e.preventDefault(); e.stopPropagation();
         if (emblaApi) emblaApi.scrollPrev();
     }, [emblaApi]);
 
-    const scrollNext = useCallback((e: React.MouseEvent) => {
+    const _scrollNext = useCallback((e: React.MouseEvent) => {
         e.preventDefault(); e.stopPropagation();
         if (emblaApi) emblaApi.scrollNext();
     }, [emblaApi]);
@@ -182,7 +159,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
             layout
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="group relative h-full flex flex-col bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/20 cursor-pointer"
+            className="group relative h-full flex flex-col bg-foreground border border-white/5 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/20 cursor-pointer"
             onClick={() => router.push(`/dashboard/profile/${id}`)}
         >
             <Card className="h-full overflow-hidden bg-transparent border-none flex flex-col">
@@ -211,7 +188,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                             {statusBadge}
                             <div className="flex flex-wrap gap-1.5">
                                 {isVerified && (
-                                    <Badge className="bg-emerald-500/90 backdrop-blur-md text-white border-none py-1 px-2.5 rounded-full flex items-center gap-1.5 font-black text-[8px] uppercase tracking-widest shadow-xl">
+                                    <Badge className="bg-success/90 backdrop-blur-md text-white border-none py-1 px-2.5 rounded-full flex items-center gap-1.5 font-black text-[8px] uppercase tracking-widest shadow-xl">
                                         <ShieldCheck className="w-3 h-3" /> Verified
                                     </Badge>
                                 )}
@@ -221,7 +198,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                                     </Badge>
                                 )}
                                 {state.isSuper && (
-                                    <Badge className="bg-amber-500 backdrop-blur-md text-black border-none py-1 px-2.5 rounded-full flex items-center gap-1.5 font-black text-[8px] uppercase tracking-widest shadow-xl">
+                                    <Badge className="bg-accentGold backdrop-blur-md text-primaryDark border-none py-1 px-2.5 rounded-full flex items-center gap-1.5 font-black text-[8px] uppercase tracking-widest shadow-xl">
                                         <Zap className="w-3 h-3 fill-current" /> Priority
                                     </Badge>
                                 )}
@@ -239,7 +216,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                                 {showMenu && (
                                     <motion.div
                                         initial={{ opacity: 0, scale: 0.95, y: -5 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -5 }}
-                                        className="absolute right-0 top-11 z-50 w-36 bg-[#111] border border-white/10 rounded-2xl shadow-3xl overflow-hidden"
+                                        className="absolute right-0 top-11 z-50 w-36 bg-foreground border border-white/10 rounded-2xl shadow-3xl overflow-hidden"
                                     >
                                         <ProfileQRCode
                                             userId={id}
@@ -251,7 +228,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                                                 <Flag className="w-3.5 h-3.5" /> Report
                                             </button>
                                         </div>
-                                        <button onClick={(e) => handleAction(e, () => blockUser(targetId))} className="w-full flex items-center gap-2 px-4 py-3 text-[9px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 transition-colors border-t border-white/5">
+                                        <button onClick={(e) => handleAction(e, () => blockUser(targetId))} className="w-full flex items-center gap-2 px-4 py-3 text-[9px] font-black uppercase tracking-widest text-error hover:bg-error/10 transition-colors border-t border-white/5">
                                             <Ban className="w-3.5 h-3.5" /> Block
                                         </button>
                                     </motion.div>
@@ -292,7 +269,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                             <Link
                                 href={`/dashboard/chat?userId=${targetId}`}
                                 onClick={(e) => e.stopPropagation()}
-                                className="flex-1 flex items-center justify-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl hover:bg-emerald-500/20 transition-all active:scale-95 font-black text-[10px] uppercase tracking-widest"
+                                className="flex-1 flex items-center justify-center gap-2 bg-success/10 border border-success/20 text-success rounded-2xl hover:bg-success/20 transition-all active:scale-95 font-black text-[10px] uppercase tracking-widest"
                             >
                                 <MessageSquare className="w-4 h-4" />
                                 <span>{state.type === 'matched' ? 'Message' : 'Pre-Match Chat 💬'}</span>
@@ -301,7 +278,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                             <div className="flex-1 flex gap-2">
                                 <button
                                     onClick={(e) => handleAction(e, () => acceptInterest(targetId, propRelationship?.matchId || 0))}
-                                    className="flex-1 bg-emerald-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all active:scale-95"
+                                    className="flex-1 bg-success text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-success/90 transition-all active:scale-95"
                                 >
                                     Accept
                                 </button>
@@ -326,7 +303,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                                 Connect Again
                             </button>
                         ) : state.type === 'blocked' ? (
-                            <button disabled className="flex-1 bg-red-500/10 text-red-500 border border-red-500/20 rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-not-allowed">
+                            <button disabled className="flex-1 bg-error/10 text-error border border-error/20 rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-not-allowed">
                                 User Blocked
                             </button>
                         ) : (
@@ -349,7 +326,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                                         e.stopPropagation();
                                         setShowPhotoModal(true);
                                     }}
-                                    className="flex-1 h-full px-3 bg-amber-500/10 border border-amber-500/20 text-amber-400 font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-amber-500/20 active:scale-95 flex items-center justify-center gap-2"
+                                    className="flex-1 h-full px-3 bg-accentGold/10 border border-accentGold/30 text-accentGold font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-accentGold/20 active:scale-95 flex items-center justify-center gap-2"
                                     title="Request Photo Access"
                                 >
                                     <Camera className="w-4 h-4" />
@@ -363,7 +340,7 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                                         e.stopPropagation();
                                         setShowContactModal(true);
                                     }}
-                                    className="flex-1 h-full px-4 bg-blue-500 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-blue-600 active:scale-95 shadow-xl flex items-center justify-center gap-2"
+                                    className="flex-1 h-full px-4 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-primaryDark active:scale-95 shadow-xl flex items-center justify-center gap-2"
                                 >
                                     <UserPlus className="w-4 h-4" />
                                     Contact
@@ -380,21 +357,21 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
             {/* Stylized Report Modal */}
             {showReportModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" onClick={() => setShowReportModal(false)}>
-                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-[#111] border border-white/10 rounded-2xl p-6 w-full max-w-sm space-y-6 shadow-4xl">
-                        <h2 className="text-base font-black text-white uppercase tracking-tighter">Report <span className="text-amber-500 font-italic">Member</span></h2>
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-foreground border border-white/10 rounded-2xl p-6 w-full max-w-sm space-y-6 shadow-4xl">
+                        <h2 className="text-base font-black text-white uppercase tracking-tighter">Report <span className="text-accentGold font-italic">Member</span></h2>
                         <div className="space-y-3">
                             <select value={reportReason} onChange={(e) => setReportReason(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-[11px] font-black uppercase tracking-widest text-white outline-none focus:border-primary/50 transition-colors">
-                                <option value="" className="bg-[#111]">Select Reason</option>
-                                <option value="fake" className="bg-[#111]">Fake Profile</option>
-                                <option value="spam" className="bg-[#111]">Spam/Commercial</option>
-                                <option value="harassment" className="bg-[#111]">Harassment</option>
-                                <option value="other" className="bg-[#111]">Other</option>
+                                <option value="" className="bg-foreground">Select Reason</option>
+                                <option value="fake" className="bg-foreground">Fake Profile</option>
+                                <option value="spam" className="bg-foreground">Spam/Commercial</option>
+                                <option value="harassment" className="bg-foreground">Harassment</option>
+                                <option value="other" className="bg-foreground">Other</option>
                             </select>
                             <textarea placeholder="Tell us more about the issue..." value={reportDescription} onChange={(e) => setReportDescription(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs font-bold text-white min-h-[100px] outline-none focus:border-primary/50 transition-colors" />
                         </div>
                         <div className="flex gap-3">
                             <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={() => setShowReportModal(false)}>Cancel</Button>
-                            <Button className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 bg-amber-500 text-black hover:bg-amber-600" onClick={handleReportSubmit} disabled={!reportReason}>Submit Report</Button>
+                            <Button variant="premium" className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={handleReportSubmit} disabled={!reportReason}>Submit Report</Button>
                         </div>
                     </motion.div>
                 </div>
@@ -403,8 +380,14 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
             {/* Contact Request Modal */}
             {showContactModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" onClick={() => setShowContactModal(false)}>
-                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-[#111] border border-white/10 rounded-2xl p-6 w-full max-w-sm space-y-6 shadow-4xl">
-                        <h2 className="text-base font-black text-white uppercase tracking-tighter">Request <span className="text-blue-500 font-italic">Contact</span></h2>
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-foreground border border-white/10 rounded-2xl p-6 w-full max-w-sm space-y-6 shadow-4xl">
+                        <div className="space-y-2">
+                            <h2 className="text-base font-black text-white uppercase tracking-tighter">Request <span className="text-primary font-italic">Contact</span></h2>
+                            <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                                <Lock className="w-3.5 h-3.5 text-primary" />
+                                Phone, email and WhatsApp stay hidden until approved.
+                            </p>
+                        </div>
 
                         <div className="space-y-4">
                             <div className="space-y-4">
@@ -447,13 +430,8 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
 
                             <div className="flex gap-3">
                                 <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={() => setShowContactModal(false)}>Cancel</Button>
-                                <Button className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 bg-blue-500 text-white hover:bg-blue-600" onClick={() => setShowContactModal(false)}>Close</Button>
+                                <Button className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={() => setShowContactModal(false)}>Close</Button>
                             </div>
-                        </div>
-
-                        <div className="flex gap-3">
-                            <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={() => setShowContactModal(false)}>Cancel</Button>
-                            <Button className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 bg-blue-500 text-white hover:bg-blue-600" onClick={() => setShowContactModal(false)}>Close</Button>
                         </div>
                     </motion.div>
                 </div>
@@ -462,8 +440,8 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
             {/* Photo Request Modal */}
             {showPhotoModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" onClick={() => setShowPhotoModal(false)}>
-                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-[#111] border border-white/10 rounded-2xl p-6 w-full max-w-sm space-y-6 shadow-4xl">
-                        <h2 className="text-base font-black text-white uppercase tracking-tighter">Request <span className="text-amber-500 font-italic">Photo Access</span></h2>
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-foreground border border-white/10 rounded-2xl p-6 w-full max-w-sm space-y-6 shadow-4xl">
+                        <h2 className="text-base font-black text-white uppercase tracking-tighter">Request <span className="text-accentGold font-italic">Photo Access</span></h2>
 
                         <div className="space-y-4">
                             <div>
@@ -478,7 +456,8 @@ export function ProfileCard({ name, age, city, occupation, education, image, med
                         <div className="flex gap-3">
                             <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11" onClick={() => setShowPhotoModal(false)}>Cancel</Button>
                             <Button
-                                className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 bg-amber-500 text-white hover:bg-amber-600"
+                                variant="premium"
+                                className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest h-11"
                                 onClick={() => {
                                     sendPhoto.mutate({
                                         photoId: 1, // Use first photo ID (backend will handle mapping)

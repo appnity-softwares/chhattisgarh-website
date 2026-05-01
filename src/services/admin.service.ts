@@ -25,13 +25,13 @@ export interface AdminServiceInterface {
     deleteUser(userId: string): Promise<void>;
     banUser(userId: string, reason: string): Promise<User>;
     unbanUser(userId: string): Promise<User>;
-    bulkBanUsers(userIds: string[], reason?: string): Promise<any>;
-    bulkUnbanUsers(userIds: string[]): Promise<any>;
-    bulkDeleteUsers(userIds: string[]): Promise<any>;
-    deleteUserAccount(userId: string): Promise<any>;
+    bulkBanUsers(userIds: string[], reason?: string): Promise<unknown>;
+    bulkUnbanUsers(userIds: string[]): Promise<unknown>;
+    bulkDeleteUsers(userIds: string[]): Promise<unknown>;
+    deleteUserAccount(userId: string): Promise<unknown>;
     bulkUploadUsers(file: File): Promise<{ success: number, failed: number, errors: { row: number; email: string; error: string }[] }>;
     createUserWithProfile(data: Record<string, unknown>): Promise<{ user: User; profile: Profile }>;
-    uploadProfilePhoto(userId: string, file: File): Promise<any>;
+    uploadProfilePhoto(userId: string, file: File): Promise<unknown>;
     
     // Profiles
     getProfiles(page?: number, limit?: number): Promise<{ profiles: Profile[]; pagination: Record<string, unknown> }>;
@@ -75,32 +75,32 @@ export interface AdminServiceInterface {
     rejectPhotoRequest(requestId: number, reason: string): Promise<PhotoRequest>;
     
     // Chat Moderation
-    getAllConversations(page?: number, limit?: number, search?: string, flaggedOnly?: string): Promise<{ conversations: any[]; pagination: { page: number; limit: number; total: number; totalPages: number } }>;
-    getConversationById(conversationId: string): Promise<any>;
+    getAllConversations(page?: number, limit?: number, search?: string, flaggedOnly?: string): Promise<{ conversations: unknown[]; pagination: { page: number; limit: number; total: number; totalPages: number } }>;
+    getConversationById(conversationId: string): Promise<unknown>;
     deleteConversation(conversationId: string): Promise<void>;
-    flagMessage(messageId: number, reason: string): Promise<any>;
+    flagMessage(messageId: number, reason: string): Promise<unknown>;
     
     // Bulk Moderation
-    bulkModeration(ids: number[], type: string, action: string): Promise<any>;
+    bulkModeration(ids: number[], type: string, action: string): Promise<unknown>;
     
     // FAQs
-    getFaqsAdmin(): Promise<any[]>;
-    createFaq(data: any): Promise<any>;
-    updateFaq(id: number | string, data: any): Promise<any>;
+    getFaqsAdmin(): Promise<unknown[]>;
+    createFaq(data: unknown): Promise<unknown>;
+    updateFaq(id: number | string, data: unknown): Promise<unknown>;
     deleteFaq(id: number | string): Promise<void>;
     
     // Success Stories
-    getSuccessStories(): Promise<any[]>;
-    createSuccessStory(data: any): Promise<any>;
-    updateSuccessStory(id: number | string, data: any): Promise<any>;
+    getSuccessStories(): Promise<unknown[]>;
+    createSuccessStory(data: unknown): Promise<unknown>;
+    updateSuccessStory(id: number | string, data: unknown): Promise<unknown>;
     deleteSuccessStory(id: number | string): Promise<void>;
     
     // Plans
     getPlans(): Promise<Record<string, unknown>[]>;
     
     // Settings
-    getSettings(): Promise<any>;
-    updateRazorpaySettings(keyId: string, keySecret: string): Promise<any>;
+    getSettings(): Promise<unknown>;
+    updateRazorpaySettings(keyId: string, keySecret: string): Promise<unknown>;
 }
 
 export class AdminService implements AdminServiceInterface {
@@ -156,26 +156,26 @@ export class AdminService implements AdminServiceInterface {
         );
     }
 
-    async bulkBanUsers(userIds: string[], reason?: string): Promise<any> {
-        return this.handleResponse<any>(
+    async bulkBanUsers(userIds: string[], reason?: string): Promise<unknown> {
+        return this.handleResponse<unknown>(
             apiService.post('/admin/users/bulk-ban', { userIds, reason })
         );
     }
 
-    async bulkUnbanUsers(userIds: string[]): Promise<any> {
-        return this.handleResponse<any>(
+    async bulkUnbanUsers(userIds: string[]): Promise<unknown> {
+        return this.handleResponse<unknown>(
             apiService.post('/admin/users/bulk-unban', { userIds })
         );
     }
 
-    async bulkDeleteUsers(userIds: string[]): Promise<any> {
-        return this.handleResponse<any>(
+    async bulkDeleteUsers(userIds: string[]): Promise<unknown> {
+        return this.handleResponse<unknown>(
             apiService.post('/admin/users/bulk-delete', { userIds })
         );
     }
 
-    async deleteUserAccount(userId: string): Promise<any> {
-        return this.handleResponse<any>(
+    async deleteUserAccount(userId: string): Promise<unknown> {
+        return this.handleResponse<unknown>(
             apiService.delete(`/admin/users/${userId}`)
         );
     }
@@ -196,10 +196,10 @@ export class AdminService implements AdminServiceInterface {
         );
     }
 
-    async uploadProfilePhoto(userId: string, file: File): Promise<any> {
+    async uploadProfilePhoto(userId: string, file: File): Promise<unknown> {
         const formData = new FormData();
         formData.append('photo', file);
-        return this.handleResponse<any>(
+        return this.handleResponse<unknown>(
             apiService.post(`/admin/users/${userId}/photo`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             })
@@ -342,19 +342,19 @@ export class AdminService implements AdminServiceInterface {
     }
 
     // Chat Moderation
-    async getAllConversations(page = 1, limit = 10, search?: string, flaggedOnly?: string): Promise<{ conversations: any[]; pagination: { page: number; limit: number; total: number; totalPages: number } }> {
+    async getAllConversations(page = 1, limit = 10, search?: string, flaggedOnly?: string): Promise<{ conversations: unknown[]; pagination: { page: number; limit: number; total: number; totalPages: number } }> {
         const queryParams = {
             page, limit,
             ...(search?.trim() ? { search: search.trim() } : {}),
             ...(flaggedOnly ? { flaggedOnly } : {}),
         };
-        return this.handleResponse<{ conversations: any[]; pagination: { page: number; limit: number; total: number; totalPages: number } }>(
+        return this.handleResponse<{ conversations: unknown[]; pagination: { page: number; limit: number; total: number; totalPages: number } }>(
             apiService.get(apiConfig.endpoints.admin.chats, { params: queryParams })
         );
     }
 
-    async getConversationById(conversationId: string): Promise<any> {
-        return this.handleResponse<any>(
+    async getConversationById(conversationId: string): Promise<unknown> {
+        return this.handleResponse<unknown>(
             apiService.get(apiConfig.endpoints.admin.chat(conversationId))
         );
     }
@@ -365,15 +365,15 @@ export class AdminService implements AdminServiceInterface {
         );
     }
 
-    async flagMessage(messageId: number, reason: string): Promise<any> {
-        return this.handleResponse<any>(
+    async flagMessage(messageId: number, reason: string): Promise<unknown> {
+        return this.handleResponse<unknown>(
             apiService.put(apiConfig.endpoints.admin.chatMessage(messageId), { reason })
         );
     }
 
     // Bulk Moderation
-    async bulkModeration(ids: number[], type: string, action: string): Promise<any> {
-        return this.handleResponse<any>(
+    async bulkModeration(ids: number[], type: string, action: string): Promise<unknown> {
+        return this.handleResponse<unknown>(
             apiService.post(apiConfig.endpoints.admin.bulkModeration, { ids, type, action })
         );
     }
@@ -383,16 +383,16 @@ export class AdminService implements AdminServiceInterface {
     }
 
     // FAQs
-    async getFaqsAdmin(): Promise<any[]> {
-        return this.handleResponse<any[]>(apiService.get(apiConfig.endpoints.admin.faqAdmin));
+    async getFaqsAdmin(): Promise<unknown[]> {
+        return this.handleResponse<unknown[]>(apiService.get(apiConfig.endpoints.admin.faqAdmin));
     }
 
-    async createFaq(data: any): Promise<any> {
-        return this.handleResponse<any>(apiService.post(apiConfig.endpoints.admin.faq, data));
+    async createFaq(data: unknown): Promise<unknown> {
+        return this.handleResponse<unknown>(apiService.post(apiConfig.endpoints.admin.faq, data));
     }
 
-    async updateFaq(id: number | string, data: any): Promise<any> {
-        return this.handleResponse<any>(apiService.put(apiConfig.endpoints.admin.faqById(id), data));
+    async updateFaq(id: number | string, data: unknown): Promise<unknown> {
+        return this.handleResponse<unknown>(apiService.put(apiConfig.endpoints.admin.faqById(id), data));
     }
 
     async deleteFaq(id: number | string): Promise<void> {
@@ -400,16 +400,16 @@ export class AdminService implements AdminServiceInterface {
     }
 
     // Success Stories
-    async getSuccessStories(): Promise<any[]> {
-        return this.handleResponse<any[]>(apiService.get(apiConfig.endpoints.admin.successStories));
+    async getSuccessStories(): Promise<unknown[]> {
+        return this.handleResponse<unknown[]>(apiService.get(apiConfig.endpoints.admin.successStories));
     }
 
-    async createSuccessStory(data: any): Promise<any> {
-        return this.handleResponse<any>(apiService.post(apiConfig.endpoints.admin.successStories, data));
+    async createSuccessStory(data: unknown): Promise<unknown> {
+        return this.handleResponse<unknown>(apiService.post(apiConfig.endpoints.admin.successStories, data));
     }
 
-    async updateSuccessStory(id: number | string, data: any): Promise<any> {
-        return this.handleResponse<any>(apiService.patch(`${apiConfig.baseUrl}/admin/success-stories/${id}`, data));
+    async updateSuccessStory(id: number | string, data: unknown): Promise<unknown> {
+        return this.handleResponse<unknown>(apiService.patch(`${apiConfig.baseUrl}/admin/success-stories/${id}`, data));
     }
 
     async deleteSuccessStory(id: number | string): Promise<void> {
@@ -417,12 +417,12 @@ export class AdminService implements AdminServiceInterface {
     }
 
     // Settings
-    async getSettings(): Promise<any> {
-        return this.handleResponse<any>(apiService.get('/admin/settings'));
+    async getSettings(): Promise<unknown> {
+        return this.handleResponse<unknown>(apiService.get('/admin/settings'));
     }
 
-    async updateRazorpaySettings(keyId: string, keySecret: string): Promise<any> {
-        return this.handleResponse<any>(apiService.post('/admin/settings/razorpay', { keyId, keySecret }));
+    async updateRazorpaySettings(keyId: string, keySecret: string): Promise<unknown> {
+        return this.handleResponse<unknown>(apiService.post('/admin/settings/razorpay', { keyId, keySecret }));
     }
 }
 

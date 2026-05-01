@@ -110,7 +110,7 @@ export function LoginForm() {
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center glow-purple animate-float">
                 <Sparkles className="w-8 h-8 text-white" />
               </div>
-              <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-[#0d0d1a] flex items-center justify-center">
+              <div className="absolute -top-1 -right-1 w-5 h-5 bg-success rounded-full border-2 border-foreground flex items-center justify-center">
                 <Shield className="w-2.5 h-2.5 text-white" />
               </div>
             </div>
@@ -214,7 +214,7 @@ export function LoginForm() {
             </p>
             <div className="flex items-center justify-center gap-3 mt-3">
               <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                <div className="w-1.5 h-1.5 bg-success rounded-full animate-pulse" />
                 <span className="text-[10px] text-muted-foreground">System Online</span>
               </div>
               <div className="w-px h-3 bg-white/10" />

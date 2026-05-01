@@ -22,7 +22,7 @@ import {
 import { Button } from '@/components/ui/button';
 
 export default function DiagnosticsPage() {
-    const { data, isLoading, isError, refetch, isRefetching, flushCache } = useSystemDiagnostics();
+    const { data, isLoading, isError: _isError, refetch, isRefetching, flushCache } = useSystemDiagnostics();
 
     const getStatusBadge = (status: string) => {
         if (status?.includes('✅') || status?.includes('Connected') || status?.includes('Initialized')) {

@@ -174,13 +174,13 @@ export function useProfile() {
       const userRes = await apiService.get(apiConfig.endpoints.users.me);
       const userData = userRes.data.data;
 
-      let profileData: any = { profile: null, profileCompleteness: 0 };
+      let profileData: unknown = { profile: null, profileCompleteness: 0 };
       
       try {
         // Option A: Call GET /profiles/me on load to check existence
         const profileRes = await apiService.get(apiConfig.endpoints.profiles.me);
         profileData = profileRes.data.data;
-      } catch (err: any) {
+      } catch (err: unknown) {
         // If 404 or 400, profile doesn't exist yet
         if (err.response?.status !== 404 && err.response?.status !== 400) {
           throw err;
@@ -236,7 +236,7 @@ export function useProfile() {
           : "Welcome aboard! Your profile is now live.",
       });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: "Save Failed",
         description: error.response?.data?.message || "Could not fulfill profile request.",
@@ -257,7 +257,7 @@ export function useProfile() {
       queryClient.invalidateQueries({ queryKey: ["profile-completion"] });
       toast({ title: "Photos uploaded successfully" });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       const errorMessage = error.message || "Failed to upload photos";
       toast({ title: "Upload Failed", description: errorMessage, variant: "destructive" });
     },
@@ -275,7 +275,7 @@ export function useProfile() {
       queryClient.invalidateQueries({ queryKey: ["profile-completion"] });
       toast({ title: "Photo deleted" });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({ title: "Delete Failed", description: error.message, variant: "destructive" });
     },
   });

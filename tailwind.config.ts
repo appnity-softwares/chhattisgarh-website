@@ -29,7 +29,14 @@ export default {
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
+          dark: 'hsl(var(--primary-dark))',
         },
+        primaryDark: 'hsl(var(--primary-dark))',
+        accentGold: 'hsl(var(--accent-gold))',
+        surface: 'hsl(var(--surface))',
+        text: 'hsl(var(--text))',
+        success: 'hsl(var(--success))',
+        error: 'hsl(var(--error))',
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
           foreground: 'hsl(var(--secondary-foreground))',

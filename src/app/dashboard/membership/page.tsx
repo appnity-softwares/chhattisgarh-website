@@ -1,16 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { 
-    Zap, 
-    CheckCircle2, 
-    ShieldCheck, 
-    Rocket,
-    Clock,
-    Lock,
-    ChevronRight,
-    Loader2
-} from "lucide-react";
+import { CheckCircle2, ShieldCheck, Rocket, Clock, Lock, ChevronRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -91,11 +82,11 @@ export default function MembershipPage() {
                     contact: orderData.user.phone,
                 },
                 theme: {
-                    color: "#E01E5A",
+                    color: "#8B1E3F",
                 },
             };
 
-            // @ts-ignore - Razorpay is loaded via script
+            // @ts-expect-error - Legacy third-party typing is incomplete - Razorpay is loaded via script
             const paymentObject = new window.Razorpay(options);
             paymentObject.open();
 
@@ -301,7 +292,7 @@ export default function MembershipPage() {
                                             description: "Payment link copied to clipboard. Share it via WhatsApp.",
                                         });
                                     }
-                                } catch (err) {
+                                } catch (_err) {
                                     toast({
                                         title: "Error",
                                         description: "Failed to generate sharing link.",

@@ -107,7 +107,7 @@ function CheckoutContent() {
                 contact: details.user.phone,
             },
             theme: {
-                color: "#9333ea", // Purple-600 to match our theme
+                color: "#8B1E3F",
             },
             modal: {
                 ondismiss: function() {

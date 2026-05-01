@@ -1,27 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import {
-  MoreHorizontal, Search, RefreshCw, ChevronLeft, ChevronRight,
-  CheckCircle, XCircle, Eye, Ban, UserCheck, Filter, X,
-  Users, MessageCircle, Clock, AlertTriangle, Flag, Trash2, Send,
-  Shield, AlertCircle
-} from "lucide-react";
+import { MoreHorizontal, Search, RefreshCw, ChevronLeft, ChevronRight, Filter, X, Users, MessageCircle, Flag, Trash2 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AdminPageWrapper } from '@/app/admin/admin-page-wrapper';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { adminService } from '@/services/admin.service';
@@ -29,7 +20,6 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Separator } from '@/components/ui/separator';
 
 interface Conversation {
   id: number;
@@ -85,14 +75,14 @@ export default function AdminChatMonitoringPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [flaggedOnly, setFlaggedOnly] = useState(false);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 0 });
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleting, _setIsDeleting] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState<{
     isOpen: boolean;
     conversationId?: number;
     reason: string;
   }>({ isOpen: false, conversationId: 0, reason: '' });
 
-  const fetchConversations = async (page = 1) => {
+  const fetchConversations = useCallback(async (page = 1) => {
     setIsLoading(true);
     try {
       const data = await adminService.getAllConversations(page, 10, searchQuery, flaggedOnly ? 'true' : undefined);
@@ -104,7 +94,7 @@ export default function AdminChatMonitoringPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [flaggedOnly, searchQuery, toast]);
 
   const fetchConversation = async (conversationId: number) => {
     setIsLoading(true);
@@ -151,7 +141,7 @@ export default function AdminChatMonitoringPage() {
 
   useEffect(() => {
     fetchConversations();
-  }, [searchQuery, flaggedOnly]);
+  }, [fetchConversations]);
 
   return (
     <AdminPageWrapper
@@ -432,7 +422,7 @@ export default function AdminChatMonitoringPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4 max-h-96 overflow-y-auto">
-                  {messages.map((message, index) => (
+                  {messages.map((message, _index) => (
                     <div
                       key={message.id}
                       className={`flex ${

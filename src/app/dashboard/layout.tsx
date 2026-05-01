@@ -3,26 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-    Users,
-    Heart,
-    MessageSquare,
-    Sparkles,
-    User,
-    Settings,
-    LogOut,
-    Menu,
-    X,
-    Bell,
-    Ban,
-    CreditCard,
-    Crown,
-    HelpCircle,
-    Star,
-    Zap,
-    UserPlus,
-    Camera
-} from "lucide-react";
+import { Users, Heart, MessageSquare, Sparkles, User, Settings, LogOut, Menu, X, Bell, Ban, CreditCard, Crown, Star, Zap, UserPlus, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion, AnimatePresence } from "framer-motion";
@@ -57,11 +38,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const { data: user } = useProfile();
     const { data: access } = useUserAccess();
 
-    const userName = user?.profile ? `${(user.profile as any).firstName} ${(user.profile as any).lastName}` : "User";
+    const userName = user?.profile ? `${(user.profile as unknown).firstName} ${(user.profile as unknown).lastName}` : "User";
     const userRole = access?.isPremium ? "Premium Member" : "Free Member";
-    const userAvatar = (user?.profile as any)?.media?.[0]?.url || "";
+    const userAvatar = (user?.profile as unknown)?.media?.[0]?.url || "";
 
     const { pendingCount: pendingContactRequests } = useContactRequests();
+    const { pendingCount: pendingPhotoRequests } = usePhotoRequests();
 
     // Setup Push Notifications (Service Worker registration)
     usePushNotifications();
@@ -84,7 +66,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         { href: "/dashboard/settings", label: "Settings", icon: Settings },
     ];
 
-    const subscription = user?.subscription as any;
+    const subscription = user?.subscription as unknown;
     const daysLeft = subscription?.endDate ?
         Math.max(0, Math.ceil((new Date(subscription.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))) : 0;
 
@@ -95,13 +77,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }, []);
 
     if (!mounted) {
-        return <div className="min-h-screen bg-[#0a0a0a]" />
+        return <div className="min-h-screen bg-foreground" />
     }
 
     const hasUnreadNotifications = unreadMessages > 0;
 
     return (
-        <div className="h-screen bg-[#0a0a0a] text-foreground flex overflow-hidden">
+        <div className="h-screen bg-foreground text-foreground flex overflow-hidden">
             {/* Background Atmosphere */}
             <div className="fixed inset-0 z-0 pointer-events-none">
                 <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] opacity-20" />
@@ -129,7 +111,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         const active = pathname === link.href;
                         const hasUnreadBadge = link.badge === "unreadMessages" && unreadMessages > 0;
                         const hasContactBadge = link.badge === "contactRequests" && pendingContactRequests > 0;
-                        const { pendingCount: pendingPhotoRequests } = usePhotoRequests();
                         const hasPhotoBadge = link.badge === "photoRequests" && pendingPhotoRequests > 0;
                         const hasBadge = hasUnreadBadge || hasContactBadge || hasPhotoBadge;
 
@@ -200,7 +181,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 flex flex-col min-w-0 bg-[#070707] relative">
+            <main className="flex-1 flex flex-col min-w-0 bg-foreground relative">
                 {/* Header */}
                 <header className="h-16 flex-shrink-0 flex items-center justify-between px-4 lg:px-8 border-b border-white/5 bg-black/40 backdrop-blur-xl z-30 sticky top-0">
                     <div className="flex items-center gap-4">
@@ -217,7 +198,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             <Button variant="ghost" size="icon" className="rounded-xl hover:bg-white/5 relative group h-10 w-10 border border-white/5 transition-all">
                                 <Bell className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                                 {hasUnreadNotifications && (
-                                    <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-primary rounded-full ring-2 ring-[#070707]" />
+                                    <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-primary rounded-full ring-2 ring-foreground" />
                                 )}
                             </Button>
                         </Link>
@@ -239,7 +220,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                         </Avatar>
                                     </button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56 bg-[#111] backdrop-blur-2xl border-white/10 rounded-2xl p-2 shadow-4xl">
+                                <DropdownMenuContent align="end" className="w-56 bg-foreground backdrop-blur-2xl border-white/10 rounded-2xl p-2 shadow-4xl">
                                     <DropdownMenuLabel className="px-3 py-2.5">
                                         <p className="font-black text-xs text-foreground truncate">{userName}</p>
                                         <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-tight truncate mt-1">{user?.phone || user?.email}</p>
@@ -288,7 +269,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 {isMobileMenuOpen && (
                     <>
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden" onClick={() => setIsMobileMenuOpen(false)} />
-                        <motion.div initial={{ x: -260 }} animate={{ x: 0 }} exit={{ x: -260 }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="fixed inset-y-0 left-0 w-64 bg-[#0a0a0a] border-r border-white/5 z-50 lg:hidden flex flex-col p-6 shadow-2xl">
+                        <motion.div initial={{ x: -260 }} animate={{ x: 0 }} exit={{ x: -260 }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="fixed inset-y-0 left-0 w-64 bg-foreground border-r border-white/5 z-50 lg:hidden flex flex-col p-6 shadow-2xl">
                             <div className="flex items-center justify-between mb-10">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center">

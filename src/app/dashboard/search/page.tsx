@@ -53,6 +53,8 @@ export default function SearchPage() {
     });
 
     const [heightRange, setHeightRange] = useState([120, 210]);
+    const selectedDistrict = filters.district !== 'any' ? filters.district : undefined;
+    const cityFilter = filters.location || selectedDistrict;
 
     // Use our hook with all filters
     const {
@@ -66,15 +68,14 @@ export default function SearchPage() {
         search: searchQuery,
         minAge: ageRange[0],
         maxAge: ageRange[1],
-        religion: filters.religion !== 'any' ? filters.religion : undefined,
-        community: filters.community !== 'any' ? filters.community : undefined,
+        religions: filters.religion !== 'any' ? filters.religion : undefined,
+        castes: filters.community !== 'any' ? filters.community : undefined,
         occupation: filters.occupation !== 'any' ? filters.occupation : undefined,
         education: filters.education !== 'any' ? filters.education : undefined,
         gender: filters.gender !== 'any' ? filters.gender : undefined,
-        location: filters.location || undefined,
+        city: cityFilter || undefined,
         maritalStatus: filters.maritalStatus !== 'any' ? filters.maritalStatus : undefined,
         category: filters.category !== 'any' ? filters.category : undefined,
-        district: filters.district !== 'any' ? filters.district : undefined,
         manglik: filters.manglik !== 'any' ? filters.manglik : undefined,
         diet: filters.diet !== 'any' ? filters.diet : undefined,
         speaksChhattisgarhi: filters.speaksChhattisgarhi === 'yes' ? true : filters.speaksChhattisgarhi === 'no' ? false : undefined,

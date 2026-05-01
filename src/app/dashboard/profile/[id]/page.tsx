@@ -520,7 +520,7 @@ export default function ProfileDetailPage() {
             <TabsContent value="details" className="space-y-6">
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <DetailSection icon={Heart} title="Birth Details">
-	                   <DetailItem label="Date of Birth" value={formatDateOfBirth(profile.dob)} />
+	                   <DetailItem label="Date of Birth" value={formatDateOfBirth(profile.dateOfBirth)} />
                    <DetailItem label="Time" value={profile.horoscope?.birthTime || "-"} />
                    <DetailItem label="Place" value={profile.horoscope?.birthPlace || "-"} />
                    <DetailItem label="Manglik" value={profile.horoscope?.manglik ? "Yes" : "No"} />

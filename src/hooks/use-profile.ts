@@ -5,6 +5,40 @@ import { useToast } from "@/hooks/use-toast";
 import profileWebService from "@/services/profile-web.service";
 import { useUserAuthStore } from "@/stores/user-auth-store";
 
+type ApiEnvelope<T> = {
+  data: T;
+};
+
+type ProfileApiData = {
+  profile: Record<string, unknown> | null;
+  profileCompleteness?: number;
+};
+
+type ServiceResponse<T = unknown> = {
+  success?: boolean;
+  message?: string;
+  data?: T;
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const getHttpStatus = (error: unknown): number | undefined => {
+  if (!isRecord(error) || !isRecord(error.response)) return undefined;
+  return typeof error.response.status === "number" ? error.response.status : undefined;
+};
+
+const getApiErrorMessage = (error: unknown, fallback: string): string => {
+  if (isRecord(error) && isRecord(error.response) && isRecord(error.response.data)) {
+    const { message, error: responseError } = error.response.data;
+    if (typeof message === "string" && message.trim()) return message;
+    if (typeof responseError === "string" && responseError.trim()) return responseError;
+  }
+
+  if (error instanceof Error && error.message.trim()) return error.message;
+  return fallback;
+};
+
 const NUMERIC_PROFILE_FIELDS = new Set([
   "height",
   "weight",
@@ -153,7 +187,7 @@ export interface UserProfile {
   id: number;
   email?: string | null;
   phone?: string | null;
-  profile: Record<string, unknown>;
+  profile: Record<string, unknown> | null;
   profileCompleteness?: number;
   subscriptions?: Record<string, unknown>[];
   subscription?: Record<string, unknown> | null;
@@ -171,18 +205,19 @@ export function useProfile() {
     queryKey: ["me"],
     queryFn: async () => {
       // Fetch user data first
-      const userRes = await apiService.get(apiConfig.endpoints.users.me);
+      const userRes = await apiService.get<ApiEnvelope<UserProfile>>(apiConfig.endpoints.users.me);
       const userData = userRes.data.data;
 
-      let profileData: unknown = { profile: null, profileCompleteness: 0 };
+      let profileData: ProfileApiData = { profile: null, profileCompleteness: 0 };
       
       try {
         // Option A: Call GET /profiles/me on load to check existence
-        const profileRes = await apiService.get(apiConfig.endpoints.profiles.me);
+        const profileRes = await apiService.get<ApiEnvelope<ProfileApiData>>(apiConfig.endpoints.profiles.me);
         profileData = profileRes.data.data;
       } catch (err: unknown) {
         // If 404 or 400, profile doesn't exist yet
-        if (err.response?.status !== 404 && err.response?.status !== 400) {
+        const status = getHttpStatus(err);
+        if (status !== 404 && status !== 400) {
           throw err;
         }
       }
@@ -239,7 +274,7 @@ export function useProfile() {
     onError: (error: unknown) => {
       toast({
         title: "Save Failed",
-        description: error.response?.data?.message || "Could not fulfill profile request.",
+        description: getApiErrorMessage(error, "Could not fulfill profile request."),
         variant: "destructive",
       });
     },
@@ -248,7 +283,7 @@ export function useProfile() {
   const uploadPhotos = useMutation({
     mutationFn: async ({ files, onProgress }: { files: File[]; onProgress?: (progress: number) => void }) => {
       if (!accessToken) throw new Error("Unauthorized");
-      const res = await profileWebService.uploadProfilePhotos(files, accessToken, onProgress);
+      const res = await profileWebService.uploadProfilePhotos(files, accessToken, onProgress) as ServiceResponse;
       if (!res.success) throw new Error(res.message || "Failed to upload photos");
       return res.data;
     },
@@ -258,7 +293,7 @@ export function useProfile() {
       toast({ title: "Photos uploaded successfully" });
     },
     onError: (error: unknown) => {
-      const errorMessage = error.message || "Failed to upload photos";
+      const errorMessage = getApiErrorMessage(error, "Failed to upload photos");
       toast({ title: "Upload Failed", description: errorMessage, variant: "destructive" });
     },
   });
@@ -276,7 +311,7 @@ export function useProfile() {
       toast({ title: "Photo deleted" });
     },
     onError: (error: unknown) => {
-      toast({ title: "Delete Failed", description: error.message, variant: "destructive" });
+      toast({ title: "Delete Failed", description: getApiErrorMessage(error, "Failed to delete photo"), variant: "destructive" });
     },
   });
 

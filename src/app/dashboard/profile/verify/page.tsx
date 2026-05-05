@@ -21,6 +21,9 @@ import { verificationsService } from "@/services/verifications.service";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 
+const getErrorMessage = (error: unknown, fallback: string) =>
+    error instanceof Error && error.message ? error.message : fallback;
+
 export default function VerificationPage() {
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
@@ -61,7 +64,7 @@ export default function VerificationPage() {
         } catch (error: unknown) {
             toast({
                 title: "Upload Failed",
-                description: error.message || "Failed to submit document",
+                description: getErrorMessage(error, "Failed to submit document"),
                 variant: "destructive"
             });
         } finally {

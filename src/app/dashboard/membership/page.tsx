@@ -12,6 +12,42 @@ import { useMembership, Plan } from "@/hooks/use-membership";
 import { loadScript } from "@/lib/script-loader";
 import { useToast } from "@/hooks/use-toast";
 
+type RazorpayPaymentResponse = {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+};
+
+type RazorpayOptions = {
+    key: string;
+    amount: number;
+    currency: string;
+    name: string;
+    description: string;
+    image: string;
+    order_id: string;
+    handler: (response: RazorpayPaymentResponse) => void | Promise<void>;
+    prefill: {
+        name?: string;
+        email?: string;
+        contact?: string;
+    };
+    theme: {
+        color: string;
+    };
+};
+
+type RazorpayCheckout = {
+    open: () => void;
+};
+
+type RazorpayWindow = Window & {
+    Razorpay?: new (options: RazorpayOptions) => RazorpayCheckout;
+};
+
+const getRazorpayConstructor = () => (window as RazorpayWindow).Razorpay;
+
+
 export default function MembershipPage() {
     const { plans, plansLoading, initiatePayment, verifyPayment } = useMembership();
     const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
@@ -57,7 +93,7 @@ export default function MembershipPage() {
                 return;
             }
             
-            const options = {
+            const options: RazorpayOptions = {
                 key: orderData.razorpayKey,
                 amount: orderData.amount,
                 currency: orderData.currency,
@@ -65,11 +101,7 @@ export default function MembershipPage() {
                 description: `Subscription: ${orderData.plan.name}`,
                 image: "/logo.png",
                 order_id: orderData.orderId,
-                handler: async function (response: {
-                    razorpay_order_id: string;
-                    razorpay_payment_id: string;
-                    razorpay_signature: string;
-                }) {
+                handler: async function (response) {
                     await verifyPayment.mutateAsync({
                         razorpay_order_id: response.razorpay_order_id,
                         razorpay_payment_id: response.razorpay_payment_id,
@@ -86,8 +118,18 @@ export default function MembershipPage() {
                 },
             };
 
-            // @ts-expect-error - Legacy third-party typing is incomplete - Razorpay is loaded via script
-            const paymentObject = new window.Razorpay(options);
+            const Razorpay = getRazorpayConstructor();
+
+            if (!Razorpay) {
+                toast({
+                    title: "SDK Error",
+                    description: "Razorpay SDK failed to initialize. Please try again.",
+                    variant: "destructive"
+                });
+                return;
+            }
+
+            const paymentObject = new Razorpay(options);
             paymentObject.open();
 
         } catch (error) {

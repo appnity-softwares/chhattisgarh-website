@@ -32,7 +32,7 @@ export default function AdminProfilesPage() {
         try {
             const data = await adminService.getProfiles(page, 10);
             setProfiles(data.profiles || []);
-            const pag = (data as unknown).pagination;
+            const pag = data.pagination;
             setPagination({
                 page: Number(pag?.page) || 1,
                 limit: Number(pag?.limit) || 10,

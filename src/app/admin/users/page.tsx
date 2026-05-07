@@ -440,6 +440,30 @@ export default function AdminUsersPage() {
     toast({ title: 'Bulk Update Complete', description: `${successCount} updated to ${newRole}` });
     window.location.reload();
   };
+  
+  const handleBulkListProfiles = async (isPublished: boolean) => {
+    setIsBulkProcessing(true);
+    let successCount = 0;
+    let failedCount = 0;
+    for (const userId of selectedUsers) {
+      const u = users.find(user => user.id === userId);
+      if (u?.profile) {
+        try {
+          await adminService.updateProfileStatus(u.profile.id, isPublished, 'Bulk action by admin');
+          successCount++;
+        } catch {
+          failedCount++;
+        }
+      }
+    }
+    setIsBulkProcessing(false);
+    setSelectedUsers(new Set());
+    toast({
+      title: isPublished ? 'Bulk Listing Complete' : 'Bulk Unlisting Complete',
+      description: `Successfully updated ${successCount} profiles.${failedCount > 0 ? ` Failed: ${failedCount}` : ''}`
+    });
+    fetchUsers(pagination.page);
+  };
 
   const handleBulkUpload = async () => {
     if (!selectedFile) return;
@@ -576,6 +600,20 @@ export default function AdminUsersPage() {
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-error/10 hover:bg-error/15 text-error text-xs font-medium transition-colors disabled:opacity-50"
                 >
                   <Ban className="w-3 h-3" /> Soft-Delete Selected
+                </button>
+                <button
+                  disabled={isBulkProcessing}
+                  onClick={() => handleBulkListProfiles(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600/10 hover:bg-emerald-600/15 text-emerald-600 text-xs font-medium transition-colors disabled:opacity-50"
+                >
+                  <CheckCircle className="w-3.5 h-3.5" /> List Profiles
+                </button>
+                <button
+                  disabled={isBulkProcessing}
+                  onClick={() => handleBulkListProfiles(false)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-600/10 hover:bg-amber-600/15 text-amber-600 text-xs font-medium transition-colors disabled:opacity-50"
+                >
+                  <X className="w-3.5 h-3.5" /> Unlist Profiles
                 </button>
               </div>
               <button onClick={() => setSelectedUsers(new Set())} className="ml-auto text-muted-foreground hover:text-primary transition-colors">
@@ -743,6 +781,41 @@ export default function AdminUsersPage() {
                           <DropdownMenuItem onClick={() => router.push(`/admin/profiles/${user.id}/edit`)} className="gap-2 cursor-pointer text-primary">
                             <Pencil className="w-3.5 h-3.5" /> Manage Profile
                           </DropdownMenuItem>
+                          {user.profile && (
+                            user.profile.isPublished ? (
+                              <DropdownMenuItem
+                                onClick={async () => {
+                                  try {
+                                    await adminService.updateProfileStatus(user.profile!.id, false, 'Unlisted by admin');
+                                    toast({ title: 'Profile Unlisted', description: 'User is now unlisted from the app.' });
+                                    fetchUsers(pagination.page);
+                                  } catch (err: unknown) {
+                                    const errorMsg = err as { message?: string };
+                                    toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to update status' });
+                                  }
+                                }}
+                                className="gap-2 cursor-pointer text-amber-600 focus:text-amber-600 focus:bg-amber-50"
+                              >
+                                <X className="w-3.5 h-3.5" /> Unlist Profile
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                onClick={async () => {
+                                  try {
+                                    await adminService.updateProfileStatus(user.profile!.id, true, 'Approved by admin');
+                                    toast({ title: 'Profile Listed', description: 'User is now listed and visible on the app.' });
+                                    fetchUsers(pagination.page);
+                                  } catch (err: unknown) {
+                                    const errorMsg = err as { message?: string };
+                                    toast({ variant: 'destructive', title: 'Error', description: errorMsg.message || 'Failed to update status' });
+                                  }
+                                }}
+                                className="gap-2 cursor-pointer text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50"
+                              >
+                                <CheckCircle className="w-3.5 h-3.5" /> List (Publish) Profile
+                              </DropdownMenuItem>
+                            )
+                          )}
                           <DropdownMenuSeparator className="bg-background" />
                           <DropdownMenuLabel className="text-xs text-muted-foreground">Change Role</DropdownMenuLabel>
                           <DropdownMenuItem onClick={() => handleRoleChange(user.id, 'USER' as UserRole)} className="text-xs cursor-pointer">Set as User</DropdownMenuItem>

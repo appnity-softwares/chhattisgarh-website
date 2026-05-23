@@ -27,19 +27,19 @@ export default function SettingsPage() {
   const fetchSettings = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await adminService.getSettings();
+      const data: any = await adminService.getSettings();
       setSettings(data);
       
       // Initialize Razorpay fields if they exist in DB
-      if (data.PAYMENTS) {
-        const id = data.PAYMENTS.find((s: unknown) => s.key === 'RAZORPAY_KEY_ID');
+      if (data && data.PAYMENTS) {
+        const id = data.PAYMENTS.find((s: any) => s.key === 'RAZORPAY_KEY_ID');
         if (id) setRazorpayKeyId(id.value === '********' ? '' : id.value);
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error fetching settings",
-        description: error.message
+        description: error?.message || "Failed to fetch settings"
       });
     } finally {
       setLoading(false);
@@ -69,11 +69,11 @@ export default function SettingsPage() {
       });
       setRazorpayKeySecret(''); // Clear secret for security
       fetchSettings();
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Update Failed",
-        description: error.message || "Failed to validate Razorpay credentials."
+        description: error?.message || "Failed to validate Razorpay credentials."
       });
     } finally {
       setSaving(false);

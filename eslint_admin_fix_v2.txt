@@ -1,0 +1,20 @@
+
+> chhattisgarh-shadi-admin-v2@0.1.0 lint
+> eslint
+
+
+/Users/pushp314/Desktop/Deployed & OnMaintainance/Matrimony-App/Completed App/chhattisgarh-shadi-admin-v2/src/app/dashboard/chat/page.tsx
+  223:49  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/pushp314/Desktop/Deployed & OnMaintainance/Matrimony-App/Completed App/chhattisgarh-shadi-admin-v2/src/app/dashboard/membership/page.tsx
+  5:5  warning  'Zap' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/pushp314/Desktop/Deployed & OnMaintainance/Matrimony-App/Completed App/chhattisgarh-shadi-admin-v2/src/app/dashboard/profile/[id]/page.tsx
+  21:3  warning  'ShieldCheck' is defined but never used   @typescript-eslint/no-unused-vars
+  26:3  warning  'CheckCircle2' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/pushp314/Desktop/Deployed & OnMaintainance/Matrimony-App/Completed App/chhattisgarh-shadi-admin-v2/src/app/dashboard/profile/page.tsx
+  486:53  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+✖ 5 problems (0 errors, 5 warnings)
+
